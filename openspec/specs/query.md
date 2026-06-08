@@ -38,7 +38,12 @@ knowledge gaps. It is the primary read path — the counterpart to ingest (write
 
 - REQ-450: For each page READ IN FULL (Phase 1, not the Phase 0 hub-index reads),
   the system SHALL append one line to the Access-Log page (`Wiki/Reference/Access-Log`):
-  `<ISO-date> -- [[Wiki/NS/Page]] -- query`.
+  `<ISO-date> -- [[Wiki/NS/Page]] -- query -- matched: "<reason>"`.
+- REQ-450b: The `matched:` reason SHALL record WHY the page was selected (routing
+  transparency): the matched hub `### Index` routing description / #tag on index routing,
+  or the grep term on the L3 fallback. It SHALL be <= 60 characters, quoted. Legacy lines
+  without a `matched:` field SHALL remain valid (the field is additive, optional-backward),
+  and the `matched:` suffix SHALL NOT affect prune/status parsing (split on ` -- `).
 - REQ-451: The Access-Log append SHALL be non-structural — the system MUST NOT create
   a git commit per query. The append rides along with the next prune/lint/ingest commit.
 - REQ-452: If the L3 fallback reads a page marked `archived::` (a re-hit on an evicted
@@ -214,7 +219,7 @@ WHEN the user runs /wiki query "what port does Strapi run on?"
 THEN the system SHALL read ONLY the Wiki/Tech hub page in Phase 0
 AND select [[Wiki/Tech/Strapi]] from its routing line description
 AND read ONLY Wiki/Tech/Strapi in Phase 1 (NOT PM2, NOT Nginx, NOT a full-namespace grep)
-AND append "<today> -- [[Wiki/Tech/Strapi]] -- query" to Wiki/Reference/Access-Log
+AND append "<today> -- [[Wiki/Tech/Strapi]] -- query -- matched: \"Strapi 5 -- ports, deploy, migration\"" to Wiki/Reference/Access-Log
 ```
 
 ### Scenario 12: L3 fallback when routing finds nothing
@@ -249,6 +254,7 @@ AND remove the archived:: property and reset status::
 - [ ] All phases execute in order (Routing, Targeted Read, Access Logging, Synthesize, Write-Back, Output)
 - [ ] Max 3 pages loaded simultaneously
 - [ ] Every full-page read appends one line to the Access-Log
+- [ ] Each Access-Log line records a `matched:` routing reason (why the page was selected)
 - [ ] Access-Log append does NOT trigger a per-query git commit
 - [ ] Re-hit on an archived page offers re-promotion
 - [ ] Answers synthesized from multiple sources (not raw dumps)

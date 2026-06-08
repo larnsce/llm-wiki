@@ -125,9 +125,13 @@ Phase 1 - Targeted Read (Stage 2, only the chosen pages):
     backing-store scan and should be the exception, not the default
   - If needed, also read L1 Memory for complete picture
 
-Phase 1b - Access Logging (LRU signal):
+Phase 1b - Access Logging (LRU signal + routing transparency):
   - For each page ACTUALLY read in full, append one line to the Access-Log page (Wiki/Reference/Access-Log):
-    `- <ISO-date> -- [[Wiki/NS/Page]] -- query` (Logseq) / `- <ISO-date> -- [[Wiki/NS/Page]] -- query` (Obsidian body)
+    `- <ISO-date> -- [[Wiki/NS/Page]] -- query -- matched: "<reason>"`
+  - **`matched:` reason = the "and why" of the routing** (loading transparency): on index routing
+    (Phase 0) the hub `### Index` routing description / #tag that matched the question; on the L3 fallback
+    the grep term that found the page. Keep it short (<= 60 chars), in quotes. The log then shows not just
+    WHICH page loaded but WHY it was picked for this question — surfaced via `/wiki status` cache profile.
   - Append-only, NO per-query git commit (non-structural — see Constraints)
   - If the L3 fallback hits an archived page (`archived::` set) — a re-hit on an evicted page: offer to
     re-promote it — move its routing line back into the hub `### Index`, drop the archived:: property
@@ -241,6 +245,10 @@ Phase 2b - Cache Profile (from the Access-Log page):
   - Cold pages: active pages with last access > N months (demote-ready for the next prune)
   - Live-index size per namespace (routing lines in `### Index`) vs. archive-index size
   - Last prune run (newest archived:: date) + a recommendation when the cold-page count is high
+  - Routing transparency: break down the most frequent `matched:` reasons per hot page from recent log
+    lines — shows not just WHICH pages are hot but WHY (which index description / grep term pulls them).
+    Surfaces mis-routing: a page always hit via the same grep term instead of its index line signals a
+    weak/missing routing description in its hub `### Index`
 
 Phase 3 - Activity:
   - Git log for wiki changes (last 7 days, last 30 days)
@@ -311,15 +319,15 @@ Rules:
 ## Access-Log (format)
 
 Page: `Wiki/Reference/Access-Log` (`Wiki___Reference___Access-Log.md` / `Wiki/Reference/Access-Log.md`)
-— an append-only LRU signal, one line per page read:
+— an append-only LRU signal + routing transparency, one line per page read:
 
 Logseq:
 ```
 - access-log:: true
 - type:: reference
 - ## Log (append-only, newest at bottom)
-  - 2026-06-07 -- [[Wiki/Tech/Strapi]] -- query
-  - 2026-06-07 -- [[Wiki/Projects/GEO]] -- query
+  - 2026-06-07 -- [[Wiki/Tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
+  - 2026-06-07 -- [[Wiki/Projects/GEO]] -- query -- matched: "L3-grep: geo strategy"
 ```
 
 Obsidian:
@@ -329,14 +337,19 @@ access-log: true
 type: reference
 ---
 ## Log (append-only, newest at bottom)
-- 2026-06-07 -- [[Wiki/Tech/Strapi]] -- query
-- 2026-06-07 -- [[Wiki/Projects/GEO]] -- query
+- 2026-06-07 -- [[Wiki/Tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
+- 2026-06-07 -- [[Wiki/Projects/GEO]] -- query -- matched: "L3-grep: geo strategy"
 ```
 
 Rules:
 - Log ONLY pages actually read in full (not the hub-index reads from Phase 0)
+- `matched:` field (routing transparency) = why the page was picked for this question: the matched hub
+  `### Index` routing description / #tag (index routing) or the grep term (L3 fallback), <= 60 chars, in
+  quotes. Makes loading auditable — not just WHAT loaded but WHY. Legacy lines without `matched:` stay
+  valid (the field is additive, optional-backward)
 - Append-only, NO per-query git commit (non-structural; rides along with the next prune/lint/ingest commit)
-- prune aggregates "last access per page" from this log; never logged -> created:: as proxy
+- prune/status parse the date + `[[page]]` from fixed positions (split on ` -- `); the `matched:` suffix is
+  irrelevant to LRU aggregation and does not affect parsing
 - This page is exempt from orphan / stale / demote rules
 </formats>
 

@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-08
+
+Routing transparency. The Access-Log already recorded which pages a query pulled; now it
+records *why* each was picked. Loading becomes auditable — not just what loaded, but the
+index description or grep term that selected it. Inspired by a reader pointing out that
+knowing *when and why* context loads is half the problem.
+
+### Added
+
+- **Routing reason in the Access-Log** — every `query` log line now carries a
+  `matched: "<reason>"` field: the matched hub `### Index` routing description / #tag on
+  index routing, or the grep term on the L3 fallback (`<date> -- [[page]] -- query --
+  matched: "..."`). Shows not just WHICH page loaded but WHY it was selected for the question.
+- `status` cache profile now breaks down the most frequent `matched:` reasons per hot page,
+  surfacing mis-routing: a page always hit via the same grep term instead of its index line
+  signals a weak or missing routing description in its hub `### Index`.
+
+### Changed
+
+- `openspec/specs/query.md` — REQ-450 line format extended; new REQ-450b defines the
+  `matched:` reason semantics (<= 60 chars, quoted, parsing-safe).
+
+### Notes
+
+- Backward compatible: legacy Access-Log lines without `matched:` stay valid (the field is
+  additive). prune/status parse date + `[[page]]` from fixed positions (split on ` -- `), so
+  the suffix never affects LRU aggregation.
+
 ## [1.2.0] - 2026-06-07
 
 Two retrieval-scaling mechanisms, the CPU-cache analogy carried through to the index

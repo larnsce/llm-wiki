@@ -168,7 +168,7 @@ graph LR
 
 ### Query
 
-Query is **two-stage**, the way a CPU resolves an address before touching memory. **Stage 1 (routing):** Claude reads only the hub `### Index` pages of the candidate namespaces — a cheap list of routing lines (`[[page]] -- description #tags`) — and picks the 3 most relevant pages by description. This is the wiki's *page table*. **Stage 2 (read):** it opens only those full pages and synthesizes an answer with source attribution. A full-text grep over every page is the **L3 fallback**, used only when routing finds nothing. Each full-page read is logged to an append-only Access-Log, which feeds `prune`. If the query reveals a gap, it offers to create a new page.
+Query is **two-stage**, the way a CPU resolves an address before touching memory. **Stage 1 (routing):** Claude reads only the hub `### Index` pages of the candidate namespaces — a cheap list of routing lines (`[[page]] -- description #tags`) — and picks the 3 most relevant pages by description. This is the wiki's *page table*. **Stage 2 (read):** it opens only those full pages and synthesizes an answer with source attribution. A full-text grep over every page is the **L3 fallback**, used only when routing finds nothing. Each full-page read is logged to an append-only Access-Log together with the routing reason it was picked (the matched index description or grep term) — so the log records not just *what* loaded but *why*, and it feeds `prune`. If the query reveals a gap, it offers to create a new page.
 
 ### Prune
 

@@ -523,7 +523,10 @@ Each hub page carries an `### Index` block: one routing line per active child pa
 
 `Wiki/Reference/Access-Log` (`access-log:: true`, `type:: reference`) holds an append-only `## Log`
 block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended — do not
-hand-edit it.
+hand-edit it. Each line carries a `matched:` routing reason (`... -- query -- matched: "<reason>"`) —
+the index description or grep term that selected the page — so the log records not just WHICH page
+loaded but WHY (routing transparency, surfaced by `/wiki status`). Legacy lines without `matched:`
+remain valid; the suffix does not affect prune/status parsing.
 
 ### Related lint rules
 
