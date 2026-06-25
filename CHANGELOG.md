@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-06-25
+
+Fork feature (larnsce). A source-provenance pipeline and a trust layer, ported as ideas
+from vanillaflava/llm-wiki-skills, adapted to Logseq and this tool's `/wiki` command. The
+goal is reproducibility: every synthesised claim traces back to a specific archived source,
+and weakly-supported pages are visibly flagged until corroborated. Implemented as additive,
+sentinel-wrapped blocks (`larnsce:provenance`) so the fork stays rebaseable against upstream;
+the base `## Workflow: ingest (Default)` is left verbatim and only overlaid.
+
+### Added
+
+- **raw/ -> ingested/ source pipeline.** Drop a source in `raw/`, ingest synthesises it into
+  wiki pages, then the source file is MOVED into `ingested/<type>/`. The move is the
+  provenance record (in `raw/` = pending, in `ingested/` = processed) and rides the same
+  atomic git commit as the page edits. `setup.sh` scaffolds the folders and writes
+  `raw_dir`/`ingested_dir`/`source_types`/`default_source_type` to `llm-wiki.yml`.
+- **Page-level provenance.** Ingested pages gain `source-file::` (plain path into
+  `ingested/`, distinct from the existing `source::` which records the ingest METHOD).
+- **Trust layer.** A `reliability:: high | medium | low` rating (source quality; lowest of
+  multiple sources) and a `## Pending Review` section that flags the specific claims on a
+  single-source, non-high page until a corroborating source is ingested.
+- **`## Workflow: ingest — provenance extension`** in `wiki.md`: an overlay (Phase 0 queue
+  intake, Phase 3 stamping, Phase 5 atomic archive-move) that adds to, never replaces, the
+  base ingest workflow.
+
+### Changed
+
+- `templates/logseq/Schema.md` and `templates/obsidian/Schema.md` — new Provenance,
+  Reliability Rubric, Trust Axes, Pending Review, and Source Lifecycle sections.
+- `openspec/specs/schema.md` — REQ-585..589 (provenance properties, reliability,
+  confidence/reliability separation, Pending Review, source lifecycle).
+- `openspec/specs/ingest.md` — REQ-070..075 (source-pipeline overlay on the ingest phases).
+- `setup.sh` `.gitignore` heredocs — a commented (non-active) PDF-ignore stanza, with a note
+  on `git lfs track "*.pdf"` for a versioned-binaries reproducibility setup.
+
+### Notes
+
+- `confidence::` (currency/verification) and `reliability::` (source quality) are kept as two
+  SEPARATE axes and are never cross-derived. A page can be `confidence:: high` yet
+  `reliability:: low`, or the reverse.
+- `raw/` and `ingested/` live beside `pages/`, so Logseq and Obsidian do not render sources
+  as wiki pages. Existing pages are untouched until they are re-ingested.
+- Deliberately NOT included (deferred): claim-level `[^key]` footnotes, `/wiki audit`,
+  `/wiki update`. The footnote idiom fights Logseq's block model; revisit if a public-facing
+  per-repo wiki needs claim-level auditability, re-authored Logseq-block-native.
+
 ## [1.3.0] - 2026-06-08
 
 Routing transparency. The Access-Log already recorded which pages a query pulled; now it

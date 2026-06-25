@@ -105,6 +105,38 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-063: When the configured tool is Obsidian, properties MUST be in YAML
   frontmatter. Content uses standard markdown without block prefixes.
 
+<!-- larnsce:provenance start -->
+### Source Pipeline (additive overlay)
+
+This overlays — does NOT replace — Phases 1-5 above. It applies when `llm-wiki.yml`
+configures a source pipeline (`raw_dir`, `ingested_dir`, `source_types`,
+`default_source_type`). It is the path for NEW external sources (e.g. a Zotero export).
+Pulling notes ALREADY written in the graph uses `/wiki import`, which does NOT move files
+or assign `source-file::`.
+
+- REQ-070 (Phase 0, queue intake): When `/wiki ingest` is given NO argument, the system
+  SHALL scan `raw_dir` and process every file there oldest-first (drain the queue). When
+  given a path/URL argument, that single source is the input; a local file outside
+  `raw_dir` SHALL be copied into `raw_dir` first so the lifecycle is consistent.
+- REQ-071: For each source the system SHALL infer its type (one of `source_types`),
+  falling back to `default_source_type`, asking the user only if genuinely ambiguous.
+- REQ-072: If processing fails partway, the system SHALL LEAVE the source in `raw_dir`
+  (the queue is resumable) and SHALL NOT move a half-processed source.
+- REQ-073 (Phase 3 addition): On every created/updated ingested page the system SHALL set
+  `source-file::` (the path the source will live at, `ingested/<type>/<filename>`; append
+  comma-separated when corroborating) and `reliability::` (per schema REQ-586, lowest of
+  multiple). These do NOT alter `confidence::` (schema REQ-587).
+- REQ-074: If a page rests on a SINGLE source and `reliability::` is not `high`, the system
+  SHALL append a `## Pending Review` section listing the specific claims needing
+  corroboration. If this ingest corroborates an existing flagged page, the system SHALL
+  re-check each flagged claim, remove resolved ones, delete the section if all resolve, and
+  raise `reliability::`.
+- REQ-075 (Phase 5 addition): Only after the Quality Gate passes, the system SHALL MOVE
+  each processed source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
+  MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
+  and committed as ONE atomic commit.
+<!-- larnsce:provenance end -->
+
 ---
 
 ## Scenarios
