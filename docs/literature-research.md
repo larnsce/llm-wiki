@@ -44,6 +44,58 @@ This is the single most important habit for keeping the wiki useful:
 
 Ingesting everything floods the wiki and destroys the reliability discipline. The `reliability::` rating and the `## Pending Review` flag (see the [Schema Reference](schema-reference.md)) only mean something if the wiki holds papers you have actually read and judged, not the raw output of a search.
 
+## What to ingest (and what not to)
+
+The wiki is for synthesis you will reuse, not for storage. The test is not "is this relevant?" (almost everything is), it is "will future-me query for this and want a synthesized answer rather than the original?" That is a much smaller set, and applying the test is what keeps the wiki from crowding. Four cases come up constantly.
+
+### Your own published material (Quarto teaching sites, blog posts)
+
+Do not ingest these as sources. They are already authored, version-controlled, and published by you. The wiki's job is to point at them, not duplicate them. A copy goes stale the moment you edit the Quarto source, and you end up with two homes for the same knowledge (which `/wiki lint` flags as an L1/L2 duplicate).
+
+Instead, write a thin stub page: one `knowledge` or `reference` page per course or blog series that links out to the live URL and records the durable metadata (what it covers, where it lives, when last revised). The Quarto site stays the source of truth; the wiki becomes the map.
+
+```
+- type:: reference
+- source-file:: (omit - this is a stub, not an ingested source)
+- ## Wiki/Teaching/Data-Science-with-R
+  - Course site: https://your-quarto-site.example/course
+  - Covers: tidyverse, reproducible workflows, RStudio projects, Quarto authoring.
+  - Last major revision: 2026-05. Source of truth is the Quarto repo, not this page.
+  - [[Wiki/Methods/Reproducible-Pipelines]] [[Wiki/Tech/Quarto]]
+```
+
+### Other people's web articles and blog posts
+
+Apply the funnel. Most are read-and-discard: relevant in the moment, not worth durable synthesis. A few cross the line, the ones you will cite, build on, or return to. For those, ingest. For the rest, a bookmark or a Zotero web-clip is enough. The honest filter: if you cannot already imagine the future `/wiki query` that would surface this page, it is crowding, not knowledge.
+
+### Reference material you consult repeatedly (a standard, a canonical method post)
+
+These belong in the wiki as proper `reference` or `knowledge` pages, with `source-file::` and a `reliability::` rating. The value is your synthesis of them, consulted often, not the original document.
+
+### Papers and preprints
+
+The scholarly path, covered by the funnel and the full loop below: Zotero first, annotate, export, ingest.
+
+## Zotero first, or straight to /wiki ingest?
+
+Decide by whether the thing is a scholarly object or just a web page.
+
+- **Papers, preprints, anything with a DOI or formal citation:** Zotero first, always. Zotero is your citation source of truth and where stable keys and `s2-metrics::` enrichment come from. Then ingest from there.
+- **A plain web article or blog post:** pick by durability. If you might cite it formally, put it in Zotero (it has a web-page item type; Better BibTeX gives it a stable key), then ingest. If you only want the idea captured, run `/wiki ingest <url>` directly. The ingest workflow fetches the URL for you.
+
+Rule of thumb: Zotero owns anything you might put in a bibliography; the wiki owns your synthesis of it. A web article that will never appear in a reference list does not need Zotero ceremony.
+
+## Notes in the wiki, or notes in Zotero?
+
+These are two different kinds of note.
+
+| Note type | Lives in | Why |
+|---|---|---|
+| Per-source annotation (highlights, marginalia, "this passage says X") | Zotero | Anchored to the document, travels with the citation, is the raw input you later export |
+| Cross-source synthesis ("X and Y disagree on Z; my position is...") | Wiki | The durable, reusable knowledge, the whole reason the wiki exists |
+
+Zotero notes are about one document. Wiki notes are about your understanding across documents. If a note only makes sense next to the paper it is attached to, it is a Zotero note. If it would still be useful to a future-you who never re-opens that paper, it is a wiki page. The Zotero annotation is the input; the wiki synthesis is the output. Do not put synthesis in Zotero (it gets buried per-document) and do not put per-passage highlights in the wiki (they crowd it with detail you will never query).
+
 ## The full loop
 
 1. **`/wiki query`** asks your wiki what you already know, and finds the gap.
