@@ -138,6 +138,15 @@ Phase 0 (added, before Phase 1) - Source Intake:
 
 Phase 1 (added step) - assess `reliability` for the source using the Schema rubric
   (high | medium | low), in addition to the existing Phase 1 extraction.
+  - OPTIONAL (only if a Semantic Scholar MCP is configured): resolve the source via the
+    semantic-scholar MCP (match by DOI; else title + first author + year). Read
+    citationCount, influentialCitationCount, publicationVenue, publicationTypes, year, and
+    record them VERBATIM on the page as:
+    `s2-metrics:: cites=<n> influential=<n> venue=<...> type=<...> year=<...>`
+    These metrics INFORM the qualitative reliability judgment (Schema: Reliability Rubric)
+    but do NOT determine it by formula (no citation-count thresholds). If no match:
+    `s2-metrics:: none`, and judge from the source alone. Skip this sub-step entirely when no
+    S2 MCP is present; it is never a hard dependency and its absence MUST NOT block ingest.
 
 Phase 2 (added step) - check whether `ingested_dir` already holds a source on the same
   topic. If so, this ingest is CORROBORATION: plan to update the existing page, raise its

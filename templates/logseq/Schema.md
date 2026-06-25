@@ -43,6 +43,7 @@
 	- source-file:: comma-separated relative path(s) into `ingested/` (e.g. `ingested/papers/smith-2024.md`). Plain text, NOT a `[[link]]` — it points at a source file, not a wiki page. Present on ingested pages; omit on hand-written pages.
 	- reliability:: high | medium | low — confidence in the page's claims given the QUALITY of its sources. When several sources contribute, use the LOWEST (most conservative) value.
 	- last-reviewed:: YYYY-MM-DD — date a human last verified the page (optional; useful for stewardship).
+	- s2-metrics:: optional - raw Semantic Scholar figures recorded verbatim for audit, e.g. `cites=120 influential=8 venue=... type=... year=2024`, or `none` when there is no match. It is EVIDENCE that INFORMS the qualitative reliability:: decision; it does NOT set reliability:: by formula (no citation-count thresholds). Present only when a Semantic Scholar MCP enriched the ingest.
 	- NOTE: `source-file::` is separate from the existing `source::` property. `source::` records the METHOD (memory-migration | ingest | manual); `source-file::` records WHICH origin file. Both may appear on one page.
 - ## Reliability Rubric
 	- high:: peer-reviewed primary source, official standard/spec, or a claim corroborated by 2+ independent sources.

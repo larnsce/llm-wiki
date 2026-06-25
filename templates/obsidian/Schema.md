@@ -77,7 +77,10 @@ Added by the source pipeline. Optional YAML frontmatter on ingested pages:
 source-file: ingested/papers/smith-2024.md   # comma-separated path(s) into ingested/, plain text not a [[link]]
 reliability: high | medium | low             # source QUALITY; multi-source -> use the LOWEST
 last-reviewed: YYYY-MM-DD                     # optional: date a human last verified the page
+s2-metrics: cites=120 influential=8 venue=... type=... year=2024  # optional: raw Semantic Scholar figures (or "none")
 ```
+
+`s2-metrics` is OPTIONAL and present only when a Semantic Scholar MCP enriched the ingest. It is EVIDENCE that INFORMS the qualitative `reliability` decision; it does NOT set `reliability` by formula (no citation-count thresholds).
 
 NOTE: `source-file` is separate from the existing `source` property. `source` records the METHOD (memory-migration | ingest | manual); `source-file` records WHICH origin file. Both may appear.
 

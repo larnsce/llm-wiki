@@ -324,6 +324,7 @@ No system is perfect. Some things to know:
 - [L1/L2 Architecture](docs/l1-l2-architecture.md) — Why two layers, how to route knowledge
 - [Schema Reference](docs/schema-reference.md) — Page types, properties, lint rules
 - [Logseq vs. Obsidian](docs/logseq-vs-obsidian.md) — Detailed comparison and migration notes
+- [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how /wiki fits
 
 ## Credits
 

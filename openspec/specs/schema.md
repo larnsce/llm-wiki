@@ -169,6 +169,12 @@ lint (validation).
   ratings. Rubric: `high` = peer-reviewed primary / official standard / 2+ independent
   corroborating sources; `medium` = single secondary / preprint / expert post / partial
   corroboration; `low` = speculative / anecdotal / forum / model-only.
+- REQ-586a: An ingested page MAY carry an OPTIONAL `s2-metrics::` property recording raw
+  Semantic Scholar figures verbatim (e.g. `cites=<n> influential=<n> venue=<...> type=<...>
+  year=<...>`), or the value `none`. It is present only when a Semantic Scholar MCP enriched
+  the ingest. `s2-metrics::` is ADVISORY: it informs the qualitative `reliability::` judgment
+  (REQ-586) but MUST NOT be used to derive `reliability::` by formula or citation-count
+  threshold. The qualitative rubric remains the decision.
 - REQ-587: `confidence::` (REQ-530/533) and `reliability::` (REQ-586) are TWO SEPARATE
   axes and MUST NOT be cross-derived. `confidence::` answers "is this content current and
   verified" (and follows the 90-day staleness lifecycle); `reliability::` answers "how good

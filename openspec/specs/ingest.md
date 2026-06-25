@@ -126,6 +126,12 @@ or assign `source-file::`.
   `source-file::` (the path the source will live at, `ingested/<type>/<filename>`; append
   comma-separated when corroborating) and `reliability::` (per schema REQ-586, lowest of
   multiple). These do NOT alter `confidence::` (schema REQ-587).
+- REQ-073a (Phase 1, optional enrichment): When a Semantic Scholar MCP is configured, the
+  system MAY resolve the source (by DOI, else title + first author + year) and record its
+  metrics verbatim as `s2-metrics::` (per schema REQ-586a). These metrics INFORM the
+  qualitative `reliability::` judgment but MUST NOT determine it by formula or citation-count
+  threshold. The enrichment is OPTIONAL: when no S2 MCP is present the system SHALL skip it
+  and judge `reliability::` from the source alone. Absence of the MCP MUST NOT block ingest.
 - REQ-074: If a page rests on a SINGLE source and `reliability::` is not `high`, the system
   SHALL append a `## Pending Review` section listing the specific claims needing
   corroboration. If this ingest corroborates an existing flagged page, the system SHALL

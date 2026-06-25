@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-06-25
+
+Fork feature (larnsce). A literature-research workflow guide and an optional
+Semantic-Scholar enrichment for the provenance pipeline added in 1.4.0. This is mostly
+documentation: how to combine Connected Papers, Semantic Scholar, Elicit, and Zotero with
+`/wiki` so discovery stays fast and only read papers cross into the wiki. The only tool change
+is an optional `s2-metrics::` property, and it rides inside the existing `larnsce:provenance`
+sentinel regions, so the fork seam does not widen.
+
+### Added
+
+- **`docs/literature-research.md`** - the four-tool pipeline (each tool does one stage,
+  Claude Code orchestrates), the funnel rule ("discovery feeds Zotero, Zotero feeds ingest,
+  only read papers cross the line"), `/wiki query` before discovery, the Semantic Scholar MCP
+  setup, and the convention for ingesting an Elicit synthesis as a `knowledge` page (a usage
+  habit stated at ingest time, not a new command). Linked from the README Documentation list.
+- **Optional `s2-metrics::` property.** When a Semantic Scholar MCP is configured, `/wiki
+  ingest` can record a source's raw bibliometric figures (citations, influential citations,
+  venue, type, year) verbatim on the page for audit. Documented in both Schema templates and
+  specified in `openspec/specs/schema.md` (REQ-586a) and `ingest.md` (REQ-073a).
+
+### Notes
+
+- `s2-metrics::` is ADVISORY. It informs the qualitative `reliability::` judgment but never
+  sets it by formula. The enrichment is OPTIONAL: with no Semantic Scholar MCP present, ingest
+  skips it and judges reliability from the source alone. Absence of the MCP never blocks ingest.
+- Deliberately NOT adopted from the source conversation: the citation-count reliability
+  thresholds (`influential >= 5 OR cites >= 100 -> high`). Citation count measures influence
+  and age, not correctness or currency; hard thresholds bake in field bias and would weaken
+  the axis. The qualitative rubric from 1.4.0 stays the decision; `confidence::` covers currency.
+- Deliberately deferred: a `/wiki synthesize` verb for Elicit review outputs. The Elicit
+  ingest is a usage convention for now; formalize the verb only if it proves repetitive.
+- MCP wiring (`claude mcp add ...`) is user/session config, documented in the guide; the tool
+  does not run it.
+
 ## [1.4.0] - 2026-06-25
 
 Fork feature (larnsce). A source-provenance pipeline and a trust layer, ported as ideas
