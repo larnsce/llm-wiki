@@ -123,6 +123,14 @@ logseq/bak/
 logseq/.recycle/
 .DS_Store
 .logseq/
+# --- larnsce:provenance ---
+# Source-pipeline binaries. Provenance is the .md notes in ingested/, not the
+# PDFs themselves. Uncomment the next two lines to keep heavy binaries out of git
+# history. For a reproducibility setup where the PDFs MUST be versioned, leave
+# them commented and instead run: git lfs track "*.pdf"
+# raw/**/*.pdf
+# ingested/**/*.pdf
+# --- larnsce:provenance ---
 GITIGNORE
         else
             cat > .gitignore << 'GITIGNORE'
@@ -130,6 +138,14 @@ GITIGNORE
 .obsidian/workspace-mobile.json
 .DS_Store
 .trash/
+# --- larnsce:provenance ---
+# Source-pipeline binaries. Provenance is the .md notes in ingested/, not the
+# PDFs themselves. Uncomment the next two lines to keep heavy binaries out of git
+# history. For a reproducibility setup where the PDFs MUST be versioned, leave
+# them commented and instead run: git lfs track "*.pdf"
+# raw/**/*.pdf
+# ingested/**/*.pdf
+# --- larnsce:provenance ---
 GITIGNORE
         fi
         echo -e "${GREEN}Git initialized with .gitignore${NC}"
@@ -241,6 +257,24 @@ else:
 
 PYEOF
 
+# --- larnsce:provenance ---
+# ----- Step 8b: Scaffold the raw/ingested source pipeline -----
+# These folders live BESIDE pages_dir at the graph root, so Logseq/Obsidian will
+# not render sources as wiki pages. raw/ is the drop queue; ingested/<type>/ holds
+# processed sources. The .gitkeep files keep the empty dirs in git.
+echo -e "${BOLD}Scaffolding source pipeline (raw/ + ingested/)...${NC}"
+mkdir -p "$wiki_path/raw" \
+         "$wiki_path/ingested/papers" \
+         "$wiki_path/ingested/clippings" \
+         "$wiki_path/ingested/articles" \
+         "$wiki_path/ingested/data" \
+         "$wiki_path/ingested/notes" \
+         "$wiki_path/ingested/assets"
+find "$wiki_path/raw" "$wiki_path/ingested" -type d -empty -exec touch {}/.gitkeep \;
+echo -e "  ${GREEN}Created: raw/ and ingested/{papers,clippings,articles,data,notes,assets}/${NC}"
+echo ""
+# --- larnsce:provenance ---
+
 # ----- Step 9: Create llm-wiki.yml -----
 CONFIG_FILE="$wiki_path/llm-wiki.yml"
 
@@ -256,6 +290,21 @@ memory_path: ${memory_path:-""}
 
 namespaces:
 $(for ns in $NAMESPACES; do echo "  - $ns"; done)
+# --- larnsce:provenance ---
+# Source pipeline: drop sources in raw/, ingest synthesises them into pages,
+# then the source file is moved into ingested/<type>/. The move is the
+# provenance record (in raw/ = pending, in ingested/ = processed).
+raw_dir: raw
+ingested_dir: ingested
+source_types:
+  - papers
+  - clippings
+  - articles
+  - data
+  - notes
+  - assets
+default_source_type: papers
+# --- larnsce:provenance ---
 YAML
     echo -e "  ${GREEN}Created: llm-wiki.yml${NC}"
 }

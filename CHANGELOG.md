@@ -5,6 +5,87 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-06-25
+
+Fork feature (larnsce). A literature-research workflow guide and an optional
+Semantic-Scholar enrichment for the provenance pipeline added in 1.4.0. This is mostly
+documentation: how to combine Connected Papers, Semantic Scholar, Elicit, and Zotero with
+`/wiki` so discovery stays fast and only read papers cross into the wiki. The only tool change
+is an optional `s2-metrics::` property, and it rides inside the existing `larnsce:provenance`
+sentinel regions, so the fork seam does not widen.
+
+### Added
+
+- **`docs/literature-research.md`** - the four-tool pipeline (each tool does one stage,
+  Claude Code orchestrates), the funnel rule ("discovery feeds Zotero, Zotero feeds ingest,
+  only read papers cross the line"), `/wiki query` before discovery, the Semantic Scholar MCP
+  setup, and the convention for ingesting an Elicit synthesis as a `knowledge` page (a usage
+  habit stated at ingest time, not a new command). Linked from the README Documentation list.
+- **Optional `s2-metrics::` property.** When a Semantic Scholar MCP is configured, `/wiki
+  ingest` can record a source's raw bibliometric figures (citations, influential citations,
+  venue, type, year) verbatim on the page for audit. Documented in both Schema templates and
+  specified in `openspec/specs/schema.md` (REQ-586a) and `ingest.md` (REQ-073a).
+
+### Notes
+
+- `s2-metrics::` is ADVISORY. It informs the qualitative `reliability::` judgment but never
+  sets it by formula. The enrichment is OPTIONAL: with no Semantic Scholar MCP present, ingest
+  skips it and judges reliability from the source alone. Absence of the MCP never blocks ingest.
+- Deliberately NOT adopted from the source conversation: the citation-count reliability
+  thresholds (`influential >= 5 OR cites >= 100 -> high`). Citation count measures influence
+  and age, not correctness or currency; hard thresholds bake in field bias and would weaken
+  the axis. The qualitative rubric from 1.4.0 stays the decision; `confidence::` covers currency.
+- Deliberately deferred: a `/wiki synthesize` verb for Elicit review outputs. The Elicit
+  ingest is a usage convention for now; formalize the verb only if it proves repetitive.
+- MCP wiring (`claude mcp add ...`) is user/session config, documented in the guide; the tool
+  does not run it.
+
+## [1.4.0] - 2026-06-25
+
+Fork feature (larnsce). A source-provenance pipeline and a trust layer, ported as ideas
+from vanillaflava/llm-wiki-skills, adapted to Logseq and this tool's `/wiki` command. The
+goal is reproducibility: every synthesised claim traces back to a specific archived source,
+and weakly-supported pages are visibly flagged until corroborated. Implemented as additive,
+sentinel-wrapped blocks (`larnsce:provenance`) so the fork stays rebaseable against upstream;
+the base `## Workflow: ingest (Default)` is left verbatim and only overlaid.
+
+### Added
+
+- **raw/ -> ingested/ source pipeline.** Drop a source in `raw/`, ingest synthesises it into
+  wiki pages, then the source file is MOVED into `ingested/<type>/`. The move is the
+  provenance record (in `raw/` = pending, in `ingested/` = processed) and rides the same
+  atomic git commit as the page edits. `setup.sh` scaffolds the folders and writes
+  `raw_dir`/`ingested_dir`/`source_types`/`default_source_type` to `llm-wiki.yml`.
+- **Page-level provenance.** Ingested pages gain `source-file::` (plain path into
+  `ingested/`, distinct from the existing `source::` which records the ingest METHOD).
+- **Trust layer.** A `reliability:: high | medium | low` rating (source quality; lowest of
+  multiple sources) and a `## Pending Review` section that flags the specific claims on a
+  single-source, non-high page until a corroborating source is ingested.
+- **`## Workflow: ingest — provenance extension`** in `wiki.md`: an overlay (Phase 0 queue
+  intake, Phase 3 stamping, Phase 5 atomic archive-move) that adds to, never replaces, the
+  base ingest workflow.
+
+### Changed
+
+- `templates/logseq/Schema.md` and `templates/obsidian/Schema.md` — new Provenance,
+  Reliability Rubric, Trust Axes, Pending Review, and Source Lifecycle sections.
+- `openspec/specs/schema.md` — REQ-585..589 (provenance properties, reliability,
+  confidence/reliability separation, Pending Review, source lifecycle).
+- `openspec/specs/ingest.md` — REQ-070..075 (source-pipeline overlay on the ingest phases).
+- `setup.sh` `.gitignore` heredocs — a commented (non-active) PDF-ignore stanza, with a note
+  on `git lfs track "*.pdf"` for a versioned-binaries reproducibility setup.
+
+### Notes
+
+- `confidence::` (currency/verification) and `reliability::` (source quality) are kept as two
+  SEPARATE axes and are never cross-derived. A page can be `confidence:: high` yet
+  `reliability:: low`, or the reverse.
+- `raw/` and `ingested/` live beside `pages/`, so Logseq and Obsidian do not render sources
+  as wiki pages. Existing pages are untouched until they are re-ingested.
+- Deliberately NOT included (deferred): claim-level `[^key]` footnotes, `/wiki audit`,
+  `/wiki update`. The footnote idiom fights Logseq's block model; revisit if a public-facing
+  per-repo wiki needs claim-level auditability, re-authored Logseq-block-native.
+
 ## [1.3.0] - 2026-06-08
 
 Routing transparency. The Access-Log already recorded which pages a query pulled; now it

@@ -38,6 +38,31 @@
 	- ### Hub (Namespace Index)
 		- type:: hub
 		- namespace:: (the namespace this hub page indexes)
+- <!-- larnsce:provenance start -->
+- ## Provenance Properties (ingested pages)
+	- source-file:: comma-separated relative path(s) into `ingested/` (e.g. `ingested/papers/smith-2024.md`). Plain text, NOT a `[[link]]` — it points at a source file, not a wiki page. Present on ingested pages; omit on hand-written pages.
+	- reliability:: high | medium | low — confidence in the page's claims given the QUALITY of its sources. When several sources contribute, use the LOWEST (most conservative) value.
+	- last-reviewed:: YYYY-MM-DD — date a human last verified the page (optional; useful for stewardship).
+	- s2-metrics:: optional - raw Semantic Scholar figures recorded verbatim for audit, e.g. `cites=120 influential=8 venue=... type=... year=2024`, or `none` when there is no match. It is EVIDENCE that INFORMS the qualitative reliability:: decision; it does NOT set reliability:: by formula (no citation-count thresholds). Present only when a Semantic Scholar MCP enriched the ingest.
+	- NOTE: `source-file::` is separate from the existing `source::` property. `source::` records the METHOD (memory-migration | ingest | manual); `source-file::` records WHICH origin file. Both may appear on one page.
+- ## Reliability Rubric
+	- high:: peer-reviewed primary source, official standard/spec, or a claim corroborated by 2+ independent sources.
+	- medium:: single secondary source, preprint, expert blog post, or only partially corroborated.
+	- low:: speculative, anecdotal, forum/unverified, or model-generated without a source.
+- ## Trust Axes: confidence vs reliability (do NOT conflate)
+	- These are TWO SEPARATE, independently-set axes. Neither is derived from the other; lint NEVER auto-converts between them.
+	- confidence:: (existing — high | medium | low | stale) answers "is this content CURRENT and VERIFIED?" It follows the staleness lifecycle (goes `stale` when `updated::` is 90+ days old).
+	- reliability:: (new — high | medium | low) answers "how GOOD were the SOURCES this rests on?"
+	- A page can be confidence:: high (recently verified by a human) yet reliability:: low (rests on a single weak source), and vice-versa. Set each on its own merits.
+- ## Pending Review Convention
+	- Trigger: a page rests on a SINGLE source AND reliability:: is not `high`.
+	- Action: append a `## Pending Review` section listing the SPECIFIC claims that need corroboration (not the whole page).
+	- Resolution: when a corroborating source is later ingested, re-check each flagged claim, delete resolved ones, and if all clear, remove the section and raise reliability::. Log the change.
+- ## Source Lifecycle
+	- A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
+	- Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
+	- `raw/` and `ingested/` live BESIDE `pages/`, so Logseq does not render sources as wiki pages.
+- <!-- larnsce:provenance end -->
 - ## Cross-Reference Rules
 	- Every wiki page MUST have at least one `[[Wiki/...]]` link to another wiki page
 	- Hub pages MUST list ALL child pages in their namespace

@@ -26,6 +26,12 @@ Persistent knowledge management powered by Claude Code. Maintains a structured w
 /wiki import                 Import existing notes into wiki format
 ```
 
+<!-- larnsce:provenance start -->
+When a source pipeline is configured (`raw_dir`/`ingested_dir` in `llm-wiki.yml`),
+`/wiki ingest` with NO argument drains the `raw/` queue; see "Workflow: ingest — provenance
+extension" below. This is additive; the base ingest behavior is unchanged.
+<!-- larnsce:provenance end -->
+
 ## Workflow
 
 <role>
@@ -108,6 +114,67 @@ Phase 4 - Quality Gate:
 Phase 5 - Report:
   - Summary: pages created, pages updated, cross-refs added
   - List any warnings or skipped items
+
+<!-- larnsce:provenance start -->
+## Workflow: ingest — provenance extension
+
+OVERLAY on "Workflow: ingest (Default)" above — it adds steps, it does NOT replace any.
+Applies only when `llm-wiki.yml` configures a source pipeline (`raw_dir`, `ingested_dir`,
+`source_types`, `default_source_type`). This is the path for NEW external sources (e.g. a
+Zotero markdown export). To pull notes you ALREADY wrote in the graph, use `/wiki import`
+instead — it does not move files or assign `source-file::`.
+
+Phase 0 (added, before Phase 1) - Source Intake:
+  - Read `raw_dir`, `ingested_dir`, `source_types`, `default_source_type` from `llm-wiki.yml`.
+  - No argument -> scan `raw_dir` and process every file, oldest first (drain the queue).
+  - A path/URL argument -> that single source. If it is a local file outside `raw_dir`,
+    copy it into `raw_dir` first so the lifecycle is consistent.
+  - Infer each source's type (one of `source_types`): paper/PDF/Zotero export -> `papers`;
+    web clip -> `clippings`; news/blog -> `articles`; dataset/CSV -> `data`; personal note
+    -> `notes`; image/binary -> `assets`. Fall back to `default_source_type`. Ask only if
+    genuinely ambiguous.
+  - If processing fails partway, LEAVE the file in `raw_dir` (resumable). Never move a
+    half-processed source.
+
+Phase 1 (added step) - assess `reliability` for the source using the Schema rubric
+  (high | medium | low), in addition to the existing Phase 1 extraction.
+  - OPTIONAL (only if a Semantic Scholar MCP is configured): resolve the source via the
+    semantic-scholar MCP (match by DOI; else title + first author + year). Read
+    citationCount, influentialCitationCount, publicationVenue, publicationTypes, year, and
+    record them VERBATIM on the page as:
+    `s2-metrics:: cites=<n> influential=<n> venue=<...> type=<...> year=<...>`
+    These metrics INFORM the qualitative reliability judgment (Schema: Reliability Rubric)
+    but do NOT determine it by formula (no citation-count thresholds). If no match:
+    `s2-metrics:: none`, and judge from the source alone. Skip this sub-step entirely when no
+    S2 MCP is present; it is never a hard dependency and its absence MUST NOT block ingest.
+
+Phase 2 (added step) - check whether `ingested_dir` already holds a source on the same
+  topic. If so, this ingest is CORROBORATION: plan to update the existing page, raise its
+  reliability if warranted, and resolve any `## Pending Review` items it can.
+
+Phase 3 (added steps) - on every created/updated ingested page:
+  - Set `source-file::` -> the path the source will live at, `ingested/<type>/<filename>`
+    (append comma-separated when corroborating).
+  - Set `reliability::` -> the Phase 1 value; when multiple sources back the page, the LOWEST.
+    Do NOT touch `confidence::` — it is a separate axis (see Schema: Trust Axes).
+  - Pending Review: if the page now rests on a SINGLE source and `reliability::` is not
+    `high`, append a `## Pending Review` section listing the specific claims that need a
+    stronger/corroborating source. If this ingest corroborates an existing flagged page,
+    re-check each flagged claim, remove resolved ones, delete the section if all resolve,
+    then raise `reliability::`.
+
+Phase 4 (added gate checks) - every ingested page has `source-file::` and `reliability::`?
+  Any single-source non-high page correctly carries `## Pending Review`?
+
+Phase 5 (added, replaces the plain commit) - Archive + Commit (atomic):
+  - Only after the Quality Gate passes: MOVE each processed source from `raw_dir` to
+    `ingested_dir/<type>/<filename>`. The move is the provenance commit — its new location
+    MUST match what `source-file::` records.
+  - Git: stage the page edits AND the file move together, commit as ONE:
+    `wiki: ingest <filename> (<n> pages, reliability <level>)`.
+  - Append a log entry: `## [YYYY-MM-DD] ingest | <filename> -> <n> pages | reliability <level>`.
+  - Report any `## Pending Review` flags raised or resolved.
+<!-- larnsce:provenance end -->
 
 ## Workflow: query
 
@@ -351,6 +418,26 @@ Rules:
 - prune/status parse the date + `[[page]]` from fixed positions (split on ` -- `); the `matched:` suffix is
   irrelevant to LRU aggregation and does not affect parsing
 - This page is exempt from orphan / stale / demote rules
+
+<!-- larnsce:provenance start -->
+## Provenance (format)
+
+An ingested page records where it came from and how strong its sources are. Logseq:
+```
+- type:: knowledge
+- domain:: tech
+- confidence:: high
+- source-file:: ingested/papers/smith-2024.md
+- reliability:: medium
+- ## Body
+  - Synthesised claim from the source.
+- ## Pending Review
+  - "single-source claim X" — needs a second independent source before reliability rises to high
+```
+Obsidian uses the same fields in YAML frontmatter (`source-file:`, `reliability:`) with a
+standard `## Pending Review` section. `source-file::` is a plain path into `ingested/`, NOT
+a `[[link]]`. See the Schema page (Provenance Properties, Reliability Rubric, Trust Axes).
+<!-- larnsce:provenance end -->
 </formats>
 
 <constraints>
@@ -373,4 +460,10 @@ Rules:
 - New quick rules/gotchas -> recommend Memory, not Wiki
 - New projects/workflows/research -> Wiki
 - Dates: ISO 8601 (YYYY-MM-DD)
+<!-- larnsce:provenance start -->
+- Source files in `raw/`/`ingested/` are IMMUTABLE — the wiki reads and links them by path, never edits them
+- The `raw/` -> `ingested/` move rides the SAME git commit as the page edits it produced (one atomic provenance commit)
+- `reliability::` (source quality) and `confidence::` (currency/verification) are SEPARATE axes — never derive or convert one from the other
+- A single-source page whose `reliability::` is not `high` MUST carry a `## Pending Review` section until corroborated
+<!-- larnsce:provenance end -->
 </constraints>

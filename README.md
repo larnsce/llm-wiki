@@ -166,6 +166,16 @@ graph LR
 
 **Phase 5 -- Report.** Summary of pages created, updated, cross-references added, and any warnings.
 
+### Source Provenance & Trust (fork feature)
+
+This fork adds an optional **source pipeline** for reproducibility, ported as an idea from vanillaflava/llm-wiki-skills and adapted to this tool. It is implemented as additive, sentinel-wrapped blocks (`larnsce:provenance`) that overlay the base ingest workflow without replacing it, so the fork stays rebaseable against upstream.
+
+- **raw/ -> ingested/ pipeline.** Drop a source (e.g. a Zotero markdown export) in `raw/`. Run `/wiki ingest` with no argument to drain the queue. Claude synthesises the source into wiki pages, then *moves* the file into `ingested/<type>/`. The move is the provenance record (in `raw/` = pending, in `ingested/` = processed) and rides the same atomic git commit as the page edits. `setup.sh` scaffolds the folders and config keys.
+- **Page-level provenance.** Ingested pages carry `source-file::` (a plain path into `ingested/`, distinct from the existing `source::` which records the ingest *method*).
+- **Trust layer.** A `reliability::` rating (source quality, lowest of multiple sources) and a `## Pending Review` section that flags the specific claims on a single-source, non-high page until a corroborating source is ingested.
+
+`confidence::` (is this current and verified) and `reliability::` (how good were the sources) are kept as two **separate** axes and never cross-derived. `raw/` and `ingested/` live beside `pages/`, so neither Logseq nor Obsidian renders sources as wiki pages. Existing pages are untouched until they are re-ingested. See the Schema page (Provenance Properties, Reliability Rubric, Trust Axes) for the conventions.
+
 ### Query
 
 Query is **two-stage**, the way a CPU resolves an address before touching memory. **Stage 1 (routing):** Claude reads only the hub `### Index` pages of the candidate namespaces — a cheap list of routing lines (`[[page]] -- description #tags`) — and picks the 3 most relevant pages by description. This is the wiki's *page table*. **Stage 2 (read):** it opens only those full pages and synthesizes an answer with source attribution. A full-text grep over every page is the **L3 fallback**, used only when routing finds nothing. Each full-page read is logged to an append-only Access-Log together with the routing reason it was picked (the matched index description or grep term) — so the log records not just *what* loaded but *why*, and it feeds `prune`. If the query reveals a gap, it offers to create a new page.
@@ -314,6 +324,8 @@ No system is perfect. Some things to know:
 - [L1/L2 Architecture](docs/l1-l2-architecture.md) — Why two layers, how to route knowledge
 - [Schema Reference](docs/schema-reference.md) — Page types, properties, lint rules
 - [Logseq vs. Obsidian](docs/logseq-vs-obsidian.md) — Detailed comparison and migration notes
+- [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how /wiki fits
+- [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 
 ## Credits
 
