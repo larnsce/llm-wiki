@@ -1,0 +1,239 @@
+<title>Premortem — llm-wiki v2.0.0 Milestone</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#111726; --panel2:#0d1320; --ink:#e8ecf5; --mut:#98a2bd;
+    --line:#20293f; --hi:#f4c04d; --dngr:#ff5d6c; --ok:#39d98a; --warn:#ffab4d;
+    --a1:#5cc8ff;--a2:#b98bff;--a3:#ff8fb1;--a4:#ffcf5c;--a5:#5ee0c0;
+    --a6:#7ea6ff;--a7:#ff6b6b;--a8:#9be15d;--a9:#e08cff;--a10:#ffa14d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 22px 80px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--mut);font-size:15px;margin:0 0 4px}
+  .frame{background:linear-gradient(90deg,#1a1020,#101726);border:1px solid var(--line);
+    border-left:3px solid var(--dngr);border-radius:10px;padding:14px 18px;margin:22px 0 8px;color:#ffd9de;font-size:15px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.13em;color:var(--mut);
+    margin:38px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .synth{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 22px 20px;margin-bottom:10px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:720px){.row{grid-template-columns:1fr}}
+  .box{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin:16px 0}
+  .box h3{margin:0 0 8px;font-size:15px}
+  .box.likely h3{color:var(--warn)} .box.danger h3{color:var(--dngr)} .box.assume h3{color:var(--a2)}
+  .box p{margin:6px 0;font-size:14.5px;color:#d4dae8}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;margin-right:6px;vertical-align:middle}
+  .p-hi{background:rgba(255,93,108,.16);color:#ff8a95;border:1px solid rgba(255,93,108,.4)}
+  .p-md{background:rgba(255,171,77,.15);color:#ffc27a;border:1px solid rgba(255,171,77,.38)}
+  .i-hi{background:rgba(185,139,255,.15);color:#cbb0ff;border:1px solid rgba(185,139,255,.38)}
+  ol,ul{margin:8px 0;padding-left:20px} li{margin:7px 0;font-size:14.5px;color:#d4dae8}
+  li b{color:var(--ink)}
+  /* 2x2 */
+  .grid2{display:grid;grid-template-columns:80px 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:8px;margin:10px 0}
+  .cell{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px;min-height:96px;font-size:13px}
+  .axlabel{display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+  .cell.hot{border-color:rgba(255,93,108,.5);background:rgba(255,93,108,.07)}
+  .cell b{display:block;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+  .chip{display:inline-block;background:#1a2236;border:1px solid var(--line);border-radius:6px;
+    padding:2px 7px;margin:3px 3px 0 0;font-size:12px;color:#cdd5e8}
+  /* overview */
+  .ov{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:6px 0 4px}
+  .ovc{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--a1);border-radius:9px;padding:11px 12px}
+  .ovc .n{font-size:12px;color:var(--mut)} .ovc .t{font-size:13.5px;margin-top:3px;line-height:1.35}
+  /* failure cards */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:20px 22px;margin:18px 0;border-top:3px solid var(--a1)}
+  .card .hdr{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+  .card .num{font-size:12px;font-weight:700;color:#0a0e1a;background:var(--a1);border-radius:6px;padding:2px 8px}
+  .card h3{margin:0;font-size:18px;letter-spacing:-.01em;flex:1 1 260px}
+  .card h4{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);margin:15px 0 5px}
+  .card p{margin:5px 0;font-size:14.5px;color:#d2d9e8}
+  .card .assume{color:#e7d6ff;border-left:2px solid var(--a2);padding-left:11px}
+  .card .warn{color:#ffe0c2}
+  .miss{border-top-color:var(--dngr)!important}
+  .miss .num{background:var(--dngr)!important}
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);color:var(--mut);font-size:13px}
+</style>
+
+<div class="wrap">
+  <h1>Premortem — llm-wiki <span style="color:var(--hi)">v2.0.0</span> Milestone</h1>
+  <p class="sub">Dissolving the 469-line <code>wiki.md</code> monolith into a canon-first, 12-issue multi-skill suite.</p>
+  <p class="sub">Solo maintainer · Logseq + Obsidian · literature-research / data-steward use · public repo (audience ≈ 1).</p>
+  <div class="frame"><b>Frame:</b> It is <b>3 months later</b>. v2.0.0 has failed. 10 investigators + 1 adversarial counter-check worked backward to find why.</div>
+
+  <h2>Synthesis — read this first</h2>
+  <div class="synth">
+    <div class="row">
+      <div class="box likely">
+        <h3>① Most likely failure</h3>
+        <p><span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact High</span></p>
+        <p><b>Scope collapse into half-migrated limbo (#3), and — if it <i>does</i> ship — a real vault that doesn't conform (#10).</b> A solo maintainer's spare-time velocity is treated as constant across 12 chained, two-mode issues, but per-issue cost compounds. Momentum dies around I-6 (ingest), which gates four downstream issues at once. The repo is then <i>worse</i> than v1: <code>wiki.md</code> and a half-built <code>skills/</code> both exist, README/specs describe features only partly built — two competing sources of truth, no clean fallback.</p>
+      </div>
+      <div class="box danger">
+        <h3>② Most dangerous failure</h3>
+        <p><span class="tag p-md">Prob Med</span><span class="tag i-hi">Impact Critical</span></p>
+        <p><b>The secret gate certifies a false "clean" and governed PII lands in git history (#7).</b> A stdlib regex tuned for <code>token::</code>-style page properties matches almost nothing in real source bytes (Zotero exports, PDF text) while false-positiving on binary blobs — training bypass. It has no email/national-ID patterns, which is exactly what the data-steward case cares about. The maintainer trusts the green check, retires manual vigilance, and commits sensitive bytes verbatim into <code>ingested/</code> — sticky, hard to expunge. This is <b>#6's exact gap, now worse because a check blessed it.</b> Insure against this even though it's less likely than #3.</p>
+      </div>
+    </div>
+
+    <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);margin:22px 0 8px">③ Likelihood × Impact</h4>
+    <div class="grid2">
+      <div class="axlabel" style="grid-row:2/4;writing-mode:vertical-rl;transform:rotate(180deg)">Impact →</div>
+      <div class="axlabel">Low prob</div>
+      <div class="axlabel">High prob</div>
+      <div class="cell"><b>High impact · lower prob</b>
+        <span class="chip">#6 test-net gap</span><span class="chip">#7 secret gate</span></div>
+      <div class="cell hot"><b>High impact · high prob — PRIORITY</b>
+        <span class="chip">#3 scope collapse</span><span class="chip">#10 corpus migration</span><span class="chip">#4 spec drift</span><span class="chip">#9 over-engineering</span></div>
+      <div class="cell"><b>Lower impact · lower prob</b>
+        <span class="chip">#1 byte-identical stall</span></div>
+      <div class="cell"><b>Lower impact · high prob</b>
+        <span class="chip">#2 canon drift</span><span class="chip">#5 checkpoint bypass</span><span class="chip">#8 two-mode tax</span></div>
+    </div>
+
+    <div class="box assume">
+      <h3>④ The hidden assumption (the one to internalize)</h3>
+      <p>That the job is <b>building a correct v2 engine</b> — when the actual success criterion is <b>a knowledge base still used daily</b>. Almost every failure traces to treating the wiki as an <i>abstraction</i> (fixtures, specs, byte-diffs, dual-mode promises) rather than as the maintainer's concrete existing corpus and daily habit. Canon-first, spec-heavy, audit-subagents and a trust layer optimize engine correctness against a multi-user/adversarial threat model that a single trusted author never faces. "Correct engine" and "still used daily" are different targets — and the plan is aimed at the first.</p>
+    </div>
+
+    <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);margin:22px 0 6px">⑤ Revised plan — each maps to a failure mode</h4>
+    <ol>
+      <li><b>Add the missing migration issue (kills #10).</b> A one-time corpus converter + a "grandfather" lint mode (severity floor for pre-v2 pages). Release gate = run <code>wiki-lint</code> against the <i>real</i> vault, not just <code>tests/fixtures</code>.</li>
+      <li><b>Demote "byte-identical" to "semantically equivalent" (kills #1).</b> Define a normalization (strip trailing whitespace, sort frontmatter keys, canonical newlines) and diff on <i>that</i>. Never let <code>init_wiki.py</code> block on <code>xxd</code>.</li>
+      <li><b>Add a spec-consistency check (kills #2).</b> A crude script that greps the lint-rule count, property enums, and the reliability rule across specs + wiki-core references + both Schema pages and fails CI if they disagree. Makes the DRY invariant actually enforceable.</li>
+      <li><b>Batch the ingest checkpoint (kills #5).</b> One review for the whole queue with per-source expand — not a mandatory stop per paper. Log <code>--auto</code> share; if it exceeds 50%, the design failed, not the user.</li>
+      <li><b>Golden-transcript tests for LLM behavior (kills #6).</b> Pin a fixed source → expected <code>cite::</code> targets + audit verdicts; re-run on every prompt/model change. Cheap; catches silent knowledge regression the mechanical harness can't.</li>
+      <li><b>Reframe the secret gate as an <i>assist</i>, not a guarantee (kills #7).</b> Rewrite the regex for raw source bytes (drop the <code>::</code> assumption), add email/national-ID PII patterns (advisory), and make "clean" output say <i>"scanned N patterns — NOT a guarantee; eyeball sensitive sources."</i> Track <code>sensitive_source_types</code> entries added right after a block event (bypass signal).</li>
+      <li><b>Pick a tier-1 mode (kills #8).</b> Logseq (the dogfooded one) is supported; label Obsidian experimental unless CI instantiates a real Obsidian vault and byte-diffs + round-trips <code>cite::</code>. Don't promise dual-mode the test matrix never covers.</li>
+      <li><b>Define a minimal v2.0.0, defer the rest (kills #3, #9).</b> Monolith → skills + core scripts + one mode is a coherent release. Push audit/update/citations to v2.1 if momentum flags. Ship a smaller <i>whole</i> thing, never a bigger half thing.</li>
+    </ol>
+
+    <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);margin:22px 0 6px">⑥ Kill criteria — decide now, before emotion</h4>
+    <ul>
+      <li><b>If &gt;3 weeks pass between merged implementation PRs after I-4</b> → freeze scope: ship what's coherent as v2.0.0, defer the rest. Do not sit in half-migrated limbo.</li>
+      <li><b>If the <code>init_wiki.py</code> byte-identical test is red &gt;3 days on whitespace/ordering deltas</b> → abandon byte-identical for semantic-equivalent <i>that day</i>.</li>
+      <li><b>If the first <code>wiki-lint</code> run on the REAL vault returns &gt;~20 violations with no grandfather path</b> → do not tag v2.0.0; build migration first.</li>
+      <li><b>If <code>--auto</code> is in &gt;50% of ingests in month 1</b> → the checkpoint failed as designed; redesign to batch review before claiming "human in the loop" closes #4.</li>
+    </ul>
+
+    <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);margin:22px 0 6px">⑦ Pre-launch checklist</h4>
+    <ul>
+      <li>☐ Run <code>wiki-lint</code> against the <b>actual production vault</b> (not fixtures); confirm a migration/grandfather path and a manageable violation count.</li>
+      <li>☐ Instantiate a <b>real Obsidian vault</b> from <code>init_wiki.py</code>; byte-diff output and round-trip a <code>cite::</code> — or downgrade Obsidian to experimental in the README.</li>
+      <li>☐ Wire the <b>spec-consistency check</b> (rule counts, enums, reliability rule agree across all narrations) into CI.</li>
+      <li>☐ Add ≥1 <b>golden-transcript test</b> for ingest citations and audit verdicts; run it on prompt/model changes.</li>
+      <li>☐ Confirm <code>secret_scan.py</code> catches a planted <b>email / national-ID / PDF-embedded</b> secret (not just a <code>token::</code> line), and that its "clean" message disclaims guarantee.</li>
+      <li>☐ Verify the <b>cutover is atomic</b>: <code>main</code> never ships with <code>wiki.md</code> deleted but a workflow it provided only half-ported.</li>
+    </ul>
+  </div>
+
+  <h2>The investigation — 10 failure modes + counter-check</h2>
+  <div class="ov">
+    <div class="ovc" style="border-left-color:var(--a1)"><div class="n">#1 · Execution</div><div class="t">Byte-identical trap stalls the critical path</div></div>
+    <div class="ovc" style="border-left-color:var(--a2)"><div class="n">#2 · Hidden assumption</div><div class="t">Unenforceable DRY-canon → rule drift</div></div>
+    <div class="ovc" style="border-left-color:var(--a3)"><div class="n">#3 · People/timing</div><div class="t">Scope collapse → half-migrated limbo</div></div>
+    <div class="ovc" style="border-left-color:var(--a4)"><div class="n">#4 · Sequencing</div><div class="t">Spec drift — canon-first in the breach</div></div>
+    <div class="ovc" style="border-left-color:var(--a5)"><div class="n">#5 · Adoption</div><div class="t">Checkpoint friction → --auto default</div></div>
+    <div class="ovc" style="border-left-color:var(--a6)"><div class="n">#6 · Quality</div><div class="t">Test net covers only the mechanical shell</div></div>
+    <div class="ovc" style="border-left-color:var(--a7)"><div class="n">#7 · Security</div><div class="t">Secret gate false confidence → PII in git</div></div>
+    <div class="ovc" style="border-left-color:var(--a8)"><div class="n">#8 · Execution</div><div class="t">Two-tool-mode tax → non-dogfooded mode breaks</div></div>
+    <div class="ovc" style="border-left-color:var(--a9)"><div class="n">#9 · Strategy</div><div class="t">Over-engineering for an audience of one</div></div>
+    <div class="ovc" style="border-left-color:var(--a10)"><div class="n">#10 · Counter-check</div><div class="t">No migration for the EXISTING corpus</div></div>
+  </div>
+
+  <!-- CARD 1 -->
+  <div class="card" style="border-top-color:var(--a1)">
+    <div class="hdr"><span class="num" style="background:var(--a1)">01</span><h3>The "byte-identical" trap stalls the critical path</h3>
+      <span class="tag p-md">Prob Med</span><span class="tag i-hi">Impact Med</span></div>
+    <p><b>Story.</b> wikilib.py lands fast, but <code>init_wiki.py</code> stalls the moment "byte-identical to setup.sh for default answers" meets reality: heredoc trailing newlines Python's <code>write()</code> omits; a <code>sed</code> tab vs four spaces; Obsidian frontmatter key ordering (string-concat vs dict). Each one-line fix surfaces another. The tip was keeping byte-identical a <i>hard</i> gate — four evenings diffing <code>xxd</code> instead of writing REQs — across every default-answer permutation × two editors. Since #12 is the shared import for every downstream script, I-5…I-11 can't even scaffold. The monolith keeps shipping because it still works.</p>
+    <p class="assume"><b>Assumption:</b> that "byte-identical" was a cheap mechanical check, not a spec of every incidental shell-script artifact — whitespace, ordering, newlines — no one had canonized.</p>
+    <p class="warn"><b>Early signs:</b> the init test is red &gt;3 days with the diff shrunk to whitespace/newline/key-order only; downstream issues have zero commits because nothing can import a not-yet-frozen wikilib.py.</p>
+  </div>
+
+  <!-- CARD 2 -->
+  <div class="card" style="border-top-color:var(--a2)">
+    <div class="hdr"><span class="num" style="background:var(--a2)">02</span><h3>"No rule in more than one place" is an unenforceable manual invariant</h3>
+      <span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact Med</span></div>
+    <p><b>Story.</b> The invariant is an acceptance criterion backed by nothing that runs. One rule (reliability aggregation) must appear in the spec, in wiki-core references, and — because users read them directly — in <i>both</i> template Schema pages, which already diverge line-for-line today. "Load by reference" fixes code duplication, not prose: a Logseq Schema page can't <code>@import</code> a reference. It tips at ~I-8 when a property enum gains a value, updated everywhere but <code>obsidian/Schema.md</code>. Nothing compares the five narrations; the only check was the maintainer re-reading 8 SKILL.md + 8 specs + 2 Schema pages every PR — which a solo dev stops by week three. The MAY-vs-SHALL contradictions v2 existed to kill get respread across more files.</p>
+    <p class="assume"><b>Assumption:</b> a convention can live in one place while five audiences each need to read it in situ, with no tool to detect when the copies disagree.</p>
+    <p class="warn"><b>Early signs:</b> <code>diff</code> of the two Schema.md pages shows normative divergence (already true today); the stated lint-rule count differs across SKILL.md, spec, and docs.</p>
+  </div>
+
+  <!-- CARD 3 -->
+  <div class="card" style="border-top-color:var(--a3)">
+    <div class="hdr"><span class="num" style="background:var(--a3)">03</span><h3>Scope collapse into half-migrated limbo</h3>
+      <span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact High</span></div>
+    <p><b>Story.</b> I-4 is done carefully and slowly. Waves 1–2 feel like progress on weekends, but I-4 forces the deferred decision that every script behave identically in both modes — silently doubling every downstream issue. By I-6, each "one issue" is two implementations plus a diff test, and a day-job crunch eats three weekends. Momentum dies exactly where the chain fans out: I-6 gates I-7, I-9, I-10 — four issues freeze at once. The repo is now bimodal: <code>wiki.md</code> still works and is used daily, while <code>skills/</code> holds half-ported workflows the merged specs describe as finished. A README-follower hits a citation feature (I-9) documented but never built. Bad-options fork: finish six more chained two-mode issues on nights-and-weekends, or revert and admit the specs lied. Neither happens.</p>
+    <p class="assume"><b>Assumption:</b> a solo maintainer's spare-time velocity is roughly constant across 12 issues — when per-issue cost compounds through the two-mode requirement and the dependency chain.</p>
+    <p class="warn"><b>Early signs:</b> &gt;3 weeks between merged implementation PRs after I-4; <code>main</code> still ships <code>wiki.md</code> while <code>dev</code> has a non-empty <code>skills/</code> tree — both present past the I-6 mark.</p>
+  </div>
+
+  <!-- CARD 4 -->
+  <div class="card" style="border-top-color:var(--a4)">
+    <div class="hdr"><span class="num" style="background:var(--a4)">04</span><h3>Spec-implementation drift — canon-first honored in the breach</h3>
+      <span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact High</span></div>
+    <p><b>Story.</b> REQ-904 ("<code>source-file::</code> = union of the page's <code>cite::</code> refs") is mechanically checkable on paper, but in Logseq <code>source-file::</code> is page-level while <code>cite::</code> is per-block, and the outliner reorders/merges blocks under you — constant invariant violations on legitimate edits, so the gate gets downgraded from enforce to warn. REQ-922 ("one verification subagent per cited source, in parallel") fans a 30-cite page into 30 subagents — slow, expensive, rate-limited — so sources get batched "temporarily," breaking the isolation guarantee. REQ-951/952's mandatory source + before/after diff fight batch use, so an <code>--auto</code> path grows that skips the confirmation the spec makes unconditional. By tag, #20's "every doc claim traceable to a REQ" is true only textually — claims trace to REQs the code no longer honors.</p>
+    <p class="assume"><b>Assumption:</b> a design's correctness can be settled on paper against Logseq's block model and subagent economics before a single line of code tests it.</p>
+    <p class="warn"><b>Early signs:</b> any REQ downgraded SHALL/gate → "warn"/skipped in a commit or config flag; citations/audit/update specs with zero edits after implementation commits touch the same behavior.</p>
+  </div>
+
+  <!-- CARD 5 -->
+  <div class="card" style="border-top-color:var(--a5)">
+    <div class="hdr"><span class="num" style="background:var(--a5)">05</span><h3>The mandatory ingest checkpoint reintroduces the friction it replaced</h3>
+      <span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact Med</span></div>
+    <p><b>Story.</b> The first few ingests, the maintainer actually stops — reads the plan, the reliability ratings, the contradictions, answers "what to emphasize." It feels like the gist restored. Then a conference dump lands: eighteen papers. Stopping eighteen times to read near-identical analysis blocks is unbearable, so <code>--auto</code> "just for this batch." It works fine — that's the poison: a skipped checkpoint's cost (a bad reliability call, a missed contradiction) is silent and deferred, while the checkpoint's cost is immediate and certain. Every rational ingest optimizes toward <code>--auto</code>. By month two it's muscle memory; #14 shipped as specified and #4 is behaviorally reopened, now with a flag that launders the autonomy as a choice. The other branch is worse: those who don't reach for <code>--auto</code> simply ingest less, and the wiki stops growing.</p>
+    <p class="assume"><b>Assumption:</b> a checkpoint made mandatory in code is also mandatory in behavior — that an always-available skip won't become the default when review cost is immediate and skip cost is invisible.</p>
+    <p class="warn"><b>Early signs:</b> <code>--auto</code> in &gt;50% of ingest invocations within month one; median checkpoint dwell time trending toward zero (displayed and dismissed in &lt;3s, no input entered).</p>
+  </div>
+
+  <!-- CARD 6 -->
+  <div class="card" style="border-top-color:var(--a6)">
+    <div class="hdr"><span class="num" style="background:var(--a6)">06</span><h3>The test harness covers only the mechanical shell</h3>
+      <span class="tag p-md">Prob Med</span><span class="tag i-hi">Impact High</span></div>
+    <p><b>Story.</b> A line gets drawn — "the LLM-in-the-loop part cannot be asserted by a script" — and everything past it (synthesis quality, <code>cite::</code> correctness, the supported/partial/unsupported verdict) is demoted to a manual protocol "executed once," by the person who wrote it, on clean fixtures. That single run is the entire regression net for the tool's only real value. <code>test_pipeline.sh</code> goes green on orphans, broken refs, the fake secret — all true, all cheap, all beside the point. Then routine maintenance: a prompt tweak plus a model bump, both green, because nothing reads whether a <code>cite::</code> points at a claim the source actually makes. Three months on it surfaces in the maintainer's own wiki — pages synthesized from sources that don't support them — discovered by hand, in the one place trusted by definition, where wrong content reads as fact and compounds across links.</p>
+    <p class="assume"><b>Assumption:</b> because the LLM behaviors can't be asserted mechanically, they need no regression net at all — a one-time manual protocol substitutes for continuous testing.</p>
+    <p class="warn"><b>Early signs:</b> a commit touching prompts / ingest / audit merges with only <code>test_pipeline.sh</code> green and no re-run of the manual protocol logged; a golden-transcript check on a fixed source drifts after a prompt/model change.</p>
+  </div>
+
+  <!-- CARD 7 -->
+  <div class="card" style="border-top-color:var(--a7)">
+    <div class="hdr"><span class="num" style="background:var(--a7)">07</span><h3>The secret gate is ~70% effective — and that's worse than none</h3>
+      <span class="tag p-md">Prob Med</span><span class="tag i-hi">Impact Critical</span></div>
+    <p><b>Story.</b> secret_scan.py reuses REQ-042's regex — written for synthesized pages: <code>token::</code>, <code>password::</code>, 40+ char base64. The <code>::</code> are Logseq delimiters that never appear in a Zotero export or PDF text, so on real source bytes it matches almost nothing except the base64 rule, which fires on every embedded image and font subset. Week two, five false positives on innocuous PDFs; the maintainer routes them into <code>sensitive_source_types</code> and internalizes "it cries wolf." Then the case that matters: a Zotero library with author emails and a scanned consent form (national IDs in binary PDF text the strings pass fragments across object boundaries) sails through clean. The gate's reassuring silence retires the manual eyeballing, and the source moves verbatim into git-tracked <code>ingested/</code>. #6's sticky-exposure gap is realized — worse, because a green check certified it safe.</p>
+    <p class="assume"><b>Assumption:</b> a partial regex that catches some credentials is a net safety gain — when any automated "clean" transfers responsibility off the human without earning it.</p>
+    <p class="warn"><b>Early signs:</b> <code>sensitive_source_types</code> grows entries added right after a blocked-ingest event (bypasses, not policy); zero true-positive blocks over many ingests while sources demonstrably contain emails/IDs.</p>
+  </div>
+
+  <!-- CARD 8 -->
+  <div class="card" style="border-top-color:var(--a8)">
+    <div class="hdr"><span class="num" style="background:var(--a8)">08</span><h3>The two-tool-mode tax — the non-dogfooded mode silently breaks</h3>
+      <span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact Med</span></div>
+    <p><b>Story.</b> The two Schema templates aren't one file with a variable — they're two hand-maintained files with different structure. That's four template pairs plus init_wiki.py plus wikilib.py plus every script carrying an <code>if mode == logseq</code> branch. The maintainer dogfoods Logseq. At I-9 the <code>cite::</code> split ("Logseq block property; Obsidian indented child bullet") means the Logseq path runs daily while the Obsidian child-bullet path is written once, eyeballed against a hand-made fixture, and never round-tripped through a real vault. "Verified in both modes" collapses to "same author wrote both tests with the same blind spot." Lint globs <code>Wiki___*.md</code> vs <code>Wiki/**/*.md</code>; the Obsidian nested glob matches zero files in some layouts, so lint reports green by finding nothing. Three months on, the first real Obsidian user hits byte-wrong pages, <code>cite::</code> children that don't parse, lint false-passing on an empty set.</p>
+    <p class="assume"><b>Assumption:</b> a solo maintainer can keep two divergent format implementations equally correct while only ever running one of them.</p>
+    <p class="warn"><b>Early signs:</b> Logseq commits outnumber Obsidian ~5:1, no CI job instantiates a real Obsidian vault and byte-diffs; lint on an Obsidian vault exits 0 while processing 0 files.</p>
+  </div>
+
+  <!-- CARD 9 -->
+  <div class="card" style="border-top-color:var(--a9)">
+    <div class="hdr"><span class="num" style="background:var(--a9)">09</span><h3>Over-engineering for an audience of one</h3>
+      <span class="tag p-md">Prob Med–High</span><span class="tag i-hi">Impact High</span></div>
+    <p><b>Story.</b> Building the openspec canon turns every real change — a citation tweak, a cache-eviction change — into a three-surface edit (REQ + wiki-core reference + 8 skills). The maintainer notices he spends Saturdays servicing the spec instead of writing notes. The audit subsystem with parallel subagents and the L1/L2 hub-index cache with LRU-demote are built for scale and adversarial trust a single-user personal wiki never experiences — provenance/trust guards a threat model of one trusted person. By month two, adding a note sometimes trips a stale REQ or a skill assuming the old cache contract; capturing a thought costs a debugging detour. The daily-use metric inverts: the wiki gets opened to <i>fix</i> the wiki, not to think. Upstream Karpathy dormancy removes the external pull. v2.0.0 gets tagged — it just isn't used; the architecture outlived its user's patience.</p>
+    <p class="assume"><b>Assumption:</b> robustness machinery justified by multi-user/adversarial scale pays off for a single-author personal wiki — when its only cost, maintenance, is borne by that same single person.</p>
+    <p class="warn"><b>Early signs:</b> commits touching skills/specs/scripts vs commits adding actual wiki content trend above ~1:1 over a month; days-since-last-note grows while days-since-last-architecture-edit stays near zero.</p>
+  </div>
+
+  <!-- CARD 10 — counter-check -->
+  <div class="card miss">
+    <div class="hdr"><span class="num">10</span><h3>What the others missed — no migration path for the EXISTING corpus</h3>
+      <span class="tag p-hi">Prob High</span><span class="tag i-hi">Impact High</span></div>
+    <p><b>Story.</b> All 12 issues build the machinery that <i>processes</i> a wiki; none touches the hundreds of pages the maintainer already edits daily. Those were authored under v1 conventions — prose citations, old block structure, no schema discipline. The moment v2 ships, wiki-lint's 12 rules fire against real content and return a wall of violations; wiki-query and wiki-audit assume block-native <code>cite::</code> the existing corpus doesn't have. There's no migration issue, no converter, no grandfather escape hatch — and the harness runs on clean synthetic fixtures, so this never surfaces before tag. The maintainer, whose entire reason for v2 was to keep using his own knowledge base, now faces a manual reformatting slog across the whole vault. Realistically he reverts to v1 on the real wiki (v2 becomes shelfware validated only against fixtures) or the daily-use loop breaks — monolith gone, but the actual wiki left behind.</p>
+    <p class="assume"><b>Why overlooked:</b> the list scrutinized the code-and-spec pipeline exhaustively but treated the wiki as an abstraction, never as a concrete pre-existing pile of the maintainer's own bytes that must survive cutover.<br><b>Assumption:</b> building a correct v2 engine is the whole job — silently assuming existing content will conform, or that green fixtures mean the real vault works.</p>
+    <p class="warn"><b>Early signs:</b> no issue/script/REQ mentions converting existing pages; all fixtures are freshly authored. First <code>wiki-lint</code> on the real vault returns dozens-to-hundreds of violations.</p>
+  </div>
+
+  <footer>
+    Premortem · llm-wiki v2.0.0 milestone · 10 investigators + 1 adversarial counter-check, run in parallel.<br>
+    Generated 2026-07-03. Method: Gary Klein prospective hindsight — "assume it failed, explain why."
+  </footer>
+</div>
