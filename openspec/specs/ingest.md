@@ -105,10 +105,9 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-063: When the configured tool is Obsidian, properties MUST be in YAML
   frontmatter. Content uses standard markdown without block prefixes.
 
-<!-- larnsce:provenance start -->
-### Source Pipeline (additive overlay)
+### Source Pipeline
 
-This overlays — does NOT replace — Phases 1-5 above. It applies when `llm-wiki.yml`
+This extends Phases 1-5 above. It applies when `llm-wiki.yml`
 configures a source pipeline (`raw_dir`, `ingested_dir`, `source_types`,
 `default_source_type`). It is the path for NEW external sources (e.g. a Zotero export).
 Pulling notes ALREADY written in the graph uses `/wiki import`, which does NOT move files
@@ -124,8 +123,9 @@ or assign `source-file::`.
   (the queue is resumable) and SHALL NOT move a half-processed source.
 - REQ-073 (Phase 3 addition): On every created/updated ingested page the system SHALL set
   `source-file::` (the path the source will live at, `ingested/<type>/<filename>`; append
-  comma-separated when corroborating) and `reliability::` (per schema REQ-586, lowest of
-  multiple). These do NOT alter `confidence::` (schema REQ-587).
+  comma-separated when corroborating) and `reliability::` (per schema REQ-586:
+  corroboration is judged per claim, the page value is the minimum across claims).
+  These do NOT alter `confidence::` (schema REQ-587).
 - REQ-073a (Phase 1, optional enrichment): When a Semantic Scholar MCP is configured, the
   system MAY resolve the source (by DOI, else title + first author + year) and record its
   metrics verbatim as `s2-metrics::` (per schema REQ-586a). These metrics INFORM the
@@ -141,7 +141,6 @@ or assign `source-file::`.
   each processed source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
   MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
   and committed as ONE atomic commit.
-<!-- larnsce:provenance end -->
 
 ---
 

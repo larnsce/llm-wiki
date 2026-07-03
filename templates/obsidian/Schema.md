@@ -71,11 +71,11 @@ namespace: Wiki/NamespaceName
 <!-- larnsce:provenance start -->
 ## Provenance Properties (ingested pages)
 
-Added by the source pipeline. Optional YAML frontmatter on ingested pages:
+Added by the source pipeline. YAML frontmatter on ingested pages (`source-file` and `reliability` are required on ingested pages; hand-written pages omit all of these):
 
 ```yaml
 source-file: ingested/papers/smith-2024.md   # comma-separated path(s) into ingested/, plain text not a [[link]]
-reliability: high | medium | low             # source QUALITY; multi-source -> use the LOWEST
+reliability: high | medium | low             # source QUALITY; page value = MINIMUM across its claims
 last-reviewed: YYYY-MM-DD                     # optional: date a human last verified the page
 s2-metrics: cites=120 influential=8 venue=... type=... year=2024  # optional: raw Semantic Scholar figures (or "none")
 ```
@@ -84,11 +84,13 @@ s2-metrics: cites=120 influential=8 venue=... type=... year=2024  # optional: ra
 
 NOTE: `source-file` is separate from the existing `source` property. `source` records the METHOD (memory-migration | ingest | manual); `source-file` records WHICH origin file. Both may appear.
 
-### Reliability Rubric
+### Reliability Rubric (per source)
 
-- **high**: peer-reviewed primary source, official standard/spec, or a claim corroborated by 2+ independent sources.
-- **medium**: single secondary source, preprint, expert blog post, or only partially corroborated.
+- **high**: peer-reviewed primary source or official standard/spec.
+- **medium**: single secondary source, preprint, or expert blog post.
 - **low**: speculative, anecdotal, forum/unverified, or model-generated without a source.
+
+Corroboration works at CLAIM level: a claim supported by 2+ INDEPENDENT sources rated medium or better is high. Partial corroboration does not raise a claim. The page's `reliability` is the MINIMUM across its claims.
 
 ### Trust Axes: confidence vs reliability (do NOT conflate)
 
@@ -102,7 +104,7 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 
 - Trigger: a page rests on a SINGLE source AND `reliability` is not `high`.
 - Action: append a `## Pending Review` section listing the SPECIFIC claims that need corroboration (not the whole page).
-- Resolution: when a corroborating source is later ingested, re-check each flagged claim, delete resolved ones, and if all clear, remove the section and raise `reliability`. Log the change.
+- Resolution: when a corroborating source is later ingested, re-check each flagged claim, delete resolved ones, and if all clear, remove the section and recompute `reliability` (newly corroborated claims rate high; the page takes the minimum across its claims). Log the change.
 
 ### Source Lifecycle
 

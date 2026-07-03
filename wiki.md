@@ -155,8 +155,10 @@ Phase 2 (added step) - check whether `ingested_dir` already holds a source on th
 Phase 3 (added steps) - on every created/updated ingested page:
   - Set `source-file::` -> the path the source will live at, `ingested/<type>/<filename>`
     (append comma-separated when corroborating).
-  - Set `reliability::` -> the Phase 1 value; when multiple sources back the page, the LOWEST.
-    Do NOT touch `confidence::` — it is a separate axis (see Schema: Trust Axes).
+  - Set `reliability::` -> the Phase 1 value. With multiple sources: a claim corroborated
+    by 2+ independent medium-or-better sources rates high; the page value is the MINIMUM
+    across its claims (schema REQ-586).
+    Do NOT touch `confidence::`; it is a separate axis (see Schema: Trust Axes).
   - Pending Review: if the page now rests on a SINGLE source and `reliability::` is not
     `high`, append a `## Pending Review` section listing the specific claims that need a
     stronger/corroborating source. If this ingest corroborates an existing flagged page,

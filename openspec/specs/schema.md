@@ -154,7 +154,6 @@ lint (validation).
   - Logseq: `Wiki___Namespace___Page.md` (triple-underscore, flat directory)
   - Obsidian: `Wiki/Namespace/Page.md` (directory hierarchy)
 
-<!-- larnsce:provenance start -->
 ### Provenance & Trust (source pipeline)
 
 - REQ-585: An ingested page (one written from a source in the `raw/`/`ingested/`
@@ -163,12 +162,21 @@ lint (validation).
   `[[link]]`. Hand-written pages omit it. `source-file::` is distinct from the existing
   `source::` property: `source::` records the METHOD (memory-migration | ingest | manual),
   `source-file::` records WHICH origin file.
-- REQ-586: An ingested page MAY carry a `reliability::` property, one of
-  `high | medium | low`, rating the QUALITY of its sources. When several sources
-  contribute, the value MUST be the LOWEST (most conservative) of their individual
-  ratings. Rubric: `high` = peer-reviewed primary / official standard / 2+ independent
-  corroborating sources; `medium` = single secondary / preprint / expert post / partial
-  corroboration; `low` = speculative / anecdotal / forum / model-only.
+- REQ-586: An ingested page SHALL carry a `reliability::` property, one of
+  `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
+  (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up
+  to the page:
+  - Per-source rubric: `high` = peer-reviewed primary / official standard;
+    `medium` = single secondary / preprint / expert post; `low` = speculative /
+    anecdotal / forum / model-only.
+  - Claim level: a claim supported by 2+ INDEPENDENT sources rated `medium` or
+    better is `high` (corroboration). Otherwise the claim takes its source's
+    rubric rating; partial corroboration does not raise it.
+  - Page level: `reliability::` is the MINIMUM across the page's claims (most
+    conservative roll-up).
+  Worked example: two independent `medium` sources corroborating the SAME claim
+  make that claim `high`; if the page's only other claim rests on a single `low`
+  source, the page is `reliability:: low`.
 - REQ-586a: An ingested page MAY carry an OPTIONAL `s2-metrics::` property recording raw
   Semantic Scholar figures verbatim (e.g. `cites=<n> influential=<n> venue=<...> type=<...>
   year=<...>`), or the value `none`. It is present only when a Semantic Scholar MCP enriched
@@ -183,13 +191,14 @@ lint (validation).
 - REQ-588: When a page rests on a SINGLE source AND `reliability::` is not `high`, the
   page SHALL carry a `## Pending Review` section listing the SPECIFIC claims that need
   corroboration. When a corroborating source is later ingested, resolved claims SHALL be
-  removed; when all are resolved the section SHALL be removed and `reliability::` raised.
+  removed; when all are resolved the section SHALL be removed and `reliability::`
+  recomputed per REQ-586 (newly corroborated claims rate `high`; the page takes the
+  minimum across its claims).
 - REQ-589: A source file SHALL live in `raw/` while pending and be MOVED to
   `ingested/<type>/` once its knowledge is written into wiki pages. Presence in
   `ingested/` means processed; the move is the atomic provenance commit. Source files are
   immutable (read and linked by path, never edited). `raw/` and `ingested/` live BESIDE
   the pages directory so they are not rendered as wiki pages.
-<!-- larnsce:provenance end -->
 
 ### Tool-Specific Format Rules
 
