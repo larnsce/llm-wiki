@@ -65,7 +65,8 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   unroutable.
 - REQ-033b: On ingested pages, the system SHALL attach a `cite::` reference to every
   non-common-knowledge factual claim block it writes, per specs/citations.md
-  (REQ-900..905). Pages are born auditable.
+  (REQ-900..905). Pages are born auditable. STAGING: this requirement takes effect
+  with the citations implementation (v2.1, #17); v2.0.0 ingest is exempt.
 - REQ-034: The system SHALL add `[[Wiki/Namespace/Page]]` cross-references between
   all affected pages. Every page touched MUST have at least 1 outgoing wiki link.
 - REQ-035: The system SHALL set the `updated::` property (or YAML `updated` field)
@@ -350,7 +351,7 @@ AND the moved file's path is gitignored; its bytes never enter git history
 - [ ] Credential patterns block the ingest
 - [ ] Source bytes are scanned pre-archive; a match leaves the file in raw/
 - [ ] Default mode pauses at the checkpoint before any write; --auto does not
-- [ ] Ingested claim blocks carry cite:: per specs/citations.md
+- [ ] Ingested claim blocks carry cite:: per specs/citations.md (v2.1, with #17)
 - [ ] Page touch warnings are emitted but do not block
 - [ ] Works correctly in both Logseq and Obsidian modes
 - [ ] Max 3 pages loaded simultaneously during processing
