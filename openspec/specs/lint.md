@@ -130,6 +130,19 @@ certain issues when run with the `--fix` flag. There are 11 lint rules.
 - REQ-198: Auto-fix (--fix): the system SHALL move the routing line from `### Index`
   to `### Archive`. It MUST NOT rename or move the page file (links are by page name).
 
+### Rule 12: External Link Rot (canonical-url)
+
+- REQ-220: The system SHALL check every page carrying `canonical-url::` (schema
+  REQ-584) and verify the URL still resolves. When an HTTP client is available
+  (e.g. `curl`), resolution means a 2xx/3xx status; otherwise the check degrades to
+  URL-shape validation and reports itself as degraded.
+- REQ-221: An unreachable `canonical-url::` target SHALL be flagged as a warning
+  (info when the check ran degraded). A page with `canonical-url::` SHALL NOT be
+  flagged for missing `source-file::` or other ingested-page properties: it is a
+  deliberate stub, not an ingested page missing provenance.
+- REQ-222: No auto-fix: link rot requires human judgment (update the URL, ingest a
+  snapshot, or archive the stub).
+
 ### Reporting
 
 - REQ-200: The system SHALL group findings by severity: critical, warning, info.
@@ -286,6 +299,16 @@ AND NOT rename or move the Legacy-Foo page file
 ```
 
 ---
+
+### Scenario 13: Stub page with rotten canonical-url
+
+```
+GIVEN a reference page with canonical-url:: https://example.org/moved-course
+AND the URL returns HTTP 404
+WHEN /wiki-lint runs
+THEN the page is flagged: rule 12, warning, "canonical-url target unreachable"
+AND the page is NOT flagged for missing source-file::
+```
 
 ## Acceptance Criteria
 

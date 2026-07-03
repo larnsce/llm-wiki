@@ -110,15 +110,20 @@ skill for Claude Code. It requires only bash, python3, and git.
 
 ### Step 10: Skill Installation
 
-- REQ-800: The system SHALL ask if the user wants to install the /wiki skill
+- REQ-800: The system SHALL ask if the user wants to install the wiki skill suite
   for Claude Code.
-- REQ-801: The user MAY enter a project path or "skip" to decline.
-- REQ-802: If installing: copy `wiki.md` to `$project/.claude/commands/wiki.md`,
-  creating the directory if needed.
-- REQ-803: The system SHALL patch the `<CONFIG_PATH>` placeholder in the
-  copied skill file with the actual config file path using `sed`.
-- REQ-804: The sed command MUST be platform-aware: macOS uses `sed -i ''`,
-  Linux uses `sed -i`.
+- REQ-801: The user MAY choose a project install (`<project>/.claude/skills/`), a
+  user install (`~/.claude/skills/`), or "skip" to decline.
+- REQ-802: If installing: copy (or symlink) each `skills/wiki-*` directory into the
+  chosen skills directory, creating it if needed. No file is patched during
+  install: config location is resolved at runtime by discovery
+  (specs/config.md REQ-652).
+- REQ-805: The system SHALL offer to write the global pointer file
+  `~/.config/llm-wiki/config.yml` (specs/config.md REQ-653) so the skills work
+  from any project directory.
+- REQ-806: The system SHALL detect a legacy v1 install
+  (`.claude/commands/wiki.md`) and offer to remove it, explaining that the file
+  keeps working but is unsupported.
 
 ### Step 11: Initial Git Commit
 
@@ -157,7 +162,7 @@ THEN the system SHALL:
     - Create 9 pages: Schema, Dashboard, 7 hub pages (one per default namespace)
     - Create llm-wiki.yml with all settings
     - Initialize git with .gitignore
-    - Copy wiki.md to ~/myproject/.claude/commands/wiki.md with patched config path
+    - Copy the skills/wiki-* directories to ~/myproject/.claude/skills/ (no patching)
     - Create initial git commit
     - Display summary with next steps
 ```

@@ -154,6 +154,15 @@ lint (validation).
   - Logseq: `Wiki___Namespace___Page.md` (triple-underscore, flat directory)
   - Obsidian: `Wiki/Namespace/Page.md` (directory hierarchy)
 
+### Stub Pages (external source of truth)
+
+- REQ-584: A `reference` or `knowledge` page whose source of truth is an external
+  URL the user maintains (e.g. their own Quarto site or blog series) MAY carry a
+  `canonical-url::` property with that URL ("stub, don't ingest"). A page with
+  `canonical-url::` is a deliberate stub: it SHALL NOT carry `source-file::` and is
+  exempt from ingested-page requirements (REQ-585/586). Lint SHALL check that
+  `canonical-url::` targets still resolve (specs/lint.md Rule 12).
+
 ### Provenance & Trust (source pipeline)
 
 - REQ-585: An ingested page (one written from a source in the `raw/`/`ingested/`

@@ -16,8 +16,19 @@ All downstream behavior depends on this file being valid.
   root directory (the path specified as `wiki_path` in the config itself).
 - REQ-601: Every /wiki command (ingest, query, lint, status) MUST read the config
   file as its first operation, before any wiki page operations.
-- REQ-602: If the config file does not exist, the system SHALL display an error:
-  "llm-wiki.yml not found. Run setup.sh to create one." and abort.
+- REQ-602: If no config file can be discovered (REQ-652), the system SHALL display
+  an error: "llm-wiki.yml not found. Run /wiki-setup to create one." and abort.
+
+### Config Discovery
+
+- REQ-652: Commands SHALL locate `llm-wiki.yml` in this order, first hit wins:
+  1. the path in the `LLM_WIKI_CONFIG` environment variable, if set;
+  2. walking up from the current working directory to `$HOME` (inclusive);
+  3. the global pointer file `~/.config/llm-wiki/config.yml`, whose `wiki_path`
+     names the wiki root containing the real `llm-wiki.yml`.
+- REQ-653: The global pointer file is written by /wiki-setup so that /wiki commands
+  work from any project directory. It contains only `wiki_path`.
+- REQ-654: When discovery fails at all three steps, the REQ-602 error applies.
 
 ### Required Keys
 
@@ -36,6 +47,15 @@ All downstream behavior depends on this file being valid.
 - REQ-620: The config MAY contain the key `memory_path` with a path to the L1
   memory directory. If absent, L1 Memory features (query supplementation,
   L1/L2 duplicate detection) are disabled.
+- REQ-623: The config MAY configure the source pipeline with the keys `raw_dir`
+  (default `raw`), `ingested_dir` (default `ingested`), `source_types` (array;
+  default `papers, clippings, articles, data, notes, assets`), and
+  `default_source_type` (one of `source_types`). When these keys are absent the
+  source pipeline (specs/ingest.md Source Pipeline section) is disabled and ingest
+  behaves as the base workflow.
+- REQ-624: The config MAY contain `sensitive_source_types`: an array of source
+  types (subset of `source_types`) whose archived bytes MUST NOT enter git history
+  (specs/ingest.md REQ-046). Typical values: `notes`, `data`.
 
 ### Validation Rules
 
@@ -170,6 +190,17 @@ AND memory_path SHALL resolve to /home/user/.claude/projects/x/memory/
 ```
 
 ---
+
+### Scenario 9: Discovery from a project directory
+
+```
+GIVEN the wiki lives at ~/notes with ~/notes/llm-wiki.yml
+AND ~/.config/llm-wiki/config.yml contains wiki_path: ~/notes
+AND the user runs a /wiki command from ~/projects/some-repo (no config in the walk-up)
+WHEN config discovery runs (REQ-652)
+THEN LLM_WIKI_CONFIG is unset, the walk-up finds nothing, and the pointer file
+    resolves the config at ~/notes/llm-wiki.yml
+```
 
 ## Acceptance Criteria
 
