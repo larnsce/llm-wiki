@@ -325,6 +325,7 @@ No system is perfect. Some things to know:
 - [Schema Reference](docs/schema-reference.md) — Page types, properties, lint rules
 - [Logseq vs. Obsidian](docs/logseq-vs-obsidian.md) — Detailed comparison and migration notes
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how /wiki fits
+- [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 
 ## Credits
 
