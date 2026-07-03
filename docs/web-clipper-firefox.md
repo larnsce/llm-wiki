@@ -1,6 +1,6 @@
 # Setting up a Firefox web-clipper for the LLM Wiki (MarkDownload on macOS)
 
-Setup notes for clipping web pages into the Logseq-based LLM Wiki's `raw/` folder, where `/wiki ingest` picks them up. Companion to the provenance/audit work in the [Schema Reference](schema-reference.md) and [Literature Research](literature-research.md) guides.
+Setup notes for clipping web pages into the Logseq-based LLM Wiki's `raw/` folder, where `/wiki ingest` picks them up. Companion to the provenance work in the [Schema Reference](schema-reference.md) and [Literature Research](literature-research.md) guides.
 
 This covers choosing a Firefox extension to turn web pages into `.md` files, configuring it to drop clips into the wiki's raw-input folder on macOS, and fixing the symlink so the hand-off is automatic.
 
@@ -16,7 +16,7 @@ Shortlist, sorted by fit:
 - **Page to Markdown** is a simple one-click download with a plain-text mode that strips links and images for minimal-noise context.
 - **Page to Markdown Exporter** bundles images into a ZIP alongside the markdown; useful for image-heavy pages.
 
-**Integration note:** these emit standard markdown / YAML front matter, not Logseq block syntax. Treat a clip as *raw* input: it lands in the raw side of the raw/ingested split, and `/wiki ingest` transforms it into a proper Logseq page with provenance and claim-level citations. Do not drop clipper output straight into the vault as a finished page; that bypasses the provenance and audit machinery.
+**Integration note:** these emit standard markdown / YAML front matter, not Logseq block syntax. Treat a clip as *raw* input: it lands in the raw side of the raw/ingested split, and `/wiki ingest` transforms it into a proper Logseq page with provenance (`source-file::`, `reliability::`). Do not drop clipper output straight into the vault as a finished page; that bypasses the provenance and audit machinery.
 
 ## 2. Can MarkDownload save to a dedicated folder?
 
@@ -58,7 +58,7 @@ clipped: {date:YYYY-MM-DD}
 ---
 ```
 
-`{baseURI}` is the page URL and `{byline}` is the author. The `source:` line is the anchor `/wiki ingest` reads to fill `source-file::`, giving web clips the same provenance as Zotero papers.
+`{baseURI}` is the page URL and `{byline}` is the author. The `source:` line preserves the original URL inside the clip, so the archived file in `ingested/` still records where the content came from. The wiki page's `source-file::` is then filled with that archived file's path (per schema REQ-585), giving web clips the same provenance treatment as Zotero papers.
 
 ### Part D - Create the symlink (one-time Terminal step)
 
