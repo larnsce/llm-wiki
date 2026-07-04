@@ -1,0 +1,15 @@
+- type:: knowledge
+- domain:: tech
+- created:: 2026-07-01
+- updated:: 2026-07-01
+- confidence:: medium
+- source:: ingest
+- source-file:: ingested/papers/iea-2024.md
+- reliability:: medium
+- schema-spec-version:: 2.0.0
+- ## Body
+	- Solar capacity grew 24% in 2024.
+	  cite:: ingested/papers/iea-2024.md#p12
+	- Planted defect: battery storage additions doubled year over year, a factual claim with NO cite:: (REQ-902).
+- ## Cross-References
+	- [[wiki/tech]]

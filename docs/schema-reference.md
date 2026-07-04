@@ -8,8 +8,8 @@ Without a schema, the LLM creates inconsistent pages. One page might use `status
 
 | Wiki App | File |
 |----------|------|
-| Logseq | `Wiki___Schema.md` (in your pages directory) |
-| Obsidian | `Wiki/Schema.md` (in your vault) |
+| Logseq | `wiki___schema.md` (in your pages directory) |
+| Obsidian | `wiki/schema.md` (in your vault) |
 
 The wiki skills read this file before every operation.
 
@@ -48,8 +48,8 @@ Represents a person, client, tool, service, or technology. Anything that has ide
     - Runs on VPS port 1338
     - Build locally, upload dist/ to server
   - ### Cross-References
-    - [[Wiki/Tech/Next-js]] -- Frontend consumer
-    - [[Wiki/Reference/Workflows]] -- Publishing workflow
+    - [[wiki/tech/Next-js]] -- Frontend consumer
+    - [[wiki/reference/workflows]] -- Publishing workflow
 ```
 
 **Example (Obsidian format):**
@@ -77,8 +77,8 @@ Version: 5.39.0
 
 ### Cross-References
 
-- [[Wiki/Tech/Next-js]] -- Frontend consumer
-- [[Wiki/Reference/Workflows]] -- Publishing workflow
+- [[wiki/tech/Next-js]] -- Frontend consumer
+- [[wiki/reference/workflows]] -- Publishing workflow
 ```
 
 ### 2. Project
@@ -121,8 +121,8 @@ Tracks a project with timeline, status, and outcomes.
       | Part 1 | 1,200 | 2026-03-01 |
       | Part 2 | 890 | 2026-03-15 |
   - ### Cross-References
-    - [[Wiki/Content/Blog]] -- Publishing channel
-    - [[Wiki/Content/Newsletter]] -- Promotion
+    - [[wiki/content/blog]] -- Publishing channel
+    - [[wiki/content/newsletter]] -- Promotion
 ```
 
 ### 3. Knowledge
@@ -166,8 +166,8 @@ Stores synthesized knowledge on a topic. The most common page type.
     - PM2 reload does not work for npm-started processes
     - Environment variables baked in at build time, not runtime
   - ### Cross-References
-    - [[Wiki/Tech/PM2]] -- Process manager
-    - [[Wiki/Tech/Nginx]] -- Reverse proxy
+    - [[wiki/tech/PM2]] -- Process manager
+    - [[wiki/tech/Nginx]] -- Reverse proxy
 ```
 
 ### 4. Feedback
@@ -199,7 +199,7 @@ Captures lessons learned, gotchas, and operational rules. Often promoted to L1 i
 - severity:: critical
 - created:: 2026-03-10
 - verified:: 2026-04-01
-- applies-to:: [[Wiki/Tech/PM2]], [[Wiki/Tech/Deployment]]
+- applies-to:: [[wiki/tech/PM2]], [[wiki/tech/deployment]]
 - ## PM2 Reload Gotcha
   - `pm2 reload` does NOT work for processes started with
     `pm2 start npm --name X -- start`.
@@ -208,8 +208,8 @@ Captures lessons learned, gotchas, and operational rules. Often promoted to L1 i
     - Discovered during production deploy on 2026-03-10.
     - Process appeared to reload but was serving stale code.
   - ### Cross-References
-    - [[Wiki/Tech/PM2]] -- Process manager details
-    - [[Wiki/Tech/Deployment]] -- Full deploy workflow
+    - [[wiki/tech/PM2]] -- Process manager details
+    - [[wiki/tech/deployment]] -- Full deploy workflow
 ```
 
 ### 5. Hub
@@ -232,18 +232,18 @@ first (cheap) and only then opens the 1-3 pages whose description matches. Cold 
 
 ```markdown
 - type:: hub
-- namespace:: Wiki/Tech
+- namespace:: wiki/tech
 - ## Tech
   - ### Index
-    - [[Wiki/Tech/Strapi]] -- Headless CMS, ports, deploy + migration gotchas #strapi #deploy
-    - [[Wiki/Tech/Next-js]] -- Frontend framework, SSR/ISR config #nextjs
-    - [[Wiki/Tech/PM2]] -- Process manager, cwd/reload bug #pm2 #deploy
-    - [[Wiki/Tech/Nginx]] -- Reverse proxy, TLS, upstream ports #nginx
+    - [[wiki/tech/Strapi]] -- Headless CMS, ports, deploy + migration gotchas #strapi #deploy
+    - [[wiki/tech/Next-js]] -- Frontend framework, SSR/ISR config #nextjs
+    - [[wiki/tech/PM2]] -- Process manager, cwd/reload bug #pm2 #deploy
+    - [[wiki/tech/Nginx]] -- Reverse proxy, TLS, upstream ports #nginx
   - ### Archive
-    - [[Wiki/Tech/Legacy-Foo]] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived
+    - [[wiki/tech/legacy-foo]] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived
   - ### Related Hubs
-    - [[Wiki/Projects]] -- Project-specific tech decisions
-    - [[Wiki/Reference]] -- Workflow documentation
+    - [[wiki/projects]] -- Project-specific tech decisions
+    - [[wiki/reference]] -- Workflow documentation
 ```
 
 ## Namespace Conventions
@@ -254,30 +254,35 @@ The default schema defines 8 top-level namespaces. Customize these to match your
 
 | Namespace | Purpose | Typical Page Types |
 |-----------|---------|-------------------|
-| `Wiki/Business` | Clients, services, business strategy | Entity, Knowledge |
-| `Wiki/Tech` | Tools, frameworks, infrastructure | Entity, Knowledge, Feedback |
-| `Wiki/Content` | Blog, newsletter, social media | Knowledge, Project |
-| `Wiki/Projects` | Active and completed projects | Project |
-| `Wiki/People` | People you work with | Entity |
-| `Wiki/Learning` | Courses, books, research | Knowledge |
-| `Wiki/Reference` | Workflows, templates, checklists | Knowledge |
-| `Wiki/Careers` | Job applications, opportunities | Project |
+| `wiki/business` | Clients, services, business strategy | Entity, Knowledge |
+| `wiki/tech` | Tools, frameworks, infrastructure | Entity, Knowledge, Feedback |
+| `wiki/content` | Blog, newsletter, social media | Knowledge, Project |
+| `wiki/projects` | Active and completed projects | Project |
+| `wiki/people` | People you work with | Entity |
+| `wiki/learning` | Courses, books, research | Knowledge |
+| `wiki/reference` | Workflows, templates, checklists | Knowledge |
+| `wiki/careers` | Job applications, opportunities | Project |
 
 ### Naming Rules
 
 | Rule | Example |
 |------|---------|
-| Title Case | `Wiki/Tech/Strapi` (not `Wiki/tech/strapi`) |
-| Hyphens for multi-word | `Wiki/Projects/Blog-Series` (not `Blog_Series`) |
-| Max depth: 3 levels | `Wiki/Business/Clients/Acme` is the deepest allowed |
-| Hub at each level | `Wiki/Tech` is the hub for all `Wiki/Tech/*` pages |
+| Lowercase structural segments | `wiki/tech`, not `Wiki/Tech` |
+| Hyphen (U+002D) for multi-word | `wiki/projects/blog-series` (not `blog_series`, `blog series`, or an en/em dash) |
+| Proper-noun leaves keep natural casing | `wiki/tools/Claude Code`, `notes/literature/@Forte2022` |
+| Max depth: 3 levels | `wiki/business/clients/Acme` is the deepest allowed |
+| Hub at each level | `wiki/tech` is the hub for all `wiki/tech/*` pages |
+
+The `Wiki/` → `wiki/` corpus rename runs through the migration converter
+(`migrate_wiki.py --lowercase`, REQ-580c), not by hand; pre-migration corpora that still use
+Title Case names are covered by the lint grandfather floor.
 
 ### File Names on Disk
 
 | Wiki App | Convention | Example |
 |----------|-----------|---------|
-| Logseq | Triple-underscore separator | `Wiki___Tech___Strapi.md` |
-| Obsidian | Directory structure | `Wiki/Tech/Strapi.md` |
+| Logseq | Triple-underscore separator | `wiki___tech___Strapi.md` |
+| Obsidian | Directory structure | `wiki/tech/Strapi.md` |
 
 ## Cross-Reference Rules
 
@@ -285,16 +290,16 @@ Cross-references are what make a wiki a wiki, not just a folder of notes.
 
 ### Requirements
 
-1. **Every page must have at least 1 outgoing link.** A page with zero `[[Wiki/...]]` links is isolated and will be flagged by lint.
-2. **Hub pages must list ALL child pages.** If `Wiki/Tech/Strapi` exists, it must appear in the `Wiki/Tech` hub page.
-3. **Mention an entity with a page? Link to it.** If you reference Strapi in a deployment page, use `[[Wiki/Tech/Strapi]]`, not just "Strapi".
+1. **Every page must have at least 1 outgoing link.** A page with zero `[[wiki/...]]` links is isolated and will be flagged by lint.
+2. **Hub pages must list ALL child pages.** If `wiki/tech/Strapi` exists, it must appear in the `wiki/tech` hub page.
+3. **Mention an entity with a page? Link to it.** If you reference Strapi in a deployment page, use `[[wiki/tech/Strapi]]`, not just "Strapi".
 4. **Backlinks are automatic** in both Logseq and Obsidian. You only need to create links in one direction.
 
 ### Link Syntax
 
 | Type | Syntax | When to use |
 |------|--------|-------------|
-| Wiki internal | `[[Wiki/Tech/Strapi]]` | Referencing another wiki page |
+| Wiki internal | `[[wiki/tech/Strapi]]` | Referencing another wiki page |
 | Tag | `#strapi` | Lightweight categorization |
 | External | `[Strapi Docs](https://docs.strapi.io)` | URLs outside the wiki |
 
@@ -304,9 +309,9 @@ Every non-hub page should end with a `### Cross-References` section listing its 
 
 ```markdown
 - ### Cross-References
-  - [[Wiki/Tech/Strapi]] -- CMS backend
-  - [[Wiki/Tech/Next-js]] -- Frontend framework
-  - [[Wiki/Reference/Workflows]] -- Publishing process
+  - [[wiki/tech/Strapi]] -- CMS backend
+  - [[wiki/tech/Next-js]] -- Frontend framework
+  - [[wiki/reference/workflows]] -- Publishing process
 ```
 
 ## Lint Rules
@@ -341,7 +346,7 @@ The `/wiki-lint` command checks these rules automatically. Run with `--fix` to a
 
 ### 4. Broken References
 
-**What:** `[[Wiki/...]]` links that point to pages that do not exist.
+**What:** `[[wiki/...]]` links that point to pages that do not exist.
 
 **Why:** Broken links are false promises. They suggest knowledge exists when it does not. They also indicate that a page was deleted or renamed without updating references.
 
@@ -351,7 +356,7 @@ The `/wiki-lint` command checks these rules automatically. Run with `--fix` to a
 
 **What:** Hub pages that are missing child pages from their namespace.
 
-**Why:** Hubs are the navigational backbone. If a page exists in `Wiki/Tech/` but is not listed in the `Wiki/Tech` hub, it is effectively hidden from browsing.
+**Why:** Hubs are the navigational backbone. If a page exists in `wiki/tech/` but is not listed in the `wiki/tech` hub, it is effectively hidden from browsing.
 
 **Auto-fix:** Add missing children to the hub page.
 
@@ -375,7 +380,7 @@ The `/wiki-lint` command checks these rules automatically. Run with `--fix` to a
 
 ### 8. Cross-Reference Minimum
 
-**What:** Pages with fewer than 1 outgoing `[[Wiki/...]]` link.
+**What:** Pages with fewer than 1 outgoing `[[wiki/...]]` link.
 
 **Why:** An isolated page is a disconnected thought. The power of a wiki comes from connections. Even a stub page should link to its namespace hub.
 
@@ -479,7 +484,7 @@ Code blocks, tables, and all standard markdown features work as expected.
 ### Universal Rules (Both Formats)
 
 - Dates: ISO 8601 (`YYYY-MM-DD`)
-- Links: `[[Wiki/Namespace/Page]]` syntax
+- Links: `[[wiki/<namespace>/<page>]]` syntax
 - External links: `[Text](URL)` syntax
 - Tags: `#tag` for lightweight categorization
 - No credentials in wiki content (ever)
@@ -487,18 +492,18 @@ Code blocks, tables, and all standard markdown features work as expected.
 
 ## Hub-Index-Routing & LRU-Demote
 
-L1 (Claude Memory) has an index — the auto-loaded `MEMORY.md` pointer list. L2 (the wiki) had none.
+L1 (Claude Memory) has an index - the auto-loaded `MEMORY.md` pointer list. L2 (the wiki) had none.
 As the wiki grows, a grep-over-every-page retrieval gets imprecise and expensive. These two mechanisms
-keep L2 precise while it scales — the CPU-cache analogy, carried through to the index and eviction layers.
+keep L2 precise while it scales - the CPU-cache analogy, carried through to the index and eviction layers.
 
 ### Hub-Index-Routing (two-stage query)
 
 Each hub page carries an `### Index` block: one routing line per active child page, formatted
-`[[Wiki/NS/Page]] -- <one-sentence description, <=120 chars> #tag #tag`.
+`[[wiki/<ns>/<page>]] -- <one-sentence description, <=120 chars> #tag #tag`.
 
 - **Stage 1** - `/wiki-query` reads only the hub `### Index` blocks of the candidate namespaces and
   picks the 3 (max 5) most relevant pages by description. This is the wiki's *page table / TLB*.
-- **Stage 2** — it then reads only those full pages. Grep-over-everything is just the **L3 fallback**
+- **Stage 2** - it then reads only those full pages. Grep-over-everything is just the **L3 fallback**
   when routing finds nothing.
 - `/wiki-ingest` maintains the routing line for every page it creates or updates (required, else the
   page is unroutable). The description is the routing key: terse, distinctive, no filler.
@@ -517,20 +522,20 @@ Each hub page carries an `### Index` block: one routing line per active child pa
 - Re-promote: if an L3 grep hits an archived page again, its routing line returns to `### Index` and
   the archived properties are removed.
 - **Critical:** the wiki tool links by page name, so a file rename/move would break every incoming
-  `[[link]]`. Never move a demoted page — only evict it from the index.
+  `[[link]]`. Never move a demoted page - only evict it from the index.
 
 ### Access-Log page
 
-`Wiki/Reference/Access-Log` (`access-log:: true`, `type:: reference`) holds an append-only `## Log`
-block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended — do not
-hand-edit it. Each line carries a `matched:` routing reason (`... -- query -- matched: "<reason>"`) —
-the index description or grep term that selected the page — so the log records not just WHICH page
+`wiki/reference/access-log` (`access-log:: true`, `type:: reference`) holds an append-only `## Log`
+block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended - do not
+hand-edit it. Each line carries a `matched:` routing reason (`... -- query -- matched: "<reason>"`) -
+the index description or grep term that selected the page - so the log records not just WHICH page
 loaded but WHY (routing transparency, surfaced by `/wiki-maintain`). Legacy lines without `matched:`
 remain valid; the suffix does not affect prune/status parsing.
 
 ### Related lint rules
 
-- **Index Drift** — a routing line with no matching page (orphaned), or an active page with no routing
+- **Index Drift** - a routing line with no matching page (orphaned), or an active page with no routing
   line in its namespace hub (unroutable). `lint --fix` removes orphans and backfills missing lines.
-- **Archived-in-Live-Index** — an archived page (`archived::` set) still in `### Index` instead of
+- **Archived-in-Live-Index** - an archived page (`archived::` set) still in `### Index` instead of
   `### Archive` (an unclean prune). `lint --fix` moves it.

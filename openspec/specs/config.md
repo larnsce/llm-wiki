@@ -1,4 +1,4 @@
-# Spec: Configuration — llm-wiki.yml Loading & Validation
+# Spec: Configuration - llm-wiki.yml Loading & Validation
 
 ## Description
 
@@ -55,7 +55,14 @@ All downstream behavior depends on this file being valid.
   behaves as the base workflow.
 - REQ-624: The config MAY contain `sensitive_source_types`: an array of source
   types (subset of `source_types`) whose archived bytes MUST NOT enter git history
-  (specs/ingest.md REQ-046). Typical values: `notes`, `data`.
+  (specs/ingest.md REQ-046). Typical values: `notes`, `data`. This key already
+  covers PII in promoted `para/`/`notes/` content (specs/namespaces.md REQ-981);
+  no additional key is needed for the human namespaces.
+- REQ-625: The config MAY contain the keys `para_dir` (default `para`) and
+  `notes_dir` (default `notes`): paths relative to the pages directory naming the
+  human-owned namespaces (specs/namespaces.md). They are recognized by the
+  namespace scope rule and the namespace-hygiene lint check; when absent, the
+  defaults apply and the namespaces are still recognized.
 
 ### Validation Rules
 
@@ -68,8 +75,12 @@ All downstream behavior depends on this file being valid.
   but continue (the directory may be created during setup).
 - REQ-633: If `namespaces` is empty or missing, the system SHALL display:
   "No namespaces configured in llm-wiki.yml." and abort.
-- REQ-634: Namespace names SHOULD be Title Case (e.g., `Tech`, not `tech`).
-  Non-Title-Case names SHALL trigger a warning but not abort.
+- REQ-634: Namespace names SHOULD follow the structural naming rules in
+  specs/schema.md (REQ-580..581: lowercase, hyphenated; e.g. `tech`, not `Tech`).
+  A non-conforming name SHALL trigger a warning but not abort. The mechanical
+  advisory in code flips from the old Title Case check with the lowercase
+  migration (issue #25); pre-migration Title Case corpora warn under the
+  grandfather floor.
 
 ### Path Handling
 
@@ -167,7 +178,7 @@ THEN the system SHALL display: "No namespaces configured in llm-wiki.yml."
 AND abort
 ```
 
-### Scenario 7: Memory path missing — features degraded
+### Scenario 7: Memory path missing - features degraded
 
 ```
 GIVEN llm-wiki.yml has no memory_path key

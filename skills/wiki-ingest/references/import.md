@@ -39,7 +39,7 @@ Phase 2 - Conversion planning:
   markdown: [formats](../../wiki-core/references/formats.md))
 - Plan the required properties per page type (schema REQ-510..530), including
   `type`, `created`, `updated`, and `source:: manual`
-- Plan the conversion of internal links to `[[Wiki/...]]` cross-references
+- Plan the conversion of internal links to `[[wiki/...]]` cross-references
 - Then the batch checkpoint from SKILL.md applies: one consolidated table, no
   write before the user responds (REQ-025); `--auto` skips it (REQ-026)
 
@@ -59,10 +59,10 @@ Phase 4 - Verification:
 - Run lint on the imported pages
 - Report pages imported and issues found; git commit with an import summary
 
-## Boundary with the promotion seam (v2.2)
+## Boundary with the promotion seam
 
-Once the `para/` / `notes/` namespace contract applies (v2.2,
-openspec/specs/namespaces.md REQ-620..623), content under `para/` or `notes/`
-enters the wiki ONLY through the promotion seam: the human copies it into
-`raw/` and runs the regular ingest pipeline. `--import` is for other existing
-notes; it does not bypass that seam.
+Content under `para/` or `notes/` enters the wiki ONLY through the promotion
+seam (openspec/specs/namespaces.md REQ-970; details in
+[promotion-seam](promotion-seam.md)): the human copies it into `raw/` and
+runs the regular ingest pipeline. `--import` is for other existing notes; it
+does not bypass that seam and never targets `para/` or `notes/` pages.

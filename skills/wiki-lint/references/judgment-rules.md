@@ -1,13 +1,16 @@
 # wiki-lint judgment layer and --fix playbook
 
-Spec: openspec/specs/lint.md. The mechanical subset of the 12 rules runs in
+Spec: openspec/specs/lint.md. The mechanical subset of the 14 rules runs in
 `skills/wiki-core/scripts/lint.py` (report-only). This file defines what
 the agent adds on top and how fixes are applied.
 
 ## Division of labor
 
-Mechanical (lint.py): rules 1, 3, 4, 5, 6, 7, 8, 10, 11, 12 plus the
-schema-level checks (date format, enums, provenance, format mixing).
+Mechanical (lint.py): rules 1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14 plus
+the schema-level checks (date format, enums, provenance, format mixing).
+For rule 13 (naming hygiene) only the structural part is mechanical: leaf
+segments are flagged by lint.py only for separator violations (underscore,
+en/em dash, REQ-231); leaf casing and spaces are this layer's judgment.
 
 Judgment (agent, this layer):
 
@@ -21,15 +24,24 @@ Judgment (agent, this layer):
   memory files at `memory_path`. "Substantially the same information" is a
   semantic call, not a string match. Severity info; no auto-fix, the user
   decides which location is authoritative.
-- Naming quality: page and namespace names in Title Case, hyphens for
-  multi-word names, depth of at most 3 (REQ-580..582); flag names that are
-  technically valid but unclear or misleading.
+- Proper-noun-leaf review (rule 13, REQ-231): lint.py flags structural
+  (non-leaf) segments for spaces, uppercase, underscores, and en/em dashes
+  (REQ-230), but a leaf is only flagged mechanically for separator
+  violations. Review the leaf findings and DISMISS proper-noun leaves
+  (REQ-580b, namespaces REQ-976): a capitalized or `@`-prefixed leaf naming
+  a person, tool, paper, or citekey (`wiki/tools/Claude Code`,
+  `notes/literature/@Forte2022`) keeps natural casing and is NOT a
+  violation. Flag the inverse case the mechanical layer skips: an uppercase
+  or spaced leaf that is NOT a proper noun (`wiki/tech/My Notes`).
+- Naming quality: lowercase structural segments, hyphens for multi-word
+  names, depth of at most 3 (REQ-580..582); flag names that are technically
+  valid but unclear or misleading.
 - Routing-description quality: hub `### Index` descriptions must be
   distinctive routing keys, at most 120 chars, no filler like "Info
   about ..." (REQ-555, REQ-557). lint.py only catches EMPTY descriptions
   (REQ-195); weak ones are a judgment call.
 - Misfiled namespace: a page whose content belongs in a different
-  namespace (e.g. a client profile under Wiki/Tech). Propose a NEW page in
+  namespace (e.g. a client profile under wiki/tech). Propose a NEW page in
   the right namespace and demote or merge the old one; never move or
   rename the file itself (links are by page name, see the architecture
   reference).
@@ -64,7 +76,10 @@ No auto-fix, ever: rule 3 missing properties (REQ-133), rule 6 credential
 leak (REQ-164; move the credential to L1 memory manually and scrub git
 history if needed), rule 7 empty pages (REQ-172), rule 9 L1/L2 duplicates
 (REQ-192), rule 12 link rot (REQ-222; update the URL, ingest a snapshot,
-or archive the stub).
+or archive the stub), rule 13 naming hygiene (REQ-232; a rename changes
+page identity and runs through the migration converter or by hand), rule
+14 namespace hygiene (REQ-242; moving content between namespaces is the
+human's call, and content enters wiki/ only through the promotion seam).
 
 ## Grandfather mode (issue #21)
 

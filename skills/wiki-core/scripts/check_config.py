@@ -6,11 +6,15 @@ Checks:
 - tool value strictly logseq or obsidian (REQ-630)
 - wiki_path exists on disk after tilde expansion (REQ-631)
 - pages_dir resolves; missing directory is a warning (REQ-632)
-- namespaces non-empty (REQ-633), Title Case advisory (REQ-634)
+- namespaces non-empty (REQ-633), lowercase-structural advisory (REQ-634)
 - v2 source-pipeline keys (REQ-623): raw_dir, ingested_dir, source_types,
   default_source_type; missing keys are WARNINGS with a copy-paste snippet
 - sensitive_source_types subset of source_types (REQ-624)
-- para_dir / notes_dir recognized as optional keys (namespaces.md REQ-640)
+- para_dir / notes_dir: optional keys (config.md REQ-625, namespaces.md
+  REQ-980); defaults 'para' and 'notes' apply when absent. When present,
+  shape-only validation: relative to the pages directory (no absolute
+  path, no tilde), no '..' traversal (criticals), lowercase advisory
+  (warning, schema.md REQ-580)
 
 Exit codes: 0 = clean, 1 = warnings only, 2 = critical.
 """
@@ -24,6 +28,12 @@ import wikilib
 REQUIRED_KEYS = ("tool", "wiki_path", "pages_dir", "namespaces")
 
 PIPELINE_KEYS = ("raw_dir", "ingested_dir", "source_types", "default_source_type")
+
+# Optional human-namespace keys (REQ-625) and their defaults.
+HUMAN_NAMESPACE_KEYS = (
+    ("para_dir", wikilib.DEFAULT_PARA_DIR),
+    ("notes_dir", wikilib.DEFAULT_NOTES_DIR),
+)
 
 KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
     "memory_path",
@@ -83,10 +93,15 @@ def check(config, config_path, skip_path_checks=False):
             criticals.append("No namespaces configured in llm-wiki.yml.")
         else:
             for namespace in namespaces:
-                if not namespace[:1].isupper():
+                if (namespace != namespace.lower() or "_" in namespace
+                        or " " in namespace):
+                    suggested = namespace.lower().replace("_", "-")
+                    suggested = suggested.replace(" ", "-")
                     warnings.append(
-                        "Namespace '%s' is not Title Case (REQ-634). "
-                        "Consider '%s'." % (namespace, namespace.title())
+                        "Namespace '%s' is not lowercase-structural "
+                        "(REQ-634; specs/schema.md REQ-580/580a: lowercase, "
+                        "hyphen-only). Consider '%s'."
+                        % (namespace, suggested)
                     )
 
     missing_pipeline = [key for key in PIPELINE_KEYS if key not in config]
@@ -119,6 +134,36 @@ def check(config, config_path, skip_path_checks=False):
                     % (extras, "\n".join("  - %s" % t
                                          for t in source_types + extras))
                 )
+
+    # Human namespaces (REQ-625/REQ-980): optional; shape-only checks. The
+    # defaults apply when a key is absent (or present but empty), so neither
+    # case is an error.
+    for key, default in HUMAN_NAMESPACE_KEYS:
+        if key not in config:
+            continue
+        value = config.get(key)
+        if not isinstance(value, str) or not value:
+            warnings.append(
+                "'%s' is present but empty; the default '%s' applies "
+                "(REQ-625)." % (key, default)
+            )
+            continue
+        if value.startswith(("/", "~")) or os.path.isabs(value):
+            criticals.append(
+                "'%s' must be a path relative to the pages directory, "
+                "got '%s' (REQ-625)." % (key, value)
+            )
+        elif ".." in value.replace("\\", "/").split("/"):
+            criticals.append(
+                "'%s' must not contain path traversal ('..'), got '%s' "
+                "(REQ-625)." % (key, value)
+            )
+        if value != value.lower():
+            warnings.append(
+                "'%s' should be lowercase (structural naming, "
+                "specs/schema.md REQ-580). Consider '%s'."
+                % (key, value.lower())
+            )
 
     unknown = sorted(set(config) - KNOWN_KEYS)
     if unknown:

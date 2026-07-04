@@ -6,4 +6,4 @@
 - ## Namespaces
 {{NAMESPACE_LINKS}}
 - ## Schema
-	- [[Wiki/Schema]] -- Namespace conventions, page types, lint rules
+	- [[wiki/schema]] -- Namespace conventions, page types, lint rules

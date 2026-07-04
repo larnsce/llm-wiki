@@ -2,7 +2,7 @@
 
 Spec: openspec/specs/l1-l2-routing.md REQ-300..364; openspec/specs/query.md
 REQ-440..452; openspec/specs/prune.md REQ-600..622; openspec/specs/namespaces.md
-REQ-600..641
+REQ-960..981
 
 ## L1/L2 cache model
 
@@ -63,12 +63,26 @@ cache profile. Format and rules in [formats.md](formats.md).
 
 ## Namespace scope rule
 
-Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
-future verb) operates ONLY on pages in the wiki namespace (namespaces REQ-610).
-Never create, modify, lint, or audit pages under `para/` or `notes/` (human-owned;
-REQ-611), and never modify non-wiki pages such as existing notes or journals.
-Reading `para/` or `notes/` pages for context when the user asks is allowed, but
-never write to them as a side effect (REQ-612). The only path from `para/` or
-`notes/` into the wiki is the promotion seam through `raw/` and the ingest
-pipeline (REQ-620..623). This section is the single statement of the scope rule
-loaded by every skill (REQ-613).
+The v2.2 namespace contract (openspec/specs/namespaces.md REQ-965..968) binds
+every wiki workflow, in every tool mode:
+
+- **Operate only on `wiki/`.** Every wiki workflow (ingest, query, prune, lint,
+  status, audit, update, and any future verb) operates ONLY on pages whose name
+  starts with `wiki/` (REQ-965).
+- **Never write the human namespaces.** Never create, edit, lint, or audit any
+  page under `para/` or `notes/` (human-authored; REQ-966), and never modify
+  non-wiki pages such as existing notes or journals. There is no grandfathered
+  exception: a fresh graph starts under this rule and stays under it.
+- **Reading is allowed, on request.** A wiki workflow MAY read `para/` or
+  `notes/` pages when the user asks for context (e.g. a query referencing a
+  linked note), but never writes to them as a side effect (REQ-967).
+- **One door in.** The only path from `para/` or `notes/` into the wiki is the
+  promotion seam: content the human copies into `raw/`, entering through the
+  standard ingest pipeline with full provenance (REQ-970..973; agent-side
+  contract in wiki-ingest's promotion-seam reference).
+
+The human namespaces resolve from the optional `para_dir` / `notes_dir` config
+keys, defaulting to `para/` and `notes/` ([config.md](config.md), namespaces
+REQ-980). This section is the single statement of the scope rule, loaded by
+every skill via this shared reference; skills link here and do not restate it
+(REQ-968, enforced by `check_canon.py`).

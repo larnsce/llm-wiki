@@ -1,9 +1,9 @@
 - type:: hub
-- namespace:: Wiki/{{NAMESPACE}}
+- namespace:: wiki/{{NAMESPACE}}
 - updated:: {{DATE}}
 - ## {{NAMESPACE}}
 	- ### Index
-		- Routing lines go here, one per child page: `[[Wiki/{{NAMESPACE}}/SubTopic]] -- one-sentence description #tag`
+		- Routing lines go here, one per child page: `[[wiki/{{NAMESPACE}}/sub-topic]] -- one-sentence description #tag`
 		- `query` Phase 0 reads only this list to route to the right pages - the wiki's page table. Keep descriptions terse and distinctive.
 	- ### Archive
 		- Cold pages demoted by `/wiki-maintain prune` land here - out of routing, file still on disk and greppable (L3).

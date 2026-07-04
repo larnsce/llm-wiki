@@ -10,14 +10,16 @@ pages_dir: pages      # relative to wiki_path; empty string for Obsidian
 # Optional (REQ-620): L1 memory directory; absent means L1 features are off
 memory_path: ~/.claude/projects/my-project/memory/
 
+# Structural namespace names are lowercase, hyphen-only
+# (specs/schema.md REQ-580/580a)
 namespaces:
-  - Business
-  - Tech
-  - Content
-  - Projects
-  - People
-  - Learning
-  - Reference
+  - business
+  - tech
+  - content
+  - projects
+  - people
+  - learning
+  - reference
 
 # Source pipeline (REQ-623): drop sources in raw/, ingest synthesises them
 # into pages, then the file moves to ingested/<type>/. The move is the
@@ -40,7 +42,14 @@ default_source_type: papers
 #   - notes
 #   - data
 
-# v2.2 keys (openspec/specs/namespaces.md REQ-640): PARA and notes trees that
-# live beside the wiki pages. Uncomment when you use them:
+# Human namespaces (optional; openspec/specs/config.md REQ-625,
+# openspec/specs/namespaces.md REQ-980/981): para/ (PARA task layer) and
+# notes/ (Zettelkasten), relative to the pages directory. The wiki toolchain
+# never writes to them; the scope rule and namespace-hygiene lint recognize
+# them. Defaults are para and notes and apply even when the keys are absent.
+# Scaffold the layer on a fresh graph with init_wiki.py --with-para-notes
+# (or setup.sh --init ... --with-para-notes); see docs/para-notes-workflow.md.
+# para/ and notes/ are candidate sensitive_source_types entries (REQ-981):
+# list them above if promoted content can carry governed personal data.
 # para_dir: para
 # notes_dir: notes

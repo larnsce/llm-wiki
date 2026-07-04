@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-07-04
+
+The human layer: PARA tasks (`para/`) and Zettelkasten notes (`notes/`) in the
+same graph as the machine-written `wiki/`, with a hard namespace contract and
+one sanctioned promotion path. Completes the v2.2 milestone (issue #30).
+
+### Added
+
+- Namespaces contract + naming canon (`openspec/specs/namespaces.md`,
+  issue #22): REQs renumbered into the globally unique 960..981 range;
+  `schema.md` REQ-580 flipped from Title Case to lowercase-hyphenated
+  structural names with the proper-noun-leaf exemption (REQ-580a/580b,
+  namespaces REQ-976) and the corpus rename pass (REQ-580c); the
+  personal-synthesis reliability rubric case (REQ-586); `para_dir` /
+  `notes_dir` config keys (config REQ-625).
+- Lint rules 13 (naming hygiene: structural segments mechanical, leaf
+  proper-noun judgment stays in the wiki-lint skill) and 14 (namespace
+  hygiene: strays outside the contract flagged; `para/` and `notes/` exempt
+  from every wiki-only rule) (issue #23).
+- Promotion seams in wiki-ingest (namespaces REQ-970..973, issue #24):
+  `raw/para-<project>.md` / `raw/note-<name>.md` sources default to
+  `reliability:: medium` (personal synthesis, schema REQ-586) and run the
+  unchanged lifecycle with atomic move+commit, secret gate, and `cite::`
+  emission; the literature variant (REQ-973) is a report reminder, never a
+  write into `notes/`. New golden pairing pins the promoted-note checkpoint
+  (`tests/golden/promotion-seam.golden.md`, issue #26).
+- Opt-in para/notes scaffold: `init_wiki.py --with-para-notes` (or
+  `setup.sh --init --with-para-notes`) seeds the human layer; without the
+  flag the output is unchanged (issue #29).
+- `migrate_wiki.py --lowercase` converter pass (issue #25): `Wiki/` to
+  `wiki/` renames via git mv, link and hub rewrites, plus Roam task-marker
+  conversion (`{{[[TODO]]}}` to `TODO` and variants); dry-run by default,
+  idempotent, driven interactively by `/wiki-migrate`.
+- Harness at 108 assertions (both tool modes), including migration and
+  naming/namespace-hygiene coverage.
+
+### Notes
+
+- The maintainer-verification items on #27 (Logseq Datalog query validation,
+  archive-procedure confirmation) and #28 (Zotero plugin verify-once,
+  end-to-end loop run) remain open past this release.
+- The "real-vault lowercase migration executed" release-gate item (issue #30)
+  is moot: the maintainer starts from a fresh empty graph, so there is no
+  pre-v2.2 corpus to migrate.
+
 ## [2.1.0] - 2026-07-04
 
 Claim-level citations and the two skills that consume them. Completes the

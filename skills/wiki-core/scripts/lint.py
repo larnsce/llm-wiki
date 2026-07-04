@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """lint.py - mechanical wiki linter (layer 1 of the two-layer lint).
 
-Implements the mechanical subset of the 12 lint rules from
+Implements the mechanical subset of the 14 lint rules from
 openspec/specs/lint.md. Finding ids equal spec REQ ids; findings that live
 in openspec/specs/schema.md (date format, enums, provenance, format mixing)
 use their schema.md REQ ids.
@@ -18,11 +18,19 @@ Mechanical rules covered here:
   Rule 10  Index Drift                 REQ-193 / REQ-194 / REQ-195
   Rule 11  Archived-in-Live-Index      REQ-197
   Rule 12  External Link Rot           REQ-220 / REQ-221 (canonical-url)
+  Rule 13  Naming Hygiene              REQ-230 / REQ-231 (structural names)
+  Rule 14  Namespace Hygiene           REQ-240 (pages outside the contract)
 
   Schema-level mechanical checks: date format (REQ-560, REQ-563),
   completed project without completed date (REQ-522, info),
   ingested-page provenance (REQ-584, REQ-585, REQ-586),
   format mixing (REQ-595).
+
+Namespace scope (specs/namespaces.md): pages under the human-owned
+para_dir/notes_dir namespaces are EXEMPT from every wiki-only rule
+(REQ-961/966); the only rule that touches them is the advisory,
+info-level structural part of naming hygiene. Rule 14 accepts them as
+in-contract (REQ-242).
 
 Rule 2 (Stale Detection) and Rule 9 (L1/L2 Duplicates) plus all quality
 judgments run agent-side in the wiki-lint skill. This script is
@@ -61,7 +69,7 @@ SCHEMA_SPEC_VERSION = "2.0.0"
 # The canonical number of lint rules. check_canon.py verifies this matches
 # the "### Rule N:" headings in openspec/specs/lint.md and the rule lists
 # in both templates/*/Schema.md.
-LINT_RULE_COUNT = 12
+LINT_RULE_COUNT = 14
 
 SEVERITY_RANK = {"critical": 0, "warning": 1, "info": 2}
 
@@ -98,7 +106,46 @@ DATE_PROPS = ("created", "updated", "started", "completed", "verified",
               "archived", "last-reviewed")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-SYSTEM_PAGE_NAMES = {"Wiki/Schema", "Wiki/Dashboard", "Wiki/Reference/Access-Log"}
+# Compared case-insensitively so pre-migration corpora (Wiki/Schema, ...)
+# keep their system-page exemptions until the lowercase pass runs (REQ-580c).
+SYSTEM_PAGE_NAMES = {"wiki/schema", "wiki/dashboard", "wiki/reference/access-log"}
+
+# Rule 14 (REQ-241): deliberate root pages recognized by name
+# (case-insensitive), per namespaces.md REQ-962. Contents is the Logseq
+# built-in index page.
+ROOT_PAGE_NAMES = {"schema", "dashboard", "access-log", "contents"}
+
+# Rule 13 (REQ-230/231): the only word separator inside a structural name
+# segment is the ASCII hyphen U+002D (schema.md REQ-580a). The en dash
+# U+2013 and em dash U+2014 are matched as escaped codepoints on purpose:
+# literal lookalike dashes in source are invisible grep traps.
+EN_DASH = "\u2013"
+EM_DASH = "\u2014"
+
+
+def segment_problems(segment, leaf):
+    """Naming problems in one page-name segment (rule 13).
+
+    Non-leaf segments are structural by definition: spaces, uppercase,
+    underscores, and en/em dashes are all violations (REQ-230). A leaf
+    segment may be a proper noun, so only separator violations
+    (underscore, en/em dash) are mechanical there (REQ-231); uppercase
+    and spaces in a leaf stay a wiki-lint skill judgment.
+    """
+    problems = []
+    if "_" in segment:
+        problems.append("underscore")
+    if EN_DASH in segment:
+        problems.append("en dash (U+2013)")
+    if EM_DASH in segment:
+        problems.append("em dash (U+2014)")
+    if not leaf:
+        if " " in segment:
+            problems.append("space")
+        if segment != segment.lower():
+            problems.append("uppercase")
+    return problems
+
 
 CREDENTIAL_PATTERNS = [
     (re.compile(r"\b(token|password|secret|api-key|api\.key)\s*::", re.I),
@@ -120,7 +167,7 @@ URL_SHAPE_RE = re.compile(r"^https?://[^\s/]+\.[^\s/]+(/\S*)?$")
 def strip_code(text):
     """Remove fenced code blocks and inline code spans.
 
-    Needed so `[[Wiki/...]]` placeholders inside backticks (e.g. the Hub
+    Needed so `[[wiki/...]]` placeholders inside backticks (e.g. the Hub
     template's routing-line example) are not treated as real links.
     """
     lines = []
@@ -136,11 +183,15 @@ def strip_code(text):
 
 
 def wiki_links(stripped_text):
-    """Outgoing [[Wiki/...]] link targets (alias part removed)."""
+    """Outgoing [[wiki/...]] link targets (alias part removed).
+
+    The prefix check is case-insensitive so pre-migration corpora with
+    [[Wiki/...]] links keep working (grandfather floor, REQ-580c).
+    """
     targets = []
     for raw in WIKI_LINK_RE.findall(stripped_text):
         target = raw.split("|")[0].strip()
-        if target.startswith("Wiki/"):
+        if target.lower().startswith("wiki/"):
             targets.append(target)
     return targets
 
@@ -171,7 +222,7 @@ def parse_hub_index(stripped_text):
         if not match:
             continue
         target = match.group(1).split("|")[0].strip()
-        if not target.startswith("Wiki/"):
+        if not target.lower().startswith("wiki/"):
             continue
         rest = line[match.end():]
         if " -- " in rest:
@@ -245,8 +296,32 @@ class Linter:
         self.findings = []
         self.degraded_linkrot = False
         self.pages = []
+        # Human-owned namespaces, resolved from the optional para_dir /
+        # notes_dir config keys (config.md REQ-625, namespaces REQ-980).
+        self.para_prefix = (config.get("para_dir") or "para").strip("/")
+        self.notes_prefix = (config.get("notes_dir") or "notes").strip("/")
 
     # -- infrastructure ----------------------------------------------------
+
+    def classify_namespace(self, name):
+        """Which namespace a page name belongs to (namespaces REQ-960).
+
+        Returns "wiki", "para", "notes", "journals", or "outside".
+        Matching is case-insensitive so pre-migration Wiki/ corpora keep
+        their wiki classification (grandfather floor, schema REQ-580c);
+        the uppercase itself is rule 13's business.
+        """
+        lower = name.lower()
+        prefixes = (
+            ("wiki", "wiki"),
+            ("para", self.para_prefix.lower()),
+            ("notes", self.notes_prefix.lower()),
+            ("journals", "journals"),
+        )
+        for namespace, prefix in prefixes:
+            if prefix and (lower == prefix or lower.startswith(prefix + "/")):
+                return namespace
+        return "outside"
 
     def load_pages(self):
         for entry in wikilib.enumerate_pages(self.config):
@@ -265,12 +340,13 @@ class Linter:
             }
             page["is_hub"] = page["type"] == "hub"
             page["is_system"] = (
-                page["name"] in SYSTEM_PAGE_NAMES
+                page["name"].lower() in SYSTEM_PAGE_NAMES
                 or props.get("access-log") == "true"
                 or page["type"] in ("schema", "dashboard"))
             page["is_archived"] = "archived" in props
             page["is_migrated"] = (
                 props.get("schema-spec-version") == SCHEMA_SPEC_VERSION)
+            page["ns"] = self.classify_namespace(page["name"])
             self.pages.append(page)
 
     def add(self, page, req_id, rule, severity, message, fix=None):
@@ -313,6 +389,13 @@ class Linter:
                        for name, p in hubs.items()}
 
         for page in self.pages:
+            self.check_namespace_hygiene(page)                 # rule 14
+            self.check_naming_hygiene(page)                    # rule 13
+            if page["ns"] in ("para", "notes"):
+                # Human namespaces: exempt from every wiki-only rule
+                # (namespaces REQ-961/966, rule 14 REQ-242). The wiki
+                # toolchain never lints or audits their content.
+                continue
             self.check_credentials(page)                       # rule 6
             self.check_broken_refs(page, names)                # rule 4
             self.check_format_mixing(page)                     # mixing
@@ -441,7 +524,7 @@ class Linter:
         if not page["links"]:
             hub = self.nearest_hub_name(page["name"])
             self.add(page, "REQ-180", "cross-ref-minimum", "warning",
-                     "page has fewer than 1 outgoing [[Wiki/...]] link",
+                     "page has fewer than 1 outgoing [[wiki/...]] link",
                      fix="add a link to [[%s]]" % (hub or "the namespace hub"))
 
     def check_format_mixing(self, page):
@@ -481,6 +564,78 @@ class Linter:
                      fix="update the URL, ingest a snapshot, or archive the "
                          "stub (no auto-fix, REQ-222)")
 
+    def check_naming_hygiene(self, page):
+        """Rule 13 (REQ-230/231): structural names are lowercase-hyphen.
+
+        Mechanical/judgment split (schema REQ-580..580b): NON-leaf
+        segments are structural by definition, so spaces, uppercase,
+        underscores, and en/em dashes (U+2013/U+2014; hyphen U+002D is
+        the only separator) are always flagged there (REQ-230). A LEAF
+        segment may be a proper noun (wiki/tools/Claude Code,
+        notes/literature/@Forte2022), so mechanically it is flagged ONLY
+        when it violates the hyphen rule (underscore, en/em dash,
+        REQ-231); leaf uppercase and spaces stay a judgment call in the
+        wiki-lint skill, which reviews leaf findings and dismisses
+        proper-noun leaves (namespaces REQ-976).
+
+        Severity: warning on wiki/ pages; info on para/notes pages,
+        whose content is human-owned and exempt from the wiki
+        conventions (the shared namespace STRUCTURE is still advisory
+        territory, namespaces REQ-961).
+        """
+        if page["ns"] not in ("wiki", "para", "notes"):
+            return
+        severity = "warning" if page["ns"] == "wiki" else "info"
+        segments = page["name"].split("/")
+        structural_bad = []
+        for segment in segments[:-1]:
+            problems = segment_problems(segment, leaf=False)
+            if problems:
+                structural_bad.append(
+                    "'%s' (%s)" % (segment, ", ".join(problems)))
+        if structural_bad:
+            self.add(page, "REQ-230", "naming-hygiene", severity,
+                     "structural name segment(s) not lowercase with "
+                     "hyphen U+002D as the only separator: %s"
+                     % "; ".join(structural_bad),
+                     fix="rename via the migration converter or by hand; "
+                         "no auto-fix (REQ-232)")
+        problems = segment_problems(segments[-1], leaf=True)
+        if problems:
+            self.add(page, "REQ-231", "naming-hygiene", severity,
+                     "leaf segment '%s' uses a separator other than the "
+                     "hyphen U+002D: %s"
+                     % (segments[-1], ", ".join(problems)),
+                     fix="rename by hand unless it is a proper noun "
+                         "spelled as the world spells it; no auto-fix "
+                         "(REQ-232)")
+
+    def is_recognized_root(self, page):
+        """Deliberate structural pages outside the content namespaces:
+        Schema, Dashboard, Access-Log, Contents, hub pages, and query
+        pages (namespaces REQ-962/977, rule 14 REQ-241)."""
+        return (page["name"].lower() in ROOT_PAGE_NAMES
+                or page["type"] in ("hub", "schema", "dashboard", "query")
+                or page["props"].get("access-log") == "true"
+                or "#+BEGIN_QUERY" in page["text"])
+
+    def check_namespace_hygiene(self, page):
+        """Rule 14 (REQ-240..242): every page lives under wiki/,
+        para_dir, notes_dir, or journals, or is a recognized deliberate
+        root page; anything else is a stray outside the namespace
+        contract (namespaces REQ-960/962)."""
+        if page["ns"] != "outside":
+            return
+        if self.is_recognized_root(page):
+            return
+        self.add(page, "REQ-240", "namespace-hygiene", "warning",
+                 "page is outside wiki/, %s/, %s/, journals, and the "
+                 "recognized root pages (namespace contract)"
+                 % (self.para_prefix, self.notes_prefix),
+                 fix="ingest the content into wiki/, move it into %s/ or "
+                     "%s/ by hand, or delete it; no auto-fix (REQ-242)"
+                     % (self.para_prefix, self.notes_prefix))
+
     def nearest_hub_name(self, page_name):
         parts = page_name.split("/")
         hubs = {p["name"] for p in self.pages if p["is_hub"]}
@@ -507,7 +662,7 @@ class Linter:
                              "after the -- separator" % target)
         # Rules 5, 10b, 11: per-child checks against the nearest hub.
         for page in self.pages:
-            if page["is_hub"] or page["is_system"]:
+            if page["is_hub"] or page["is_system"] or page["ns"] != "wiki":
                 continue
             hub_name = self.nearest_hub_name(page["name"])
             if not hub_name:

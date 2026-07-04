@@ -6,5 +6,5 @@ wiki_path: /tmp
 pages_dir: pages
 
 namespaces:
-  - Tech
-  - Learning
+  - tech
+  - learning

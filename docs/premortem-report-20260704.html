@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premortem: Glossary (v2.3) + Personal Pipeline (v3.0)</title>
+<style>
+  :root {
+    --bg: #0a0e1a; --panel: #111827; --panel2: #0f172a; --text: #e5e7eb;
+    --muted: #9ca3af; --line: #1f2937;
+    --c1: #f87171; --c2: #fb923c; --c3: #fbbf24; --c4: #a3e635; --c5: #34d399;
+    --c6: #22d3ee; --c7: #818cf8; --c8: #e879f9; --c9: #f472b6; --c10: #fca5a5;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem 1rem 4rem; line-height: 1.55; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.7rem; margin: 0 0 .3rem; }
+  h2 { font-size: 1.25rem; margin: 2.2rem 0 .8rem; border-bottom: 1px solid var(--line); padding-bottom: .4rem; }
+  h3 { font-size: 1.02rem; margin: 0 0 .4rem; }
+  .sub { color: var(--muted); font-size: .95rem; margin-bottom: 1.6rem; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.3rem; margin-bottom: 1rem; }
+  .lead { border-left: 4px solid var(--c1); }
+  .danger { border-left: 4px solid var(--c8); }
+  .hidden-a { border-left: 4px solid var(--c3); }
+  .panel h3 .tag { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel2); color: var(--muted); font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .quad { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; min-height: 130px; }
+  .quad h4 { margin: 0 0 .5rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .quad.hot { border-color: #7f1d1d; background: #1a1013; }
+  .pill { display: inline-block; border-radius: 999px; padding: .08rem .6rem; font-size: .78rem; margin: .12rem .2rem .12rem 0; border: 1px solid var(--line); background: var(--panel); }
+  ol.revised { padding-left: 1.3rem; } ol.revised li { margin-bottom: .5rem; }
+  ul.kill { padding-left: 1.3rem; } ul.kill li { margin-bottom: .45rem; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; }
+  .card h3 { display: flex; align-items: baseline; gap: .5rem; }
+  .num { font-weight: 700; font-size: 1.05rem; }
+  .sev { margin-left: auto; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); white-space: nowrap; }
+  .card p { font-size: .92rem; margin: .5rem 0; }
+  .card .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: .8rem; margin-bottom: .15rem; }
+  .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .6rem; margin-top: .6rem; }
+  .inv { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: .6rem .7rem; font-size: .82rem; }
+  .inv b { display: block; font-size: .85rem; margin-bottom: .15rem; }
+  footer { color: var(--muted); font-size: .85rem; margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+  code { background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: .05rem .3rem; font-size: .85em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Premortem: Glossary (v2.3) + Personal Pipeline (v3.0)</h1>
+<div class="sub">Frame: it is January 2027, six months on. Both additions to llm-wiki have failed. Ten investigators worked backward to explain why. Plan under test: <code>docs/roadmap-glossary-personal-pipeline.md</code>. Full transcript: <code>prompts/2026-07-04-001-premortem-glossary-personal-pipeline.md</code>.</div>
+
+<h2>Synthesis</h2>
+
+<div class="panel lead">
+  <h3><span class="tag">Most likely failure</span>#8 Tooling outruns behavior</h3>
+  <p>Agents can ship all 13 issues in days while the graph is still empty; five ceremony-heavy habits (namespace placement, provenance, checkpoints, glossary curation, daily review) land on day one of a cold start. The daily review, which the setup plan itself calls the thing that decides survival, dies at week two. This failure also amplifies #1 (curation), #3 (import flood), and #5 (synthesis rot): every unformed habit turns a designed safeguard into noise.</p>
+</div>
+
+<div class="grid2">
+<div class="panel danger">
+  <h3><span class="tag">Most dangerous failure</span>#7 Third-party privacy leak</h3>
+  <p>A candid sentence about a named student passes the shape-based scanner, gets confirmed as row 7 of 12 at 7am, enters a git-committed people page, and later surfaces in a shared draft. Harm to a real person, GDPR exposure, and git history makes it near-permanent.</p>
+</div>
+<div class="panel danger">
+  <h3><span class="tag">Most irreversible failure</span>#10 archive.db loss</h3>
+  <p>The one file declared irreplaceable is also the one file git refuses to cover, with no backup REQ anywhere in the plan. One <code>git clean -xfd</code> by an agent (the likeliest executor) destroys it and dangles every committed provenance link forever.</p>
+</div>
+</div>
+
+<div class="panel">
+  <h3><span class="tag">Likelihood x impact</span>The 2x2</h3>
+  <div class="grid2">
+    <div class="quad hot"><h4>Likely + high damage</h4>
+      <span class="pill" style="border-color:var(--c8)">#8 tooling outruns behavior</span>
+      <span class="pill" style="border-color:var(--c5)">#5 synthesis quality rot</span>
+    </div>
+    <div class="quad"><h4>Less likely + high damage</h4>
+      <span class="pill" style="border-color:var(--c7)">#7 privacy leak</span>
+      <span class="pill" style="border-color:var(--c10)">#10 archive.db loss</span>
+      <span class="pill" style="border-color:var(--c6)">#6 second plane eats architecture</span>
+      <span class="pill" style="border-color:var(--c2)">#2 spec churn</span>
+    </div>
+    <div class="quad hot"><h4>Likely + medium damage</h4>
+      <span class="pill" style="border-color:var(--c1)">#1 curation loop dies</span>
+      <span class="pill" style="border-color:var(--c3)">#3 import flood</span>
+      <span class="pill" style="border-color:var(--c4)">#4 silent plumbing decay</span>
+    </div>
+    <div class="quad"><h4>Less likely + lower damage</h4>
+      <span class="pill" style="border-color:var(--c9)">#9 hand-rolled YAML parser</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel hidden-a">
+  <h3><span class="tag">The hidden assumption</span>"Because implementation is free, shipping the tool is progress."</h3>
+  <p>The system's real products are habits and decisions: the filled Rule column, the daily review, the curation pass. The plan engineers the free part (code) and assumes the expensive part (behavior) follows. Its corollary runs through half the failures: raw capture (voice transcripts, imported termbases) keeps getting treated as if it had the trust status of curated, decided content. A transcript is not a source; an unreviewed staging row is not a decision.</p>
+</div>
+
+<div class="panel">
+  <h3><span class="tag">The revised plan</span>Twelve binding changes (full text in the roadmap)</h3>
+  <ol class="revised">
+    <li><b>Base loop first:</b> no new issue is filed until the fresh graph survives two weeks of real use of the EXISTING suite. (#8)</li>
+    <li><b>Glossary starts by hand (G-0):</b> templates + workflow doc only; the spec/lint/skill layer (G-1..G-6) is built only after 20+ hand-decided Rule rows exist. (#1, #8)</li>
+    <li><b>Phase gates become merge gates:</b> P-3 blocked on a recorded Phase 0 exit test; P-4/P-5 blocked on three weeks of living daily review. (#8)</li>
+    <li><b>G-4 deleted:</b> no hand-rolled YAML parser; the agent transforms glossary.yml at import time and verifies counts against the source. (#9)</li>
+    <li><b>Import is pull, not bulk:</b> staging holds only captured/requested terms; drafting context loads domain pages only, never staging. (#3)</li>
+    <li><b>Voice defaults to journal-only:</b> wiki writes are per-row opt-in; people-page rows always shown in full and confirmed individually; assessments of people (health, family, grades, conflicts) are never promoted at all. (#5, #7)</li>
+    <li><b>Voice provenance = capture-backed:</b> reliability low by default, a distinct audit verdict class; upgrading requires a real source. (#5)</li>
+    <li><b>Namespace contract becomes a parsed canon surface</b> plus a grep gate before REQ-960 is ever amended. (#2)</li>
+    <li><b>Dead-man status line</b> opens every journal summary (inbox age, unprocessed count, rebuild age) plus a weekly canary memo. (#4)</li>
+    <li><b>archive.db durability as spec REQ:</b> nightly off-machine copy, quarterly restore drill, provenance-resolution audit check, and a vault-level ban on <code>git clean -xfd</code> for agents. (#10)</li>
+    <li><b>index.db provably derived:</b> frozen 3-table schema, no pre-commit hooks, rebuild-reproducibility asserted in the harness, nothing without a markdown source. (#6)</li>
+    <li><b>Personal tier opt-in:</b> voice/storage ship behind <code>setup.sh --with-personal</code>, labeled separately in the README, synthetic fixtures only. (repo identity)</li>
+  </ol>
+</div>
+
+<div class="grid2">
+<div class="panel">
+  <h3><span class="tag">Kill criteria</span>Decide now, not in the moment</h3>
+  <ul class="kill">
+    <li>Phase 0 exit test not passed within two weekends of P-2: stop filing v3.0 issues.</li>
+    <li>Fewer than 20 hand-decided Rule rows after 4 weeks of G-0: do not build the glossary tooling; it stays a manual convention.</li>
+    <li>Daily review skipped 5 consecutive days in the first three weeks: pause all expansion, shrink ceremony to journal-only; do not add tooling to fix a habit problem.</li>
+    <li>Two voice-sourced wiki claims wrong within one month: voice drops to journal-only until the checkpoint is redesigned and re-validated.</li>
+  </ul>
+</div>
+<div class="panel">
+  <h3><span class="tag">Pre-launch checklist</span>Before the respective first use</h3>
+  <ul class="kill">
+    <li>Two weeks of real base-loop use recorded (gate for any new issue)</li>
+    <li>archive.db backup + one restore drill executed before the first real voice note</li>
+    <li>Dead-man status line + canary procedure live when P-3 merges</li>
+    <li>Per-row people-page confirmation + sensitive-content rule in the P-3 checkpoint</li>
+    <li>check_canon namespace surface + grep gate in the same PR that amends REQ-960</li>
+    <li>Pull-import and staging-never-as-context rules in the workflow doc from day one</li>
+  </ul>
+</div>
+</div>
+
+<h2>The failure modes</h2>
+<div class="cards">
+
+<div class="card" style="border-top: 3px solid var(--c1)">
+  <h3><span class="num" style="color:var(--c1)">#1</span> Glossary curation loop dies <span class="sev">likely / medium</span></h3>
+  <p>Capture costs two seconds; curation costs a 40-minute session that feels like grading and has no trigger, no cost of skipping, no exit test. 60+ todos by September, a 12-row domain page by October; drafting stops loading glossary context; posts ship with three renderings of "notebook".</p>
+  <div class="label">Underlying assumption</div>
+  <p>Friction-free capture implies the curation pass will happen; only capture was engineered.</p>
+  <div class="label">Early warnings</div>
+  <p>Open #glossary-todo count rises 3+ weeks while decided rows stay flat; zero skill invocations in a month.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c2)">
+  <h3><span class="num" style="color:var(--c2)">#2</span> Fourth-namespace spec churn <span class="sev">medium / high</span></h3>
+  <p>"Exactly three namespaces" lives as prose in 7+ surfaces (spec title, Scenario 7, checklists, scope guard, roadmaps, templates). G-1 amends the REQ; the narration diverges; check_canon stays green because prose counts are narration, not structure. The canon's green checkmark stops meaning anything.</p>
+  <div class="label">Underlying assumption</div>
+  <p>check_canon covers every surface where the contract is narrated; it only covers counted structure.</p>
+  <div class="label">Early warnings</div>
+  <p>grep for "three namespaces" nonzero after G-1 while check_canon is green; G-1 diff touches fewer files than the grep returns.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c3)">
+  <h3><span class="num" style="color:var(--c3)">#3</span> Import flood <span class="sev">likely / medium</span></h3>
+  <p>400 Glosario rows land in week one and become the largest page in an empty graph. Lookup costs zero; promotion costs three edits plus the one thing that cannot be automated, the Rule decision. Staging becomes the de facto glossary; published texts encode Glosario's choices, not the maintainer's.</p>
+  <div class="label">Underlying assumption</div>
+  <p>A complete third-party table next to an empty curated one motivates curation rather than substituting for it.</p>
+  <div class="label">Early warnings</div>
+  <p>Staging page loaded as drafting context more often than any domain page; promoted-terms count flat two weekly reviews running.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c4)">
+  <h3><span class="num" style="color:var(--c4)">#4</span> Silent plumbing decay <span class="sev">likely / medium</span></h3>
+  <p>An iOS update silently kills the Shortcuts automation; memos strand on the phone, invisible to every Mac-side component. Summaries keep flowing from backlog, so the loop looks alive while dead. The eventual 40-memo catch-up batch is worthless, and the habit dies of it.</p>
+  <div class="label">Underlying assumption</div>
+  <p>Every failure queues data where the drain loop can see it; silence means empty, never broken.</p>
+  <div class="label">Early warnings</div>
+  <p>Newest inbox file older than 3 days while the phone shows recent memos; five straight days of summaries covering zero new rows.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c5)">
+  <h3><span class="num" style="color:var(--c5)">#5</span> Synthesis quality rot <span class="sev">likely / high</span></h3>
+  <p>"Marek" transcribes as "Mark" and lands on the wrong person page; "I should maybe" becomes "Planned:" on a project page. Provenance points at transcript rows nobody rereads, so wiki-audit verifies mush against mush. One correction from the real Marek later, the checkpoint flips to reject-everything and the voice leg gets commented out.</p>
+  <div class="label">Underlying assumption</div>
+  <p>A transcript row is a source in the v2 sense; it is unvetted raw capture wearing a citation.</p>
+  <div class="label">Early warnings</div>
+  <p>Approval rate over ~90% with under 10s median review; zero provenance links ever opened in month one.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c6)">
+  <h3><span class="num" style="color:var(--c6)">#6</span> Second plane eats the architecture <span class="sev">medium / high</span></h3>
+  <p>The pre-commit rebuild gets bypassed with --no-verify; the staleness warning gets muted; a SQL-fluent maintainer adds one table, then an importer that bypasses the vault. index.db stops being derived, rebuilds become scary, SQL contradicts pages, and some facts live only in a gitignored binary.</p>
+  <div class="label">Underlying assumption</div>
+  <p>"Derived and disposable" is a property kept by design rather than a discipline re-earned at every schema temptation.</p>
+  <div class="label">Early warnings</div>
+  <p>Any --no-verify commit or rebuild over ~10s; first table whose data has no markdown source (rebuild+diff no longer reproduces).</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c7)">
+  <h3><span class="num" style="color:var(--c7)">#7</span> Privacy leak through the seam <span class="sev">less likely / severe</span></h3>
+  <p>"Student M admitted she's failing because of the situation at home" is just German prose about a named person: no pattern matches it. Confirmed on autopilot as row 7 of 12 at 6:58am, it enters a git-committed people page and later a shared draft preview. A colleague recognizes the student. Git history makes it permanent.</p>
+  <div class="label">Underlying assumption</div>
+  <p>Dangerous content is pattern-detectable, and a daily confirm step constitutes review.</p>
+  <div class="label">Early warnings</div>
+  <p>Sub-30s approvals of 10+ row batches with zero rejections for 14 days; people-page bullets naming health/family/grades/conflict with no flag.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c8)">
+  <h3><span class="num" style="color:var(--c8)">#8</span> Tooling outruns behavior <span class="sev">most likely / high</span></h3>
+  <p>All 13 issues merge within days because building costs one prompt; the Phase 0 exit test never runs because the gated thing already exists. The first real morning demands five simultaneous habits on an empty graph; review takes 25 minutes instead of 5-10; by day 9 it gets skipped, and by week two the system is a museum: 108 green assertions, 14 pages.</p>
+  <div class="label">Underlying assumption</div>
+  <p>Shipping capacity and adoption pacing are independent, so free implementation cannot hurt a habit plan.</p>
+  <div class="label">Early warnings</div>
+  <p>Any week where merged PRs outnumber new graph pages; P-4/P-5 merged before a recorded Phase 0 pass.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c9)">
+  <h3><span class="num" style="color:var(--c9)">#9</span> Hand-rolled YAML parser <span class="sev">medium / low-medium</span></h3>
+  <p>The parser silently drops ~80 multi-line and quoted entries on day one (including most German ones), breaks loudly when Glosario reorders keys, and becomes a recurring chore; the exhausted fix is "import yaml, just this once", cracking the zero-dependency rule's authority for every future script.</p>
+  <div class="label">Underlying assumption</div>
+  <p>Glosario's YAML is a stable flat subset, rather than real YAML maintained by someone else.</p>
+  <div class="label">Early warnings</div>
+  <p>Imported rows below the source's term count on day one; any post-ship commit touching the importer.</p>
+</div>
+
+<div class="card" style="border-top: 3px solid var(--c10)">
+  <h3><span class="num" style="color:var(--c10)">#10</span> archive.db loss <span class="sev">counter-check / irreversible</span></h3>
+  <p>Markdown is committed; index.db is rebuildable; archive.db is gitignored AND irreplaceable, with no backup REQ in any milestone. A fresh clone, a disk failure, or an agent running git clean -xfd deletes months of voice notes; index.db rebuilds cleanly, masking the loss; every committed provenance id dangles forever.</p>
+  <div class="label">Underlying assumption</div>
+  <p>"Gitignored plus irreplaceable" was written as a merge-safety rule; nobody asked what replaces git as the durability mechanism.</p>
+  <div class="label">Early warnings</div>
+  <p>The spec ships with no backup/restore REQ and no provenance-resolution check; a cleanup or migration is declared healthy without verifying archive.db row counts.</p>
+</div>
+
+</div>
+
+<h2>Run overview</h2>
+<div class="panel">
+  <p>9 parallel investigators (one per failure reason, isolated from each other) + 1 adversarial counter-check, which contributed #10. All ten produced a failure story, an underlying assumption, and observable early warnings.</p>
+  <div class="inv-grid">
+    <div class="inv"><b>#1 curation loop</b>capture engineered, curation not</div>
+    <div class="inv"><b>#2 spec churn</b>prose contract, green canon, drift</div>
+    <div class="inv"><b>#3 import flood</b>staging outcompetes decisions</div>
+    <div class="inv"><b>#4 plumbing decay</b>phone-side queue invisible</div>
+    <div class="inv"><b>#5 synthesis rot</b>audit launders transcripts</div>
+    <div class="inv"><b>#6 second plane</b>index.db stops being derived</div>
+    <div class="inv"><b>#7 privacy leak</b>prose about people has no pattern</div>
+    <div class="inv"><b>#8 tooling vs behavior</b>five habits, day one, empty graph</div>
+    <div class="inv"><b>#9 YAML parser</b>wrong hill, rule-cracking fix</div>
+    <div class="inv"><b>#10 archive.db loss</b>irreplaceable yet uncovered</div>
+  </div>
+</div>
+
+<footer>
+Premortem of the v2.3 Glossary + v3.0 Personal Pipeline plan (docs/roadmap-glossary-personal-pipeline.md) for larnsce/llm-wiki. Run 2026-07-04. Horizon: 6 months (product/feature). Method: Klein premortem with parallel investigators and adversarial counter-check.
+</footer>
+
+</div>
+</body>
+</html>

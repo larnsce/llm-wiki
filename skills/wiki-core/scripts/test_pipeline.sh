@@ -5,10 +5,16 @@
 # init_wiki.py to avoid fixture rot; only defect deltas are checked in under
 # tests/fixtures/), runs every validator (find_config, check_config, lint.py
 # including --strict and the grandfather floor, check_citations.py,
-# check_canon.py, secret_scan.py), and asserts GREEN on clean fixtures and
-# RED on each
+# check_canon.py, secret_scan.py, migrate_wiki.py --lowercase), and asserts
+# GREEN on clean fixtures and RED on each
 # planted defect (exit code AND, for lint, the expected REQ id in the --json
 # findings).
+#
+# Pre-migration fixtures (Title Case Wiki/ corpora: defects/*/grandfathered
+# and the migration/ vaults) run in BARE vaults (make_bare_vault), never
+# overlaid on a lowercase scaffold: on a case-insensitive filesystem
+# (macOS APFS) Wiki___Tech.md and wiki___tech.md are the SAME file and the
+# copy would silently merge the two casings.
 #
 # Usage: bash skills/wiki-core/scripts/test_pipeline.sh [--verbose]
 # Dependencies: bash, python3, git. Exit: 0 all assertions pass, 1 otherwise.
@@ -130,12 +136,56 @@ PY
   fi
 }
 
+# assert_report <name> <python-expr>: evaluate a python expression against
+# the JSON report captured in $OUT (bound to r).
+assert_report() {
+  local name="$1" expr="$2"
+  if python3 - "$OUT" "$expr" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+sys.exit(0 if eval(sys.argv[2]) else 1)
+PY
+  then
+    report PASS "$name"
+  else
+    report FAIL "$name" "report expression failed: $expr"
+  fi
+}
+
 py() { python3 "$SCRIPT_DIR/$1" "${@:2}"; }
 
 # make_wiki <dir> <tool>: scaffold a clean wiki at runtime.
 make_wiki() {
   python3 "$SCRIPT_DIR/init_wiki.py" \
     --wiki-path "$1" --tool "$2" --date 2026-07-01 >/dev/null
+}
+
+# make_bare_vault <dir> <tool>: config only, NO scaffolded pages. For the
+# deliberately pre-migration (Title Case) fixtures; see the header note.
+make_bare_vault() {
+  local dir="$1" tool="$2" pages_dir=""
+  [[ "$tool" == logseq ]] && pages_dir="pages"
+  mkdir -p "$dir"
+  cat > "$dir/llm-wiki.yml" <<EOF
+tool: $tool
+wiki_path: $dir
+pages_dir: $pages_dir
+
+namespaces:
+  - Tech
+
+raw_dir: raw
+ingested_dir: ingested
+source_types:
+  - papers
+default_source_type: papers
+EOF
+}
+
+git_commit_all() {
+  git -C "$1" add -A
+  git -C "$1" -c user.email=test@example.org -c user.name=test \
+    commit -qm "$2"
 }
 
 echo "test_pipeline: repo $REPO_ROOT"
@@ -225,9 +275,10 @@ for tool in logseq obsidian; do
 
   # Grandfather floor: same missing-property defect on a page WITHOUT
   # schema-spec-version:: is downgraded to info by default (green exit)
-  # and kept a warning by --strict.
+  # and kept a warning by --strict. The fixture is a deliberately
+  # PRE-migration (Title Case Wiki/) corpus, so it runs in a bare vault.
   wiki="$WORK/$tool-grandfathered"
-  make_wiki "$wiki" "$tool"
+  make_bare_vault "$wiki" "$tool"
   cp -R "$FIXTURES/defects/$tool/grandfathered/." "$wiki/"
 
   run py lint.py --config "$wiki/llm-wiki.yml" --json
@@ -242,6 +293,161 @@ for tool in logseq obsidian; do
     "lint($tool): --strict keeps the finding a warning" \
     REQ-132 warning false
 done
+
+# ---------------------------------------------------------------------------
+# lint rules 13/14: naming hygiene (REQ-230/231) + namespace hygiene
+# (REQ-240), specs/lint.md. The vaults are generated at runtime: the
+# en-dash page name and the Title Case segments would be Unicode/case
+# traps as checked-in fixtures (see the header note on case-insensitive
+# filesystems). Obsidian cannot host Wiki/ beside wiki/ on such a
+# filesystem, so the uppercase structural segment moves one level down
+# there; obsidian also prunes notes/ from enumeration, so its underscore
+# leaf lives under wiki/ instead.
+# ---------------------------------------------------------------------------
+EN_DASH="$(printf '\342\200\223')"
+for tool in logseq obsidian; do
+  vault="$WORK/$tool-hygiene"
+  make_bare_vault "$vault" "$tool"
+  if [[ "$tool" == logseq ]]; then
+    upper="Wiki/Foo"
+    underscore="notes/My_Note"
+    underscore_sev="info"
+  else
+    upper="wiki/Docs/foo"
+    underscore="wiki/tech/my_note"
+    underscore_sev="warning"
+  fi
+  endash="wiki/tech/data${EN_DASH}pipeline"
+
+  python3 - "$vault" "$tool" "$upper" "$underscore" "$endash" <<'PY'
+import os
+import sys
+
+root, tool, upper, underscore, endash = sys.argv[1:6]
+pages_root = os.path.join(root, "pages") if tool == "logseq" else root
+
+STAMPED = (
+    ("type", "knowledge"), ("domain", "tech"), ("created", "2026-07-01"),
+    ("updated", "2026-07-01"), ("confidence", "medium"),
+    ("schema-spec-version", "2.0.0"),
+)
+
+
+def write(name, props, body):
+    if tool == "logseq":
+        path = os.path.join(pages_root, name.replace("/", "___") + ".md")
+        lines = ["- %s:: %s" % (k, v) for k, v in props]
+        body = ["- %s" % b for b in body]
+    else:
+        path = os.path.join(pages_root, name + ".md")
+        lines = ["---"] + ["%s: %s" % (k, v) for k, v in props] + ["---"] \
+            if props else []
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines + body) + "\n")
+
+
+def links(*targets):
+    return [" ".join("[[%s]]" % t for t in targets)]
+
+
+# clean-page links every stamped page so none of them is an orphan.
+write("wiki/tech/clean-page", STAMPED,
+      links(upper, endash, "wiki/tools/Claude Code")
+      + links(underscore) * (tool == "obsidian"))
+write(upper, STAMPED, links("wiki/tech/clean-page"))
+write(endash, STAMPED, links("wiki/tech/clean-page"))
+write("wiki/tools/Claude Code", STAMPED, links("wiki/tech/clean-page"))
+if tool == "logseq":
+    write(underscore, (), ["a human Zettelkasten note, no wiki properties"])
+else:
+    write(underscore, STAMPED, links("wiki/tech/clean-page"))
+write("para/projects/secret-plan", (),
+      ["human project plan, no wiki properties"])
+write("Scratchpad", (("schema-spec-version", "2.0.0"),),
+      ["stray root page outside every namespace"])
+PY
+
+  run py lint.py --config "$vault/llm-wiki.yml" --json
+  assert_exit_nonzero "lint($tool): red on naming/namespace hygiene vault"
+  assert_report "lint($tool): uppercase structural segment flagged (REQ-230 warning)" \
+    "any(f[\"id\"] == \"REQ-230\" and f[\"page\"] == \"$upper\" and f[\"severity\"] == \"warning\" for f in r[\"findings\"])"
+  assert_report "lint($tool): underscore leaf flagged (REQ-231 $underscore_sev)" \
+    "any(f[\"id\"] == \"REQ-231\" and f[\"page\"] == \"$underscore\" and f[\"severity\"] == \"$underscore_sev\" for f in r[\"findings\"])"
+  assert_report "lint($tool): en-dash leaf flagged (REQ-231 warning)" \
+    "any(f[\"id\"] == \"REQ-231\" and f[\"page\"] == \"$endash\" and f[\"severity\"] == \"warning\" for f in r[\"findings\"])"
+  assert_report "lint($tool): proper-noun leaf wiki/tools/Claude Code NOT flagged mechanically" \
+    "not any(f[\"rule\"] == \"naming-hygiene\" and f[\"page\"] == \"wiki/tools/Claude Code\" for f in r[\"findings\"])"
+  assert_report "lint($tool): clean lowercase-hyphen name passes rule 13" \
+    "not any(f[\"rule\"] == \"naming-hygiene\" and f[\"page\"] == \"wiki/tech/clean-page\" for f in r[\"findings\"])"
+  assert_report "lint($tool): stray root page flagged (REQ-240 warning)" \
+    "any(f[\"id\"] == \"REQ-240\" and f[\"page\"] == \"Scratchpad\" and f[\"severity\"] == \"warning\" for f in r[\"findings\"])"
+  assert_report "lint($tool): para/ page exempt from every rule (no findings at all)" \
+    "all(f[\"page\"] != \"para/projects/secret-plan\" for f in r[\"findings\"])"
+  if [[ "$tool" == logseq ]]; then
+    assert_report "lint(logseq): notes/ page exempt from wiki-only rules (naming info only)" \
+      "all(f[\"rule\"] == \"naming-hygiene\" for f in r[\"findings\"] if f[\"page\"] == \"notes/My_Note\")"
+  fi
+done
+
+# ---------------------------------------------------------------------------
+# migrate_wiki --lowercase (REQ-580c): dry-run reports every rename plus the
+# broken-link count WITHOUT writing; --apply converts (clean git tree
+# required) and is idempotent; Roam task markers are converted; the renamed
+# corpus lints clean under --strict (all [[wiki/...]] links resolve).
+# ---------------------------------------------------------------------------
+for tool in logseq obsidian; do
+  vault="$WORK/$tool-titlecase"
+  make_bare_vault "$vault" "$tool"
+  cp -R "$FIXTURES/migration/$tool/." "$vault/"
+  git -C "$vault" -c init.defaultBranch=main init -q
+  git_commit_all "$vault" "pre-migration baseline"
+  if [[ "$tool" == logseq ]]; then
+    pagedir="$vault/pages"
+    old_entry="Wiki___Tech.md"
+    new_entry="wiki___tech.md"
+  else
+    pagedir="$vault"
+    old_entry="Wiki"
+    new_entry="wiki"
+  fi
+
+  run py migrate_wiki.py --lowercase --config "$vault/llm-wiki.yml" --json
+  assert_exit 1 "migrate-lowercase($tool): dry-run reports pending changes"
+  assert_report "migrate-lowercase($tool): dry-run lists 3 renames, 2 Roam markers, 0 broken links" \
+    'len(r["renames"]) == 3 and r["roam_marker_conversions"] == 2 and r["broken_links_after_rename"] == 0'
+
+  run python3 -c 'import os, sys; sys.exit(0 if sys.argv[2] in os.listdir(sys.argv[1]) else 1)' \
+    "$pagedir" "$old_entry"
+  assert_exit 0 "migrate-lowercase($tool): dry-run wrote nothing (old casing still on disk)"
+
+  run py migrate_wiki.py --lowercase --apply \
+    --config "$vault/llm-wiki.yml" --json
+  assert_exit 1 "migrate-lowercase($tool): --apply converts (exit 1: changes applied)"
+
+  run python3 -c 'import os, sys; entries = os.listdir(sys.argv[1]); sys.exit(0 if sys.argv[2] in entries and sys.argv[3] not in entries else 1)' \
+    "$pagedir" "$new_entry" "$old_entry"
+  assert_exit 0 "migrate-lowercase($tool): files renamed to lowercase on disk"
+
+  run grep -r '{{\[\[' "$pagedir"
+  assert_exit 1 "migrate-lowercase($tool): no Roam {{[[...]]}} markers left"
+
+  git_commit_all "$vault" "lowercase migration"
+  run py migrate_wiki.py --lowercase --apply \
+    --config "$vault/llm-wiki.yml" --json
+  assert_report "migrate-lowercase($tool): second --apply is a no-op (0 changes)" \
+    'r["changes_total"] == 0 and r["renames"] == [] and r["files_rewritten"] == 0'
+
+  run py lint.py --config "$vault/llm-wiki.yml" --json --strict
+  assert_exit 0 "migrate-lowercase($tool): migrated corpus lints clean under --strict (links resolve)"
+done
+
+# --apply refuses a dirty working tree.
+vault="$WORK/logseq-titlecase"
+echo "dirty" >>"$vault/pages/wiki___tech.md"
+run py migrate_wiki.py --lowercase --apply --config "$vault/llm-wiki.yml"
+assert_exit 2 "migrate-lowercase: --apply refuses a dirty git tree"
+git -C "$vault" checkout -q -- .
 
 # ---------------------------------------------------------------------------
 # check_citations: clean and cited fixtures green, planted citation defects

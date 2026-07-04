@@ -48,10 +48,18 @@ Fixture layout:
 ```
 tests/fixtures/
   defects/logseq/<defect>/pages/...   overlay files, copied onto a fresh wiki
-  defects/obsidian/<defect>/Wiki/...  same defects in obsidian layout
+  defects/obsidian/<defect>/wiki/...  same defects in obsidian layout
+  migration/<tool>/...                Title Case pre-migration vaults for the
+                                      lowercase rename pass (deliberately old
+                                      Wiki/ casing, plus Roam task markers)
   sources/                            raw-source secret-gate cases
   configs/                            invalid llm-wiki.yml cases
 ```
+
+The `grandfathered` defect and the `migration/` vaults keep the pre-migration
+`Wiki/` casing on purpose (that is what they test) and run in bare vaults,
+never overlaid on a lowercase scaffold: on a case-insensitive filesystem
+`Wiki___Tech.md` and `wiki___tech.md` are the same file.
 
 Adding a defect: create the overlay directory for both tools, then add a
 `name:REQ-id` entry to the `LINT_DEFECTS` table in `test_pipeline.sh`.
@@ -59,15 +67,17 @@ Adding a defect: create the overlay directory for both tools, then add a
 ## 2. Golden-transcript tests (the LLM regression net)
 
 The harness cannot assert what the LLM plans or how it rates a source.
-`tests/golden/` pins one fixture source (a short fake paper) and the
-expected structured checkpoint output: planned page touches and the
-reliability rating with its rationale, in the plan-table row format from
-`skills/wiki-ingest/SKILL.md`.
+`tests/golden/` pins fixture sources and the expected structured
+checkpoint output: planned page touches and the reliability rating with
+its rationale, in the plan-table row format from
+`skills/wiki-ingest/SKILL.md`. Two pairings: a fake paper
+(`ingest-checkpoint.golden.md`) and a promoted note exercising the
+para/notes promotion seam (`promotion-seam.golden.md`).
 
 Workflow: after ANY change to the ingest prompts (SKILL.md, its
 references) or to the model used to run them, re-run the ingest analysis
 on the pinned source and diff the checkpoint against
-`tests/golden/ingest-checkpoint.golden.md`. A diff is a re-review signal,
+the paired golden file. A diff is a re-review signal,
 not automatically a failure: wording drift is fine, but changed page
 touches, a changed reliability rating, or dropped Pending Review claims
 mean the change needs a second look before it ships.

@@ -1,6 +1,6 @@
 ---
 type: hub
-namespace: "Wiki/{{NAMESPACE}}"
+namespace: "wiki/{{NAMESPACE}}"
 updated: "{{DATE}}"
 ---
 
@@ -10,7 +10,7 @@ updated: "{{DATE}}"
 
 Routing lines, one per child page. `query` Phase 0 reads only this list to route to the right pages - the wiki's page table. Keep descriptions terse and distinctive.
 
-- `[[Wiki/{{NAMESPACE}}/SubTopic]] -- one-sentence description #tag`
+- `[[wiki/{{NAMESPACE}}/sub-topic]] -- one-sentence description #tag`
 
 ### Archive
 

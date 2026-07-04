@@ -30,12 +30,17 @@ EXIT_CRITICAL = 2
 VALID_TOOLS = ("logseq", "obsidian")
 
 DEFAULT_NAMESPACES = [
-    "Business", "Tech", "Content", "Projects", "People", "Learning", "Reference",
+    "business", "tech", "content", "projects", "people", "learning", "reference",
 ]
 
 DEFAULT_SOURCE_TYPES = [
     "papers", "clippings", "articles", "data", "notes", "assets",
 ]
+
+# Human-owned namespaces (specs/config.md REQ-625, specs/namespaces.md
+# REQ-980): defaults apply even when the keys are absent from the config.
+DEFAULT_PARA_DIR = "para"
+DEFAULT_NOTES_DIR = "notes"
 
 CONFIG_FILENAME = "llm-wiki.yml"
 POINTER_FILE = os.path.join("~", ".config", "llm-wiki", "config.yml")
@@ -204,10 +209,12 @@ def _pruned_dirs(config):
         "journals",
         "assets",
     }
-    for key in ("para_dir", "notes_dir"):
-        value = config.get(key)
-        if value:
-            pruned.add(value.strip("/"))
+    # Absent keys still prune the default trees (REQ-980: the human
+    # namespaces are recognized even when the keys are not set).
+    for key, default in (("para_dir", DEFAULT_PARA_DIR),
+                         ("notes_dir", DEFAULT_NOTES_DIR)):
+        value = config.get(key) or default
+        pruned.add(value.strip("/"))
     return pruned
 
 
@@ -215,7 +222,7 @@ def enumerate_pages(config):
     """List wiki pages as dicts: {"name": page name, "path": file path}.
 
     Logseq: flat *.md files directly in pages_dir; "___" in the filename
-    is the namespace separator (Wiki___Tech___Docker.md -> Wiki/Tech/Docker).
+    is the namespace separator (wiki___tech___Docker.md -> wiki/tech/Docker).
 
     Obsidian: recursive walk of the vault; the relative path without .md is
     the page name; _index.md maps to its parent directory's namespace path.
