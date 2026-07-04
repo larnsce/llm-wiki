@@ -52,6 +52,14 @@
 	- s2-metrics:: optional - raw Semantic Scholar figures recorded verbatim for audit, e.g. `cites=120 influential=8 venue=... type=... year=2024`, or `none` when there is no match. It is EVIDENCE that INFORMS the qualitative reliability decision; it does NOT set reliability by formula (no citation-count thresholds). Present only when a Semantic Scholar MCP enriched the ingest.
 	- canonical-url:: an external URL that IS the page's source of truth (a site the user maintains). Marks a deliberate stub: "stub, don't ingest". A stub with canonical-url carries NO source-file and is exempt from the ingested-page requirements above; lint rule 12 checks the URL still resolves.
 	- NOTE: `source-file` is separate from the existing `source` property. `source` records the METHOD (memory-migration, ingest, or manual); `source-file` records WHICH origin file. Both may appear on one page.
+- ## Claim Citations (cite::)
+	- Every non-common-knowledge factual claim block on an ingested page carries a `cite::` reference attached to the claim block itself, as a block property: the claim block `- Solar capacity grew 24% in 2024.` is followed by the property line `cite:: ingested/papers/iea-2024.md#p12` on the block.
+	- Value: one or more comma-separated refs. Each ref is a relative path into `ingested/` with an optional `#locator` (free-text page/section/table pointer, e.g. `#p12` or `#sec-3.2`), or a live-web ref `url:<https://...>`.
+	- Refs are plain text, NOT `[[links]]`: they point at source files, not wiki pages, and must not create graph nodes.
+	- Union invariant: the page's `source-file` equals the union of the page's ingested/ cite targets (paths only, locators stripped, deduplicated). Mechanically enforced by the ingest quality gate (`check_citations.py`).
+	- Exempt: common knowledge (field-standard definitions, widely-taught facts) and clearly-marked synthesis/opinion blocks. When unsure, cite; exemption is an audit-time judgment call, not a lint failure.
+	- Corroboration: refs on the same claim count as independent only when they originate from different sources (different authors, publishers, or datasets); two exports of one work are ONE source.
+	- Born cited: pages written by ingest carry `cite::` from creation (ingest REQ-033b, v2.1+). Pre-v2.1 pages without `cite::` are reported as coverage gaps, not blocking failures.
 - ## Reliability Rubric (per source)
 	- high:: peer-reviewed primary source or official standard/spec.
 	- medium:: single secondary source, preprint, or expert blog post.

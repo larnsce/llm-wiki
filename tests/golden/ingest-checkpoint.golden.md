@@ -7,7 +7,11 @@ Conditions of the recorded run: freshly scaffolded logseq-mode vault
 (init_wiki.py defaults, all seven default namespaces, empty `ingested/`),
 source pipeline configured, no Semantic Scholar MCP, interactive mode.
 Recorded 2026-07-04 against wiki-ingest SKILL.md at schema-spec-version
-2.0.0.
+2.0.0. Updated 2026-07-04 alongside the v2.1 block-native citations change
+(issue #17): the plan now carries the planned `cite::` targets per claim
+(ingest REQ-033b, born-cited pages), so the next recorded run must show
+them; the cite targets below are the expected shape, paired with the
+SKILL.md version that introduces them.
 
 A diff against this file after a prompt or model change is a re-review
 signal, not automatically a failure. See `tests/golden/README.md`.
@@ -18,7 +22,7 @@ signal, not automatically a failure. See `tests/golden/README.md`.
 
 | # | Source | Proposed page touches | Reliability (one-line rationale) | Contradictions |
 |---|--------|-----------------------|----------------------------------|----------------|
-| 1 | miller-chen-2025-two-stage-retrieval.md (papers) | 2 touches: create Wiki/Tech/Two-Stage-Retrieval (knowledge); update hub Wiki/Tech (routing line) | medium: single unreviewed preprint on synthetic vaults, no independent corroboration | none |
+| 1 | miller-chen-2025-two-stage-retrieval.md (papers) | 2 touches: create Wiki/Tech/Two-Stage-Retrieval (knowledge, all claims cited to ingested/papers/miller-chen-2025-two-stage-retrieval.md); update hub Wiki/Tech (routing line) | medium: single unreviewed preprint on synthetic vaults, no independent corroboration | none |
 
 Question asked (verbatim from REQ-025): "What should I emphasize, skip, or
 route to L1 Memory?"
@@ -33,15 +37,23 @@ Pages to create:
   - source-file:: ingested/papers/miller-chen-2025-two-stage-retrieval.md
   - reliability:: medium
   - Claims to record (all single-source, so each is listed under
-    `## Pending Review`):
+    `## Pending Review`), each written with its planned `cite::` target
+    (born cited, ingest REQ-033b; locators are the source's Key findings
+    items):
     1. Index-first routing cut tokens loaded per query by a mean of 71%
        (range 58-84%) versus loading the whole namespace.
+       cite:: ingested/papers/miller-chen-2025-two-stage-retrieval.md#key-findings-1
     2. Routing precision depends on description distinctiveness (0.92 vs
        0.61 with generic filler descriptions).
+       cite:: ingested/papers/miller-chen-2025-two-stage-retrieval.md#key-findings-2
     3. Append-only updates preserved claim-to-source links better than
        in-place rewrites (18% link loss over ten rewrite cycles).
+       cite:: ingested/papers/miller-chen-2025-two-stage-retrieval.md#key-findings-3
     4. A staleness review window of about 90 days balanced currency
        against maintenance load (simulation only).
+       cite:: ingested/papers/miller-chen-2025-two-stage-retrieval.md#key-findings-4
+  - source-file:: equals the union of the ingested/ cite targets (one
+    source here), per the REQ-904 invariant checked by the quality gate.
 
 Pages to update:
 

@@ -5,16 +5,41 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Unreleased
+## [2.1.0] - 2026-07-04
+
+Claim-level citations and the two skills that consume them. Completes the
+re-authored Patch 2 (issue #8) in its block-native form.
+
+### Added
+
+- `cite::` block-property citation convention (`openspec/specs/citations.md`,
+  REQ-900..905): wiki-ingest emits `cite::` on every non-common-knowledge claim
+  block; page-level `source-file::` is the union of the page's `ingested/` cite
+  targets; born-cited pages per REQ-033b. Planned cite targets appear in the
+  ingest checkpoint plan table.
+- `check_citations.py`: cite coverage stats (advisory), cite-target resolution,
+  the source-file union invariant, and orphaned-cite detection (mechanical);
+  wired into the ingest quality gate.
+- `wiki-audit` skill: claim-to-source verification via one isolated subagent
+  per cited source, verdict rubric (supported / partial / unsupported /
+  source-missing), reconciliation with `reliability::` and Pending Review;
+  read-only by default, `--fix` writes only after confirmation.
+- `wiki-update` skill: diff-first, source-required revision path; factual
+  changes without a source are refused; superseded claims stay legible
+  (marked, never silently deleted).
+- Schema templates gained the Claim Citations section; citation fixtures and
+  12 new harness assertions (74 total).
+
+## [2.0.0] - 2026-07-04
 
 The multi-skill suite. The single `/wiki` command (`wiki.md`) is removed and its
 workflows are re-homed across eight skills backed by a spec canon, shared scripts,
 and a mechanical test harness. BREAKING: the v1 command file is no longer shipped
 or supported; see `docs/migration-v2.md`.
 
-The 2.0.0 tag waits on the real-vault release gate (issue #21): `wiki-lint` must
-run against a real, non-fixture vault with a manageable violation count and a
-documented remediation path before the release is tagged.
+Tagged 2026-07-04 with the real-vault gate waived by maintainer decision; running
+`migrate_wiki.py` dry-run plus `wiki-lint` against the real vault remains the
+recommended first post-release step (issue #21 gate, `docs/migration.md`).
 
 ### Added
 

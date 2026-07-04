@@ -46,12 +46,20 @@ Surfaces and what is extracted from each (the parsing contract):
    - LINT_RULE_COUNT and SCHEMA_SPEC_VERSION module constants (regex, not
      import).
 
+6. openspec/specs/citations.md (source of truth for the cite:: convention)
+   - the source-file union invariant (REQ-904) as two marker phrases
+     (same normalization as the aggregation phrases):
+       "union of the page's ingested/ cite targets",
+       "locators stripped, deduplicated".
+
 Comparisons performed:
    - lint-rule count: lint.md == both templates == lint.py
    - each property enum: schema.md == both templates (reliability also ==
      trust.md)
    - aggregation marker phrases present in schema.md, trust.md, and both
      templates
+   - citation union-invariant marker phrases present in citations.md,
+     trust.md, and both templates
    - schema-spec-version: lint.py == both templates
 
 A surface that fails to parse (marker or pattern missing) is itself a
@@ -73,6 +81,9 @@ KNOWN_ENUM_PROPS = ("type", "entity-type", "status", "domain", "confidence",
 
 AGGREGATION_PHRASES = ("minimum across", "2+ independent sources",
                        "medium or better")
+
+CITATION_PHRASES = ("union of the page's ingested/ cite targets",
+                    "locators stripped, deduplicated")
 
 RULE_HEADING_RE = re.compile(r"^### Rule (\d+):", re.M)
 TEMPLATE_RULE_RE = re.compile(r"\*\*Rule (\d+)\b")
@@ -193,6 +204,13 @@ class Canon:
                 self.error("%s: reliability-aggregation phrase %r missing"
                            % (label, phrase))
 
+    def check_citation_phrases(self, text, label):
+        normalized = normalize(text)
+        for phrase in CITATION_PHRASES:
+            if phrase not in normalized:
+                self.error("%s: citation union-invariant phrase %r missing"
+                           % (label, phrase))
+
     # -- comparison ---------------------------------------------------------
 
     def compare(self, item, values):
@@ -221,6 +239,7 @@ def main():
     paths = {
         "openspec/specs/lint.md": None,
         "openspec/specs/schema.md": None,
+        "openspec/specs/citations.md": None,
         "skills/wiki-core/references/trust.md": None,
         "templates/logseq/Schema.md": None,
         "templates/obsidian/Schema.md": None,
@@ -239,6 +258,7 @@ def main():
 
     lint_md = paths["openspec/specs/lint.md"]
     schema_md = paths["openspec/specs/schema.md"]
+    citations_md = paths["openspec/specs/citations.md"]
     trust_md = paths["skills/wiki-core/references/trust.md"]
     tpl_logseq = paths["templates/logseq/Schema.md"]
     tpl_obsidian = paths["templates/obsidian/Schema.md"]
@@ -286,6 +306,14 @@ def main():
     canon.check_phrases(tpl_logseq, "templates/logseq/Schema.md")
     canon.check_phrases(tpl_obsidian, "templates/obsidian/Schema.md")
 
+    # 3a. Citation union invariant (marker phrases on every cite surface).
+    canon.check_citation_phrases(citations_md, "openspec/specs/citations.md")
+    canon.check_citation_phrases(trust_md,
+                                 "skills/wiki-core/references/trust.md")
+    canon.check_citation_phrases(tpl_logseq, "templates/logseq/Schema.md")
+    canon.check_citation_phrases(tpl_obsidian,
+                                 "templates/obsidian/Schema.md")
+
     # 4. schema-spec-version.
     version_match = LINT_CONST_RE.search(lint_py)
     version_lint_py = version_match.group(1) if version_match else None
@@ -322,7 +350,8 @@ def report(canon):
               "other surfaces.")
     else:
         print("check_canon: all surfaces aligned (rule count, property "
-              "enums, reliability aggregation, schema-spec-version).")
+              "enums, reliability aggregation, citation union invariant, "
+              "schema-spec-version).")
 
 
 if __name__ == "__main__":

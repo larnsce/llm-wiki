@@ -29,6 +29,9 @@ Shared conventions (read before executing):
   (`secret_scan.py`), the "ingested/ is committed history, keep it
   secret-free" invariant, blocking vs advisory findings, and the
   `sensitive_source_types` untracked flow.
+- [citations](references/citations.md): block-native `cite::` emission on
+  claim blocks (specs/citations.md REQ-900..905, ingest REQ-033b), the
+  source-file union invariant, and the `check_citations.py` gate step.
 
 ## Modes
 
@@ -122,7 +125,10 @@ The checkpoint table, one row per source:
 | # | Source | Proposed page touches | Reliability (one-line rationale) | Contradictions |
 |---|--------|-----------------------|----------------------------------|----------------|
 
-- Page touches: create/update/hub counts plus the page names
+- Page touches: create/update/hub counts plus the page names; (source
+  pipeline) each create/update entry carries its planned cite targets (the
+  `ingested/` paths, with locators where known) so the row shows what the
+  claims will cite (REQ-033b)
 - Reliability: the Phase 1 rating with its one-line rationale (omit this column
   when the source pipeline is not configured)
 - Contradictions: count plus one line each, or "none"
@@ -133,8 +139,8 @@ L1 Memory?"
 Interaction rules:
 
 - Any row is expandable on request ("expand 3", "show the plan for
-  smith-2024"): print that source's full page-operation plan, extracted claims,
-  and contradiction details
+  smith-2024"): print that source's full page-operation plan, extracted
+  claims with their planned cite targets, and contradiction details
 - Any row is overridable ("skip 2", "rate 4 low", "route the PM2 gotcha to
   L1", "emphasize the method, skip the pricing"): apply the guidance to the
   plan
@@ -175,14 +181,26 @@ Interaction rules:
   listing the specific claims needing corroboration. A corroborating ingest
   re-checks each flagged claim, removes resolved ones, deletes the section when
   all resolve, and raises `reliability::`
-- `cite::` on claim blocks (REQ-033b) is STAGED for v2.1 (issue #17); v2.0.0
-  ingest is exempt
+- (source pipeline) `cite::` on every non-common-knowledge factual claim
+  block written (REQ-033b, specs/citations.md REQ-900..905): Logseq block
+  property (`cite:: <refs>` on the line under the claim), Obsidian indented
+  child bullet (`- cite:: <refs>`). Refs are comma-separated, each an
+  `ingested/` path with an optional `#locator` or `url:<https://...>`;
+  plain text, never a `[[link]]` (REQ-905). Common knowledge and
+  clearly-marked synthesis are exempt; when unsure, cite (REQ-902). Keep
+  the page-level `source-file::` equal to the union of the page's ingested/
+  cite targets, paths only, locators stripped, deduplicated (REQ-904): when
+  a claim cites a new source, append its path to `source-file::` in the
+  same edit. Pages are born cited; details in
+  [citations](references/citations.md)
 
 ## Phase 4 - Quality Gate
 
 Blocking failures (REQ-044): credential detection (REQ-042), pre-archive secret
-detection (REQ-045), missing required properties (REQ-040). Warnings never
-block, and `--auto` never bypasses a blocking failure (REQ-026).
+detection (REQ-045), missing required properties (REQ-040), and citation
+invariant failures (specs/citations.md REQ-904/901, exit 2 from
+`check_citations.py`). Warnings never block, and `--auto` never bypasses a
+blocking failure (REQ-026).
 
 - All new pages have ALL required properties for their type? (REQ-040)
 - Every touched page has at least 1 outgoing `[[Wiki/...]]` cross-reference?
@@ -197,6 +215,23 @@ block, and `--auto` never bypasses a blocking failure (REQ-026).
 - (source pipeline) Every ingested page has `source-file::` and
   `reliability::`? Every single-source non-high page carries
   `## Pending Review`? (REQ-073/074)
+- (source pipeline) Citation gate (REQ-033b, specs/citations.md): run
+
+  ```
+  python3 skills/wiki-core/scripts/check_citations.py --config <llm-wiki.yml>
+  ```
+
+  after the page writes, BEFORE the archive move (cite targets pending in
+  `raw_dir` count as resolved). Handle the exit code:
+  - **Exit 2 (blocking):** source-file union mismatch (REQ-904) or a cite
+    target resolving to no file (REQ-901). Do NOT archive, do NOT commit;
+    fix the pages and re-run the gate, exactly like the other blocking
+    gate failures
+  - **Exit 1 (advisory):** coverage gaps (uncited claim blocks, REQ-902)
+    or ref-shape warnings. Present them; the exemption call is judgment,
+    so they never block. In `--auto` mode carry them into the report
+  - **Exit 0 (clean):** proceed. See
+    [citations](references/citations.md) for the convention and staging
 - (source pipeline) Pre-archive secret gate (REQ-045/046): BEFORE any source
   file is moved into git-tracked `ingested/`, run
 
