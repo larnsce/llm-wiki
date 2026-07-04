@@ -1,0 +1,10 @@
+- type:: knowledge
+- domain:: tech
+- created:: 2026-07-01
+- updated:: 2026-07-01
+- confidence:: medium
+- schema-spec-version:: 2.0.0
+- ## Broken Ref
+	- Planted defect: the next link targets a page that does not exist on disk (REQ-141).
+	- See [[Wiki/Tech/Does-Not-Exist]] for details.
+	- Valid link: [[Wiki/Tech]]
