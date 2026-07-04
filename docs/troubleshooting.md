@@ -23,7 +23,7 @@ Verify with `python3 --version`. The script requires Python 3.6 or newer (any ve
 
 **Fix:**
 
-- **macOS:** Comes with Xcode Command Line Tools — run `xcode-select --install`.
+- **macOS:** Comes with Xcode Command Line Tools - run `xcode-select --install`.
 - **Ubuntu/Debian:** `sudo apt install git`
 - **Fedora:** `sudo dnf install git`
 - **Windows:** Install [Git for Windows](https://git-scm.com/download/win).
@@ -65,7 +65,7 @@ See `CONTRIBUTING.md` for the full stdin sequence.
 
 1. In Logseq: `File → Reindex` (or `Cmd/Ctrl + Shift + R`).
 2. Confirm the file path is correct. Logseq pages live in `<graph-root>/pages/` and must use the `Wiki___Namespace___Page.md` triple-underscore naming.
-3. Check `journals/` is not accidentally being used — journals have a different format and will not render as regular wiki pages.
+3. Check `journals/` is not accidentally being used - journals have a different format and will not render as regular wiki pages.
 
 ### Obsidian shows YAML frontmatter as a code block instead of Properties
 
@@ -75,7 +75,7 @@ See `CONTRIBUTING.md` for the full stdin sequence.
 
 - Update Obsidian to the latest version.
 - In Settings → Editor, ensure "Properties in document" is enabled.
-- If you deliberately disable Properties, the wiki still works — the LLM reads the YAML, and nothing breaks. The display is just uglier.
+- If you deliberately disable Properties, the wiki still works - the LLM reads the YAML, and nothing breaks. The display is just uglier.
 
 ### Cross-references `[[Wiki/Tech/Strapi]]` aren't clickable
 
@@ -86,39 +86,43 @@ See `CONTRIBUTING.md` for the full stdin sequence.
 - **Logseq** expects triple-underscore flat files: `Wiki___Tech___Strapi.md`. `[[Wiki/Tech/Strapi]]` resolves because Logseq treats `/` and `___` as equivalent path separators.
 - **Obsidian** expects directory hierarchy: `Wiki/Tech/Strapi.md`. The file literally lives inside `Wiki/Tech/`.
 
-If you mix conventions (e.g., triple-underscore files inside an Obsidian vault), links break. Check that `setup.sh` configured the correct tool — run it again and pick the tool matching your current vault.
+If you mix conventions (e.g., triple-underscore files inside an Obsidian vault), links break. Check that `setup.sh` configured the correct tool - run it again and pick the tool matching your current vault.
 
 ## Claude Code Integration
 
-### `/wiki` commands aren't available in Claude Code
+### The wiki skills aren't available or can't find the wiki
 
-**Cause:** The skill was not installed into your project. `setup.sh` offers to copy it but it is optional.
+**Cause:** Either the skill suite is not installed into `.claude/skills/`, or config discovery cannot locate your `llm-wiki.yml`. Since v2 there is no config-path placeholder to patch into the skill files; the skills discover the config at runtime.
 
 **Fix:**
 
-1. Confirm `.claude/commands/wiki.md` exists in your project directory.
-2. If missing, re-run `./setup.sh` and answer `y` at the "Install wiki skill in a project?" step, then provide the project path.
-3. Alternatively, copy manually:
+1. Confirm the skills are installed: `.claude/skills/wiki-core/`, `wiki-setup/`, `wiki-ingest/`, etc. exist in your project (or globally in `~/.claude/skills/`). If missing, run `./setup.sh` from the cloned `llm-wiki` directory; it copies or symlinks the suite.
+2. Check config discovery. The skills locate `llm-wiki.yml` in this order (first hit wins):
+   - the path in the `LLM_WIKI_CONFIG` environment variable, if set;
+   - walking up from the current working directory to `$HOME` (inclusive);
+   - the global pointer file `~/.config/llm-wiki/config.yml`, whose `wiki_path` names the wiki root containing the real `llm-wiki.yml`.
+3. Test it directly:
    ```bash
-   cp wiki.md ~/your-project/.claude/commands/wiki.md
+   python3 skills/wiki-core/scripts/find_config.py --json
    ```
-4. In `wiki.md`, verify the `<CONFIG_PATH>` placeholder has been replaced with the absolute path to your `llm-wiki.yml`.
+   Exit 0 prints the resolved path and which discovery method matched; exit 2 means nothing was found (or `LLM_WIKI_CONFIG` points at a missing file).
+4. If discovery fails, run the `wiki-setup` skill: it scaffolds a fresh wiki when none exists and offers to write the global pointer file so the skills work from any directory.
 
-Restart Claude Code for the skill to be picked up.
+Restart Claude Code after installing skills so they are picked up.
 
-### `/wiki ingest` runs forever or times out
+### `/wiki-ingest` runs forever or times out
 
 **Cause:** Source is too large, or the wiki has grown past the batch limit and Claude is trying to load too many pages at once.
 
 **Fix:**
 
 - Split large sources. A 10,000-word document should be ingested in 2-3 passes, not one.
-- The ingest pipeline has a 3-page batch limit — if your wiki has hundreds of pages and many are relevant to the source, processing takes proportionally longer.
-- If Claude Code hits a context limit mid-ingest, it will stop and report. Re-run the same ingest — Claude's append-only discipline prevents duplicates.
+- The ingest pipeline has a 3-page batch limit - if your wiki has hundreds of pages and many are relevant to the source, processing takes proportionally longer.
+- If Claude Code hits a context limit mid-ingest, it will stop and report. Re-run the same ingest - Claude's append-only discipline prevents duplicates.
 
-### `/wiki ingest` blocks with a credential-leak warning but the content has no credentials
+### `/wiki-ingest` blocks with a credential-leak warning but the content has no credentials
 
-**Cause:** False positive from lint rule #6. The credential-leak regex includes base64-like patterns (`[A-Za-z0-9+/]{40,}`), which also match innocent long strings — long URLs, hashes, or technical identifiers.
+**Cause:** False positive from lint rule #6. The credential-leak regex includes base64-like patterns (`[A-Za-z0-9+/]{40,}`), which also match innocent long strings - long URLs, hashes, or technical identifiers.
 
 **Fix:**
 
@@ -137,22 +141,22 @@ Never commit around the lint by force. The false positive rate is low, and genui
 
 **Fix:**
 
-- **Two-stage routing handles retrieval precision automatically.** Since v1.2.0, `/wiki query` reads the hub `### Index` routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line's description terse and distinctive — that is what keeps routing sharp as the wiki grows.
-- **Run `/wiki prune` periodically (default every 6 months).** It evicts cold pages — no read in N months — from the live hub index into `### Archive`, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.
+- **Two-stage routing handles retrieval precision automatically.** Since v1.2.0, `/wiki-query` reads the hub `### Index` routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line's description terse and distinctive - that is what keeps routing sharp as the wiki grows.
+- **Run `/wiki-maintain prune` periodically (default every 6 months).** It evicts cold pages - no read in N months - from the live hub index into `### Archive`, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.
 - **Split namespaces.** If `Wiki/Tech/` has 50+ pages, consider splitting into `Wiki/Tech/Infrastructure/`, `Wiki/Tech/Languages/`, etc. Namespaces can go 3 levels deep.
-- **Run `/wiki lint --fix`.** Beyond stale detection (90+ days), it now also fixes index drift — backfilling missing routing lines and tidying archived pages left in the live index.
+- **Run `/wiki-lint --fix`.** Beyond stale detection (90+ days), it now also fixes index drift - backfilling missing routing lines and tidying archived pages left in the live index.
 - **Audit L1/L2.** If you find yourself querying the same L2 page every session, promote the essential part to L1.
 
-The wiki scales, but like any knowledge system, it requires periodic gardening — now mostly automated by `/wiki prune` and `/wiki lint --fix`.
+The wiki scales, but like any knowledge system, it requires periodic gardening - now mostly automated by `/wiki-maintain prune` and `/wiki-lint --fix`.
 
-### `/wiki lint` keeps flagging the same orphan pages
+### `/wiki-lint` keeps flagging the same orphan pages
 
 **Cause:** Pages that have no incoming links are flagged as orphans. If the same pages appear every run, they are genuinely unlinked.
 
 **Fix:**
 
 - Add the page to the appropriate hub page (e.g., `Wiki/Tech` hub should list all `Wiki/Tech/*` pages).
-- Add cross-references from related pages — if `Wiki/Projects/X` mentions `Wiki/Tech/Y`, make sure it uses `[[Wiki/Tech/Y]]` syntax.
-- Run `/wiki lint --fix` — it auto-adds missing hub entries where obvious.
+- Add cross-references from related pages - if `Wiki/Projects/X` mentions `Wiki/Tech/Y`, make sure it uses `[[Wiki/Tech/Y]]` syntax.
+- Run `/wiki-lint --fix` - it auto-adds missing hub entries where obvious.
 
 If a page is genuinely isolated and cannot be linked from anywhere, it may be a sign the page is misplaced (wrong namespace) or should be deleted.

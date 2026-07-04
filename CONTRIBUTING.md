@@ -5,7 +5,7 @@ Thanks for your interest in contributing! This project is young and contribution
 ## Ways to contribute
 
 - **Bug reports** — Something broken in `setup.sh`? Wiki pages not formatting correctly? Open an issue.
-- **Feature requests** — Ideas for new `/wiki` commands, lint rules, or template improvements? Open an issue.
+- **Feature requests** - Ideas for new wiki skills, lint rules, or template improvements? Open an issue.
 - **Templates** — Better Schema designs, new page types, or improved hub pages.
 - **Tool support** — Improvements to Logseq or Obsidian templates, or support for new tools.
 - **Documentation** — Fixes, clarifications, or new guides.
@@ -55,7 +55,7 @@ Format: `type: short description`
 
 Types: `feat`, `fix`, `docs`, `templates`, `examples`
 
-Example: `feat: add /wiki export command for PDF generation`
+Example: `feat: add wiki-export skill for PDF generation`
 
 ## Questions?
 

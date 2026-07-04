@@ -50,13 +50,13 @@ graph TB
     CLAUDE[Claude Code Session] -->|Always has| L1R
     CLAUDE -->|Always has| L1I
     CLAUDE -->|Always has| L1C
-    CLAUDE -->|/wiki query| L2P
-    CLAUDE -->|/wiki query| L2W
-    CLAUDE -->|/wiki query| L2K
-    CLAUDE -->|/wiki query| L2B
-    CLAUDE -->|/wiki ingest| EXT1
-    CLAUDE -->|/wiki ingest| EXT2
-    CLAUDE -->|/wiki ingest| EXT3
+    CLAUDE -->|/wiki-query| L2P
+    CLAUDE -->|/wiki-query| L2W
+    CLAUDE -->|/wiki-query| L2K
+    CLAUDE -->|/wiki-query| L2B
+    CLAUDE -->|/wiki-ingest| EXT1
+    CLAUDE -->|/wiki-ingest| EXT2
+    CLAUDE -->|/wiki-ingest| EXT3
 ```
 
 ## The Routing Rule
@@ -128,7 +128,7 @@ The total size is small -- typically under 20 files, each a few lines. This is d
 
 ## L2 in Practice: The Wiki
 
-L2 is the wiki itself -- dozens to hundreds of structured pages organized by namespace. Unlike L1, these pages are only loaded when relevant. A `/wiki query "what is the status of project X?"` triggers Claude to read 3-5 relevant pages, not all 100.
+L2 is the wiki itself -- dozens to hundreds of structured pages organized by namespace. Unlike L1, these pages are only loaded when relevant. A `/wiki-query "what is the status of project X?"` triggers Claude to read 3-5 relevant pages, not all 100.
 
 The key properties of L2:
 
@@ -148,7 +148,7 @@ The schema explicitly defines the boundary so the system can self-enforce it:
 - Same info in both? → Lint warning
 ```
 
-This is not just documentation -- the `/wiki lint` command actively checks for L1/L2 duplicates. If the same rule appears in both a memory file and a wiki page, it flags a warning. Duplicates mean one copy will eventually go stale, leading to contradictory knowledge.
+This is not just documentation -- the `/wiki-lint` command actively checks for L1/L2 duplicates. If the same rule appears in both a memory file and a wiki page, it flags a warning. Duplicates mean one copy will eventually go stale, leading to contradictory knowledge.
 
 ## Evolving the Boundary
 
@@ -159,6 +159,6 @@ The L1/L2 boundary is not static. As your wiki grows, some knowledge migrates:
 - **Merge**: Two L1 files cover related gotchas. Combine them into one to keep L1 lean.
 - **Archive**: A project completes. Its L1 gotchas become L2 historical notes.
 
-The `/wiki lint` command helps with this evolution by flagging anomalies: L1 files that have not been referenced in 90 days, L2 pages that get queried in every session (suggesting they should be L1), and duplicates that need resolution.
+The `/wiki-lint` command helps with this evolution by flagging anomalies: L1 files that have not been referenced in 90 days, L2 pages that get queried in every session (suggesting they should be L1), and duplicates that need resolution.
 
 The goal is a lean L1 and a rich L2. Keep the fast cache small and hot. Let the wiki grow without bounds.

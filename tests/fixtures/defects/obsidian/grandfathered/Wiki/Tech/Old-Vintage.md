@@ -1,0 +1,14 @@
+---
+type: knowledge
+domain: tech
+created: 2025-11-01
+updated: 2025-11-01
+---
+
+## Old Vintage
+
+Planted defect: missing required confidence property (REQ-132), on a page WITHOUT schema-spec-version.
+
+Default lint downgrades this to info (grandfather floor); --strict keeps it a warning.
+
+[[Wiki/Tech]]

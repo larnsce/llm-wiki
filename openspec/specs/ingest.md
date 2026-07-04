@@ -1,4 +1,4 @@
-# Spec: /wiki ingest — Source Processing Pipeline
+# Spec: /wiki-ingest - Source Processing Pipeline
 
 ## Description
 
@@ -35,6 +35,16 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   Maximum 3 pages loaded simultaneously (JIT retrieval).
 - REQ-024: The system SHALL produce a page operation plan: pages to create,
   pages to update, cross-references to add, hub pages to update.
+- REQ-025 (interactive checkpoint): After the page operation plan and BEFORE any
+  write, the system SHALL pause and present: the planned page touches, the
+  per-source `reliability::` rating with a one-line rationale, any contradictions
+  detected against existing pages, and the question "what should I emphasize,
+  skip, or route to L1 Memory?". The system SHALL apply the user's guidance to the
+  plan and only then proceed to Phase 3. This is the default mode.
+- REQ-026 (--auto): With the `--auto` flag the system SHALL skip the REQ-025
+  checkpoint (batch queue-draining). The plan and ratings SHALL still be included
+  in the Phase 5 report, and the Quality Gate (REQ-040/042/045) still blocks on
+  failures. `--auto` never bypasses a blocking gate.
 
 ### Phase 3: Page Operations
 
@@ -53,6 +63,10 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   and specs/query.md Phase 0). The description is the routing key consumed by two-stage
   query and MUST be terse and distinctive, not filler. A page without a routing line is
   unroutable.
+- REQ-033b: On ingested pages, the system SHALL attach a `cite::` reference to every
+  non-common-knowledge factual claim block it writes, per specs/citations.md
+  (REQ-900..905). Pages are born auditable. STAGING: this requirement takes effect
+  with the citations implementation (v2.1, #17); v2.0.0 ingest is exempt.
 - REQ-034: The system SHALL add `[[Wiki/Namespace/Page]]` cross-references between
   all affected pages. Every page touched MUST have at least 1 outgoing wiki link.
 - REQ-035: The system SHALL set the `updated::` property (or YAML `updated` field)
@@ -83,8 +97,22 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-043: The system SHALL count page touches and emit a warning if the count is
   below 5 or above 20.
 - REQ-044: The quality gate SHALL NOT block the ingest on page-touch count warnings
-  (REQ-043). It SHALL block on credential detection (REQ-042) and missing required
-  properties (REQ-040).
+  (REQ-043). It SHALL block on credential detection (REQ-042), pre-archive secret
+  detection (REQ-045), and missing required properties (REQ-040).
+- REQ-045 (pre-archive secret gate): Before any source file is MOVED into the
+  git-tracked `ingested/` tree (REQ-075), the system SHALL scan the source file's
+  BYTES for credential patterns (the REQ-042 pattern set, applied to the source
+  itself, including a strings-style pass over binary formats). On a match the
+  system MUST NOT archive or commit the file: it stays in `raw_dir` with a warning
+  naming the match location and requiring redaction (or an explicit
+  `--allow-secret` override) before re-ingest. Rationale: `ingested/` is committed
+  git history; exposure there is sticky.
+- REQ-046 (sensitive source types): When a source's type is listed in the config
+  key `sensitive_source_types` (specs/config.md REQ-624), the system SHALL write
+  the wiki pages as normal but MUST keep the source file's bytes out of git: the
+  file is moved to `ingested/<type>/` but that path is gitignored (managed by the
+  system), and `source-file::` still records it. The provenance path stays valid
+  locally; only the bytes are excluded from history.
 
 ### Phase 5: Report
 
@@ -105,16 +133,15 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-063: When the configured tool is Obsidian, properties MUST be in YAML
   frontmatter. Content uses standard markdown without block prefixes.
 
-<!-- larnsce:provenance start -->
-### Source Pipeline (additive overlay)
+### Source Pipeline
 
-This overlays — does NOT replace — Phases 1-5 above. It applies when `llm-wiki.yml`
+This extends Phases 1-5 above. It applies when `llm-wiki.yml`
 configures a source pipeline (`raw_dir`, `ingested_dir`, `source_types`,
 `default_source_type`). It is the path for NEW external sources (e.g. a Zotero export).
-Pulling notes ALREADY written in the graph uses `/wiki import`, which does NOT move files
+Pulling notes ALREADY written in the graph uses `/wiki-ingest --import`, which does NOT move files
 or assign `source-file::`.
 
-- REQ-070 (Phase 0, queue intake): When `/wiki ingest` is given NO argument, the system
+- REQ-070 (Phase 0, queue intake): When `/wiki-ingest` is given NO argument, the system
   SHALL scan `raw_dir` and process every file there oldest-first (drain the queue). When
   given a path/URL argument, that single source is the input; a local file outside
   `raw_dir` SHALL be copied into `raw_dir` first so the lifecycle is consistent.
@@ -124,8 +151,9 @@ or assign `source-file::`.
   (the queue is resumable) and SHALL NOT move a half-processed source.
 - REQ-073 (Phase 3 addition): On every created/updated ingested page the system SHALL set
   `source-file::` (the path the source will live at, `ingested/<type>/<filename>`; append
-  comma-separated when corroborating) and `reliability::` (per schema REQ-586, lowest of
-  multiple). These do NOT alter `confidence::` (schema REQ-587).
+  comma-separated when corroborating) and `reliability::` (per schema REQ-586:
+  corroboration is judged per claim, the page value is the minimum across claims).
+  These do NOT alter `confidence::` (schema REQ-587).
 - REQ-073a (Phase 1, optional enrichment): When a Semantic Scholar MCP is configured, the
   system MAY resolve the source (by DOI, else title + first author + year) and record its
   metrics verbatim as `s2-metrics::` (per schema REQ-586a). These metrics INFORM the
@@ -141,7 +169,6 @@ or assign `source-file::`.
   each processed source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
   MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
   and committed as ONE atomic commit.
-<!-- larnsce:provenance end -->
 
 ---
 
@@ -153,7 +180,7 @@ or assign `source-file::`.
 GIVEN llm-wiki.yml is configured with tool: logseq and wiki_path: /tmp/test-wiki
 AND the wiki has a Schema page and a Wiki/Tech hub page
 AND no page exists for "Redis"
-WHEN the user runs /wiki ingest "https://redis.io/docs/about/"
+WHEN the user runs /wiki-ingest "https://redis.io/docs/about/"
 THEN the system SHALL create a new page Wiki___Tech___Redis.md
 AND the page SHALL have properties: type:: entity, entity-type:: technology,
     created:: [today], updated:: [today], status:: active, source:: ingest
@@ -169,7 +196,7 @@ AND the report SHALL show: 1 page created, 1 hub updated, N cross-refs added
 ```
 GIVEN a page Wiki___Tech___Strapi.md exists with content "Headless CMS for Node.js"
 AND the page has updated:: 2026-03-01
-WHEN the user runs /wiki ingest "Strapi 5 uses documentId for PUT, not numeric id"
+WHEN the user runs /wiki-ingest "Strapi 5 uses documentId for PUT, not numeric id"
 THEN the system SHALL append a new block to the existing page
 AND the original content "Headless CMS for Node.js" SHALL still be present unchanged
 AND updated:: SHALL be changed to [today]
@@ -267,6 +294,49 @@ AND the report SHALL note: "Namespace depth limit (3) reached, content merged
     into parent page"
 ```
 
+### Scenario 11: Interactive checkpoint (default mode)
+
+```
+GIVEN a source in raw/ and no --auto flag
+WHEN ingest completes the page operation plan (Phase 2)
+THEN the system pauses BEFORE any write and presents: planned page touches,
+    the source's reliability rating with rationale, detected contradictions,
+    and asks "what should I emphasize, skip, or route to L1?"
+AND the user answers "skip the pricing details, emphasize the method"
+THEN Phase 3 writes reflect that guidance
+```
+
+### Scenario 12: --auto drains the queue without prompts
+
+```
+GIVEN three sources in raw/ and the --auto flag
+WHEN ingest runs
+THEN no checkpoint prompt appears and all three sources are processed oldest-first
+AND the report includes each source's plan and reliability rating
+AND a quality-gate failure on source 2 still blocks source 2 (left in raw/)
+```
+
+### Scenario 13: Secret in source bytes blocks the archive
+
+```
+GIVEN a raw source file containing an API key string
+AND the synthesized pages contain no credential
+WHEN ingest reaches the pre-archive gate (REQ-045)
+THEN the file is NOT moved into ingested/ and NOT committed
+AND the warning names the match location and asks for redaction
+AND the wiki pages written from the source are reported as pending re-ingest
+```
+
+### Scenario 14: Sensitive source type stays out of git
+
+```
+GIVEN sensitive_source_types: [notes] in llm-wiki.yml
+AND a personal note in raw/ inferred as type notes
+WHEN ingest completes
+THEN wiki pages are written and source-file:: records ingested/notes/<file>
+AND the moved file's path is gitignored; its bytes never enter git history
+```
+
 ---
 
 ## Acceptance Criteria
@@ -279,6 +349,9 @@ AND the report SHALL note: "Namespace depth limit (3) reached, content merged
 - [ ] Every created/updated active page has a routing line in its hub `### Index`
 - [ ] Every touched page has at least 1 cross-reference
 - [ ] Credential patterns block the ingest
+- [ ] Source bytes are scanned pre-archive; a match leaves the file in raw/
+- [ ] Default mode pauses at the checkpoint before any write; --auto does not
+- [ ] Ingested claim blocks carry cite:: per specs/citations.md (v2.1, with #17)
 - [ ] Page touch warnings are emitted but do not block
 - [ ] Works correctly in both Logseq and Obsidian modes
 - [ ] Max 3 pages loaded simultaneously during processing

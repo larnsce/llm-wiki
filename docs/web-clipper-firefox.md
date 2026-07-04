@@ -1,12 +1,12 @@
 # Setting up a Firefox web-clipper for the LLM Wiki (MarkDownload on macOS)
 
-Setup notes for clipping web pages into the Logseq-based LLM Wiki's `raw/` folder, where `/wiki ingest` picks them up. Companion to the provenance work in the [Schema Reference](schema-reference.md) and [Literature Research](literature-research.md) guides.
+Setup notes for clipping web pages into the Logseq-based LLM Wiki's `raw/` folder, where `/wiki-ingest` picks them up. Companion to the provenance work in the [Schema Reference](schema-reference.md) and [Literature Research](literature-research.md) guides.
 
 This covers choosing a Firefox extension to turn web pages into `.md` files, configuring it to drop clips into the wiki's raw-input folder on macOS, and fixing the symlink so the hand-off is automatic.
 
 ## 1. Which Firefox extension fits the pipeline
 
-Goal: turn web pages into `.md` files that feed the existing file-based `/wiki ingest` workflow, ideally carrying source metadata that maps onto the wiki's provenance fields (`source-file::`, `reliability::`).
+Goal: turn web pages into `.md` files that feed the existing file-based `/wiki-ingest` workflow, ideally carrying source metadata that maps onto the wiki's provenance fields (`source-file::`, `reliability::`).
 
 Shortlist, sorted by fit:
 
@@ -16,7 +16,7 @@ Shortlist, sorted by fit:
 - **Page to Markdown** is a simple one-click download with a plain-text mode that strips links and images for minimal-noise context.
 - **Page to Markdown Exporter** bundles images into a ZIP alongside the markdown; useful for image-heavy pages.
 
-**Integration note:** these emit standard markdown / YAML front matter, not Logseq block syntax. Treat a clip as *raw* input: it lands in the raw side of the raw/ingested split, and `/wiki ingest` transforms it into a proper Logseq page with provenance (`source-file::`, `reliability::`). Do not drop clipper output straight into the vault as a finished page; that bypasses the provenance and audit machinery.
+**Integration note:** these emit standard markdown / YAML front matter, not Logseq block syntax. Treat a clip as *raw* input: it lands in the raw side of the raw/ingested split, and `/wiki-ingest` transforms it into a proper Logseq page with provenance (`source-file::`, `reliability::`). Do not drop clipper output straight into the vault as a finished page; that bypasses the provenance and audit machinery.
 
 ## 2. Can MarkDownload save to a dedicated folder?
 
@@ -28,7 +28,7 @@ Yes, with one boundary: it can only write **inside the browser's Downloads folde
 To land clips directly in the vault (which lives outside Downloads), bridge the last hop with either:
 
 - **A symlink.** Point `~/Downloads/wiki-raw` at the vault's `raw/` folder. This is the standard macOS solution.
-- **A watch/move step.** A script that watches `~/Downloads/wiki-raw/`, moves new `.md` files into the vault's raw folder, and optionally triggers `/wiki ingest`.
+- **A watch/move step.** A script that watches `~/Downloads/wiki-raw/`, moves new `.md` files into the vault's raw folder, and optionally triggers `/wiki-ingest`.
 
 The symlink is the tidiest for a git-versioned vault: the clip writes to Downloads, the symlink lands it in `raw/`, and ingest does the transform.
 
@@ -97,4 +97,4 @@ ln -s "/Users/yourname/logseq-notes/raw" ~/Downloads/wiki-raw
 
 MarkDownload settings do not change: **Subfolder** stays `wiki-raw`.
 
-**Result:** working. Clips now flow Firefox to `~/Downloads/wiki-raw` (symlink) to vault `raw/` to `/wiki ingest`.
+**Result:** working. Clips now flow Firefox to `~/Downloads/wiki-raw` (symlink) to vault `raw/` to `/wiki-ingest`.

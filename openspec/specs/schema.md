@@ -92,7 +92,7 @@ lint (validation).
 - REQ-554: Every namespace MUST have exactly one hub page.
 - REQ-555: Each hub page MUST carry an `### Index` section: one **routing line** per
   active child page, formatted `[[Wiki/NS/Page]] -- <description, <=120 chars> #tags`.
-  This index is the retrieval entry point read by `/wiki query` Phase 0 (two-stage routing).
+  This index is the retrieval entry point read by `/wiki-query` Phase 0 (two-stage routing).
 - REQ-556: Each hub page MAY carry an `### Archive` section holding the routing lines of
   demoted (cold) child pages. Lint flags an active page in `### Archive`, or a demoted
   page (see Archived Pages) still in `### Index`.
@@ -102,7 +102,7 @@ lint (validation).
 
 ### Archived / Demoted Pages
 
-- REQ-565: A page demoted by `/wiki prune` SHALL be marked with the optional property
+- REQ-565: A page demoted by `/wiki-maintain prune` SHALL be marked with the optional property
   `archived:: <date>` (the date it was evicted from the live index). The presence of
   `archived::` is the canonical "demoted" marker, valid on ANY page type.
 - REQ-566: For pages whose `status` enum allows it (Entity: `active|inactive|archived`),
@@ -112,7 +112,7 @@ lint (validation).
 - REQ-567: Demotion SHALL NOT rename or move the page file. The tool links by page name,
   so a move would break incoming `[[links]]`. A demoted page keeps its filename and
   location; only its routing line moves from the hub `### Index` to `### Archive`.
-- REQ-568: A demoted page remains greppable as an L3 fallback. If `/wiki query` reads it
+- REQ-568: A demoted page remains greppable as an L3 fallback. If `/wiki-query` reads it
   again, the system SHOULD offer to re-promote it (routing line back to `### Index`,
   `archived::` removed).
 
@@ -120,7 +120,7 @@ lint (validation).
 
 - REQ-569: The wiki SHALL contain a system page `Wiki/Reference/Access-Log` with
   properties `access-log:: true` and `type:: reference`, holding an append-only `## Log`
-  block. `/wiki query` appends one line per full-page read; `/wiki prune` reads it to
+  block. `/wiki-query` appends one line per full-page read; `/wiki-maintain prune` reads it to
   compute last-access per page. This page is EXEMPT from orphan, stale, and demote rules.
 
 ### Date Validation
@@ -154,7 +154,15 @@ lint (validation).
   - Logseq: `Wiki___Namespace___Page.md` (triple-underscore, flat directory)
   - Obsidian: `Wiki/Namespace/Page.md` (directory hierarchy)
 
-<!-- larnsce:provenance start -->
+### Stub Pages (external source of truth)
+
+- REQ-584: A `reference` or `knowledge` page whose source of truth is an external
+  URL the user maintains (e.g. their own Quarto site or blog series) MAY carry a
+  `canonical-url::` property with that URL ("stub, don't ingest"). A page with
+  `canonical-url::` is a deliberate stub: it SHALL NOT carry `source-file::` and is
+  exempt from ingested-page requirements (REQ-585/586). Lint SHALL check that
+  `canonical-url::` targets still resolve (specs/lint.md Rule 12).
+
 ### Provenance & Trust (source pipeline)
 
 - REQ-585: An ingested page (one written from a source in the `raw/`/`ingested/`
@@ -163,12 +171,21 @@ lint (validation).
   `[[link]]`. Hand-written pages omit it. `source-file::` is distinct from the existing
   `source::` property: `source::` records the METHOD (memory-migration | ingest | manual),
   `source-file::` records WHICH origin file.
-- REQ-586: An ingested page MAY carry a `reliability::` property, one of
-  `high | medium | low`, rating the QUALITY of its sources. When several sources
-  contribute, the value MUST be the LOWEST (most conservative) of their individual
-  ratings. Rubric: `high` = peer-reviewed primary / official standard / 2+ independent
-  corroborating sources; `medium` = single secondary / preprint / expert post / partial
-  corroboration; `low` = speculative / anecdotal / forum / model-only.
+- REQ-586: An ingested page SHALL carry a `reliability::` property, one of
+  `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
+  (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up
+  to the page:
+  - Per-source rubric: `high` = peer-reviewed primary / official standard;
+    `medium` = single secondary / preprint / expert post; `low` = speculative /
+    anecdotal / forum / model-only.
+  - Claim level: a claim supported by 2+ INDEPENDENT sources rated `medium` or
+    better is `high` (corroboration). Otherwise the claim takes its source's
+    rubric rating; partial corroboration does not raise it.
+  - Page level: `reliability::` is the MINIMUM across the page's claims (most
+    conservative roll-up).
+  Worked example: two independent `medium` sources corroborating the SAME claim
+  make that claim `high`; if the page's only other claim rests on a single `low`
+  source, the page is `reliability:: low`.
 - REQ-586a: An ingested page MAY carry an OPTIONAL `s2-metrics::` property recording raw
   Semantic Scholar figures verbatim (e.g. `cites=<n> influential=<n> venue=<...> type=<...>
   year=<...>`), or the value `none`. It is present only when a Semantic Scholar MCP enriched
@@ -183,13 +200,14 @@ lint (validation).
 - REQ-588: When a page rests on a SINGLE source AND `reliability::` is not `high`, the
   page SHALL carry a `## Pending Review` section listing the SPECIFIC claims that need
   corroboration. When a corroborating source is later ingested, resolved claims SHALL be
-  removed; when all are resolved the section SHALL be removed and `reliability::` raised.
+  removed; when all are resolved the section SHALL be removed and `reliability::`
+  recomputed per REQ-586 (newly corroborated claims rate `high`; the page takes the
+  minimum across its claims).
 - REQ-589: A source file SHALL live in `raw/` while pending and be MOVED to
   `ingested/<type>/` once its knowledge is written into wiki pages. Presence in
   `ingested/` means processed; the move is the atomic provenance commit. Source files are
   immutable (read and linked by path, never edited). `raw/` and `ingested/` live BESIDE
   the pages directory so they are not rendered as wiki pages.
-<!-- larnsce:provenance end -->
 
 ### Tool-Specific Format Rules
 

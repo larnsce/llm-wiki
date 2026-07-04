@@ -1,0 +1,14 @@
+# Fixture: invalid tool value (check_config must exit 2)
+
+tool: roam
+wiki_path: /tmp
+pages_dir: pages
+
+namespaces:
+  - Tech
+
+raw_dir: raw
+ingested_dir: ingested
+source_types:
+  - papers
+default_source_type: papers
