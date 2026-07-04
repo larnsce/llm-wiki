@@ -33,8 +33,11 @@ Always use the correct format for the configured tool.
 - Schema page: read `Wiki/Schema` (`Wiki___Schema.md` / `Wiki/Schema.md`) for the
   current conventions.
 - Dates: ISO 8601 (`YYYY-MM-DD`), zero-padded (REQ-560..561).
-- Page and namespace naming: Title Case, hyphens for multi-word names, maximum
-  namespace depth 3 (REQ-580..582).
+- Page and namespace naming: lowercase structural segments, hyphen (U+002D) for
+  multi-word names (no spaces, underscores, or en/em dashes), maximum namespace
+  depth 3; proper-noun leaf segments (people, tools, papers, `@citekey`s) keep
+  natural casing (REQ-580..582). Pre-migration `Wiki/` corpora are grandfathered
+  until the lowercase migration (issue #25) runs.
 - Write discipline: NEVER overwrite existing content blocks; only append new blocks
   (openspec/specs/ingest.md REQ-032). Set the `updated::` property (or YAML
   `updated` field) on every modified page.

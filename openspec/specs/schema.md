@@ -1,4 +1,4 @@
-# Spec: Schema — Page Types, Properties & Validation
+# Spec: Schema - Page Types, Properties & Validation
 
 ## Description
 
@@ -76,7 +76,7 @@ lint (validation).
   - `important` → sometimes belongs in L1 Memory
   - `nice-to-know` → rarely belongs in L1 Memory
 - REQ-542: `verified` tracks the last date this feedback was confirmed still valid.
-  It is distinct from `updated` (content change) — a page can be verified without
+  It is distinct from `updated` (content change) - a page can be verified without
   changing content.
 
 ### Hub Type
@@ -96,7 +96,7 @@ lint (validation).
 - REQ-556: Each hub page MAY carry an `### Archive` section holding the routing lines of
   demoted (cold) child pages. Lint flags an active page in `### Archive`, or a demoted
   page (see Archived Pages) still in `### Index`.
-- REQ-557: The hub's child list under `### Index` IS the routing index — there is no
+- REQ-557: The hub's child list under `### Index` IS the routing index - there is no
   separate index file. A description after the `--` separator is REQUIRED (it is the
   routing key); an empty description SHALL be flagged by lint.
 
@@ -107,7 +107,7 @@ lint (validation).
   `archived::` is the canonical "demoted" marker, valid on ANY page type.
 - REQ-566: For pages whose `status` enum allows it (Entity: `active|inactive|archived`),
   `status::` SHOULD additionally be set to `archived`. For types whose `status` enum does
-  NOT include `archived` (Project, Knowledge), ONLY the `archived::` property is added —
+  NOT include `archived` (Project, Knowledge), ONLY the `archived::` property is added -
   the type's `status` value MUST NOT be set to an out-of-enum value.
 - REQ-567: Demotion SHALL NOT rename or move the page file. The tool links by page name,
   so a move would break incoming `[[links]]`. A demoted page keeps its filename and
@@ -145,14 +145,28 @@ lint (validation).
 
 ### Namespace Conventions
 
-- REQ-580: Namespace names MUST use Title Case: `Wiki/Tech`, not `Wiki/tech`.
-- REQ-581: Multi-word names MUST use hyphens: `Wiki/Projects/Blog-Series`,
-  not `Wiki/Projects/Blog_Series` or `Wiki/Projects/Blog Series`.
-- REQ-582: Namespace depth MUST NOT exceed 3 levels. `Wiki/Business/Clients/Acme`
+- REQ-580: Structural namespace names MUST be lowercase: `wiki/tech`, not `Wiki/Tech`
+  or `wiki/Tech`. This applies to every structural segment of a page name (the
+  namespace levels and any non-proper-noun leaf).
+- REQ-580a: The word separator inside a structural segment is the ASCII hyphen
+  `U+002D` ONLY. Structural segments MUST NOT contain spaces, underscores, en dashes
+  (`U+2013`), or em dashes (`U+2014`); lookalike dashes are invisible grep traps.
+- REQ-580b: Proper-noun-leaf exemption: a LEAF segment that names a person, tool,
+  paper, or `@citekey` keeps its natural casing and spelling, written as the world
+  writes it: `wiki/tools/Claude Code`, `notes/literature/@Forte2022`. The exemption
+  applies to the leaf only; the structural segments before it stay lowercase.
+- REQ-580c: The corpus rename `Wiki/` → `wiki/` is executed by the migration
+  converter (`migrate_wiki.py`, issue #25), not by hand. Pre-migration corpora that
+  still use Title Case names are covered by the grandfather floor (pages without the
+  current `schema-spec-version` are reported one severity tier lower); their names
+  are not a blocking failure.
+- REQ-581: Multi-word structural names MUST use hyphens: `wiki/projects/blog-series`,
+  not `wiki/projects/blog_series` or `wiki/projects/blog series`.
+- REQ-582: Namespace depth MUST NOT exceed 3 levels. `wiki/business/clients/Acme`
   (3 levels) is the maximum. A 4th level is not allowed.
 - REQ-583: File names MUST follow tool conventions:
-  - Logseq: `Wiki___Namespace___Page.md` (triple-underscore, flat directory)
-  - Obsidian: `Wiki/Namespace/Page.md` (directory hierarchy)
+  - Logseq: `wiki___<namespace>___<page>.md` (triple-underscore, flat directory)
+  - Obsidian: `wiki/<namespace>/<page>.md` (directory hierarchy)
 
 ### Stub Pages (external source of truth)
 
@@ -178,6 +192,11 @@ lint (validation).
   - Per-source rubric: `high` = peer-reviewed primary / official standard;
     `medium` = single secondary / preprint / expert post; `low` = speculative /
     anecdotal / forum / model-only.
+  - Personal synthesis = `medium`: a source promoted from the human-owned `para/`
+    or `notes/` namespaces (specs/namespaces.md, promotion seam) rates `medium`
+    by default, UNLESS its claims carry external citations that justify a higher
+    rating under this rubric. This is the single normative statement of that
+    default; other specs cite it rather than restate it.
   - Claim level: a claim supported by 2+ INDEPENDENT sources rated `medium` or
     better is `high` (corroboration). Otherwise the claim takes its source's
     rubric rating; partial corroboration does not raise it.
@@ -228,7 +247,7 @@ lint (validation).
 
 ## Scenarios
 
-### Scenario 1: Valid entity page — all properties correct
+### Scenario 1: Valid entity page - all properties correct
 
 ```
 GIVEN the configured tool is logseq
@@ -324,7 +343,7 @@ THEN the system SHOULD flag at info level: "Page has no Cross-References
 AND this SHALL NOT be treated as a warning (outgoing links exist)
 ```
 
-### Scenario 10: Multi-domain knowledge — primary domain chosen
+### Scenario 10: Multi-domain knowledge - primary domain chosen
 
 ```
 GIVEN a page covers both Strapi configuration (tech) and content publishing (content)
@@ -356,3 +375,5 @@ AND the system SHALL NOT create two pages or use a multi-domain value
 - specs/lint.md rules 1-9 enforce these schema constraints
 - specs/ingest.md Phase 3 creates pages according to these rules
 - specs/config.md determines tool mode (Logseq vs Obsidian)
+- specs/namespaces.md (v2.2) binds the promotion seam to the personal-synthesis
+  rubric case (REQ-586) and consumes the naming rules (REQ-580..583)

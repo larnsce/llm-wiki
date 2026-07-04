@@ -34,7 +34,7 @@ Required (REQ-610..613):
   string for Obsidian).
 - `namespaces`: non-empty array of top-level namespace names.
 
-Optional (REQ-620..624):
+Optional (REQ-620..625):
 
 - `memory_path`: path to the L1 memory directory. Absent means L1 Memory features
   (query supplementation, L1/L2 duplicate detection) are disabled; this is a
@@ -44,12 +44,18 @@ Optional (REQ-620..624):
   `default_source_type`. Absent keys disable the source pipeline.
 - `sensitive_source_types`: source types whose archived bytes must not enter git
   history (see openspec/specs/ingest.md REQ-046).
+- `para_dir` (default `para`) / `notes_dir` (default `notes`): the human-owned
+  namespaces recognized by the scope rule and namespace-hygiene (REQ-625,
+  openspec/specs/namespaces.md REQ-980). Absent keys keep the defaults; the
+  namespaces are still recognized.
 
 ## Validation
 
 Per REQ-630..634: an invalid `tool` value, a non-existent `wiki_path`, or an empty
 `namespaces` array aborts with the spec's error message; a missing `pages_dir`
-directory or a non-Title-Case namespace name warns but continues.
+directory or a namespace name outside the schema naming rules warns but continues
+(the mechanical advisory flips from Title Case to lowercase with the migration,
+issue #25).
 
 ## Path handling
 

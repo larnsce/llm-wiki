@@ -267,10 +267,15 @@ The default schema defines 8 top-level namespaces. Customize these to match your
 
 | Rule | Example |
 |------|---------|
-| Title Case | `Wiki/Tech/Strapi` (not `Wiki/tech/strapi`) |
-| Hyphens for multi-word | `Wiki/Projects/Blog-Series` (not `Blog_Series`) |
-| Max depth: 3 levels | `Wiki/Business/Clients/Acme` is the deepest allowed |
-| Hub at each level | `Wiki/Tech` is the hub for all `Wiki/Tech/*` pages |
+| Lowercase structural segments | `wiki/tech`, not `Wiki/Tech` |
+| Hyphen (U+002D) for multi-word | `wiki/projects/blog-series` (not `blog_series`, `blog series`, or an en/em dash) |
+| Proper-noun leaves keep natural casing | `wiki/tools/Claude Code`, `notes/literature/@Forte2022` |
+| Max depth: 3 levels | `wiki/business/clients/Acme` is the deepest allowed |
+| Hub at each level | `wiki/tech` is the hub for all `wiki/tech/*` pages |
+
+The `Wiki/` → `wiki/` corpus rename runs through the migration converter (issue #25), not by
+hand; pre-migration corpora that still use Title Case names are covered by the lint grandfather
+floor. Examples elsewhere in this document show the pre-migration `Wiki/` casing.
 
 ### File Names on Disk
 
@@ -487,9 +492,9 @@ Code blocks, tables, and all standard markdown features work as expected.
 
 ## Hub-Index-Routing & LRU-Demote
 
-L1 (Claude Memory) has an index — the auto-loaded `MEMORY.md` pointer list. L2 (the wiki) had none.
+L1 (Claude Memory) has an index - the auto-loaded `MEMORY.md` pointer list. L2 (the wiki) had none.
 As the wiki grows, a grep-over-every-page retrieval gets imprecise and expensive. These two mechanisms
-keep L2 precise while it scales — the CPU-cache analogy, carried through to the index and eviction layers.
+keep L2 precise while it scales - the CPU-cache analogy, carried through to the index and eviction layers.
 
 ### Hub-Index-Routing (two-stage query)
 
@@ -498,7 +503,7 @@ Each hub page carries an `### Index` block: one routing line per active child pa
 
 - **Stage 1** - `/wiki-query` reads only the hub `### Index` blocks of the candidate namespaces and
   picks the 3 (max 5) most relevant pages by description. This is the wiki's *page table / TLB*.
-- **Stage 2** — it then reads only those full pages. Grep-over-everything is just the **L3 fallback**
+- **Stage 2** - it then reads only those full pages. Grep-over-everything is just the **L3 fallback**
   when routing finds nothing.
 - `/wiki-ingest` maintains the routing line for every page it creates or updates (required, else the
   page is unroutable). The description is the routing key: terse, distinctive, no filler.
@@ -517,20 +522,20 @@ Each hub page carries an `### Index` block: one routing line per active child pa
 - Re-promote: if an L3 grep hits an archived page again, its routing line returns to `### Index` and
   the archived properties are removed.
 - **Critical:** the wiki tool links by page name, so a file rename/move would break every incoming
-  `[[link]]`. Never move a demoted page — only evict it from the index.
+  `[[link]]`. Never move a demoted page - only evict it from the index.
 
 ### Access-Log page
 
 `Wiki/Reference/Access-Log` (`access-log:: true`, `type:: reference`) holds an append-only `## Log`
-block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended — do not
-hand-edit it. Each line carries a `matched:` routing reason (`... -- query -- matched: "<reason>"`) —
-the index description or grep term that selected the page — so the log records not just WHICH page
+block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended - do not
+hand-edit it. Each line carries a `matched:` routing reason (`... -- query -- matched: "<reason>"`) -
+the index description or grep term that selected the page - so the log records not just WHICH page
 loaded but WHY (routing transparency, surfaced by `/wiki-maintain`). Legacy lines without `matched:`
 remain valid; the suffix does not affect prune/status parsing.
 
 ### Related lint rules
 
-- **Index Drift** — a routing line with no matching page (orphaned), or an active page with no routing
+- **Index Drift** - a routing line with no matching page (orphaned), or an active page with no routing
   line in its namespace hub (unroutable). `lint --fix` removes orphans and backfills missing lines.
-- **Archived-in-Live-Index** — an archived page (`archived::` set) still in `### Index` instead of
+- **Archived-in-Live-Index** - an archived page (`archived::` set) still in `### Index` instead of
   `### Archive` (an unclean prune). `lint --fix` moves it.

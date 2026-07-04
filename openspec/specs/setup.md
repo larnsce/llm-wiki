@@ -1,4 +1,4 @@
-# Spec: setup.sh — Interactive Installer
+# Spec: setup.sh - Interactive Installer
 
 ## Description
 
@@ -51,8 +51,11 @@ skills for Claude Code. It requires only bash, python3, and git.
   Business, Tech, Content, Projects, People, Learning, Reference.
 - REQ-741: The user MAY enter a custom space-separated list or press Enter
   to accept defaults.
-- REQ-742: Namespace names SHOULD be single words in Title Case. The system
-  does not validate this (user responsibility).
+- REQ-742: Namespace names SHOULD be single words following the structural
+  naming rules in specs/schema.md (REQ-580..581: lowercase, hyphenated). The
+  system does not validate this (user responsibility). The scaffolded defaults
+  flip from Title Case to lowercase with the migration converter (issue #25);
+  pre-migration corpora are covered by the grandfather floor.
 
 ### Step 5: Memory Path
 
@@ -145,7 +148,7 @@ skills for Claude Code. It requires only bash, python3, and git.
 
 ## Scenarios
 
-### Scenario 1: Happy path — Logseq, new directory, defaults
+### Scenario 1: Happy path - Logseq, new directory, defaults
 
 ```
 GIVEN python3 and git are available
@@ -167,7 +170,7 @@ THEN the system SHALL:
     - Display summary with next steps
 ```
 
-### Scenario 2: Happy path — Obsidian, existing vault
+### Scenario 2: Happy path - Obsidian, existing vault
 
 ```
 GIVEN ~/Documents/ObsidianVault/ already exists with .obsidian/ directory
@@ -188,7 +191,7 @@ THEN the system SHALL:
     - Display summary
 ```
 
-### Scenario 3: Directory does not exist — user declines creation
+### Scenario 3: Directory does not exist - user declines creation
 
 ```
 GIVEN the user enters wiki path "/nonexistent/path"
