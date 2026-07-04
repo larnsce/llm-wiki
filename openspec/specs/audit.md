@@ -48,6 +48,22 @@ actually say this". Read-only by default.
   lists of uncited claims, unsupported claims, and missing sources, and the proposed
   `reliability::` and Pending Review deltas. In default mode it SHALL NOT write.
 
+### Capture-Backed Claims (v3.0)
+
+- REQ-927: A claim whose ref is a capture ref (`archive.db:voice_notes/<id>`,
+  specs/ingest.md Voice Sources) SHALL receive the distinct verdict
+  `capture-backed` instead of being judged supported/partial/unsupported against
+  the transcript: the transcript is raw capture, not a vetted source, and
+  verifying against it would launder spoken speculation into green-checked fact.
+  When the ref does not resolve against archive.db (dangling id), the verdict is
+  `source-missing` (broken capture provenance); this resolution check is the
+  audit-side durability tripwire for archive.db (specs/storage.md). During
+  reconciliation (REQ-924), capture-backed claims keep the `reliability:: low`
+  default of schema REQ-586b and MUST NOT raise any rating; the only upgrade
+  path is a real source through normal ingest (per REQ-586b). STAGING: takes
+  effect with the voice pipeline implementation (v3.0, P-3); until then no
+  capture ref exists and the REQ-923 verdict set is unchanged.
+
 ### Fix Mode
 
 - REQ-926: With `--fix` and after confirmation, the system SHALL: add `cite::` stubs
@@ -80,10 +96,25 @@ THEN that claim's verdict is source-missing
 AND the report flags the broken provenance chain
 ```
 
+### Scenario 3: Capture-backed claim is not verified against its transcript
+
+```
+GIVEN a page claim citing archive.db:voice_notes/17
+AND the row exists in archive.db
+WHEN /wiki-audit runs
+THEN that claim's verdict is capture-backed (no subagent judges it against the
+    transcript)
+AND the report keeps its reliability at low per schema REQ-586b, noting that
+    upgrading requires a real source through normal ingest
+AND if the row did not exist, the verdict would be source-missing (dangling
+    capture provenance)
+```
+
 ---
 
 ## Acceptance Criteria
 
 - Default run writes nothing
 - Each verification subagent is isolated to its own claim and source
-- Verdict set is exactly supported | partial | unsupported | source-missing
+- Verdict set is exactly supported | partial | unsupported | source-missing;
+  capture refs additionally yield capture-backed (REQ-927, v3.0)
