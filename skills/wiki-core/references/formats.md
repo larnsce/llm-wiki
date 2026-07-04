@@ -41,6 +41,12 @@ Always use the correct format for the configured tool.
 - Page properties per type (entity, project, knowledge, feedback, hub): see the
   Schema page and openspec/specs/schema.md REQ-510..557. Do not mix tool formats
   (REQ-595).
+- `schema-spec-version:: 2.0.0` (Logseq) / `schema-spec-version: "2.0.0"`
+  (Obsidian YAML): a stamp written on every page that init_wiki.py scaffolds
+  and every page ingest creates. It marks the page as conforming to the
+  current schema contract; pages WITHOUT it are grandfathered by lint
+  (findings one severity tier lower). It is a stamp set at creation, not a
+  property lint requires.
 
 ## Hub-Index-Routing (format)
 

@@ -1,10 +1,10 @@
-# Spec: /wiki lint — Automated Health Checks
+# Spec: /wiki lint - Automated Health Checks
 
 ## Description
 
 The lint command scans all wiki pages for structural issues, data quality problems,
 and security concerns. It reports findings grouped by severity and can auto-fix
-certain issues when run with the `--fix` flag. There are 11 lint rules.
+certain issues when run with the `--fix` flag. There are 12 lint rules.
 
 ---
 
@@ -114,7 +114,7 @@ certain issues when run with the `--fix` flag. There are 11 lint rules.
 - REQ-193: The system SHALL flag a routing line in a hub `### Index` whose target
   page does not exist on disk (orphaned routing line).
 - REQ-194: The system SHALL flag an active (non-archived) page that has no routing
-  line in its namespace hub `### Index` (unroutable — only findable via L3 grep).
+  line in its namespace hub `### Index` (unroutable - only findable via L3 grep).
 - REQ-195: The system SHALL flag a routing line that has no description text after
   the `--` separator (a routing key cannot be empty).
 - REQ-196: Auto-fix (--fix): for an unroutable page, the system SHALL backfill a
@@ -164,7 +164,7 @@ certain issues when run with the `--fix` flag. There are 11 lint rules.
 
 ## Scenarios
 
-### Scenario 1: Clean wiki — no issues
+### Scenario 1: Clean wiki - no issues
 
 ```
 GIVEN a wiki with 10 pages, all with required properties, cross-references,
@@ -207,7 +207,7 @@ THEN the system SHALL flag the page as "stale" (warning)
 AND suggest: "Confidence is 'high' but page is 100 days old. Review or downgrade."
 ```
 
-### Scenario 5: Stale auto-fix — confidence downgraded
+### Scenario 5: Stale auto-fix - confidence downgraded
 
 ```
 GIVEN the same stale condition as Scenario 4
@@ -276,7 +276,7 @@ THEN the system SHALL flag as "L1/L2 duplicate" (info)
 AND suggest: "Same info in L1 memory and L2 wiki. Decide which is authoritative."
 ```
 
-### Scenario 11: Index drift — unroutable page backfilled
+### Scenario 11: Index drift - unroutable page backfilled
 
 ```
 GIVEN a page Wiki___Tech___Redis.md exists and is active (not archived)
@@ -312,11 +312,11 @@ AND the page is NOT flagged for missing source-file::
 
 ## Acceptance Criteria
 
-- [ ] All 11 rules execute during a lint run
+- [ ] All 12 rules execute during a lint run
 - [ ] Findings grouped by severity: critical > warning > info
 - [ ] Report includes totals (pages scanned, healthy, issues by rule)
 - [ ] Auto-fix (--fix) only modifies rules 1, 2, 4, 5, 8, 10, 11 (the 7 auto-fixable rules)
-- [ ] Rules 3, 6, 7, 9 never auto-fix (require human judgment)
+- [ ] Rules 3, 6, 7, 9, 12 never auto-fix (require human judgment)
 - [ ] Index Drift (rule 10) backfills unroutable pages and removes orphaned routing lines
 - [ ] Archived-in-Live-Index (rule 11) moves routing lines but never renames/moves page files
 - [ ] Credential detection is case-insensitive and scans both content and frontmatter
