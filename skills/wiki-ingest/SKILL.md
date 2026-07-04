@@ -25,6 +25,10 @@ Shared conventions (read before executing):
 - [trust](../wiki-core/references/trust.md): source lifecycle (raw/ ->
   ingested/), `source-file::`, `reliability::` rubric, `confidence::`
   separation, Pending Review.
+- [secret-gate](references/secret-gate.md): the pre-archive secret gate
+  (`secret_scan.py`), the "ingested/ is committed history, keep it
+  secret-free" invariant, blocking vs advisory findings, and the
+  `sensitive_source_types` untracked flow.
 
 ## Modes
 
@@ -189,18 +193,47 @@ block, and `--auto` never bypasses a blocking failure (REQ-026).
   `reliability::`? Every single-source non-high page carries
   `## Pending Review`? (REQ-073/074)
 - (source pipeline) Pre-archive secret gate (REQ-045/046): BEFORE any source
-  file is moved into git-tracked `ingested/`, scan the source file's BYTES for
-  the credential pattern set, including a strings-style pass over binary
-  formats. Call the `secret_scan.py` script when present (issue #15 wires
-  secret_scan.py); until it lands, perform the scan agent-side: read the
-  source bytes and apply the REQ-042 pattern set to them. On a match: do NOT
-  archive, do NOT commit; the file stays in `raw_dir` with a warning naming the
-  match location, and redaction (or an explicit `--allow-secret` override) is
-  required before re-ingest (REQ-045). Sources whose type is listed in
-  `sensitive_source_types` are ALWAYS scanned, and their bytes stay out of git
-  regardless: the file moves to `ingested/<type>/` but that path is gitignored;
-  `source-file::` still records it (REQ-046). Rationale: `ingested/` is
-  committed git history, so exposure there is sticky
+  file is moved into git-tracked `ingested/`, run
+
+  ```
+  python3 skills/wiki-core/scripts/secret_scan.py <source-file>
+  ```
+
+  on each source file. The script scans the raw source BYTES (text pass plus
+  a strings-style pass over binary formats) against a source-byte-tuned
+  pattern set; see [secret-gate](references/secret-gate.md) for the invariant
+  and the blocking-vs-advisory model. Handle the exit code:
+  - **Exit 2 (blocking: credentials, key material, tokens):** do NOT archive,
+    do NOT commit. The file stays in `raw_dir`; relay the script's finding
+    locations and remediation message. Redaction (or an explicit
+    `--allow-secret` override from the user) is required before re-ingest
+    (REQ-045)
+  - **Exit 1 (advisory: email addresses, national-ID shapes, other PII):**
+    present the findings and require explicit confirmation before archiving
+    (interactive mode). In `--auto` mode advisory findings BLOCK (the file
+    stays in `raw_dir`) unless the source's type is in
+    `sensitive_source_types`, whose untracked flow below keeps the bytes out
+    of git anyway
+  - **Exit 0 (clean):** proceed. A clean scan is an assist, not a
+    certification; the script prints this disclaimer itself
+- (source pipeline) Sensitive source types (REQ-046): sources whose type is
+  listed in `sensitive_source_types` are ALWAYS scanned, and their bytes stay
+  out of git regardless of the result: the file moves to `ingested/<type>/`
+  UNTRACKED. Ensure the vault `.gitignore` covers `ingested/<type>/` (add the
+  entry if missing; commit the `.gitignore` change, never the source bytes),
+  then verify BEFORE the move:
+
+  ```
+  python3 skills/wiki-core/scripts/secret_scan.py \
+    --gitignore-check <vault-root> ingested/<type>/<filename>
+  ```
+
+  Exit 0 means the path is ignored and the move is safe; exit 2 means the
+  path would enter git history (not ignored, or already tracked), so do not
+  move the file until that is fixed. `source-file::` still records the path;
+  the provenance stays valid locally while the bytes stay out of history.
+  Rationale for both bullets: `ingested/` is committed git history, so
+  exposure there is sticky
 
 ## Phase 5 - Archive, Commit, Report
 
@@ -213,6 +246,11 @@ block, and `--auto` never bypasses a blocking failure (REQ-026).
   [trust](../wiki-core/references/trust.md)). A quality-gate failure on one
   source blocks only that source: it stays in `raw_dir`, the rest of the queue
   proceeds
+- (source pipeline) Sensitive-typed sources (REQ-046): the file move still
+  happens, but the moved file is NEVER staged; the atomic commit contains the
+  page edits (plus the `.gitignore` addition, if one was needed). Verify with
+  `git status` that the moved file shows as ignored, not untracked, before
+  committing
 - Without the source pipeline: recommend a git commit after the structural
   changes (REQ-052)
 - Report summary: pages created (with types), pages updated, cross-references
