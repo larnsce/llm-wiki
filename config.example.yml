@@ -1,8 +1,15 @@
-# llm-wiki configuration
-tool: logseq          # logseq or obsidian
+# llm-wiki configuration (example)
+# Copy to <wiki_path>/llm-wiki.yml and adjust.
+# Spec: openspec/specs/config.md (REQ-600..654)
+
+# Required keys (REQ-610..613)
+tool: logseq          # logseq or obsidian; no other values
 wiki_path: ~/Documents/MyWiki/
-pages_dir: pages      # relative to wiki_path
+pages_dir: pages      # relative to wiki_path; empty string for Obsidian
+
+# Optional (REQ-620): L1 memory directory; absent means L1 features are off
 memory_path: ~/.claude/projects/my-project/memory/
+
 namespaces:
   - Business
   - Tech
@@ -11,3 +18,29 @@ namespaces:
   - People
   - Learning
   - Reference
+
+# Source pipeline (REQ-623): drop sources in raw/, ingest synthesises them
+# into pages, then the file moves to ingested/<type>/. The move is the
+# provenance record (in raw/ = pending, in ingested/ = processed).
+# Remove these keys to disable the pipeline.
+raw_dir: raw
+ingested_dir: ingested
+source_types:
+  - papers
+  - clippings
+  - articles
+  - data
+  - notes
+  - assets
+default_source_type: papers
+
+# Source types whose archived bytes must not enter git history (REQ-624).
+# Values must be a subset of source_types. Uncomment to enable:
+# sensitive_source_types:
+#   - notes
+#   - data
+
+# v2.2 keys (openspec/specs/namespaces.md REQ-640): PARA and notes trees that
+# live beside the wiki pages. Uncomment when you use them:
+# para_dir: para
+# notes_dir: notes
