@@ -3,12 +3,20 @@
 How to run a PARA task/project layer (`para/`) and a Zettelkasten note layer (`notes/`) in the
 same graph as your machine-written `wiki/`, without the two ever colliding.
 
+> **Status (v2.2, 2026-07-04).** The conventions in this guide shipped in v2.2: the namespace
+> contract, the promotion seam in `/wiki-ingest` (namespaces REQ-970..973), the opt-in scaffold
+> (`init_wiki.py --with-para-notes`), and the Roam task-marker conversion in the migration pass.
+> The pre-archive secret gate with `sensitive_source_types` shipped earlier (#15). The query
+> pages and the manual archive procedure below are maintainer-verified items tracked in
+> [#27](https://github.com/larnsce/llm-wiki/issues/27).
+
 > **Scope.** This is a **vault-side workflow guide**, not a skill reference. The wiki
 > toolchain does not manage `para/` or `notes/` - by design (see
 > [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md)) it never writes to them. The
-> pages, queries, and task markers below are things **you** create and maintain in Logseq/Obsidian.
-> The tool's only involvement is the promotion seam at the end: durable content you deliberately
-> copy into `raw/` and run through `/wiki-ingest`.
+> pages, queries, and task markers below are things **you** create and maintain in Logseq/Obsidian
+> (the opt-in scaffold only creates the directories and seed schema pages; after that they are
+> yours). The tool's only involvement is the promotion seam at the end: durable content you
+> deliberately copy into `raw/` and run through `/wiki-ingest`.
 
 ## The three-namespace contract
 
@@ -18,9 +26,13 @@ same graph as your machine-written `wiki/`, without the two ever colliding.
 | `para/` | you | tasks, projects, areas, resources | **never** (may read for context) |
 | `notes/` | you | fleeting / literature / permanent notes | **never** (may read for context) |
 
-The only path from `para/`/`notes/` into `wiki/` is through `raw/` — the same door every external
-source uses, so promoted content gets the same provenance (`source-file::`, `reliability::`). The
-wiki never silently absorbs your claims.
+The only path from `para/`/`notes/` into `wiki/` is through `raw/` (namespaces REQ-970): the same
+door every external source uses, so promoted content gets the same lifecycle and provenance
+(`source-file::`, per-claim `cite::`, `reliability::`; REQ-972). The promotion seam is a
+`/wiki-ingest` step, not a separate command: the `raw/para-<project>.md` / `raw/note-<name>.md`
+filename marks the source as promoted, and it enters at `reliability:: medium` (the
+personal-synthesis case, schema REQ-586; seam default per REQ-971) unless external citations
+justify higher. The wiki never silently absorbs your claims.
 
 ## Naming
 
@@ -47,9 +59,14 @@ para/resources/<topic>           reference material by interest
 para/archives/<project-name>     completed/inactive projects
 ```
 
+`init_wiki.py --with-para-notes` (or `setup.sh --init --with-para-notes`) scaffolds these
+directories, the `notes/` layout, and seed `para/schema` / `notes/schema` pages. The scaffold is
+opt-in and one-time; the pages it seeds are human-editable references, not tool-managed files.
+
 ### Conventions
 
-Create a `para/schema` page recording these (for your own reference; the tool does not read it):
+The seed `para/schema` page records these (create it yourself if you skipped the scaffold; the
+tool does not read it):
 
 - Human-authored. No `source-file::`, no citations, no `reliability::`.
 - Tasks are native Logseq markers — `TODO` / `DOING` / `NOW` / `DONE` / `CANCELED` — on blocks
@@ -68,13 +85,13 @@ in `notes/`.
 ### Roam → Logseq task conversion (one-time, on import)
 
 If you are importing PARA pages from a Roam export, the task markers arrive as `{{[[TODO]]}}` /
-`{{[[DONE]]}}` and need converting to Logseq's bare markers. **Do this through the tool's import
-path** (`init_wiki.py` / the documented import step), not a hand-run `sed` — the v2 tooling
-deliberately carries no `sed`. The converter normalizes `{{[[TODO]]}}` → `TODO` and
-`{{[[DONE]]}}` → `DONE`. After import, spot-check for:
+`{{[[DONE]]}}` and need converting to Logseq's bare markers. **Do this through the migration
+pass** (`migrate_wiki.py --lowercase`, driven interactively by `/wiki-migrate`), not a hand-run
+`sed`; the v2 tooling deliberately carries no `sed`. The pass converts `{{[[TODO]]}}` → `TODO`
+and the `DOING` / `DONE` / `NOW` / `LATER` / `WAITING` / `CANCELED` variants alongside its
+lowercase renames, and it is dry-run by default and idempotent. After the pass, spot-check for:
 
-- `{{[[NOW]]}}` / `{{[[DOING]]}}` variants that need the same treatment.
-- Stray block references `((...))` — resolve them to plain text or real `[[links]]`.
+- Stray block references `((...))`: resolve them to plain text or real `[[links]]`.
 
 ### The Live List (a query page you own)
 
@@ -127,8 +144,9 @@ it by hand:
    under a `## outcome` heading on the page.
 3. **Harvest (optional).** Ask yourself: does this project hold knowledge the `wiki/` should keep?
    If yes, copy the durable blocks + the outcome summary verbatim into `raw/para-<project>.md` and
-   run `/wiki-ingest`. It enters at `reliability:: medium` ("personal synthesis") unless it carries
-   external citations that justify higher.
+   run `/wiki-ingest`; the filename marks it as a promoted source (namespaces REQ-970). It enters
+   at `reliability:: medium` (personal synthesis, schema REQ-586 / namespaces REQ-971) unless it
+   carries external citations that justify higher.
 4. **Move.** Rename `para/projects/<project>` → `para/archives/<project>`; set `status:: archived`
    and `archived:: <date>`.
 
@@ -138,7 +156,7 @@ it by hand:
 
 ### Conventions
 
-Create a `notes/schema` page recording these:
+The seed `notes/schema` page records these (create it yourself if you skipped the scaffold):
 
 - Human-written, always. If Claude drafts it, it is not a note — it is a `wiki/` page. The writing
   IS the thinking; do not delegate it.
@@ -146,9 +164,11 @@ Create a `notes/schema` page recording these:
   the note type — queries filter on them.
 - Layout:
   - **fleeting** → NOT pages. Journal blocks tagged `#fleeting`.
-  - **literature** → `notes/literature/@<citekey>` (born from Zotero — see
+  - **literature** → `notes/literature/@<citekey>` (born from Zotero; see
     [`docs/zotero-setup.md`](zotero-setup.md)). Carries `source-file::` pointing at the SAME
-    `ingested/...` path the wiki pages cite. One archived source, two readings.
+    `ingested/...` path the wiki pages cite. One archived source, two readings (namespaces
+    REQ-973; when ingest recognizes a literature note it reminds you to set the property, and
+    never writes it into `notes/` itself).
   - **permanent** → `notes/permanent/<idea-in-a-few-words>`. Atomic: one idea, your own words,
     densely linked to other `[[notes/...]]` and `[[wiki/...]]` pages.
 - **Promotion is an act of writing, not a rename:**
@@ -157,7 +177,9 @@ Create a `notes/schema` page recording these:
   - fleeting → task: move it to the owning `para/` page as a `TODO`.
   - Anything not promoted within ~2 weeks: delete without guilt.
 - **notes → wiki (deliberate only):** copy the note into `raw/note-<name>.md` and run
-  `/wiki-ingest`. It arrives at `reliability:: medium`.
+  `/wiki-ingest`; the filename marks it as a promoted source (namespaces REQ-970). It arrives at
+  `reliability:: medium` (schema REQ-586 / namespaces REQ-971) with the standard lifecycle,
+  provenance, and per-claim citations (REQ-972).
 
 ### The fleeting inbox (a query page you own)
 
@@ -187,11 +209,13 @@ A processed fleeting block is either deleted or marked `DONE` with a link to whe
 
 ## A note on personal data
 
-Promoted `para/`/`notes/` sources go through `raw/` and are committed verbatim into `ingested/`
-(git history). If your notes can carry governed personal data, list `notes` (and/or `para`) under
-`sensitive_source_types` in `llm-wiki.yml` so the pre-archive secret gate scans the bytes before
-they enter git. See the schema/ingest specs for the "`ingested/` is committed history — keep it
-secret-free" invariant.
+Promoted `para/`/`notes/` sources go through `raw/` and are normally committed verbatim into
+`ingested/` (git history). The pre-archive secret gate (shipped in #15, ingest REQ-045) scans
+every source's bytes before the move. If your notes can carry governed personal data, list
+`notes` (and/or `para`) under `sensitive_source_types` in `llm-wiki.yml` (namespaces REQ-981,
+ingest REQ-046): the file is still archived into `ingested/` but never staged, so its bytes stay
+out of git history. See the schema/ingest specs for the "`ingested/` is committed history, keep
+it secret-free" invariant.
 
 ## Related
 

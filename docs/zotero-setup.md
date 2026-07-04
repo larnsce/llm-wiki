@@ -3,6 +3,12 @@
 How to wire Zotero into the graph so literature notes are born in the right namespace with the
 right properties, and stay auditable against the same archived source the `wiki/` pages cite.
 
+> **Status (v2.2, 2026-07-04).** Guide drafted; the schema side shipped in v2.2 (the `@citekey`
+> proper-noun leaf, namespaces REQ-976, and the literature-variant reminder in `/wiki-ingest`,
+> REQ-973). The plugin verify-once (existence, settings, version pin) and one end-to-end loop run
+> are maintainer-verified items tracked in
+> [#28](https://github.com/larnsce/llm-wiki/issues/28).
+
 > **Verify before you trust this.** The plugin and settings below are **known-good as of
 > 2026-07** but community plugins move. Before relying on this guide, confirm the plugin still
 > exists in the marketplace and its settings match what is described here, and **pin the plugin
@@ -74,7 +80,11 @@ source-file::
 - `source-file::` is left blank by the template. Fill it **when the paper goes through the
   pipeline**, pointing at `ingested/papers/<file>.md` - the same path the machine-written `wiki/`
   page cites. That shared path is the seam that makes your interpretation auditable against the
-  same source as the wiki's ("one archived source, two readings").
+  same source as the wiki's ("one archived source, two readings", namespaces REQ-973). When
+  `/wiki-ingest` recognizes a promoted literature note (a `raw/note-@<citekey>.md` filename, or
+  `citekey::` / `type:: literature` metadata), its report reminds you to set this property to the
+  `ingested/` path it produced; setting it is always your edit, the tool never writes into
+  `notes/`.
 - `## my reading` is yours; annotation sync appends under its own blocks and never touches your
   prose.
 
@@ -85,7 +95,8 @@ source-file::
    *Sync all annotations*).
 3. Write `## my reading` in your own words - this is the literature note.
 4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki-ingest`, then
-   set `source-file::` here to the `ingested/` path the ingest produced.
+   set `source-file::` here to the `ingested/` path the ingest produced (the report's
+   literature-note reminder, REQ-973, tells you the exact path).
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
    `[[notes/literature/@citekey]]`.
 

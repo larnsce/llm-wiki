@@ -8,15 +8,25 @@ behaviors.
 
 ## Contents
 
-- `source/miller-chen-2025-two-stage-retrieval.md`: the pinned fixture
-  source, a short FAKE paper written for this suite. Never edit it; the
-  golden output is only comparable while the input is frozen.
+Each golden file is paired with one frozen source under `source/`. Never
+edit a source; the golden output is only comparable while the input is
+frozen.
+
+- `source/miller-chen-2025-two-stage-retrieval.md`: pinned fixture source,
+  a short FAKE paper written for this suite.
 - `ingest-checkpoint.golden.md`: the expected structured checkpoint output
   for that source: the plan-table row (page touches, reliability rating
   with one-line rationale, contradictions) in the format from
   `skills/wiki-ingest/SKILL.md`, plus the expanded page-operation plan
   including the planned per-claim `cite::` targets (v2.1, ingest
   REQ-033b).
+- `source/note-tidy-data.md`: pinned fixture source, a short FAKE promoted
+  note (three claims about tidy-data principles); it enters the queue as
+  `raw/note-tidy-data.md` so the filename triggers the promotion seam.
+- `promotion-seam.golden.md`: the expected checkpoint row and expanded
+  plan for that promoted note (v2.2, namespaces REQ-970..973): the
+  wiki/learning/tidy-data page touch, the `medium` personal-synthesis
+  reliability default (schema REQ-586), and the planned cite targets.
 
 ## When to re-run
 
@@ -38,12 +48,16 @@ Re-run the golden check after any change to:
      /tmp/golden-vault/raw/
    ```
 
+   For `promotion-seam.golden.md`, copy `tests/golden/source/note-tidy-data.md`
+   instead (keep the filename: the `note-` prefix is what marks the source
+   as promoted).
+
 2. In a Claude Code session pointed at that vault, run `/wiki-ingest` in
    interactive mode and stop at the batch checkpoint (Phase 1-2 only; do
    not confirm the write).
 
 3. Record the checkpoint table and the expanded plan for row 1 in the same
-   structure as `ingest-checkpoint.golden.md`.
+   structure as the paired golden file.
 
 4. Diff against the golden file. Judge the diff:
    - Formatting drift, synonym-level wording changes: fine; update the
