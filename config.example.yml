@@ -42,7 +42,14 @@ default_source_type: papers
 #   - notes
 #   - data
 
-# v2.2 keys (openspec/specs/namespaces.md REQ-640): PARA and notes trees that
-# live beside the wiki pages. Uncomment when you use them:
+# Human namespaces (optional; openspec/specs/config.md REQ-625,
+# openspec/specs/namespaces.md REQ-980/981): para/ (PARA task layer) and
+# notes/ (Zettelkasten), relative to the pages directory. The wiki toolchain
+# never writes to them; the scope rule and namespace-hygiene lint recognize
+# them. Defaults are para and notes and apply even when the keys are absent.
+# Scaffold the layer on a fresh graph with init_wiki.py --with-para-notes
+# (or setup.sh --init ... --with-para-notes); see docs/para-notes-workflow.md.
+# para/ and notes/ are candidate sensitive_source_types entries (REQ-981):
+# list them above if promoted content can carry governed personal data.
 # para_dir: para
 # notes_dir: notes
