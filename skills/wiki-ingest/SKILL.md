@@ -32,6 +32,11 @@ Shared conventions (read before executing):
 - [citations](references/citations.md): block-native `cite::` emission on
   claim blocks (specs/citations.md REQ-900..905, ingest REQ-033b), the
   source-file union invariant, and the `check_citations.py` gate step.
+- [promotion-seam](references/promotion-seam.md): the para/notes promotion
+  seam (specs/namespaces.md REQ-970..973): recognizing
+  `raw/para-<project>.md` / `raw/note-<name>.md` sources, the
+  personal-synthesis reliability default, the literature variant, and
+  sensitive-type handling.
 
 ## Modes
 
@@ -72,6 +77,12 @@ provenance, and ensure structural integrity.
   `papers`; web clip -> `clippings`; news/blog -> `articles`; dataset/CSV ->
   `data`; personal note -> `notes`; image/binary -> `assets`. Fall back to
   `default_source_type`; ask only if genuinely ambiguous (REQ-071)
+- A `raw/para-<project>.md` or `raw/note-<name>.md` filename marks a PROMOTED
+  source: content the human copied out of the `para/` or `notes/` namespaces
+  (the promotion seam, specs/namespaces.md REQ-970). Treat it as a normal
+  source in the queue; it usually infers as type `notes`, and para/notes
+  content is candidate `sensitive_source_types` material. Seam specifics in
+  [promotion-seam](references/promotion-seam.md)
 - If processing fails partway, LEAVE the file in `raw_dir` (the queue is
   resumable). Never move a half-processed source (REQ-072)
 
@@ -89,7 +100,11 @@ provenance, and ensure structural integrity.
   pre-archive secret gate in Phase 4 additionally guards the source bytes
 - (source pipeline) Assess `reliability::` for the source per the rubric in
   [trust](../wiki-core/references/trust.md) (high | medium | low), with a
-  one-line rationale for the checkpoint
+  one-line rationale for the checkpoint. A promoted para/notes source
+  defaults to `medium` per the rubric's personal-synthesis case (schema
+  REQ-586), UNLESS its external citations justify higher under the rubric
+  (namespaces REQ-971; the rubric decides, medium is not a hard floor);
+  see [promotion-seam](references/promotion-seam.md)
 - (source pipeline, optional) Semantic Scholar enrichment per REQ-073a: only
   when an S2 MCP is configured, resolve the source and record `s2-metrics::`
   verbatim. Metrics inform the qualitative judgment, never determine it by
@@ -302,6 +317,14 @@ blocking failure (REQ-026).
   added, hub pages updated (REQ-050); all warnings (page-touch count, L1
   candidates found, skipped items) with their reasons (REQ-051); Pending Review
   flags raised or resolved
+- (source pipeline) Literature-note reminder (namespaces REQ-973): when a
+  processed source is recognizably a literature note (filename
+  `raw/note-@<citekey>.md`, or metadata with `citekey::` or
+  `type:: literature`), remind the user in the report to point the
+  `notes/literature/@<citekey>` page's `source-file::` at the SAME
+  `ingested/` path the wiki pages cite (one archived source, two readings).
+  A reminder only: NEVER write into `notes/` (scope rule, REQ-966); details
+  in [promotion-seam](references/promotion-seam.md)
 - `--auto` runs: include the FULL checkpoint plan table (the same table the
   checkpoint would have shown) in the report, one row per source with
   reliability rationale and contradictions (REQ-026)
