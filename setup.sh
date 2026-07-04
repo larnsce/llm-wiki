@@ -40,6 +40,10 @@ Options:
   --namespaces "<A B>" space-separated namespace list (default: Business Tech
                        Content Projects People Learning Reference)
   --memory-path <path> Claude Code memory directory (optional)
+  --with-para-notes    with --init: also scaffold the human para/ + notes/
+                       layer (PARA + Zettelkasten seed pages) and add
+                       para_dir/notes_dir to the config; intended for a
+                       fresh graph (see docs/para-notes-workflow.md)
   --git-init           run git init plus a best-effort initial commit in the
                        scaffolded wiki (also offered interactively)
   --pointer            write ~/.config/llm-wiki/config.yml (needs a wiki path)
@@ -52,6 +56,7 @@ Examples:
   ./setup.sh                                 # user-level skill install
   ./setup.sh --project ~/myrepo --symlink    # project-level, symlinked
   ./setup.sh --init --tool logseq --wiki-path ~/notes --yes
+  ./setup.sh --init --tool logseq --wiki-path ~/notes --with-para-notes --yes
 USAGE
 }
 
@@ -65,6 +70,7 @@ TOOL=""
 WIKI_PATH=""
 NAMESPACES=""
 MEMORY_PATH=""
+WITH_PARA_NOTES=0
 GIT_INIT=0
 POINTER_MODE="offer"   # offer | force | never
 
@@ -84,6 +90,7 @@ while [ "$#" -gt 0 ]; do
         --wiki-path)   need_value "$@"; WIKI_PATH="$2"; shift 2 ;;
         --namespaces)  need_value "$@"; NAMESPACES="$2"; shift 2 ;;
         --memory-path) need_value "$@"; MEMORY_PATH="$2"; shift 2 ;;
+        --with-para-notes) WITH_PARA_NOTES=1; shift ;;
         --git-init)    GIT_INIT=1; shift ;;
         --pointer)     POINTER_MODE="force"; shift ;;
         --no-pointer)  POINTER_MODE="never"; shift ;;
@@ -252,6 +259,9 @@ if [ "$DO_INIT" = 1 ]; then
     fi
     if [ -n "$MEMORY_PATH" ]; then
         init_args+=(--memory-path "$MEMORY_PATH")
+    fi
+    if [ "$WITH_PARA_NOTES" = 1 ]; then
+        init_args+=(--with-para-notes)
     fi
 
     echo ""

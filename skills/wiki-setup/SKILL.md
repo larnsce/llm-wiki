@@ -64,8 +64,18 @@ requires explicit confirmation.
 - Ask minimally: tool (logseq or obsidian), wiki path (tool-specific default),
   namespaces (default list from
   [config](../wiki-core/references/config.md)), optional memory path.
+- Offer the optional human layer as one question: "Also scaffold the human
+  para/ (PARA tasks/projects) and notes/ (Zettelkasten) layer? The wiki
+  toolchain never writes to those namespaces; see
+  docs/para-notes-workflow.md in the repository for the workflow." Intended
+  for a fresh, empty graph; there is no migration for existing para/notes
+  content. If accepted, add `--with-para-notes` to the init_wiki.py call: it
+  scaffolds human-editable `para/schema` and `notes/schema` seed pages (plus
+  the para/notes directory trees on Obsidian) and writes the
+  `para_dir`/`notes_dir` keys into llm-wiki.yml (config.md REQ-625,
+  namespaces.md REQ-980).
 - Run `python3 ../wiki-core/scripts/init_wiki.py --wiki-path <path> --tool
-  <tool> [--namespaces ...] [--memory-path ...]`.
+  <tool> [--namespaces ...] [--memory-path ...] [--with-para-notes]`.
 - Exit code semantics: 0 clean, 1 files were skipped because they already
   exist (nothing was overwritten, REQ-786; tell the user which), 2 critical
   (report and stop).

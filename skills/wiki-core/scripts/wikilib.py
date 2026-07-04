@@ -37,6 +37,11 @@ DEFAULT_SOURCE_TYPES = [
     "papers", "clippings", "articles", "data", "notes", "assets",
 ]
 
+# Human-owned namespaces (specs/config.md REQ-625, specs/namespaces.md
+# REQ-980): defaults apply even when the keys are absent from the config.
+DEFAULT_PARA_DIR = "para"
+DEFAULT_NOTES_DIR = "notes"
+
 CONFIG_FILENAME = "llm-wiki.yml"
 POINTER_FILE = os.path.join("~", ".config", "llm-wiki", "config.yml")
 
@@ -204,10 +209,12 @@ def _pruned_dirs(config):
         "journals",
         "assets",
     }
-    for key in ("para_dir", "notes_dir"):
-        value = config.get(key)
-        if value:
-            pruned.add(value.strip("/"))
+    # Absent keys still prune the default trees (REQ-980: the human
+    # namespaces are recognized even when the keys are not set).
+    for key, default in (("para_dir", DEFAULT_PARA_DIR),
+                         ("notes_dir", DEFAULT_NOTES_DIR)):
+        value = config.get(key) or default
+        pruned.add(value.strip("/"))
     return pruned
 
 
