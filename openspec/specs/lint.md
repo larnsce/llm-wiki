@@ -4,7 +4,7 @@
 
 The lint command scans all wiki pages for structural issues, data quality problems,
 and security concerns. It reports findings grouped by severity and can auto-fix
-certain issues when run with the `--fix` flag. There are 12 lint rules.
+certain issues when run with the `--fix` flag. There are 14 lint rules.
 
 ---
 
@@ -142,6 +142,46 @@ certain issues when run with the `--fix` flag. There are 12 lint rules.
   deliberate stub, not an ingested page missing provenance.
 - REQ-222: No auto-fix: link rot requires human judgment (update the URL, ingest a
   snapshot, or archive the stub).
+
+### Rule 13: Naming Hygiene (structural names)
+
+- REQ-230: The system SHALL flag any page whose STRUCTURAL (non-leaf) name
+  segments contain spaces, uppercase characters, underscores, en dashes
+  (`U+2013`), or em dashes (`U+2014`); the only word separator inside a
+  structural segment is the ASCII hyphen `U+002D` (specs/schema.md
+  REQ-580/580a/581). Severity: warning on `wiki/` pages; info on `para/` and
+  `notes/` pages, whose content is human-owned and exempt from the wiki
+  conventions but whose namespace STRUCTURE is shared graph territory
+  (specs/namespaces.md REQ-961).
+- REQ-231: A LEAF segment SHALL be flagged mechanically ONLY when it violates
+  the hyphen rule (underscore, en dash, or em dash). Uppercase characters,
+  `@` prefixes, or spaces in a leaf MAY be a proper noun
+  (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`, specs/schema.md
+  REQ-580b) and that judgment stays in the wiki-lint skill: it reviews
+  naming-hygiene leaf findings and dismisses proper-noun leaves
+  (specs/namespaces.md REQ-976).
+- REQ-232: No auto-fix: a rename changes page identity (links are by page
+  name) and runs through the migration converter (specs/schema.md REQ-580c)
+  or by hand, never by lint.
+
+### Rule 14: Namespace Hygiene (pages outside the contract)
+
+- REQ-240: The system SHALL flag any page outside `wiki/`, the configured
+  `para_dir` and `notes_dir` namespaces (specs/config.md REQ-625,
+  specs/namespaces.md REQ-980), journals, and the recognized deliberate root
+  pages, as a stray outside the namespace contract (specs/namespaces.md
+  REQ-960/962). Severity: warning (the grandfather floor reports it as info
+  on pages without the current `schema-spec-version::`).
+- REQ-241: Recognized deliberate root pages SHALL NOT be flagged: Schema,
+  Dashboard, Access-Log, Contents, hub pages (`type:: hub`), and query pages
+  (`type:: query` or `#+BEGIN_QUERY` content), per specs/namespaces.md
+  REQ-962/977.
+- REQ-242: Pages under `para_dir` and `notes_dir` are IN-contract for this
+  rule and EXEMPT from all wiki-only rules (specs/namespaces.md REQ-961/966):
+  the system SHALL NOT run any other rule against them (rule 13 reports its
+  advisory info-level structural findings only). No auto-fix: moving a page
+  between namespaces is a human decision; content enters `wiki/` only through
+  the promotion seam (specs/namespaces.md REQ-970).
 
 ### Reporting
 
@@ -310,15 +350,40 @@ THEN the page is flagged: rule 12, warning, "canonical-url target unreachable"
 AND the page is NOT flagged for missing source-file::
 ```
 
+### Scenario 14: Naming hygiene - structural vs leaf
+
+```
+GIVEN pages Wiki/Foo, wiki/tech/my_note, and wiki/tools/Claude Code
+WHEN /wiki-lint runs the naming-hygiene check
+THEN Wiki/Foo is flagged (REQ-230: uppercase structural segment)
+AND wiki/tech/my_note is flagged (REQ-231: underscore in the leaf)
+AND wiki/tools/Claude Code is NOT flagged mechanically (leaf casing and
+    spaces are the wiki-lint skill's proper-noun judgment, REQ-231)
+```
+
+### Scenario 15: Namespace hygiene - stray root page, exempt human page
+
+```
+GIVEN a page "Scratchpad" outside wiki/, para/, notes/, journals, and the
+    recognized root pages
+AND a page para/projects/secret-plan carrying no wiki properties
+WHEN /wiki-lint runs
+THEN Scratchpad is flagged (REQ-240, warning)
+AND para/projects/secret-plan is NOT flagged by namespace hygiene
+AND para/projects/secret-plan is NOT flagged by any wiki-only rule (REQ-242)
+```
+
 ## Acceptance Criteria
 
-- [ ] All 12 rules execute during a lint run
+- [ ] All 14 rules execute during a lint run
 - [ ] Findings grouped by severity: critical > warning > info
 - [ ] Report includes totals (pages scanned, healthy, issues by rule)
 - [ ] Auto-fix (--fix) only modifies rules 1, 2, 4, 5, 8, 10, 11 (the 7 auto-fixable rules)
-- [ ] Rules 3, 6, 7, 9, 12 never auto-fix (require human judgment)
+- [ ] Rules 3, 6, 7, 9, 12, 13, 14 never auto-fix (require human judgment)
 - [ ] Index Drift (rule 10) backfills unroutable pages and removes orphaned routing lines
 - [ ] Archived-in-Live-Index (rule 11) moves routing lines but never renames/moves page files
+- [ ] Naming Hygiene (rule 13) flags structural segments mechanically; leaf proper-noun judgment stays in the wiki-lint skill
+- [ ] Namespace Hygiene (rule 14) flags strays, accepts the recognized root pages, and exempts para/ and notes/ from all wiki-only rules
 - [ ] Credential detection is case-insensitive and scans both content and frontmatter
 - [ ] Stale detection uses exact 90-day threshold from updated:: to today
 - [ ] Hub completeness checks ALL child pages, not just recently created ones

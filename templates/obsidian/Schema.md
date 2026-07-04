@@ -199,7 +199,7 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 <!-- canon:lint-rules start -->
 ## Lint Rules
 
-12 rules (openspec/specs/lint.md). The mechanical subset runs via `lint.py`; rules 2 and 9 plus all quality judgments run agent-side in the wiki-lint skill. Fixes are only ever applied agent-side after confirmation.
+14 rules (openspec/specs/lint.md). The mechanical subset runs via `lint.py`; rules 2 and 9 plus all quality judgments run agent-side in the wiki-lint skill. Fixes are only ever applied agent-side after confirmation.
 
 - **Rule 1 Orphan Detection** (REQ-110): pages with 0 incoming `[[links]]`; hub and system pages exempt
 - **Rule 2 Stale Detection** (REQ-120): updated date more than 90 days old AND high confidence
@@ -213,6 +213,8 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 - **Rule 10 Index Drift** (REQ-193): orphaned routing lines, unroutable active pages, empty routing descriptions
 - **Rule 11 Archived-in-Live-Index** (REQ-197): archived pages whose routing line still sits in the hub `### Index`
 - **Rule 12 External Link Rot** (REQ-220): canonical-url targets that no longer resolve; URL-shape check by default, real HTTP check with `--check-urls`
+- **Rule 13 Naming Hygiene** (REQ-230): structural name segments with spaces, uppercase, underscores, or en/em dashes; hyphen (U+002D) is the only separator. Leaves are only flagged mechanically for separator violations; proper-noun leaves (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`) are a wiki-lint judgment call, never auto-fixed
+- **Rule 14 Namespace Hygiene** (REQ-240): pages outside wiki/, para/, notes/, journals, and the recognized root pages; para/ and notes/ pages are accepted here and exempt from all wiki-only rules, never auto-fixed
 <!-- canon:lint-rules end -->
 
 ## Conventions

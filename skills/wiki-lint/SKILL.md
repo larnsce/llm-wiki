@@ -9,7 +9,7 @@ Two-layer health check for the wiki. The mechanical layer runs first
 (scripts, deterministic, report-only); the judgment layer runs on top
 (agent reasoning); fixes are always applied agent-side.
 
-Spec: openspec/specs/lint.md REQ-100..222 (12 rules; finding ids = REQ ids)
+Spec: openspec/specs/lint.md REQ-100..242 (14 rules; finding ids = REQ ids)
 
 Shared conventions (read before executing):
 
@@ -67,6 +67,15 @@ Apply the non-mechanizable rules from
 - Rule 9 L1/L2 Duplicates (REQ-190..192): compare wiki content against the
   L1 memory files under `memory_path` (skip gracefully when unset) and flag
   substantially duplicated information.
+- Proper-noun-leaf review (rule 13, REQ-231): lint.py flags leaf name
+  segments only for separator violations and leaves casing and spaces to
+  this layer. Review every naming-hygiene leaf finding and DISMISS
+  proper-noun leaves: a capitalized or `@`-prefixed leaf naming a person,
+  tool, paper, or citekey (`wiki/tools/Claude Code`,
+  `notes/literature/@Forte2022`) is NOT a violation (schema REQ-580b,
+  namespaces REQ-976). Conversely, flag uppercase or spaced leaves that are
+  NOT proper nouns (e.g. `wiki/tech/My Notes`), which the mechanical layer
+  deliberately does not catch.
 - Naming quality, routing-description quality, misfiled namespaces,
   entity mentions that should be `[[links]]` (REQ-572), missing
   Cross-References sections (REQ-573).
