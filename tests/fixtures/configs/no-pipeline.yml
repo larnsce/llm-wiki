@@ -1,0 +1,10 @@
+# Fixture: valid core config, source-pipeline keys missing
+# (check_config --skip-path-checks must exit 1 with the REQ-623 warning)
+
+tool: logseq
+wiki_path: /tmp
+pages_dir: pages
+
+namespaces:
+  - Tech
+  - Learning

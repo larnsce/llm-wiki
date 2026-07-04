@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Deploying the widget service (clipped article)</title></head>
+<body>
+<h1>Deploying the widget service</h1>
+<p>This is a clipped web page fixture for the pre-archive secret gate.
+The credential below is the OBVIOUSLY FAKE documentation example key
+published by AWS; it must trip the blocking aws-access-key pattern.</p>
+<pre><code>
+export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+aws s3 sync ./build s3://widget-service-releases
+</code></pre>
+<p>Everything else in this page is harmless prose about build pipelines.</p>
+</body>
+</html>
