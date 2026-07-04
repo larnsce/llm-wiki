@@ -295,6 +295,102 @@ for tool in logseq obsidian; do
 done
 
 # ---------------------------------------------------------------------------
+# lint rules 13/14: naming hygiene (REQ-230/231) + namespace hygiene
+# (REQ-240), specs/lint.md. The vaults are generated at runtime: the
+# en-dash page name and the Title Case segments would be Unicode/case
+# traps as checked-in fixtures (see the header note on case-insensitive
+# filesystems). Obsidian cannot host Wiki/ beside wiki/ on such a
+# filesystem, so the uppercase structural segment moves one level down
+# there; obsidian also prunes notes/ from enumeration, so its underscore
+# leaf lives under wiki/ instead.
+# ---------------------------------------------------------------------------
+EN_DASH="$(printf '\342\200\223')"
+for tool in logseq obsidian; do
+  vault="$WORK/$tool-hygiene"
+  make_bare_vault "$vault" "$tool"
+  if [[ "$tool" == logseq ]]; then
+    upper="Wiki/Foo"
+    underscore="notes/My_Note"
+    underscore_sev="info"
+  else
+    upper="wiki/Docs/foo"
+    underscore="wiki/tech/my_note"
+    underscore_sev="warning"
+  fi
+  endash="wiki/tech/data${EN_DASH}pipeline"
+
+  python3 - "$vault" "$tool" "$upper" "$underscore" "$endash" <<'PY'
+import os
+import sys
+
+root, tool, upper, underscore, endash = sys.argv[1:6]
+pages_root = os.path.join(root, "pages") if tool == "logseq" else root
+
+STAMPED = (
+    ("type", "knowledge"), ("domain", "tech"), ("created", "2026-07-01"),
+    ("updated", "2026-07-01"), ("confidence", "medium"),
+    ("schema-spec-version", "2.0.0"),
+)
+
+
+def write(name, props, body):
+    if tool == "logseq":
+        path = os.path.join(pages_root, name.replace("/", "___") + ".md")
+        lines = ["- %s:: %s" % (k, v) for k, v in props]
+        body = ["- %s" % b for b in body]
+    else:
+        path = os.path.join(pages_root, name + ".md")
+        lines = ["---"] + ["%s: %s" % (k, v) for k, v in props] + ["---"] \
+            if props else []
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines + body) + "\n")
+
+
+def links(*targets):
+    return [" ".join("[[%s]]" % t for t in targets)]
+
+
+# clean-page links every stamped page so none of them is an orphan.
+write("wiki/tech/clean-page", STAMPED,
+      links(upper, endash, "wiki/tools/Claude Code")
+      + links(underscore) * (tool == "obsidian"))
+write(upper, STAMPED, links("wiki/tech/clean-page"))
+write(endash, STAMPED, links("wiki/tech/clean-page"))
+write("wiki/tools/Claude Code", STAMPED, links("wiki/tech/clean-page"))
+if tool == "logseq":
+    write(underscore, (), ["a human Zettelkasten note, no wiki properties"])
+else:
+    write(underscore, STAMPED, links("wiki/tech/clean-page"))
+write("para/projects/secret-plan", (),
+      ["human project plan, no wiki properties"])
+write("Scratchpad", (("schema-spec-version", "2.0.0"),),
+      ["stray root page outside every namespace"])
+PY
+
+  run py lint.py --config "$vault/llm-wiki.yml" --json
+  assert_exit_nonzero "lint($tool): red on naming/namespace hygiene vault"
+  assert_report "lint($tool): uppercase structural segment flagged (REQ-230 warning)" \
+    "any(f[\"id\"] == \"REQ-230\" and f[\"page\"] == \"$upper\" and f[\"severity\"] == \"warning\" for f in r[\"findings\"])"
+  assert_report "lint($tool): underscore leaf flagged (REQ-231 $underscore_sev)" \
+    "any(f[\"id\"] == \"REQ-231\" and f[\"page\"] == \"$underscore\" and f[\"severity\"] == \"$underscore_sev\" for f in r[\"findings\"])"
+  assert_report "lint($tool): en-dash leaf flagged (REQ-231 warning)" \
+    "any(f[\"id\"] == \"REQ-231\" and f[\"page\"] == \"$endash\" and f[\"severity\"] == \"warning\" for f in r[\"findings\"])"
+  assert_report "lint($tool): proper-noun leaf wiki/tools/Claude Code NOT flagged mechanically" \
+    "not any(f[\"rule\"] == \"naming-hygiene\" and f[\"page\"] == \"wiki/tools/Claude Code\" for f in r[\"findings\"])"
+  assert_report "lint($tool): clean lowercase-hyphen name passes rule 13" \
+    "not any(f[\"rule\"] == \"naming-hygiene\" and f[\"page\"] == \"wiki/tech/clean-page\" for f in r[\"findings\"])"
+  assert_report "lint($tool): stray root page flagged (REQ-240 warning)" \
+    "any(f[\"id\"] == \"REQ-240\" and f[\"page\"] == \"Scratchpad\" and f[\"severity\"] == \"warning\" for f in r[\"findings\"])"
+  assert_report "lint($tool): para/ page exempt from every rule (no findings at all)" \
+    "all(f[\"page\"] != \"para/projects/secret-plan\" for f in r[\"findings\"])"
+  if [[ "$tool" == logseq ]]; then
+    assert_report "lint(logseq): notes/ page exempt from wiki-only rules (naming info only)" \
+      "all(f[\"rule\"] == \"naming-hygiene\" for f in r[\"findings\"] if f[\"page\"] == \"notes/My_Note\")"
+  fi
+done
+
+# ---------------------------------------------------------------------------
 # migrate_wiki --lowercase (REQ-580c): dry-run reports every rename plus the
 # broken-link count WITHOUT writing; --apply converts (clean git tree
 # required) and is idempotent; Roam task markers are converted; the renamed
