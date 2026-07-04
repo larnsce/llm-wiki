@@ -14,4 +14,4 @@ Last updated via `/wiki-maintain` or `/wiki-lint`.
 
 ## Schema
 
-- [[Wiki/Schema]] -- Namespace conventions, page types, lint rules
+- [[wiki/schema]] -- Namespace conventions, page types, lint rules

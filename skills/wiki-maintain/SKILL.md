@@ -88,7 +88,7 @@ self-schedule.
 Phase 1 - Access Profile:
 
 - Read llm-wiki.yml first (tool mode, paths)
-- Read the Access-Log page (Wiki/Reference/Access-Log)
+- Read the Access-Log page (wiki/reference/access-log)
 - Determine last access per page (newest log entry; never logged -> use created::
   as a proxy)
 - Threshold: no access in N months (default 6, via --months N)

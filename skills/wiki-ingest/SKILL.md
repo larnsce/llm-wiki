@@ -159,7 +159,7 @@ Interaction rules:
   max 3 (REQ-039): on overflow, merge the content into the parent page and note
   it in the report
 - Update existing pages append-only: NEVER overwrite existing content blocks
-  (REQ-032). Use `[[Wiki/...]]` link syntax for entities that have their own
+  (REQ-032). Use `[[wiki/...]]` link syntax for entities that have their own
   pages (REQ-036)
 - Hub routing line, REQUIRED for every created or updated page: set or refresh
   the line in the namespace hub's `### Index` in the routing-line format from
@@ -203,7 +203,7 @@ invariant failures (specs/citations.md REQ-904/901, exit 2 from
 blocking failure (REQ-026).
 
 - All new pages have ALL required properties for their type? (REQ-040)
-- Every touched page has at least 1 outgoing `[[Wiki/...]]` cross-reference?
+- Every touched page has at least 1 outgoing `[[wiki/...]]` cross-reference?
   (REQ-041)
 - Every new or updated active page has a routing line in its hub `### Index`?
   A missing line is a warning: the page is unroutable until `lint --fix`

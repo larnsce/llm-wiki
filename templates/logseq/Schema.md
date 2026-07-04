@@ -6,9 +6,9 @@
 - ## Namespace Conventions
 	- Top-Level: {{NAMESPACES}}
 	- Page Naming: lowercase structural segments, hyphen (U+002D) for multi-word (`wiki/projects/my-project`); no spaces, underscores, or en/em dashes in structural segments. Proper-noun leaves keep natural casing (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`). Pre-migration `Wiki/` corpora are grandfathered until the lowercase migration runs.
-	- Max Depth: 3 levels (e.g., `Wiki/Business/Clients/ClientName`)
+	- Max Depth: 3 levels (e.g., `wiki/business/clients/ClientName`)
 	- Hub Pages: Every namespace level has a hub page listing its children
-	- File Names: `___` (triple underscore) as namespace separator (e.g., `Wiki___Tech___Docker.md`)
+	- File Names: `___` (triple underscore) as namespace separator (e.g., `wiki___tech___Docker.md`)
 - ## Page Types and Required Properties
 	- Every page declares exactly one type; the valid values are:
 		- type:: entity | project | knowledge | feedback | hub
@@ -80,9 +80,9 @@
 	- Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
 	- `raw/` and `ingested/` live BESIDE `pages/`, so Logseq does not render sources as wiki pages.
 - ## Cross-Reference Rules
-	- Every wiki page MUST have at least one `[[Wiki/...]]` link to another wiki page
+	- Every wiki page MUST have at least one `[[wiki/...]]` link to another wiki page
 	- Hub pages MUST list ALL child pages in their namespace
-	- When a page mentions an entity that has its own page, use `[[Wiki/Entity/Name]]` link syntax
+	- When a page mentions an entity that has its own page, use `[[wiki/tools/Claude Code]]`-style link syntax
 	- Bidirectional links are automatic in Logseq (backlinks panel)
 	- Tags: `#tag` for lightweight categorization (e.g., `#docker`, `#deploy`, `#critical`)
 	- External links: `[Text](URL)` for URLs outside the wiki

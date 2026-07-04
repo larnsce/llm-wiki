@@ -64,7 +64,7 @@ See `CONTRIBUTING.md` for the full stdin sequence.
 **Fix:**
 
 1. In Logseq: `File → Reindex` (or `Cmd/Ctrl + Shift + R`).
-2. Confirm the file path is correct. Logseq pages live in `<graph-root>/pages/` and must use the `Wiki___Namespace___Page.md` triple-underscore naming.
+2. Confirm the file path is correct. Logseq pages live in `<graph-root>/pages/` and must use the `wiki___<namespace>___<page>.md` triple-underscore naming.
 3. Check `journals/` is not accidentally being used - journals have a different format and will not render as regular wiki pages.
 
 ### Obsidian shows YAML frontmatter as a code block instead of Properties
@@ -77,14 +77,14 @@ See `CONTRIBUTING.md` for the full stdin sequence.
 - In Settings → Editor, ensure "Properties in document" is enabled.
 - If you deliberately disable Properties, the wiki still works - the LLM reads the YAML, and nothing breaks. The display is just uglier.
 
-### Cross-references `[[Wiki/Tech/Strapi]]` aren't clickable
+### Cross-references `[[wiki/tech/Strapi]]` aren't clickable
 
 **Cause:** Wrong file-naming convention for the tool.
 
 **Fix:**
 
-- **Logseq** expects triple-underscore flat files: `Wiki___Tech___Strapi.md`. `[[Wiki/Tech/Strapi]]` resolves because Logseq treats `/` and `___` as equivalent path separators.
-- **Obsidian** expects directory hierarchy: `Wiki/Tech/Strapi.md`. The file literally lives inside `Wiki/Tech/`.
+- **Logseq** expects triple-underscore flat files: `wiki___tech___Strapi.md`. `[[wiki/tech/Strapi]]` resolves because Logseq treats `/` and `___` as equivalent path separators.
+- **Obsidian** expects directory hierarchy: `wiki/tech/Strapi.md`. The file literally lives inside `wiki/tech/`.
 
 If you mix conventions (e.g., triple-underscore files inside an Obsidian vault), links break. Check that `setup.sh` configured the correct tool - run it again and pick the tool matching your current vault.
 
@@ -143,7 +143,7 @@ Never commit around the lint by force. The false positive rate is low, and genui
 
 - **Two-stage routing handles retrieval precision automatically.** Since v1.2.0, `/wiki-query` reads the hub `### Index` routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line's description terse and distinctive - that is what keeps routing sharp as the wiki grows.
 - **Run `/wiki-maintain prune` periodically (default every 6 months).** It evicts cold pages - no read in N months - from the live hub index into `### Archive`, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.
-- **Split namespaces.** If `Wiki/Tech/` has 50+ pages, consider splitting into `Wiki/Tech/Infrastructure/`, `Wiki/Tech/Languages/`, etc. Namespaces can go 3 levels deep.
+- **Split namespaces.** If `wiki/tech/` has 50+ pages, consider splitting into `wiki/tech/infrastructure/`, `wiki/tech/languages/`, etc. Namespaces can go 3 levels deep.
 - **Run `/wiki-lint --fix`.** Beyond stale detection (90+ days), it now also fixes index drift - backfilling missing routing lines and tidying archived pages left in the live index.
 - **Audit L1/L2.** If you find yourself querying the same L2 page every session, promote the essential part to L1.
 
@@ -155,8 +155,8 @@ The wiki scales, but like any knowledge system, it requires periodic gardening -
 
 **Fix:**
 
-- Add the page to the appropriate hub page (e.g., `Wiki/Tech` hub should list all `Wiki/Tech/*` pages).
-- Add cross-references from related pages - if `Wiki/Projects/X` mentions `Wiki/Tech/Y`, make sure it uses `[[Wiki/Tech/Y]]` syntax.
+- Add the page to the appropriate hub page (e.g., `wiki/tech` hub should list all `wiki/tech/*` pages).
+- Add cross-references from related pages - if `wiki/projects/X` mentions `wiki/tech/Y`, make sure it uses `[[wiki/tech/Y]]` syntax.
 - Run `/wiki-lint --fix` - it auto-adds missing hub entries where obvious.
 
 If a page is genuinely isolated and cannot be linked from anywhere, it may be a sign the page is misplaced (wrong namespace) or should be deleted.

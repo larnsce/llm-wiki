@@ -1,6 +1,6 @@
 ---
 name: wiki-migrate
-description: One-time, interactive v1-to-v2 corpus migration. Drives migrate_wiki.py through dry-run, report, per-page diff preview, confirmation, --apply, and git commit, then compares wiki-lint violation counts before and after. Use when an existing wiki predates schema-spec-version 2.0.0 and lint reports grandfathered findings, or when the user asks to migrate or upgrade their corpus.
+description: One-time, interactive corpus migrations. Drives migrate_wiki.py through dry-run, report, per-page diff preview, confirmation, --apply, and git commit, then compares wiki-lint violation counts before and after. Covers the v1-to-v2 schema pass and the lowercase rename pass (Wiki/ to wiki/, --lowercase). Use when an existing wiki predates schema-spec-version 2.0.0, still uses Title Case Wiki/ names, or when the user asks to migrate or upgrade their corpus.
 ---
 
 # wiki-migrate
@@ -14,6 +14,17 @@ drives it conversationally and never re-implements its logic:
   machine-readable output. Append-only: it adds and normalizes page
   properties, never deletes or rewrites content lines, and never invents
   reliability or confidence ratings (gaps become a `needs-review::` marker).
+- `--lowercase` selects the SECOND pass (specs/schema.md REQ-580c): the
+  `Wiki/` to `wiki/` corpus rename. Same contract (dry-run default,
+  git-clean tree required for `--apply`, idempotent). It renames files and
+  directories via `git mv`, rewrites `[[Wiki/...]]` links and hub routing
+  lines, lowercases `namespace::` and config `namespaces:` values, and
+  converts Roam task markers (`{{[[TODO]]}}` to `TODO`). Proper-noun
+  leaves keep their casing (REQ-580b); ambiguous leaves are kept and
+  reported as manual follow-ups, never guessed. The dry-run report ends
+  with the broken-link/orphan count after a simulated rename: a
+  non-trivial count with no clean remediation means DEFER the rename
+  (adopt lowercase new-content-only) rather than apply it.
 - `../wiki-core/scripts/lint.py`: the before/after violation-count
   comparison (grandfather severity floor by default, `--strict` for full
   severity).
@@ -54,6 +65,11 @@ follow-up list instead of being guessed at.
 - Run `python3 ../wiki-core/scripts/migrate_wiki.py --json`. This writes
   nothing; exit 1 means changes are pending or manual follow-ups exist,
   exit 0 means the corpus is already migrated.
+- When the corpus still uses Title Case `Wiki/` names, also dry-run the
+  lowercase pass (`--lowercase --json`) and present its rename list,
+  ambiguous-leaf follow-ups, and the broken-link/orphan count. Apply the
+  passes separately (one commit each); check the kill criterion before
+  applying the rename.
 - Present the report grouped per page: mechanical changes (version stamp,
   key/date/enum normalization, `needs-review::` markers, Schema-page section
   appends) separately from manual follow-ups (prose citations, missing

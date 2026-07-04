@@ -70,8 +70,10 @@ import wikilib
 
 SEVERITY_RANK = {"critical": 0, "warning": 1, "info": 2}
 
-SYSTEM_PAGE_NAMES = {"Wiki/Schema", "Wiki/Dashboard",
-                     "Wiki/Reference/Access-Log"}
+# Compared case-insensitively so pre-migration corpora (Wiki/Schema, ...)
+# keep their system-page exemptions (REQ-580c grandfather).
+SYSTEM_PAGE_NAMES = {"wiki/schema", "wiki/dashboard",
+                     "wiki/reference/access-log"}
 
 # One grep shape for both tool modes: optional bullet, then cite::.
 CITE_LINE_RE = re.compile(r"^(\s*)(?:-\s+)?cite::\s*(.*)$")
@@ -207,7 +209,8 @@ class Checker:
         props = wikilib.parse_page_properties(text, self.tool)
         if props.get("type") == "hub":
             return
-        if (name in SYSTEM_PAGE_NAMES or props.get("access-log") == "true"
+        if (name.lower() in SYSTEM_PAGE_NAMES
+                or props.get("access-log") == "true"
                 or props.get("type") in ("schema", "dashboard")):
             return
         if "canonical-url" in props:

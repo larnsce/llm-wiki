@@ -14,8 +14,8 @@ Supporting both means you can use whichever tool fits your workflow. If you pref
 |---------|--------|----------|
 | **Data format** | Outliner (every line is `- ` prefixed) | Flat markdown |
 | **Properties** | `property:: value` (inline) | YAML frontmatter |
-| **File structure** | Flat directory, namespaces in filename (`Wiki___Tech___Strapi.md`) | Nested directories (`Wiki/Tech/Strapi.md`) |
-| **Links** | `[[Wiki/Tech/Strapi]]` | `[[Wiki/Tech/Strapi]]` |
+| **File structure** | Flat directory, namespaces in filename (`wiki___tech___Strapi.md`) | Nested directories (`wiki/tech/Strapi.md`) |
+| **Links** | `[[wiki/tech/Strapi]]` | `[[wiki/tech/Strapi]]` |
 | **Backlinks** | Built-in, automatic | Built-in, automatic |
 | **Graph view** | Yes | Yes |
 | **Block references** | Native (every block has a UUID) | Via plugin or block-id |
@@ -48,7 +48,7 @@ Obsidian is the better choice when:
 
 **You want polished mobile editing.** Obsidian's mobile app is more mature. If you frequently edit wiki pages from your phone, this matters.
 
-**You prefer nested directories.** Obsidian stores files in a directory hierarchy that mirrors the namespace structure: `Wiki/Tech/Strapi.md`. This makes browsing the wiki in any file manager intuitive. Logseq's flat directory with triple-underscore filenames (`Wiki___Tech___Strapi.md`) is less readable at the filesystem level.
+**You prefer nested directories.** Obsidian stores files in a directory hierarchy that mirrors the namespace structure: `wiki/tech/Strapi.md`. This makes browsing the wiki in any file manager intuitive. Logseq's flat directory with triple-underscore filenames (`wiki___tech___Strapi.md`) is less readable at the filesystem level.
 
 **Your team uses Obsidian.** If you are introducing the wiki pattern to a team and they already use Obsidian, the lower switching cost wins.
 
@@ -100,8 +100,8 @@ Content goes here as regular markdown.
     - Process manager reload does not work for npm-started processes.
     - Must delete and re-start instead.
   - ### Cross-References
-    - [[Wiki/Tech/PM2]] -- Process manager
-    - [[Wiki/Tech/Nginx]] -- Reverse proxy
+    - [[wiki/tech/PM2]] -- Process manager
+    - [[wiki/tech/Nginx]] -- Reverse proxy
 ```
 
 **Obsidian** -- standard markdown:
@@ -125,8 +125,8 @@ CI/CD workflow for production.
 
 ### Cross-References
 
-- [[Wiki/Tech/PM2]] -- Process manager
-- [[Wiki/Tech/Nginx]] -- Reverse proxy
+- [[wiki/tech/PM2]] -- Process manager
+- [[wiki/tech/Nginx]] -- Reverse proxy
 ```
 
 ### Tables
@@ -158,19 +158,19 @@ CI/CD workflow for production.
 
 ```
 pages/
-  Wiki___Schema.md
-  Wiki___Tech.md               (hub)
-  Wiki___Tech___Strapi.md
-  Wiki___Tech___Next-js.md
-  Wiki___Tech___PM2.md
-  Wiki___Projects.md            (hub)
-  Wiki___Projects___Blog-Series.md
+  wiki___schema.md
+  wiki___tech.md               (hub)
+  wiki___tech___Strapi.md
+  wiki___tech___Next-js.md
+  wiki___tech___PM2.md
+  wiki___projects.md            (hub)
+  wiki___projects___blog-series.md
 ```
 
 **Obsidian** uses nested directories:
 
 ```
-Wiki/
+wiki/
   Schema.md
   Tech/
     Tech.md                     (hub, or _index.md)
@@ -207,11 +207,11 @@ domain: tech
 **Step 3 -- Restructure files.** Move from flat directory with triple-underscore names to nested directories.
 
 ```
-Before: pages/Wiki___Tech___Strapi.md
-After:  Wiki/Tech/Strapi.md
+Before: pages/wiki___tech___Strapi.md
+After:  wiki/tech/Strapi.md
 ```
 
-**Step 4 -- Update links.** Links stay the same (`[[Wiki/Tech/Strapi]]`) -- both apps use identical syntax.
+**Step 4 -- Update links.** Links stay the same (`[[wiki/tech/Strapi]]`) -- both apps use identical syntax.
 
 **Step 5 -- Validate.** Run `/wiki-lint` to catch any broken references or missing properties.
 
@@ -228,8 +228,8 @@ If you started with Obsidian and want to switch to Logseq:
 **Step 3 -- Flatten files.** Move from nested directories to flat directory with triple-underscore names.
 
 ```
-Before: Wiki/Tech/Strapi.md
-After:  pages/Wiki___Tech___Strapi.md
+Before: wiki/tech/Strapi.md
+After:  pages/wiki___tech___Strapi.md
 ```
 
 **Step 4 -- Update links.** Links stay the same.
@@ -247,7 +247,7 @@ The schema itself is wiki-app-agnostic at the conceptual level. The same 5 page 
 | Page type declaration | `- type:: knowledge` | `type: knowledge` (frontmatter) |
 | Date property | `- updated:: 2026-04-07` | `updated: 2026-04-07` (frontmatter) |
 | Section heading | `- ## Section` | `## Section` |
-| Cross-reference | `- [[Wiki/Tech/Strapi]]` | `[[Wiki/Tech/Strapi]]` |
+| Cross-reference | `- [[wiki/tech/Strapi]]` | `[[wiki/tech/Strapi]]` |
 | Content block | `- Some text here` | `Some text here` |
 
 The wiki skills read `llm-wiki.yml` to determine which format to use and adjusts its output accordingly. The schema rules (required properties, lint checks, L1/L2 boundary) are enforced identically in both formats.

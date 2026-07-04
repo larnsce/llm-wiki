@@ -36,7 +36,7 @@ python3 skills/wiki-core/scripts/migrate_wiki.py
 python3 skills/wiki-core/scripts/lint.py --json
 ```
 
-Useful flags: `--page Wiki/Tech/Docker` restricts the run to one page (works with and without `--apply`), `--json` emits a machine-readable report, `--config` points at a specific `llm-wiki.yml`, `--date` pins the date stamp used in Schema-template placeholders.
+Useful flags: `--page wiki/tech/Docker` restricts the run to one page (works with and without `--apply`), `--json` emits a machine-readable report, `--config` points at a specific `llm-wiki.yml`, `--date` pins the date stamp used in Schema-template placeholders.
 
 Exit codes follow the suite convention: 0 = nothing to migrate and no follow-ups, 1 = changes pending/applied or manual follow-ups remain, 2 = critical (no config, dirty tree on `--apply`, unknown `--page`).
 
@@ -76,6 +76,32 @@ After `--apply`, work through this list (the converter's report and the `needs-r
 - [ ] Reconcile a skipped Schema page by hand (wiki-setup skill, Phase 5)
 - [ ] Run `/wiki-lint --fix` for orphans, hub completeness, and routing lines
 - [ ] Re-run `lint.py --strict` and confirm the remaining count is the work you have consciously deferred, not a surprise
+
+## The lowercase rename pass (v2.2)
+
+Since v2.2 the structural namespace casing is lowercase (`wiki/tech`, not `Wiki/Tech`; specs/schema.md REQ-580). The corpus rename is a second converter pass, never a hand-run `sed`:
+
+```bash
+# Dry run: full rename list + broken-link/orphan count after a simulated rename
+python3 skills/wiki-core/scripts/migrate_wiki.py --lowercase
+
+# Apply: requires a clean git tree; renames go through git mv
+python3 skills/wiki-core/scripts/migrate_wiki.py --lowercase --apply
+
+# Idempotence check: a second run reports zero changes
+python3 skills/wiki-core/scripts/migrate_wiki.py --lowercase
+```
+
+What the pass does:
+
+- renames files (`Wiki___Tech.md` to `wiki___tech.md`) and directories (`Wiki/Tech/` to `wiki/tech/`); renames are git-aware (`git mv`) so case-only renames land in the git index, not only on a case-insensitive filesystem
+- rewrites `[[Wiki/...]]` link targets everywhere, which covers the hub `### Index` and `### Archive` routing lines
+- lowercases `namespace::` property values and the `namespaces:` values in `llm-wiki.yml`
+- converts Roam task markers: `{{[[TODO]]}}` to `TODO` (plus the DOING/DONE/NOW/LATER/WAITING/CANCELED variants)
+
+Leaf casing follows the documented heuristic (REQ-580b): hub pages, the system leaves (schema, dashboard, access-log), and leaves matching a namespace segment are structural and are lowercased; entity pages name proper nouns and keep their leaf casing; anything else with uppercase letters is AMBIGUOUS, kept unchanged, and reported as a manual follow-up. The converter never guesses.
+
+The dry-run report ends with the broken-link and orphan counts after a simulated rename. That is the kill criterion: a non-trivial count with no clean remediation means the rename is deferred and the lowercase names are adopted new-content-only (pre-migration pages stay legible under the lint grandfather floor, REQ-580c).
 
 ## Release gate
 

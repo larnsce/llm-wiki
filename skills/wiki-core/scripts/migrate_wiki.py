@@ -1,11 +1,35 @@
 #!/usr/bin/env python3
-"""migrate_wiki.py - one-time, idempotent v1-to-v2 corpus converter.
+"""migrate_wiki.py - one-time, idempotent corpus converter (two passes).
 
-Upgrades v1-authored wiki pages (pages without `schema-spec-version::`) to
-the v2 schema contract (templates/*/Schema.md, openspec/specs/schema.md)
-for both tool modes. DRY-RUN BY DEFAULT: without --apply nothing is
-written; the report lists, per page, every mechanical change the converter
-would make plus the manual follow-ups it will not make for you.
+Default pass: upgrades v1-authored wiki pages (pages without
+`schema-spec-version::`) to the v2 schema contract
+(templates/*/Schema.md, openspec/specs/schema.md) for both tool modes.
+
+`--lowercase` pass (specs/schema.md REQ-580c): renames the pre-migration
+`Wiki/` corpus to `wiki/`. Structural segments are lowercased; proper-noun
+leaves keep their natural casing (REQ-580b). The leaf heuristic, in order:
+
+1. hub pages and the system leaves (schema, dashboard, access-log) are
+   structural: lowercase
+2. a leaf that matches (case-insensitively) a configured namespace or a
+   segment of an existing hub name is structural: lowercase
+3. an entity page names a person/tool/client/...: proper-noun leaf, kept
+4. an already-lowercase leaf is conformant: kept
+5. anything else with uppercase letters is AMBIGUOUS: kept unchanged and
+   reported as a manual follow-up, never guessed
+
+The pass renames files (`Wiki___*.md` -> `wiki___*.md`) and directories
+(`Wiki/` -> `wiki/`), rewrites `[[Wiki/...]]` links (which covers the hub
+`### Index` / `### Archive` routing lines), lowercases `namespace::`
+property values and the `namespaces:` values in llm-wiki.yml, and converts
+Roam task markers (`{{[[TODO]]}}` -> `TODO`, plus the
+DOING/DONE/NOW/LATER/WAITING/CANCELED variants). The dry-run report
+includes the full rename list plus the broken-link and orphan counts after
+a simulated rename (the kill criterion for the corpus flip).
+
+Both passes are DRY-RUN BY DEFAULT: without --apply nothing is written;
+the report lists every mechanical change the converter would make plus the
+manual follow-ups it will not make for you.
 
 Mechanical changes (append-only discipline: existing content lines are
 never deleted or rewritten; only page properties are added or normalized):
@@ -56,7 +80,9 @@ import lint as lintmod
 import wikilib
 
 SCHEMA_SPEC_VERSION = lintmod.SCHEMA_SPEC_VERSION
-SCHEMA_PAGE_NAME = "Wiki/Schema"
+# Matched case-insensitively: pre-migration corpora still name it
+# Wiki/Schema until the --lowercase pass runs (REQ-580c).
+SCHEMA_PAGE_NAME = "wiki/schema"
 
 # Property keys the converter is allowed to case-normalize.
 KNOWN_KEYS = set()
@@ -440,7 +466,7 @@ def page_section_keys(text, tool):
 
 
 def upgrade_schema_text(text, tool, template_text, namespaces, today, mig):
-    ns_list = ", ".join("Wiki/%s" % ns for ns in namespaces)
+    ns_list = ", ".join("wiki/%s" % ns.lower() for ns in namespaces)
     template = template_text.replace("{{NAMESPACES}}", ns_list)
     template = template.replace("{{DATE}}", today)
 
@@ -496,11 +522,416 @@ def upgrade_schema_text(text, tool, template_text, namespaces, today, mig):
 
 
 # ---------------------------------------------------------------------------
+# Lowercase rename pass (REQ-580c): Wiki/ -> wiki/
+# ---------------------------------------------------------------------------
+
+ROAM_MARKER_RE = re.compile(
+    r"\{\{\[\[(TODO|DOING|DONE|NOW|LATER|WAITING|CANCELED|CANCELLED)\]\]\}\}")
+
+# Leaves of the recognized system pages: structural workflow pages, not
+# proper nouns, so the rename lowercases them (wiki/schema, wiki/dashboard,
+# wiki/reference/access-log).
+SYSTEM_LEAVES = {"schema", "dashboard", "access-log"}
+
+
+def _leaf_new_case(leaf, page_type, structural):
+    """Apply the documented leaf heuristic. Returns (new_leaf, ambiguous)."""
+    low = leaf.lower()
+    if low == leaf:
+        return leaf, False
+    if page_type == "hub" or low in SYSTEM_LEAVES or low in structural:
+        return low, False
+    if page_type == "entity":
+        return leaf, False  # proper-noun leaf (REQ-580b)
+    return leaf, True  # ambiguous: kept, reported as a manual follow-up
+
+
+def lowercase_name(name, page_type, structural):
+    """New page name under REQ-580. Returns (new_name, ambiguous_leaf)."""
+    segments = name.split("/")
+    head = [seg.lower() for seg in segments[:-1]]
+    leaf, ambiguous = _leaf_new_case(segments[-1], page_type, structural)
+    return "/".join(head + [leaf]), ambiguous
+
+
+def structural_segments(pages, namespaces):
+    """Lowercase segment vocabulary: config namespaces + hub-name segments."""
+    segments = {"wiki"}
+    segments.update(ns.lower() for ns in namespaces)
+    for page in pages:
+        if page.get("type") == "hub":
+            segments.update(s.lower() for s in page["name"].split("/"))
+    return segments
+
+
+def new_path_for(page, new_name, tool, root):
+    if tool == "logseq":
+        return os.path.join(root, new_name.replace("/", "___") + ".md")
+    if os.path.basename(page["path"]) == "_index.md":
+        return os.path.join(root, new_name.replace("/", os.sep), "_index.md")
+    return os.path.join(root, new_name.replace("/", os.sep) + ".md")
+
+
+def rewrite_wiki_links(text, rename_map, structural, counter):
+    """Rewrite [[Wiki/...]] targets (covers hub routing lines too)."""
+
+    def repl(match):
+        raw = match.group(1)
+        target, sep, alias = raw.partition("|")
+        stripped = target.strip()
+        new = rename_map.get(stripped)
+        if new is None and stripped.lower().startswith("wiki/"):
+            candidate, _ambiguous = lowercase_name(stripped, None, structural)
+            if candidate != stripped:
+                new = candidate
+        if new is None or new == stripped:
+            return match.group(0)
+        counter["links"] += 1
+        return "[[%s%s%s]]" % (new, sep, alias)
+
+    return lintmod.WIKI_LINK_RE.sub(repl, text)
+
+
+def rewrite_namespace_property(text, tool, counter):
+    """Lowercase the namespace:: / namespace: property value (structural)."""
+    lines = text.split("\n")
+    if tool == "logseq":
+        index = 0
+        while index < len(lines) and not lines[index].strip():
+            index += 1
+        while index < len(lines):
+            match = LOGSEQ_PROP_LINE_RE.match(lines[index])
+            if not match or not lines[index].strip():
+                break
+            if match.group("key") == "namespace":
+                value = match.group("value").strip()
+                if value != value.lower():
+                    lines[index] = "%snamespace:: %s" % (
+                        match.group("prefix"), value.lower())
+                    counter["namespace_props"] += 1
+            index += 1
+        return "\n".join(lines)
+
+    if not lines or lines[0].strip() != "---":
+        return text
+    for index in range(1, len(lines)):
+        if lines[index].strip() == "---":
+            break
+        match = FRONTMATTER_LINE_RE.match(lines[index])
+        if match and match.group("key") == "namespace":
+            scalar, quote = _quote_aware(match.group("value"))
+            if scalar != scalar.lower():
+                rendered = ("%s%s%s" % (quote, scalar.lower(), quote)
+                            if quote else scalar.lower())
+                lines[index] = "namespace: %s" % rendered
+                counter["namespace_props"] += 1
+    return "\n".join(lines)
+
+
+def convert_roam_markers(text, counter):
+    def repl(match):
+        counter["roam"] += 1
+        return match.group(1)
+
+    return ROAM_MARKER_RE.sub(repl, text)
+
+
+def rewrite_config_namespaces(config_text):
+    """Lowercase the namespaces: list values. Returns (new_text, changes)."""
+    lines = config_text.split("\n")
+    changes = []
+    in_namespaces = False
+    for index, line in enumerate(lines):
+        key_match = wikilib._TOP_KEY_RE.match(line)
+        if key_match:
+            in_namespaces = (key_match.group(1) == "namespaces"
+                             and not key_match.group(2).strip())
+            continue
+        if not in_namespaces:
+            continue
+        item_match = wikilib._LIST_ITEM_RE.match(line)
+        if item_match:
+            value = item_match.group(1)
+            if value != value.lower():
+                lines[index] = line[:item_match.start(1)] + value.lower()
+                changes.append("namespaces value '%s' -> '%s'"
+                               % (value, value.lower()))
+    return "\n".join(lines), changes
+
+
+def _git_mv(git_root, src, dst):
+    try:
+        proc = subprocess.run(
+            ["git", "-C", git_root, "mv", src, dst],
+            capture_output=True, text=True, timeout=30)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+    return proc.returncode == 0
+
+
+def _rename_path(src, dst, git_root=None):
+    """Rename src to dst, git-aware and safe for case-only renames.
+
+    Always a two-step move through a temp sibling name: a direct case-only
+    rename fails for directories (git mv reports 'Invalid argument' on
+    case-insensitive filesystems such as macOS APFS). `git mv` is used
+    when the vault is a git repository so the INDEX records the new
+    casing; a plain os.rename would leave the old casing in git, which a
+    fresh clone on a case-sensitive system would then restore. Falls back
+    to os.rename when git mv is unavailable.
+    """
+    if src == dst:
+        return
+    parent = os.path.dirname(dst)
+    if parent and not os.path.isdir(parent):
+        os.makedirs(parent, exist_ok=True)
+    tmp = src + ".lcmv-tmp"
+    if git_root:
+        if _git_mv(git_root, src, tmp):
+            if _git_mv(git_root, tmp, dst):
+                return
+            os.rename(tmp, dst)
+            return
+    os.rename(src, tmp)
+    os.rename(tmp, dst)
+
+
+def _apply_renames(renamed, tool, root, git_root):
+    """Execute the file/directory renames for the accepted rename set."""
+    if tool == "logseq":
+        for entry in renamed:
+            _rename_path(entry["path"], entry["new_path"], git_root)
+        return
+
+    # Obsidian: rename directories first (deepest first; all structural),
+    # then file leaves. Case-only directory renames need the git-aware move.
+    dirs = set()
+    for entry in renamed:
+        rel_dir = os.path.relpath(os.path.dirname(entry["path"]), root)
+        if rel_dir == ".":
+            continue
+        parts = rel_dir.split(os.sep)
+        for depth in range(1, len(parts) + 1):
+            prefix = parts[:depth]
+            if prefix[-1] != prefix[-1].lower():
+                dirs.add(os.sep.join(prefix))
+    # Deepest first: at rename time a directory's PARENTS still carry the
+    # original casing, so src and dst keep the parent segments as-is and
+    # only the deepest segment changes case per step.
+    for rel in sorted(dirs, key=lambda d: d.count(os.sep), reverse=True):
+        parts = rel.split(os.sep)
+        src = os.path.join(root, *parts)
+        dst = os.path.join(root, *(parts[:-1] + [parts[-1].lower()]))
+        if os.path.isdir(src):
+            _rename_path(src, dst, git_root)
+    for entry in renamed:
+        rel = os.path.relpath(entry["path"], root)
+        parts = rel.split(os.sep)
+        current = os.path.join(
+            root, *[p.lower() for p in parts[:-1]] + [parts[-1]])
+        _rename_path(current, entry["new_path"], git_root)
+
+
+def run_lowercase_pass(args, config, critical):
+    tool = config.get("tool", "")
+    root = wikilib.wiki_root(config)
+    pages_dir = wikilib.pages_root(config)
+
+    if args.apply:
+        clean, detail = git_tree_is_clean(root)
+        if clean is None:
+            return critical("--apply requires a git repository at the "
+                            "vault root (%s): %s" % (root, detail))
+        if not clean:
+            return critical("--apply refused: the vault working tree is "
+                            "not clean. Commit or stash first.\n%s" % detail)
+
+    namespaces = config.get("namespaces") or wikilib.DEFAULT_NAMESPACES
+    if isinstance(namespaces, str):
+        namespaces = [namespaces]
+
+    pages = []
+    for entry in wikilib.enumerate_pages(config):
+        with open(entry["path"], "r", encoding="utf-8") as handle:
+            text = handle.read()
+        props = wikilib.parse_page_properties(text, tool)
+        entry["text"] = text
+        entry["type"] = props.get("type", "")
+        pages.append(entry)
+
+    structural = structural_segments(pages, namespaces)
+    all_names = {p["name"] for p in pages}
+
+    # Rename plan. Collisions (target name already taken by another page)
+    # are skipped and reported; the converter never overwrites a page.
+    rename_map = {}
+    ambiguous = []
+    manual = []
+    for page in pages:
+        if not page["name"].lower().startswith("wiki/"):
+            continue
+        new_name, is_ambiguous = lowercase_name(
+            page["name"], page["type"], structural)
+        if is_ambiguous:
+            ambiguous.append(page["name"])
+            manual.append(
+                "leaf of '%s' kept its casing: lowercase it by hand if it "
+                "is a structural name; keep it if it is a proper noun "
+                "(REQ-580b). The converter does not guess." % page["name"])
+        if new_name == page["name"]:
+            continue
+        if new_name in all_names:
+            manual.append(
+                "cannot rename '%s' -> '%s': the target page already "
+                "exists; merge or rename by hand" % (page["name"], new_name))
+            continue
+        rename_map[page["name"]] = new_name
+
+    renamed = []
+    rewritten = []
+    counter = {"links": 0, "roam": 0, "namespace_props": 0}
+    for page in pages:
+        new_name = rename_map.get(page["name"], page["name"])
+        new_text = rewrite_wiki_links(
+            page["text"], rename_map, structural, counter)
+        new_text = rewrite_namespace_property(new_text, tool, counter)
+        new_text = convert_roam_markers(new_text, counter)
+        page["new_name"] = new_name
+        page["new_text"] = new_text
+        if new_text != page["text"]:
+            rewritten.append(page)
+        if new_name != page["name"]:
+            page["new_path"] = new_path_for(page, new_name, tool, pages_dir)
+            renamed.append(page)
+
+    config_path = os.path.join(root, wikilib.CONFIG_FILENAME)
+    config_changes = []
+    new_config_text = None
+    if os.path.isfile(config_path):
+        with open(config_path, "r", encoding="utf-8") as handle:
+            config_text = handle.read()
+        candidate, config_changes = rewrite_config_namespaces(config_text)
+        if config_changes:
+            new_config_text = candidate
+
+    # Simulated post-rename link graph: broken links and orphans.
+    new_names = {page["new_name"] for page in pages}
+    broken_links = []
+    incoming = {name: 0 for name in new_names}
+    for page in pages:
+        stripped = lintmod.strip_code(page["new_text"])
+        for target in lintmod.wiki_links(stripped):
+            if target in new_names:
+                if target != page["new_name"]:
+                    incoming[target] += 1
+            else:
+                broken_links.append((page["new_name"], target))
+    orphans = []
+    for page in pages:
+        if not page["new_name"].lower().startswith("wiki/"):
+            continue
+        if page["type"] == "hub" or is_system_page(page["new_name"], {}):
+            continue
+        props = wikilib.parse_page_properties(page["new_text"], tool)
+        if is_system_page(page["new_name"], props) or "archived" in props:
+            continue
+        if incoming.get(page["new_name"], 0) == 0:
+            orphans.append(page["new_name"])
+
+    if args.apply:
+        for page in rewritten:
+            with open(page["path"], "w", encoding="utf-8") as handle:
+                handle.write(page["new_text"])
+        _apply_renames(renamed, tool, pages_dir, root)
+        if new_config_text is not None:
+            with open(config_path, "w", encoding="utf-8") as handle:
+                handle.write(new_config_text)
+
+    changes_total = (len(renamed) + counter["links"] + counter["roam"]
+                     + counter["namespace_props"] + len(config_changes))
+    report = {
+        "pass": "lowercase",
+        "tool": tool,
+        "mode": "apply" if args.apply else "dry-run",
+        "applied": bool(args.apply),
+        "pages_scanned": len(pages),
+        "renames": [{"from": p["name"], "to": p["new_name"],
+                     "from_path": p["path"], "to_path": p["new_path"]}
+                    for p in renamed],
+        "files_rewritten": len(rewritten),
+        "link_rewrites": counter["links"],
+        "namespace_property_rewrites": counter["namespace_props"],
+        "roam_marker_conversions": counter["roam"],
+        "config_changes": config_changes,
+        "ambiguous_leaves": ambiguous,
+        "manual": manual,
+        "broken_links_after_rename": len(broken_links),
+        "broken_link_details": [
+            {"page": page, "target": target}
+            for page, target in sorted(set(broken_links))],
+        "orphans_after_rename": sorted(orphans),
+        "changes_total": changes_total,
+        "manual_total": len(manual),
+    }
+    warnings = ["x"] * (changes_total + len(manual))
+    status, exit_code = wikilib.status_from_counts([], warnings)
+    report["status"] = status
+
+    if args.json:
+        wikilib.emit_json(report)
+    else:
+        print_lowercase_report(report)
+    return exit_code
+
+
+def print_lowercase_report(report):
+    print("migrate --lowercase: scanned %d pages (tool: %s, mode: %s)"
+          % (report["pages_scanned"], report["tool"], report["mode"]))
+    for entry in report["renames"]:
+        print("  ~ rename %s -> %s" % (entry["from"], entry["to"]))
+    if report["link_rewrites"]:
+        print("  ~ %d [[link]] target(s) rewritten (routing lines included)"
+              % report["link_rewrites"])
+    if report["namespace_property_rewrites"]:
+        print("  ~ %d namespace:: property value(s) lowercased"
+              % report["namespace_property_rewrites"])
+    if report["roam_marker_conversions"]:
+        print("  ~ %d Roam task marker(s) converted ({{[[TODO]]}} -> TODO)"
+              % report["roam_marker_conversions"])
+    for change in report["config_changes"]:
+        print("  ~ llm-wiki.yml: %s" % change)
+    for note in report["manual"]:
+        print("  ! manual: %s" % note)
+    print("\nafter simulated rename: %d broken link(s), %d orphan(s)"
+          % (report["broken_links_after_rename"],
+             len(report["orphans_after_rename"])))
+    for detail in report["broken_link_details"]:
+        print("  broken: %s -> [[%s]]" % (detail["page"], detail["target"]))
+    print("\nsummary: %d rename(s), %d file(s) rewritten, %d mechanical "
+          "change(s), %d manual follow-up(s)"
+          % (len(report["renames"]), report["files_rewritten"],
+             report["changes_total"], report["manual_total"]))
+    if report["mode"] == "dry-run":
+        if report["changes_total"]:
+            print("dry run: no files were written. Re-run with --apply "
+                  "(clean git tree required) to write.")
+        else:
+            print("dry run: nothing to rename; the corpus is already "
+                  "lowercase.")
+    elif not report["changes_total"]:
+        print("applied: nothing to write; the corpus is already lowercase.")
+    else:
+        print("\napplied. Suggested commit message:\n")
+        print("  wiki-migrate: lowercase namespace rename Wiki/ -> wiki/ "
+              "(REQ-580c)")
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
 def is_system_page(name, props):
-    return (name in lintmod.SYSTEM_PAGE_NAMES
+    return (name.lower() in lintmod.SYSTEM_PAGE_NAMES
             or props.get("access-log") == "true"
             or props.get("type") in ("schema", "dashboard"))
 
@@ -517,7 +948,7 @@ def migrate_page(page, tool, template_text, namespaces, today):
         text = handle.read()
     props = wikilib.parse_page_properties(text, tool)
 
-    if page["name"] == SCHEMA_PAGE_NAME:
+    if page["name"].lower() == SCHEMA_PAGE_NAME:
         if template_text is None:
             mig.note("Schema.md template not found; run from a checkout of "
                      "the llm-wiki repository or pass --templates-dir to "
@@ -563,7 +994,7 @@ def print_report(report, migrations):
     print("migrate: scanned %d pages (tool: %s, mode: %s)"
           % (report["pages_scanned"], report["tool"], report["mode"]))
     if report["pages_skipped_outside_wiki"]:
-        print("skipped %d page(s) outside the Wiki/ namespace"
+        print("skipped %d page(s) outside the wiki/ namespace"
               % report["pages_skipped_outside_wiki"])
     for mig in migrations:
         if not mig.changes and not mig.manual:
@@ -611,10 +1042,15 @@ def main():
                         help="path to llm-wiki.yml (default: discover)")
     parser.add_argument("--page", default=None,
                         help="migrate a single page by name "
-                             "(e.g. Wiki/Tech/Docker)")
+                             "(e.g. wiki/tech/Docker)")
     parser.add_argument("--apply", action="store_true",
                         help="write the changes (default: dry-run report "
                              "only); refuses on a dirty git tree")
+    parser.add_argument("--lowercase", action="store_true",
+                        help="run the lowercase rename pass (Wiki/ -> "
+                             "wiki/, REQ-580c) plus Roam task-marker "
+                             "conversion instead of the v1-to-v2 schema "
+                             "pass")
     parser.add_argument("--templates-dir", default=None,
                         help="template directory for the Schema-page "
                              "upgrade (default: the repo's "
@@ -649,6 +1085,14 @@ def main():
     if tool not in wikilib.VALID_TOOLS:
         return critical("invalid tool '%s' in %s" % (tool, config_path))
 
+    if args.lowercase:
+        if args.page:
+            return critical("--page is not supported with --lowercase: the "
+                            "rename pass is corpus-wide by nature (links "
+                            "into a renamed page must be rewritten "
+                            "everywhere)")
+        return run_lowercase_pass(args, config, critical)
+
     root = wikilib.wiki_root(config)
     if args.apply:
         clean, detail = git_tree_is_clean(root)
@@ -660,13 +1104,14 @@ def main():
                             "not clean. Commit or stash first.\n%s" % detail)
 
     pages = wikilib.enumerate_pages(config)
-    skipped_outside = [p for p in pages if not p["name"].startswith("Wiki/")]
-    pages = [p for p in pages if p["name"].startswith("Wiki/")]
+    skipped_outside = [p for p in pages
+                       if not p["name"].lower().startswith("wiki/")]
+    pages = [p for p in pages if p["name"].lower().startswith("wiki/")]
     if args.page:
         pages = [p for p in pages if p["name"] == args.page]
         if not pages:
-            return critical("page '%s' not found in the Wiki/ namespace "
-                            "(names look like Wiki/Tech/Docker)" % args.page)
+            return critical("page '%s' not found in the wiki/ namespace "
+                            "(names look like wiki/tech/Docker)" % args.page)
 
     namespaces = config.get("namespaces") or wikilib.DEFAULT_NAMESPACES
     if isinstance(namespaces, str):

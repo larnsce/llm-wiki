@@ -98,7 +98,9 @@ DATE_PROPS = ("created", "updated", "started", "completed", "verified",
               "archived", "last-reviewed")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-SYSTEM_PAGE_NAMES = {"Wiki/Schema", "Wiki/Dashboard", "Wiki/Reference/Access-Log"}
+# Compared case-insensitively so pre-migration corpora (Wiki/Schema, ...)
+# keep their system-page exemptions until the lowercase pass runs (REQ-580c).
+SYSTEM_PAGE_NAMES = {"wiki/schema", "wiki/dashboard", "wiki/reference/access-log"}
 
 CREDENTIAL_PATTERNS = [
     (re.compile(r"\b(token|password|secret|api-key|api\.key)\s*::", re.I),
@@ -120,7 +122,7 @@ URL_SHAPE_RE = re.compile(r"^https?://[^\s/]+\.[^\s/]+(/\S*)?$")
 def strip_code(text):
     """Remove fenced code blocks and inline code spans.
 
-    Needed so `[[Wiki/...]]` placeholders inside backticks (e.g. the Hub
+    Needed so `[[wiki/...]]` placeholders inside backticks (e.g. the Hub
     template's routing-line example) are not treated as real links.
     """
     lines = []
@@ -136,11 +138,15 @@ def strip_code(text):
 
 
 def wiki_links(stripped_text):
-    """Outgoing [[Wiki/...]] link targets (alias part removed)."""
+    """Outgoing [[wiki/...]] link targets (alias part removed).
+
+    The prefix check is case-insensitive so pre-migration corpora with
+    [[Wiki/...]] links keep working (grandfather floor, REQ-580c).
+    """
     targets = []
     for raw in WIKI_LINK_RE.findall(stripped_text):
         target = raw.split("|")[0].strip()
-        if target.startswith("Wiki/"):
+        if target.lower().startswith("wiki/"):
             targets.append(target)
     return targets
 
@@ -171,7 +177,7 @@ def parse_hub_index(stripped_text):
         if not match:
             continue
         target = match.group(1).split("|")[0].strip()
-        if not target.startswith("Wiki/"):
+        if not target.lower().startswith("wiki/"):
             continue
         rest = line[match.end():]
         if " -- " in rest:
@@ -265,7 +271,7 @@ class Linter:
             }
             page["is_hub"] = page["type"] == "hub"
             page["is_system"] = (
-                page["name"] in SYSTEM_PAGE_NAMES
+                page["name"].lower() in SYSTEM_PAGE_NAMES
                 or props.get("access-log") == "true"
                 or page["type"] in ("schema", "dashboard"))
             page["is_archived"] = "archived" in props
@@ -441,7 +447,7 @@ class Linter:
         if not page["links"]:
             hub = self.nearest_hub_name(page["name"])
             self.add(page, "REQ-180", "cross-ref-minimum", "warning",
-                     "page has fewer than 1 outgoing [[Wiki/...]] link",
+                     "page has fewer than 1 outgoing [[wiki/...]] link",
                      fix="add a link to [[%s]]" % (hub or "the namespace hub"))
 
     def check_format_mixing(self, page):

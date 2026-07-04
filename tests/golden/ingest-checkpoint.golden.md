@@ -22,7 +22,7 @@ signal, not automatically a failure. See `tests/golden/README.md`.
 
 | # | Source | Proposed page touches | Reliability (one-line rationale) | Contradictions |
 |---|--------|-----------------------|----------------------------------|----------------|
-| 1 | miller-chen-2025-two-stage-retrieval.md (papers) | 2 touches: create Wiki/Tech/Two-Stage-Retrieval (knowledge, all claims cited to ingested/papers/miller-chen-2025-two-stage-retrieval.md); update hub Wiki/Tech (routing line) | medium: single unreviewed preprint on synthetic vaults, no independent corroboration | none |
+| 1 | miller-chen-2025-two-stage-retrieval.md (papers) | 2 touches: create wiki/tech/two-stage-retrieval (knowledge, all claims cited to ingested/papers/miller-chen-2025-two-stage-retrieval.md); update hub wiki/tech (routing line) | medium: single unreviewed preprint on synthetic vaults, no independent corroboration | none |
 
 Question asked (verbatim from REQ-025): "What should I emphasize, skip, or
 route to L1 Memory?"
@@ -31,7 +31,7 @@ route to L1 Memory?"
 
 Pages to create:
 
-- `Wiki/Tech/Two-Stage-Retrieval` (file `Wiki___Tech___Two-Stage-Retrieval.md`)
+- `wiki/tech/two-stage-retrieval` (file `wiki___tech___two-stage-retrieval.md`)
   - type:: knowledge, domain:: tech, confidence:: medium,
     created/updated:: run date
   - source-file:: ingested/papers/miller-chen-2025-two-stage-retrieval.md
@@ -57,12 +57,12 @@ Pages to create:
 
 Pages to update:
 
-- `Wiki/Tech` hub: add routing line to `### Index`:
-  `[[Wiki/Tech/Two-Stage-Retrieval]] -- index-first PKB retrieval, token cost + routing-description evidence #retrieval #pkb`
+- `wiki/tech` hub: add routing line to `### Index`:
+  `[[wiki/tech/two-stage-retrieval]] -- index-first PKB retrieval, token cost + routing-description evidence #retrieval #pkb`
 
 Cross-references to add:
 
-- `[[Wiki/Tech]]` from the new page (satisfies the 1-outgoing-link minimum).
+- `[[wiki/tech]]` from the new page (satisfies the 1-outgoing-link minimum).
 
 Reliability rationale (Phase 1): per-source rubric rates an unreviewed
 preprint `medium`; every claim rests on this one source, so no claim is

@@ -92,7 +92,7 @@ requires explicit confirmation.
 
 For an existing vault whose Schema page predates v2:
 
-- Read the vault's Schema page (`Wiki/Schema`; file naming per
+- Read the vault's Schema page (`wiki/schema`; file naming per
   [formats](../wiki-core/references/formats.md)) and the current template
   `templates/<tool>/Schema.md` in the repo.
 - Determine the vault's schema generation from the page's

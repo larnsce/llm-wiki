@@ -4,11 +4,11 @@ Thanks for your interest in contributing! This project is young and contribution
 
 ## Ways to contribute
 
-- **Bug reports** — Something broken in `setup.sh`? Wiki pages not formatting correctly? Open an issue.
+- **Bug reports** - Something broken in `setup.sh`? Wiki pages not formatting correctly? Open an issue.
 - **Feature requests** - Ideas for new wiki skills, lint rules, or template improvements? Open an issue.
-- **Templates** — Better Schema designs, new page types, or improved hub pages.
-- **Tool support** — Improvements to Logseq or Obsidian templates, or support for new tools.
-- **Documentation** — Fixes, clarifications, or new guides.
+- **Templates** - Better Schema designs, new page types, or improved hub pages.
+- **Tool support** - Improvements to Logseq or Obsidian templates, or support for new tools.
+- **Documentation** - Fixes, clarifications, or new guides.
 
 ## Getting started
 
@@ -32,8 +32,8 @@ echo -e "1\n/tmp/test-logseq\ny\n\nskip\ny\nskip" | ./setup.sh
 echo -e "2\n/tmp/test-obsidian\ny\n\nskip\ny\nskip" | ./setup.sh
 
 # Verify output
-ls /tmp/test-logseq/pages/Wiki___*.md
-ls /tmp/test-obsidian/Wiki/
+ls /tmp/test-logseq/pages/wiki___*.md
+ls /tmp/test-obsidian/wiki/
 ```
 
 Clean up test directories after:

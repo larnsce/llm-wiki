@@ -134,7 +134,7 @@ def stamp_schema_version(content, tool):
 def render_pages(scaffold, tool, wiki_path, pages_path, template_dir,
                  namespaces, today):
     """Page creation, ported from the python heredoc in setup.sh Step 8."""
-    ns_list = ", ".join("Wiki/%s" % ns for ns in namespaces)
+    ns_list = ", ".join("wiki/%s" % ns for ns in namespaces)
     schema = read_template(template_dir, "Schema.md")
     schema = schema.replace("{{NAMESPACES}}", ns_list)
     schema = schema.replace("{{DATE}}", today)
@@ -147,43 +147,43 @@ def render_pages(scaffold, tool, wiki_path, pages_path, template_dir,
     access_log = access_log.replace("{{DATE}}", today)
 
     if tool == "logseq":
-        ns_links = "\n".join("\t- [[Wiki/%s]]" % ns for ns in namespaces)
+        ns_links = "\n".join("\t- [[wiki/%s]]" % ns for ns in namespaces)
         dashboard = dashboard.replace("{{NAMESPACE_LINKS}}", ns_links)
 
-        scaffold.write_file(os.path.join(pages_path, "Wiki___Schema.md"),
-                            stamp_schema_version(schema, tool), "Wiki/Schema")
-        scaffold.write_file(os.path.join(pages_path, "Wiki___Dashboard.md"),
+        scaffold.write_file(os.path.join(pages_path, "wiki___schema.md"),
+                            stamp_schema_version(schema, tool), "wiki/schema")
+        scaffold.write_file(os.path.join(pages_path, "wiki___dashboard.md"),
                             stamp_schema_version(dashboard, tool),
-                            "Wiki/Dashboard")
+                            "wiki/dashboard")
         for ns in namespaces:
             hub = hub_tpl.replace("{{NAMESPACE}}", ns).replace("{{DATE}}", today)
-            scaffold.write_file(os.path.join(pages_path, "Wiki___%s.md" % ns),
+            scaffold.write_file(os.path.join(pages_path, "wiki___%s.md" % ns),
                                 stamp_schema_version(hub, tool),
-                                "Wiki/%s" % ns)
+                                "wiki/%s" % ns)
         scaffold.write_file(
-            os.path.join(pages_path, "Wiki___Reference___Access-Log.md"),
+            os.path.join(pages_path, "wiki___reference___access-log.md"),
             stamp_schema_version(access_log, tool),
-            "Wiki/Reference/Access-Log")
+            "wiki/reference/access-log")
     else:
-        wiki_dir = os.path.join(wiki_path, "Wiki")
-        ns_links = "\n".join("- [[Wiki/%s]]" % ns for ns in namespaces)
+        wiki_dir = os.path.join(wiki_path, "wiki")
+        ns_links = "\n".join("- [[wiki/%s]]" % ns for ns in namespaces)
         dashboard = dashboard.replace("{{NAMESPACE_LINKS}}", ns_links)
 
-        scaffold.write_file(os.path.join(wiki_dir, "Schema.md"),
+        scaffold.write_file(os.path.join(wiki_dir, "schema.md"),
                             stamp_schema_version(schema, tool),
-                            "Wiki/Schema.md")
-        scaffold.write_file(os.path.join(wiki_dir, "Dashboard.md"),
+                            "wiki/schema.md")
+        scaffold.write_file(os.path.join(wiki_dir, "dashboard.md"),
                             stamp_schema_version(dashboard, tool),
-                            "Wiki/Dashboard.md")
+                            "wiki/dashboard.md")
         for ns in namespaces:
             hub = hub_tpl.replace("{{NAMESPACE}}", ns).replace("{{DATE}}", today)
             scaffold.write_file(os.path.join(wiki_dir, ns, "_index.md"),
                                 stamp_schema_version(hub, tool),
-                                "Wiki/%s/_index.md" % ns)
+                                "wiki/%s/_index.md" % ns)
         scaffold.write_file(
-            os.path.join(wiki_dir, "Reference", "Access-Log.md"),
+            os.path.join(wiki_dir, "reference", "access-log.md"),
             stamp_schema_version(access_log, tool),
-            "Wiki/Reference/Access-Log.md")
+            "wiki/reference/access-log.md")
 
 
 def scaffold_pipeline(scaffold, wiki_path):
@@ -262,6 +262,10 @@ def main():
         else:
             print("CRITICAL: %s" % message, file=sys.stderr)
         return wikilib.EXIT_CRITICAL
+
+    # Structural namespace names are lowercase (specs/schema.md REQ-580);
+    # normalize whatever casing the caller passed.
+    args.namespaces = [ns.lower() for ns in args.namespaces]
 
     for ns in args.namespaces:
         if not NAMESPACE_RE.match(ns):

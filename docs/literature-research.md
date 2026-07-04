@@ -57,11 +57,11 @@ Instead, write a thin stub page: one `knowledge` or `reference` page per course 
 ```
 - type:: reference
 - source-file:: (omit - this is a stub, not an ingested source)
-- ## Wiki/Teaching/Data-Science-with-R
+- ## wiki/teaching/Data-Science-with-R
   - Course site: https://your-quarto-site.example/course
   - Covers: tidyverse, reproducible workflows, RStudio projects, Quarto authoring.
   - Last major revision: 2026-05. Source of truth is the Quarto repo, not this page.
-  - [[Wiki/Methods/Reproducible-Pipelines]] [[Wiki/Tech/Quarto]]
+  - [[wiki/methods/reproducible-pipelines]] [[wiki/tech/Quarto]]
 ```
 
 ### Other people's web articles and blog posts
@@ -132,7 +132,7 @@ This step is optional. When no Semantic Scholar MCP is configured, ingest skips 
 You can feed `/wiki-ingest` an Elicit review output. This needs no new command. It is three sentences you say at ingest time:
 
 1. Feed the narrative report as markdown, not the raw CSV. Export the Elicit report to markdown into `raw/`, and keep the CSV alongside it as the data artifact. The synthesis workflow reads prose far better than a bare table.
-2. Tell ingest: "ingest this as a `knowledge` page; link to the existing `[[Wiki/...]]` paper pages it summarizes; do not create new paper pages." The synthesis then sits above its sources in the graph rather than duplicating them.
+2. Tell ingest: "ingest this as a `knowledge` page; link to the existing `[[wiki/...]]` paper pages it summarizes; do not create new paper pages." The synthesis then sits above its sources in the graph rather than duplicating them.
 3. Set reliability from the review's rigor, not per-source. A synthesis inherits reliability from its constituents. For a PRISMA-followed Elicit review, stamp it `high` and note the method on the page.
 
 Semantic Scholar (via Zotero) feeds per-paper ingests; Elicit feeds review-level synthesis pages that link down to them.
