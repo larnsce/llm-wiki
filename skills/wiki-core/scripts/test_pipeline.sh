@@ -4,8 +4,9 @@
 # Builds temporary wikis (clean fixtures are generated at runtime via
 # init_wiki.py to avoid fixture rot; only defect deltas are checked in under
 # tests/fixtures/), runs every validator (find_config, check_config, lint.py
-# including --strict and the grandfather floor, check_canon.py,
-# secret_scan.py), and asserts GREEN on clean fixtures and RED on each
+# including --strict and the grandfather floor, check_citations.py,
+# check_canon.py, secret_scan.py), and asserts GREEN on clean fixtures and
+# RED on each
 # planted defect (exit code AND, for lint, the expected REQ id in the --json
 # findings).
 #
@@ -243,6 +244,43 @@ for tool in logseq obsidian; do
 done
 
 # ---------------------------------------------------------------------------
+# check_citations: clean and cited fixtures green, planted citation defects
+# red with the expected REQ id (specs/citations.md), in BOTH tool modes.
+# The findings JSON shares the lint report shape, so assert_lint_finding
+# works unchanged.
+# ---------------------------------------------------------------------------
+for tool in logseq obsidian; do
+  wiki="$WORK/$tool-cite-scaffold"
+  make_wiki "$wiki" "$tool"
+  run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 0 "check_citations($tool): green on clean scaffold"
+
+  wiki="$WORK/$tool-cited-clean"
+  make_wiki "$wiki" "$tool"
+  cp -R "$FIXTURES/citations/$tool/cited-clean/." "$wiki/"
+  run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 0 "check_citations($tool): green on fully cited page"
+
+  wiki="$WORK/$tool-uncited-claim"
+  make_wiki "$wiki" "$tool"
+  cp -R "$FIXTURES/citations/$tool/uncited-claim/." "$wiki/"
+  run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 1 "check_citations($tool): warning (exit 1) on uncited claim"
+  assert_lint_finding \
+    "check_citations($tool): uncited claim reports REQ-902" \
+    REQ-902 warning
+
+  wiki="$WORK/$tool-cite-mismatch"
+  make_wiki "$wiki" "$tool"
+  cp -R "$FIXTURES/citations/$tool/cite-mismatch/." "$wiki/"
+  run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 2 "check_citations($tool): critical (exit 2) on source-file/cite mismatch"
+  assert_lint_finding \
+    "check_citations($tool): union mismatch reports REQ-904" \
+    REQ-904 critical
+done
+
+# ---------------------------------------------------------------------------
 # check_canon: green on the repo, red on a mutated copy
 # ---------------------------------------------------------------------------
 run py check_canon.py
@@ -253,7 +291,7 @@ mkdir -p "$CANON/openspec/specs" "$CANON/skills/wiki-core/references" \
   "$CANON/skills/wiki-core/scripts" "$CANON/templates/logseq" \
   "$CANON/templates/obsidian"
 cp "$REPO_ROOT/openspec/specs/lint.md" "$REPO_ROOT/openspec/specs/schema.md" \
-  "$CANON/openspec/specs/"
+  "$REPO_ROOT/openspec/specs/citations.md" "$CANON/openspec/specs/"
 cp "$REPO_ROOT/skills/wiki-core/references/trust.md" \
   "$CANON/skills/wiki-core/references/"
 cp "$REPO_ROOT/templates/logseq/Schema.md" "$CANON/templates/logseq/"

@@ -1,7 +1,8 @@
 # Trust layer: provenance, reliability, confidence, Pending Review
 
 Spec: openspec/specs/schema.md REQ-584..589 (provenance and trust);
-openspec/specs/ingest.md REQ-070..075 (source pipeline)
+openspec/specs/ingest.md REQ-070..075 (source pipeline);
+openspec/specs/citations.md REQ-900..905 (claim citations)
 
 The trust layer applies when the source pipeline is configured (`raw_dir` /
 `ingested_dir` in `llm-wiki.yml`, see [config.md](config.md)). It records where a
@@ -23,6 +24,20 @@ An ingested page carries `source-file::` with comma-separated relative path(s) i
 (REQ-585). Hand-written pages omit it. Distinct from `source::`, which records the
 METHOD (memory-migration | ingest | manual); `source-file::` records WHICH origin
 file.
+
+## cite:: (claim-level provenance)
+
+Every non-common-knowledge factual claim block on an ingested page carries a
+`cite::` reference attached to the claim block itself (specs/citations.md
+REQ-900..905): a Logseq block property, or an Obsidian indented child bullet.
+Refs are comma-separated `ingested/` paths with an optional `#locator`, or
+`url:<https://...>`; plain text, never a `[[link]]`. The page-level
+`source-file::` equals the union of the page's ingested/ cite targets (paths
+only, locators stripped, deduplicated); the invariant is mechanical and
+enforced by the ingest quality gate (`check_citations.py`). Refs on one claim
+count as independent for corroboration only when they originate from
+different sources. Common knowledge and clearly-marked synthesis are exempt;
+exemption is an audit-time judgment call, not a lint failure.
 
 ## reliability::
 

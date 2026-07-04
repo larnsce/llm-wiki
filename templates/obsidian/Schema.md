@@ -101,6 +101,22 @@ canonical-url: https://example.org/my-course # marks a deliberate stub whose sou
 
 NOTE: `source-file` is separate from the existing `source` property. `source` records the METHOD (memory-migration, ingest, or manual); `source-file` records WHICH origin file. Both may appear.
 
+### Claim Citations (cite::)
+
+Every non-common-knowledge factual claim block on an ingested page carries a `cite::` reference attached to the claim block itself, as an indented child bullet directly under the claim:
+
+```markdown
+- Solar capacity grew 24% in 2024.
+  - cite:: ingested/papers/iea-2024.md#p12
+```
+
+- Value: one or more comma-separated refs. Each ref is a relative path into `ingested/` with an optional `#locator` (free-text page/section/table pointer, e.g. `#p12` or `#sec-3.2`), or a live-web ref `url:<https://...>`.
+- Refs are plain text, NOT `[[links]]`: they point at source files, not wiki pages, and must not create graph nodes.
+- Union invariant: the page's `source-file` equals the union of the page's ingested/ cite targets (paths only, locators stripped, deduplicated). Mechanically enforced by the ingest quality gate (`check_citations.py`).
+- Exempt: common knowledge (field-standard definitions, widely-taught facts) and clearly-marked synthesis/opinion blocks. When unsure, cite; exemption is an audit-time judgment call, not a lint failure.
+- Corroboration: refs on the same claim count as independent only when they originate from different sources (different authors, publishers, or datasets); two exports of one work are ONE source.
+- Born cited: pages written by ingest carry `cite::` from creation (ingest REQ-033b, v2.1+). Pre-v2.1 pages without `cite::` are reported as coverage gaps, not blocking failures.
+
 ### Reliability Rubric (per source)
 
 - **high**: peer-reviewed primary source or official standard/spec.
