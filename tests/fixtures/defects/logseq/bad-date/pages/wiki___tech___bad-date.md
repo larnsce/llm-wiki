@@ -1,0 +1,9 @@
+- type:: knowledge
+- domain:: tech
+- created:: 2026-7-1
+- updated:: 2026-07-01
+- confidence:: medium
+- schema-spec-version:: 2.0.0
+- ## Bad Date
+	- Planted defect: created:: is not zero-padded ISO 8601 (REQ-560).
+	- [[wiki/tech]]

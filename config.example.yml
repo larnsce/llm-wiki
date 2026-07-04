@@ -10,14 +10,16 @@ pages_dir: pages      # relative to wiki_path; empty string for Obsidian
 # Optional (REQ-620): L1 memory directory; absent means L1 features are off
 memory_path: ~/.claude/projects/my-project/memory/
 
+# Structural namespace names are lowercase, hyphen-only
+# (specs/schema.md REQ-580/580a)
 namespaces:
-  - Business
-  - Tech
-  - Content
-  - Projects
-  - People
-  - Learning
-  - Reference
+  - business
+  - tech
+  - content
+  - projects
+  - people
+  - learning
+  - reference
 
 # Source pipeline (REQ-623): drop sources in raw/, ingest synthesises them
 # into pages, then the file moves to ingested/<type>/. The move is the

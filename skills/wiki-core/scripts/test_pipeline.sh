@@ -5,10 +5,16 @@
 # init_wiki.py to avoid fixture rot; only defect deltas are checked in under
 # tests/fixtures/), runs every validator (find_config, check_config, lint.py
 # including --strict and the grandfather floor, check_citations.py,
-# check_canon.py, secret_scan.py), and asserts GREEN on clean fixtures and
-# RED on each
+# check_canon.py, secret_scan.py, migrate_wiki.py --lowercase), and asserts
+# GREEN on clean fixtures and RED on each
 # planted defect (exit code AND, for lint, the expected REQ id in the --json
 # findings).
+#
+# Pre-migration fixtures (Title Case Wiki/ corpora: defects/*/grandfathered
+# and the migration/ vaults) run in BARE vaults (make_bare_vault), never
+# overlaid on a lowercase scaffold: on a case-insensitive filesystem
+# (macOS APFS) Wiki___Tech.md and wiki___tech.md are the SAME file and the
+# copy would silently merge the two casings.
 #
 # Usage: bash skills/wiki-core/scripts/test_pipeline.sh [--verbose]
 # Dependencies: bash, python3, git. Exit: 0 all assertions pass, 1 otherwise.
@@ -130,12 +136,56 @@ PY
   fi
 }
 
+# assert_report <name> <python-expr>: evaluate a python expression against
+# the JSON report captured in $OUT (bound to r).
+assert_report() {
+  local name="$1" expr="$2"
+  if python3 - "$OUT" "$expr" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+sys.exit(0 if eval(sys.argv[2]) else 1)
+PY
+  then
+    report PASS "$name"
+  else
+    report FAIL "$name" "report expression failed: $expr"
+  fi
+}
+
 py() { python3 "$SCRIPT_DIR/$1" "${@:2}"; }
 
 # make_wiki <dir> <tool>: scaffold a clean wiki at runtime.
 make_wiki() {
   python3 "$SCRIPT_DIR/init_wiki.py" \
     --wiki-path "$1" --tool "$2" --date 2026-07-01 >/dev/null
+}
+
+# make_bare_vault <dir> <tool>: config only, NO scaffolded pages. For the
+# deliberately pre-migration (Title Case) fixtures; see the header note.
+make_bare_vault() {
+  local dir="$1" tool="$2" pages_dir=""
+  [[ "$tool" == logseq ]] && pages_dir="pages"
+  mkdir -p "$dir"
+  cat > "$dir/llm-wiki.yml" <<EOF
+tool: $tool
+wiki_path: $dir
+pages_dir: $pages_dir
+
+namespaces:
+  - Tech
+
+raw_dir: raw
+ingested_dir: ingested
+source_types:
+  - papers
+default_source_type: papers
+EOF
+}
+
+git_commit_all() {
+  git -C "$1" add -A
+  git -C "$1" -c user.email=test@example.org -c user.name=test \
+    commit -qm "$2"
 }
 
 echo "test_pipeline: repo $REPO_ROOT"
@@ -225,9 +275,10 @@ for tool in logseq obsidian; do
 
   # Grandfather floor: same missing-property defect on a page WITHOUT
   # schema-spec-version:: is downgraded to info by default (green exit)
-  # and kept a warning by --strict.
+  # and kept a warning by --strict. The fixture is a deliberately
+  # PRE-migration (Title Case Wiki/) corpus, so it runs in a bare vault.
   wiki="$WORK/$tool-grandfathered"
-  make_wiki "$wiki" "$tool"
+  make_bare_vault "$wiki" "$tool"
   cp -R "$FIXTURES/defects/$tool/grandfathered/." "$wiki/"
 
   run py lint.py --config "$wiki/llm-wiki.yml" --json
@@ -242,6 +293,65 @@ for tool in logseq obsidian; do
     "lint($tool): --strict keeps the finding a warning" \
     REQ-132 warning false
 done
+
+# ---------------------------------------------------------------------------
+# migrate_wiki --lowercase (REQ-580c): dry-run reports every rename plus the
+# broken-link count WITHOUT writing; --apply converts (clean git tree
+# required) and is idempotent; Roam task markers are converted; the renamed
+# corpus lints clean under --strict (all [[wiki/...]] links resolve).
+# ---------------------------------------------------------------------------
+for tool in logseq obsidian; do
+  vault="$WORK/$tool-titlecase"
+  make_bare_vault "$vault" "$tool"
+  cp -R "$FIXTURES/migration/$tool/." "$vault/"
+  git -C "$vault" -c init.defaultBranch=main init -q
+  git_commit_all "$vault" "pre-migration baseline"
+  if [[ "$tool" == logseq ]]; then
+    pagedir="$vault/pages"
+    old_entry="Wiki___Tech.md"
+    new_entry="wiki___tech.md"
+  else
+    pagedir="$vault"
+    old_entry="Wiki"
+    new_entry="wiki"
+  fi
+
+  run py migrate_wiki.py --lowercase --config "$vault/llm-wiki.yml" --json
+  assert_exit 1 "migrate-lowercase($tool): dry-run reports pending changes"
+  assert_report "migrate-lowercase($tool): dry-run lists 3 renames, 2 Roam markers, 0 broken links" \
+    'len(r["renames"]) == 3 and r["roam_marker_conversions"] == 2 and r["broken_links_after_rename"] == 0'
+
+  run python3 -c 'import os, sys; sys.exit(0 if sys.argv[2] in os.listdir(sys.argv[1]) else 1)' \
+    "$pagedir" "$old_entry"
+  assert_exit 0 "migrate-lowercase($tool): dry-run wrote nothing (old casing still on disk)"
+
+  run py migrate_wiki.py --lowercase --apply \
+    --config "$vault/llm-wiki.yml" --json
+  assert_exit 1 "migrate-lowercase($tool): --apply converts (exit 1: changes applied)"
+
+  run python3 -c 'import os, sys; entries = os.listdir(sys.argv[1]); sys.exit(0 if sys.argv[2] in entries and sys.argv[3] not in entries else 1)' \
+    "$pagedir" "$new_entry" "$old_entry"
+  assert_exit 0 "migrate-lowercase($tool): files renamed to lowercase on disk"
+
+  run grep -r '{{\[\[' "$pagedir"
+  assert_exit 1 "migrate-lowercase($tool): no Roam {{[[...]]}} markers left"
+
+  git_commit_all "$vault" "lowercase migration"
+  run py migrate_wiki.py --lowercase --apply \
+    --config "$vault/llm-wiki.yml" --json
+  assert_report "migrate-lowercase($tool): second --apply is a no-op (0 changes)" \
+    'r["changes_total"] == 0 and r["renames"] == [] and r["files_rewritten"] == 0'
+
+  run py lint.py --config "$vault/llm-wiki.yml" --json --strict
+  assert_exit 0 "migrate-lowercase($tool): migrated corpus lints clean under --strict (links resolve)"
+done
+
+# --apply refuses a dirty working tree.
+vault="$WORK/logseq-titlecase"
+echo "dirty" >>"$vault/pages/wiki___tech.md"
+run py migrate_wiki.py --lowercase --apply --config "$vault/llm-wiki.yml"
+assert_exit 2 "migrate-lowercase: --apply refuses a dirty git tree"
+git -C "$vault" checkout -q -- .
 
 # ---------------------------------------------------------------------------
 # check_citations: clean and cited fixtures green, planted citation defects

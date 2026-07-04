@@ -12,9 +12,9 @@ type: schema
 
 - Top-Level: {{NAMESPACES}}
 - Page Naming: lowercase structural segments, hyphen (U+002D) for multi-word (`wiki/projects/my-project`); no spaces, underscores, or en/em dashes in structural segments. Proper-noun leaves keep natural casing (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`). Pre-migration `Wiki/` corpora are grandfathered until the lowercase migration runs.
-- Max Depth: 3 levels (e.g., `Wiki/Business/Clients/ClientName`)
+- Max Depth: 3 levels (e.g., `wiki/business/clients/ClientName`)
 - Hub Pages: Every namespace level has a hub page listing its children
-- Folder Hierarchy: Namespaces map to folders (e.g., `Wiki/Tech/Docker.md`)
+- Folder Hierarchy: Namespaces map to folders (e.g., `wiki/tech/Docker.md`)
 
 ## Page Types and Required Properties
 
@@ -80,7 +80,7 @@ applies-to: []  # page references to affected systems
 
 ```yaml
 type: hub
-namespace: Wiki/NamespaceName
+namespace: wiki/namespace-name
 ```
 
 ## Provenance Properties (ingested pages)
@@ -148,9 +148,9 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 
 ## Cross-Reference Rules
 
-- Every wiki page MUST have at least one `[[Wiki/...]]` link to another wiki page
+- Every wiki page MUST have at least one `[[wiki/...]]` link to another wiki page
 - Hub pages MUST list ALL child pages in their namespace
-- When a page mentions an entity that has its own page, use `[[Wiki/Entity/Name]]` link syntax
+- When a page mentions an entity that has its own page, use `[[wiki/tools/Claude Code]]`-style link syntax
 - Tags: use `#tag` for lightweight categorization (e.g., `#docker`, `#deploy`, `#critical`)
 - External links: `[Text](URL)` for URLs outside the wiki
 

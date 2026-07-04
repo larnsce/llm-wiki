@@ -6,7 +6,7 @@ Checks:
 - tool value strictly logseq or obsidian (REQ-630)
 - wiki_path exists on disk after tilde expansion (REQ-631)
 - pages_dir resolves; missing directory is a warning (REQ-632)
-- namespaces non-empty (REQ-633), Title Case advisory (REQ-634)
+- namespaces non-empty (REQ-633), lowercase-structural advisory (REQ-634)
 - v2 source-pipeline keys (REQ-623): raw_dir, ingested_dir, source_types,
   default_source_type; missing keys are WARNINGS with a copy-paste snippet
 - sensitive_source_types subset of source_types (REQ-624)
@@ -84,10 +84,15 @@ def check(config, config_path, skip_path_checks=False):
             criticals.append("No namespaces configured in llm-wiki.yml.")
         else:
             for namespace in namespaces:
-                if not namespace[:1].isupper():
+                if (namespace != namespace.lower() or "_" in namespace
+                        or " " in namespace):
+                    suggested = namespace.lower().replace("_", "-")
+                    suggested = suggested.replace(" ", "-")
                     warnings.append(
-                        "Namespace '%s' is not Title Case (REQ-634). "
-                        "Consider '%s'." % (namespace, namespace.title())
+                        "Namespace '%s' is not lowercase-structural "
+                        "(REQ-634; specs/schema.md REQ-580/580a: lowercase, "
+                        "hyphen-only). Consider '%s'."
+                        % (namespace, suggested)
                     )
 
     missing_pipeline = [key for key in PIPELINE_KEYS if key not in config]

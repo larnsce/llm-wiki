@@ -52,7 +52,7 @@ access log that makes retrieval auditable.
 
 - For each page ACTUALLY read in full (not the Phase 0 hub-index reads), append
   one line with the verb `query` to the Access-Log page
-  (Wiki/Reference/Access-Log), in the Access-Log line format from
+  (wiki/reference/access-log), in the Access-Log line format from
   [formats](../wiki-core/references/formats.md)
 - The `matched:` reason = the "and why" of the routing (loading transparency): on
   index routing (Phase 0) the hub `### Index` routing description / #tag that
@@ -89,8 +89,8 @@ access log that makes retrieval auditable.
 
 ## Phase 4 - Output
 
-- Answer with source pages: "Sources: [[Wiki/Tech/Deployment]],
-  [[Wiki/Reference/Gotchas]]"
+- Answer with source pages: "Sources: [[wiki/tech/deployment]],
+  [[wiki/reference/gotchas]]"
 - Flag stale sources (updated:: more than 90 days ago) and low-confidence sources
   with an explicit warning
 - Suggest related pages

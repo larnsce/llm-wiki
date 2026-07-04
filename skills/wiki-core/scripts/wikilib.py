@@ -30,7 +30,7 @@ EXIT_CRITICAL = 2
 VALID_TOOLS = ("logseq", "obsidian")
 
 DEFAULT_NAMESPACES = [
-    "Business", "Tech", "Content", "Projects", "People", "Learning", "Reference",
+    "business", "tech", "content", "projects", "people", "learning", "reference",
 ]
 
 DEFAULT_SOURCE_TYPES = [
@@ -215,7 +215,7 @@ def enumerate_pages(config):
     """List wiki pages as dicts: {"name": page name, "path": file path}.
 
     Logseq: flat *.md files directly in pages_dir; "___" in the filename
-    is the namespace separator (Wiki___Tech___Docker.md -> Wiki/Tech/Docker).
+    is the namespace separator (wiki___tech___Docker.md -> wiki/tech/Docker).
 
     Obsidian: recursive walk of the vault; the relative path without .md is
     the page name; _index.md maps to its parent directory's namespace path.

@@ -241,7 +241,7 @@ if [ "$DO_INIT" = 1 ]; then
     fi
 
     if [ -z "$NAMESPACES" ] && is_interactive; then
-        echo "Namespaces (default: Business Tech Content Projects People Learning Reference)"
+        echo "Namespaces (default: business tech content projects people learning reference)"
         read -r -p "Space-separated list (Enter for default): " NAMESPACES
     fi
 

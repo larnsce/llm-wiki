@@ -11,9 +11,9 @@ Always use the correct format for the configured tool.
 - Every line of wiki content starts with `- ` (outliner format; REQ-590).
 - Properties: inline `property:: value` syntax on the first lines; NO YAML
   frontmatter (REQ-591).
-- File naming: triple-underscore for namespaces (`Wiki___Tech___Strapi.md`), all
+- File naming: triple-underscore for namespaces (`wiki___tech___Strapi.md`), all
   files flat in the `pages/` directory (REQ-583).
-- Hub file naming: `Wiki___Namespace.md`.
+- Hub file naming: `wiki___<namespace>.md`.
 - Sub-items indented with tab + `- `.
 - Headings go inside blocks: `- ## Heading` (REQ-594).
 
@@ -21,23 +21,23 @@ Always use the correct format for the configured tool.
 
 - Standard flat markdown; no `- ` prefix required (REQ-593).
 - Properties: YAML frontmatter between `---` fences (REQ-592).
-- File naming: folder hierarchy (`Wiki/Tech/Strapi.md`); namespaces map to
+- File naming: folder hierarchy (`wiki/tech/Strapi.md`); namespaces map to
   directories on disk (REQ-583).
-- Hub file naming: `Wiki/Namespace/_index.md`.
+- Hub file naming: `wiki/<namespace>/_index.md`.
 - Headings: standard `## Heading` syntax (REQ-594).
 
 ## Both tools
 
-- Cross-references: `[[Wiki/Namespace/Page]]` syntax (REQ-574); links are
+- Cross-references: `[[wiki/<namespace>/Page]]` syntax (REQ-574); links are
   bidirectional (backlinks panel in both tools).
-- Schema page: read `Wiki/Schema` (`Wiki___Schema.md` / `Wiki/Schema.md`) for the
+- Schema page: read `wiki/schema` (`wiki___schema.md` / `wiki/schema.md`) for the
   current conventions.
 - Dates: ISO 8601 (`YYYY-MM-DD`), zero-padded (REQ-560..561).
 - Page and namespace naming: lowercase structural segments, hyphen (U+002D) for
   multi-word names (no spaces, underscores, or en/em dashes), maximum namespace
   depth 3; proper-noun leaf segments (people, tools, papers, `@citekey`s) keep
   natural casing (REQ-580..582). Pre-migration `Wiki/` corpora are grandfathered
-  until the lowercase migration (issue #25) runs.
+  until the lowercase migration runs (`migrate_wiki.py --lowercase`, REQ-580c).
 - Write discipline: NEVER overwrite existing content blocks; only append new blocks
   (openspec/specs/ingest.md REQ-032). Set the `updated::` property (or YAML
   `updated` field) on every modified page.
@@ -62,10 +62,10 @@ Logseq (outliner):
 ```
 - ## Tech
   - ### Index
-    - [[Wiki/Tech/Strapi]] -- Strapi 5 CMS, ports, deploy + migration gotchas #strapi #deploy
-    - [[Wiki/Tech/PM2]] -- PM2 process management on the VPS, cwd/reload bug #pm2 #deploy
+    - [[wiki/tech/Strapi]] -- Strapi 5 CMS, ports, deploy + migration gotchas #strapi #deploy
+    - [[wiki/tech/PM2]] -- PM2 process management on the VPS, cwd/reload bug #pm2 #deploy
   - ### Archive
-    - [[Wiki/Tech/Legacy-Foo]] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived
+    - [[wiki/tech/legacy-foo]] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived
 ```
 
 Obsidian (flat markdown):
@@ -74,11 +74,11 @@ Obsidian (flat markdown):
 ## Tech
 
 ### Index
-- [[Wiki/Tech/Strapi]] -- Strapi 5 CMS, ports, deploy + migration gotchas #strapi #deploy
-- [[Wiki/Tech/PM2]] -- PM2 process management on the VPS, cwd/reload bug #pm2 #deploy
+- [[wiki/tech/Strapi]] -- Strapi 5 CMS, ports, deploy + migration gotchas #strapi #deploy
+- [[wiki/tech/PM2]] -- PM2 process management on the VPS, cwd/reload bug #pm2 #deploy
 
 ### Archive
-- [[Wiki/Tech/Legacy-Foo]] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived
+- [[wiki/tech/legacy-foo]] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived
 ```
 
 Rules:
@@ -96,8 +96,8 @@ Rules:
 
 ## Access-Log (format)
 
-Page: `Wiki/Reference/Access-Log` (`Wiki___Reference___Access-Log.md` /
-`Wiki/Reference/Access-Log.md`); an append-only LRU signal plus routing
+Page: `wiki/reference/access-log` (`wiki___reference___access-log.md` /
+`wiki/reference/access-log.md`); an append-only LRU signal plus routing
 transparency, one line per page read (REQ-569).
 
 Logseq:
@@ -106,8 +106,8 @@ Logseq:
 - access-log:: true
 - type:: reference
 - ## Log (append-only, newest at bottom)
-  - 2026-06-07 -- [[Wiki/Tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
-  - 2026-06-07 -- [[Wiki/Projects/GEO]] -- query -- matched: "L3-grep: geo strategy"
+  - 2026-06-07 -- [[wiki/tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
+  - 2026-06-07 -- [[wiki/projects/GEO]] -- query -- matched: "L3-grep: geo strategy"
 ```
 
 Obsidian:
@@ -118,8 +118,8 @@ access-log: true
 type: reference
 ---
 ## Log (append-only, newest at bottom)
-- 2026-06-07 -- [[Wiki/Tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
-- 2026-06-07 -- [[Wiki/Projects/GEO]] -- query -- matched: "L3-grep: geo strategy"
+- 2026-06-07 -- [[wiki/tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
+- 2026-06-07 -- [[wiki/projects/GEO]] -- query -- matched: "L3-grep: geo strategy"
 ```
 
 Rules:

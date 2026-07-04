@@ -48,10 +48,18 @@ Fixture layout:
 ```
 tests/fixtures/
   defects/logseq/<defect>/pages/...   overlay files, copied onto a fresh wiki
-  defects/obsidian/<defect>/Wiki/...  same defects in obsidian layout
+  defects/obsidian/<defect>/wiki/...  same defects in obsidian layout
+  migration/<tool>/...                Title Case pre-migration vaults for the
+                                      lowercase rename pass (deliberately old
+                                      Wiki/ casing, plus Roam task markers)
   sources/                            raw-source secret-gate cases
   configs/                            invalid llm-wiki.yml cases
 ```
+
+The `grandfathered` defect and the `migration/` vaults keep the pre-migration
+`Wiki/` casing on purpose (that is what they test) and run in bare vaults,
+never overlaid on a lowercase scaffold: on a case-insensitive filesystem
+`Wiki___Tech.md` and `wiki___tech.md` are the same file.
 
 Adding a defect: create the overlay directory for both tools, then add a
 `name:REQ-id` entry to the `LINT_DEFECTS` table in `test_pipeline.sh`.

@@ -5,7 +5,7 @@ wiki_path: /tmp
 pages_dir: pages
 
 namespaces:
-  - Tech
+  - tech
 
 raw_dir: raw
 ingested_dir: ingested

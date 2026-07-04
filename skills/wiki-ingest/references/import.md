@@ -39,7 +39,7 @@ Phase 2 - Conversion planning:
   markdown: [formats](../../wiki-core/references/formats.md))
 - Plan the required properties per page type (schema REQ-510..530), including
   `type`, `created`, `updated`, and `source:: manual`
-- Plan the conversion of internal links to `[[Wiki/...]]` cross-references
+- Plan the conversion of internal links to `[[wiki/...]]` cross-references
 - Then the batch checkpoint from SKILL.md applies: one consolidated table, no
   write before the user responds (REQ-025); `--auto` skips it (REQ-026)
 

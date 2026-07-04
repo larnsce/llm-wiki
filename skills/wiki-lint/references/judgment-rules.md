@@ -33,7 +33,7 @@ Judgment (agent, this layer):
   about ..." (REQ-555, REQ-557). lint.py only catches EMPTY descriptions
   (REQ-195); weak ones are a judgment call.
 - Misfiled namespace: a page whose content belongs in a different
-  namespace (e.g. a client profile under Wiki/Tech). Propose a NEW page in
+  namespace (e.g. a client profile under wiki/tech). Propose a NEW page in
   the right namespace and demote or merge the old one; never move or
   rename the file itself (links are by page name, see the architecture
   reference).

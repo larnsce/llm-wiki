@@ -48,21 +48,21 @@ We send a newsletter.
 - ## Newsletter
 	- Monthly email newsletter sent to subscribers with project updates, technical insights, and community highlights.
 - ## Workflow
-	- Draft content in [[Wiki/Content/Writing-Process]] using the standard template
+	- Draft content in [[wiki/content/writing-process]] using the standard template
 	- Review with at least one team member before sending
 	- Send via the newsletter platform on the first Monday of each month
-	- Archive the issue in [[Wiki/Content/Newsletter-Archive]]
+	- Archive the issue in [[wiki/content/newsletter-archive]]
 - ## Audience
 	- Primary: existing clients and partners
 	- Secondary: developer community and tech leads
-	- Current subscriber count tracked in [[Wiki/Business/Metrics]]
+	- Current subscriber count tracked in [[wiki/business/metrics]]
 - ## Tools
-	- [[Wiki/Tech/Email-Platform]] -- delivery and analytics
-	- [[Wiki/Tech/Markdown-Editor]] -- drafting and formatting
+	- [[wiki/tech/email-platform]] -- delivery and analytics
+	- [[wiki/tech/markdown-editor]] -- drafting and formatting
 - ## Lessons Learned
 	- Plain-text subject lines outperform emoji-heavy ones (tested Q1 2025)
 	- Sending on Monday mornings yields ~20% higher open rates than Fridays
-	- See [[Wiki/Reference/Newsletter-Gotchas]] for common pitfalls
+	- See [[wiki/reference/newsletter-gotchas]] for common pitfalls
 ```
 
 #### Obsidian format
@@ -83,27 +83,27 @@ insights, and community highlights.
 
 ## Workflow
 
-- Draft content in [[Wiki/Content/Writing-Process]] using the standard template
+- Draft content in [[wiki/content/writing-process]] using the standard template
 - Review with at least one team member before sending
 - Send via the newsletter platform on the first Monday of each month
-- Archive the issue in [[Wiki/Content/Newsletter-Archive]]
+- Archive the issue in [[wiki/content/newsletter-archive]]
 
 ## Audience
 
 - Primary: existing clients and partners
 - Secondary: developer community and tech leads
-- Current subscriber count tracked in [[Wiki/Business/Metrics]]
+- Current subscriber count tracked in [[wiki/business/metrics]]
 
 ## Tools
 
-- [[Wiki/Tech/Email-Platform]] -- delivery and analytics
-- [[Wiki/Tech/Markdown-Editor]] -- drafting and formatting
+- [[wiki/tech/email-platform]] -- delivery and analytics
+- [[wiki/tech/markdown-editor]] -- drafting and formatting
 
 ## Lessons Learned
 
 - Plain-text subject lines outperform emoji-heavy ones (tested Q1 2025)
 - Sending on Monday mornings yields ~20% higher open rates than Fridays
-- See [[Wiki/Reference/Newsletter-Gotchas]] for common pitfalls
+- See [[wiki/reference/newsletter-gotchas]] for common pitfalls
 ```
 
 ---
@@ -114,6 +114,6 @@ insights, and community highlights.
 |---------------------|-----------------------|------------------------------------------|
 | Properties          | Missing `domain`, `confidence` | All required properties present  |
 | Content depth       | 1 vague sentence      | Workflow, audience, tools, lessons        |
-| Cross-references    | 0 links               | 6 `[[Wiki/...]]` links                   |
+| Cross-references    | 0 links               | 6 `[[wiki/...]]` links                   |
 | Actionable insight  | None                  | Timing tips, testing results              |
-| Hub page updated    | No                    | Yes (`[[Wiki/Content]]` now lists this page) |
+| Hub page updated    | No                    | Yes (`[[wiki/content]]` now lists this page) |
