@@ -28,7 +28,9 @@ What it does:
   date format, archived-in-live-index, empty page, credential leak,
   grandfathered page),
 - runs every validator: `find_config.py`, `check_config.py`, `lint.py`
-  (default, `--strict`, and the grandfather floor), `check_canon.py`
+  (default, `--strict`, and the grandfather floor), `check_citations.py`
+  (cited-clean green; uncited-claim and source-file/cite-mismatch red, from
+  `tests/fixtures/citations/<tool>/`), `check_canon.py`
   (including a red case against a mutated temp copy of the canon surfaces),
   and `secret_scan.py`,
 - asserts GREEN on the clean fixtures and RED on every planted defect:

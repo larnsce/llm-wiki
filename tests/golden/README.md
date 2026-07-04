@@ -14,7 +14,9 @@ behaviors.
 - `ingest-checkpoint.golden.md`: the expected structured checkpoint output
   for that source: the plan-table row (page touches, reliability rating
   with one-line rationale, contradictions) in the format from
-  `skills/wiki-ingest/SKILL.md`, plus the expanded page-operation plan.
+  `skills/wiki-ingest/SKILL.md`, plus the expanded page-operation plan
+  including the planned per-claim `cite::` targets (v2.1, ingest
+  REQ-033b).
 
 ## When to re-run
 
