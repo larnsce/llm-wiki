@@ -49,7 +49,7 @@ critical findings silently. Fix recipes per rule:
   never touch `updated::`.
 - Rule 4 broken ref (REQ-142/143): create a stub page (type:: knowledge,
   domain:: tech, confidence:: low, created/updated today, "To be filled
-  via /wiki ingest") with a cross-reference back to the linking page.
+  via /wiki-ingest") with a cross-reference back to the linking page.
 - Rule 5 hub completeness (REQ-152): append the missing child link to the
   hub.
 - Rule 8 cross-ref minimum (REQ-181): add a link to the page's namespace

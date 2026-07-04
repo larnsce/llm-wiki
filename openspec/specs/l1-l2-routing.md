@@ -71,14 +71,14 @@ session starts and context bloat; too little in L1 = repeated mistakes.
   credentials rotated).
 - REQ-352: Multiple related L1 files SHOULD be merged when they cover the same
   system or topic, to keep L1 lean.
-- REQ-353: The `/wiki lint` command SHOULD flag L1 files not referenced in 90+
+- REQ-353: The `/wiki-lint` command SHOULD flag L1 files not referenced in 90+
   days as candidates for L2 demotion or deletion.
-- REQ-354: The `/wiki lint` command SHOULD flag L2 pages queried in every session
+- REQ-354: The `/wiki-lint` command SHOULD flag L2 pages queried in every session
   as candidates for L1 promotion.
 
 ### Routing During Ingest
 
-- REQ-360: During /wiki ingest Phase 1, the system SHALL apply the routing rule
+- REQ-360: During /wiki-ingest Phase 1, the system SHALL apply the routing rule
   (REQ-300-304) to each extracted fact.
 - REQ-361: Facts routed to L1 SHALL NOT be written to wiki pages. The system SHALL
   instead recommend saving them to the memory directory.
@@ -159,7 +159,7 @@ AND the system SHALL NOT create a wiki page for name spelling
 
 ```
 GIVEN the L1 memory directory contains 35 files
-WHEN the user runs /wiki lint or /wiki status
+WHEN the user runs /wiki-lint or /wiki-maintain
 THEN the system SHALL warn: "L1 has 35 files (recommended: 10-20, audit at 30+).
     Review for candidates to demote to L2."
 AND the system SHOULD list the oldest/least-referenced L1 files as demotion candidates
@@ -169,7 +169,7 @@ AND the system SHOULD list the oldest/least-referenced L1 files as demotion cand
 
 ```
 GIVEN the wiki page Wiki/Tech/Deployment is queried in 8 of the last 10 sessions
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag the page as an L1 promotion candidate (info)
 AND suggest: "Wiki/Tech/Deployment is queried almost every session.
     Consider promoting key rules to L1 memory."

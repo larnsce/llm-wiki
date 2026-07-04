@@ -9,12 +9,12 @@ Patch 3 was drafted as copy-paste blocks in the **pre-v2 idiom**: sentinel-wrapp
 `wiki.md`, additions to `pages/wiki___schema.md`, a `sed` rename, and Logseq plugin/query-page
 setup. Three facts reshape it from a patch-to-apply into a roadmap item:
 
-1. **This is the tooling repo, not a graph.** It ships the `/wiki` skill, `openspec/specs/`,
+1. **This is the tooling repo, not a graph.** It ships the wiki skill suite, `openspec/specs/`,
    `templates/`, `setup.sh`, `docs/`. It has no `pages/`, `raw/`, `ingested/`, `journals/` — those
    are scaffolded into your vault by `setup.sh`. So Patch 3 splits into **tool changes** (specs,
    lint, seams, templates, docs — here) and **your-graph operations** (the rename, task conversion,
    the Zotero plugin, the query pages — documented here, run in your vault).
-2. **The v2 pivot deletes Patch 3's idiom.** #9 removes the `larnsce:provenance` sentinels; #20
+2. **The v2 pivot deletes Patch 3's idiom.** #9 removes the provenance regions (sentinel comments, removed in 2.0.0); #20
    deletes `wiki.md`; #11 splits it into a `skills/` suite, canon-first. #13 bans `sed`/heredoc
    python. Patch 3's "paste this sentinel block" and its `sed` one-liners target things being
    removed or forbidden.

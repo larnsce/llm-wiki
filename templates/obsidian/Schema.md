@@ -83,7 +83,6 @@ type: hub
 namespace: Wiki/NamespaceName
 ```
 
-<!-- larnsce:provenance start -->
 ## Provenance Properties (ingested pages)
 
 Added by the source pipeline. YAML frontmatter on ingested pages (`source-file` and `reliability` are required on ingested pages; hand-written pages omit all of these):
@@ -129,7 +128,6 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 - A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
 - Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
 - `raw/` and `ingested/` live BESIDE the vault pages, so Obsidian does not render sources as wiki pages.
-<!-- larnsce:provenance end -->
 
 ## Cross-Reference Rules
 
@@ -156,7 +154,7 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 - Credentials (MUST NEVER go into the wiki)
 - Everything Claude needs to know at the START of every session
 
-### L2 = Wiki (on-demand via `/wiki query`)
+### L2 = Wiki (on-demand via `/wiki-query`)
 
 - Projects and their details
 - Workflows and processes
@@ -168,7 +166,7 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 
 - New quick rule or gotcha discovered? --> Save to Claude Memory (L1)
 - New project, workflow, or research? --> Save to Wiki (L2)
-- Same info in L1 AND L2? --> Warning on `/wiki lint`
+- Same info in L1 AND L2? --> Warning on `/wiki-lint`
 
 ## Ingest Workflow
 

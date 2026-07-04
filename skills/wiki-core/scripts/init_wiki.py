@@ -37,27 +37,23 @@ GITIGNORE = {
 logseq/.recycle/
 .DS_Store
 .logseq/
-# --- larnsce:provenance ---
 # Source-pipeline binaries. Provenance is the .md notes in ingested/, not the
 # PDFs themselves. Uncomment the next two lines to keep heavy binaries out of git
 # history. For a reproducibility setup where the PDFs MUST be versioned, leave
 # them commented and instead run: git lfs track "*.pdf"
 # raw/**/*.pdf
 # ingested/**/*.pdf
-# --- larnsce:provenance ---
 """,
     "obsidian": """.obsidian/workspace.json
 .obsidian/workspace-mobile.json
 .DS_Store
 .trash/
-# --- larnsce:provenance ---
 # Source-pipeline binaries. Provenance is the .md notes in ingested/, not the
 # PDFs themselves. Uncomment the next two lines to keep heavy binaries out of git
 # history. For a reproducibility setup where the PDFs MUST be versioned, leave
 # them commented and instead run: git lfs track "*.pdf"
 # raw/**/*.pdf
 # ingested/**/*.pdf
-# --- larnsce:provenance ---
 """,
 }
 
@@ -71,7 +67,6 @@ memory_path: {memory_path}
 
 namespaces:
 {namespace_lines}
-# --- larnsce:provenance ---
 # Source pipeline: drop sources in raw/, ingest synthesises them into pages,
 # then the source file is moved into ingested/<type>/. The move is the
 # provenance record (in raw/ = pending, in ingested/ = processed).
@@ -80,7 +75,6 @@ ingested_dir: ingested
 source_types:
 {source_type_lines}
 default_source_type: papers
-# --- larnsce:provenance ---
 """
 
 

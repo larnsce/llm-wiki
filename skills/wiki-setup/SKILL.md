@@ -95,15 +95,18 @@ For an existing vault whose Schema page predates v2:
 - Read the vault's Schema page (`Wiki/Schema`; file naming per
   [formats](../wiki-core/references/formats.md)) and the current template
   `templates/<tool>/Schema.md` in the repo.
-- Identify template sections missing from the vault's page. New in v2: the
-  provenance block between the `<!-- larnsce:provenance start -->` and
-  `<!-- larnsce:provenance end -->` sentinels (Provenance Properties,
-  Reliability Rubric, Trust Axes, Pending Review Convention, Source
-  Lifecycle).
+- Determine the vault's schema generation from the page's
+  `schema-spec-version::` property (`schema-spec-version:` in Obsidian YAML).
+  A missing property, or a value below the template's, means the page
+  predates v2 and needs the upgrade.
+- Identify template sections missing from the vault's page by comparing the
+  section headings against the template. New in v2 (the provenance block):
+  Provenance Properties, Reliability Rubric, Trust Axes, Pending Review
+  Convention, Source Lifecycle.
 - APPEND the missing sections in template order. Never rewrite, reorder, or
   delete existing sections; user customizations to the Schema page stay
-  untouched. Update the `last-updated` property; touch nothing else in the
-  property block.
+  untouched. Set `schema-spec-version::` to the template's value and update
+  the `last-updated` property; touch nothing else in the property block.
 - Show the additions before writing and get confirmation.
 - If the vault also lacks the source-pipeline scaffold (`raw/`,
   `ingested/<type>/`), offer to re-run init_wiki.py at the same path: it is

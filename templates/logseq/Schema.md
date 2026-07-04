@@ -44,7 +44,6 @@
 	- ### Hub (Namespace Index)
 		- type:: hub
 		- namespace:: (the namespace this hub page indexes)
-- <!-- larnsce:provenance start -->
 - ## Provenance Properties (ingested pages)
 	- source-file:: comma-separated relative path(s) into `ingested/` (e.g. `ingested/papers/smith-2024.md`). Plain text, NOT a `[[link]]` - it points at a source file, not a wiki page. Present on ingested pages; omit on hand-written pages.
 	- reliability:: high | medium | low
@@ -71,7 +70,6 @@
 	- A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
 	- Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
 	- `raw/` and `ingested/` live BESIDE `pages/`, so Logseq does not render sources as wiki pages.
-- <!-- larnsce:provenance end -->
 - ## Cross-Reference Rules
 	- Every wiki page MUST have at least one `[[Wiki/...]]` link to another wiki page
 	- Hub pages MUST list ALL child pages in their namespace
@@ -92,7 +90,7 @@
 		- User identity (name, preferences)
 		- Credentials (MUST NEVER go into the wiki)
 		- Everything Claude needs to know at the START of every session
-	- ### L2 = Wiki (on-demand via `/wiki query`)
+	- ### L2 = Wiki (on-demand via `/wiki-query`)
 		- Projects and their details
 		- Workflows and processes
 		- Research and learning notes
@@ -101,7 +99,7 @@
 	- ### Boundary Rules
 		- New quick rule or gotcha discovered? --> Save to Claude Memory (L1)
 		- New project, workflow, or research? --> Save to Wiki (L2)
-		- Same info in L1 AND L2? --> Warning on `/wiki lint`
+		- Same info in L1 AND L2? --> Warning on `/wiki-lint`
 - ## Ingest Workflow
 	- Analyze new source --> extract entities, facts, relationships
 	- Identify affected wiki pages (existing + new)

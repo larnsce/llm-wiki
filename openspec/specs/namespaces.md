@@ -5,12 +5,12 @@
 The graph holds three top-level namespaces with different ownership and different obligations.
 `wiki/` is machine-written and source-backed: the full schema, provenance, citation, reliability,
 lint, and audit conventions apply to it. `para/` (PARA task/project layer) and `notes/`
-(Zettelkasten layer) are human-authored and EXEMPT from the wiki conventions — the `/wiki`
+(Zettelkasten layer) are human-authored and EXEMPT from the wiki conventions - the wiki
 toolchain never creates, edits, lints, or audits them. The only path from `para/` or `notes/` into
 `wiki/` is the explicit promotion seam: content is copied into `raw/` and enters through the normal
 ingest pipeline, receiving provenance like any other source.
 
-This spec defines the namespace contract, the scope rule that binds every `/wiki` workflow, the
+This spec defines the namespace contract, the scope rule that binds every wiki workflow, the
 promotion seam, and the note-type vocabulary the tool recognizes but does not author.
 
 > Spec version: introduced for v2.2. Naming rules live in `specs/schema.md` (Namespace
@@ -35,13 +35,13 @@ promotion seam, and the note-type vocabulary the tool recognizes but does not au
   Dashboard, Access-Log) are recognized structural pages outside the three content namespaces and
   SHALL NOT be treated as stray by namespace-hygiene checks.
 
-### Scope Rule (binds every /wiki workflow)
+### Scope Rule (binds every wiki workflow)
 
-- REQ-610: Every `/wiki` workflow (ingest, query, prune, lint, status, audit, update, and any
+- REQ-610: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
   future verb) SHALL operate ONLY on pages whose name starts with `wiki/`.
-- REQ-611: A `/wiki` workflow SHALL NOT create, modify, lint, or audit any page under `para/` or
+- REQ-611: A wiki workflow SHALL NOT create, modify, lint, or audit any page under `para/` or
   `notes/`. These namespaces are human-authored.
-- REQ-612: A `/wiki` workflow MAY READ `para/` and `notes/` pages when the user asks for context
+- REQ-612: A wiki workflow MAY READ `para/` and `notes/` pages when the user asks for context
   (e.g. a query that references a linked note), but SHALL NOT write to them as a side effect.
 - REQ-613: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by
   every skill; it SHALL NOT be restated divergently per skill (enforced by `check_canon.py`).
@@ -90,7 +90,7 @@ promotion seam, and the note-type vocabulary the tool recognizes but does not au
 
 ```
 GIVEN a vault with pages under wiki/, para/, and notes/
-WHEN /wiki ingest drains the raw/ queue
+WHEN /wiki-ingest drains the raw/ queue
 THEN it SHALL create/update pages only under wiki/
 AND it SHALL NOT create, edit, or move any page under para/ or notes/
 ```
@@ -99,7 +99,7 @@ AND it SHALL NOT create, edit, or move any page under para/ or notes/
 
 ```
 GIVEN a para/projects/blog-relaunch page with no source-file::, no reliability::, and no routing line
-WHEN /wiki lint runs
+WHEN /wiki-lint runs
 THEN it SHALL NOT flag any of those as missing
 AND it SHALL NOT report the page as an orphan or unroutable
 ```
@@ -108,7 +108,7 @@ AND it SHALL NOT report the page as an orphan or unroutable
 
 ```
 GIVEN the human copies a permanent note into raw/note-tidy-data-principle.md
-WHEN /wiki ingest processes it
+WHEN /wiki-ingest processes it
 THEN a wiki/ page is created carrying source-file:: ingested/notes/note-tidy-data-principle.md
 AND reliability:: medium (personal synthesis)
 AND the source file is moved to ingested/ in the same atomic commit
@@ -118,7 +118,7 @@ AND the source file is moved to ingested/ in the same atomic commit
 
 ```
 GIVEN a promoted note whose claims cite two independent peer-reviewed sources also in ingested/
-WHEN /wiki ingest processes it
+WHEN /wiki-ingest processes it
 THEN reliability:: MAY be raised above medium per the rubric (not fixed at medium)
 ```
 
@@ -126,7 +126,7 @@ THEN reliability:: MAY be raised above medium per the rubric (not fixed at mediu
 
 ```
 GIVEN a query that references [[notes/permanent/regression-to-the-mean]]
-WHEN /wiki query answers it
+WHEN /wiki-query answers it
 THEN it MAY read the note for context
 AND it SHALL NOT modify the note or add a routing line for it
 ```
@@ -135,7 +135,7 @@ AND it SHALL NOT modify the note or add a routing line for it
 
 ```
 GIVEN a page named notes/literature/@Forte2022
-WHEN /wiki lint runs the naming-hygiene check
+WHEN /wiki-lint runs the naming-hygiene check
 THEN the @Forte2022 leaf SHALL be accepted (proper-noun exemption)
 AND SHALL NOT be flagged for the capital letter or the @ character
 ```
@@ -144,7 +144,7 @@ AND SHALL NOT be flagged for the capital letter or the @ character
 
 ```
 GIVEN a page "Scratchpad" that is not under wiki/, para/, notes/, journals, or a deliberate root page
-WHEN /wiki lint runs the namespace-hygiene check
+WHEN /wiki-lint runs the namespace-hygiene check
 THEN it SHALL flag the page as outside the namespace contract (info/warning)
 ```
 
@@ -153,7 +153,7 @@ THEN it SHALL flag the page as outside the namespace contract (info/warning)
 ## Acceptance Criteria
 
 - [ ] The three namespaces and their obligations are defined with no overlap
-- [ ] The scope rule binds every /wiki workflow and is stated once (check_canon-enforceable)
+- [ ] The scope rule binds every wiki workflow and is stated once (check_canon-enforceable)
 - [ ] The promotion seam is the only sanctioned path in, with provenance and a medium default
 - [ ] para/ and notes/ pages are exempt from wiki-only lint rules
 - [ ] The notes type vocabulary is recognized without being authored by the tool

@@ -36,9 +36,10 @@ that provides a structured knowledge management system for LLM assistants.
 
 ## Testing
 
-- No test framework (zero-dependency constraint)
-- Manual verification via setup.sh with test directories
-- BDD scenarios from specs serve as manual test scripts
+- Mechanical harness: `bash skills/wiki-core/scripts/test_pipeline.sh` (stdlib
+  bash + python3 only, both tool modes; see `docs/testing.md`)
+- BDD scenarios from specs serve as manual test scripts for the LLM-side
+  behaviors the harness cannot cover (golden transcripts in `tests/golden/`)
 - Each scenario describes: precondition, action, expected result
 - Verify both tool modes for every change
 
@@ -46,11 +47,12 @@ that provides a structured knowledge management system for LLM assistants.
 
 | File | Purpose |
 |------|---------|
-| `wiki.md` | /wiki skill definition (the prompt Claude Code executes) |
-| `setup.sh` | Interactive installer |
+| `skills/` | The wiki skill suite (SKILL.md per skill; shared scripts and references in `skills/wiki-core/`) |
+| `setup.sh` | Installer for the skill suite |
 | `config.example.yml` | Configuration template |
-| `docs/` | Architecture docs, schema reference |
+| `docs/` | Architecture docs, schema reference, migration guides |
 | `templates/logseq/` | Logseq page templates (Schema, Hub, Dashboard) |
 | `templates/obsidian/` | Obsidian page templates |
 | `examples/` | Before/after examples, L1 memory samples |
 | `diagrams/` | Mermaid architecture diagrams |
+| `tests/` | Harness fixtures and golden transcripts |

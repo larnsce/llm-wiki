@@ -1,4 +1,4 @@
-# Spec: /wiki prune — LRU-Demote (Index Eviction)
+# Spec: /wiki-maintain prune - LRU-Demote (Index Eviction)
 
 ## Description
 
@@ -69,7 +69,7 @@ does NOT self-schedule; the user wires it via their own scheduler.
 GIVEN Wiki/Tech/Legacy-Foo was last logged in the Access-Log on 2025-09-01
 AND today is 2026-06-07 (≈ 9 months, exceeds the 6-month threshold)
 AND it is a knowledge page (not a hub, not active project, not Schema/Dashboard/Access-Log)
-WHEN the user runs /wiki prune
+WHEN the user runs /wiki-maintain prune
 THEN the system SHALL list Wiki/Tech/Legacy-Foo as a demote candidate (last access 2025-09-01, 9 mo)
 AND on confirmation SHALL add archived:: 2026-06-07 to the page (created::/updated:: unchanged)
 AND move its routing line from the Wiki/Tech hub `### Index` to `### Archive`
@@ -82,7 +82,7 @@ AND commit the change
 ```
 GIVEN Wiki/Learning/Old-Course has no Access-Log entries
 AND its created:: date is 2025-08-01 (older than 6 months)
-WHEN the user runs /wiki prune
+WHEN the user runs /wiki-maintain prune
 THEN the system SHALL treat 2025-08-01 as its last-access proxy
 AND list it as a demote candidate
 ```
@@ -92,7 +92,7 @@ AND list it as a demote candidate
 ```
 GIVEN Wiki/Projects/Big-Migration has status:: active
 AND it has not been read in 8 months
-WHEN the user runs /wiki prune
+WHEN the user runs /wiki-maintain prune
 THEN the system SHALL NOT list it as a demote candidate (active projects are exempt)
 ```
 
@@ -100,7 +100,7 @@ THEN the system SHALL NOT list it as a demote candidate (active projects are exe
 
 ```
 GIVEN several pages last accessed between 3 and 5 months ago
-WHEN the user runs /wiki prune --months 3
+WHEN the user runs /wiki-maintain prune --months 3
 THEN the system SHALL list every page with no access in the last 3 months as a candidate
 ```
 
@@ -108,7 +108,7 @@ THEN the system SHALL list every page with no access in the last 3 months as a c
 
 ```
 GIVEN Wiki/Tech/Legacy-Foo is demoted (archived::, routing line in `### Archive`)
-WHEN a later /wiki query L3 grep matches it and reads it in full
+WHEN a later /wiki-query L3 grep matches it and reads it in full
 THEN re-promotion is offered by the query command (specs/query.md REQ-452), NOT prune
 AND prune SHALL never auto-promote pages
 ```
@@ -117,7 +117,7 @@ AND prune SHALL never auto-promote pages
 
 ```
 GIVEN Wiki/Projects/Acme links to [[Wiki/Tech/Legacy-Foo]]
-WHEN Wiki/Tech/Legacy-Foo is demoted by /wiki prune
+WHEN Wiki/Tech/Legacy-Foo is demoted by /wiki-maintain prune
 THEN the [[Wiki/Tech/Legacy-Foo]] link in Wiki/Projects/Acme SHALL still resolve
 AND lint SHALL NOT report it as a broken reference
 ```
@@ -127,7 +127,7 @@ AND lint SHALL NOT report it as a broken reference
 ```
 GIVEN llm-wiki.yml is configured with tool: obsidian
 AND Wiki/Tech/Legacy-Foo.md is a cold page
-WHEN the user runs /wiki prune
+WHEN the user runs /wiki-maintain prune
 THEN the system SHALL add archived: <today> to the YAML frontmatter
 AND move the routing line within the Wiki/Tech hub (Wiki/Tech/_index.md) from
     `### Index` to `### Archive`

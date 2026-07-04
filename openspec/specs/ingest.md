@@ -1,4 +1,4 @@
-# Spec: /wiki ingest — Source Processing Pipeline
+# Spec: /wiki-ingest - Source Processing Pipeline
 
 ## Description
 
@@ -138,10 +138,10 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 This extends Phases 1-5 above. It applies when `llm-wiki.yml`
 configures a source pipeline (`raw_dir`, `ingested_dir`, `source_types`,
 `default_source_type`). It is the path for NEW external sources (e.g. a Zotero export).
-Pulling notes ALREADY written in the graph uses `/wiki import`, which does NOT move files
+Pulling notes ALREADY written in the graph uses `/wiki-ingest --import`, which does NOT move files
 or assign `source-file::`.
 
-- REQ-070 (Phase 0, queue intake): When `/wiki ingest` is given NO argument, the system
+- REQ-070 (Phase 0, queue intake): When `/wiki-ingest` is given NO argument, the system
   SHALL scan `raw_dir` and process every file there oldest-first (drain the queue). When
   given a path/URL argument, that single source is the input; a local file outside
   `raw_dir` SHALL be copied into `raw_dir` first so the lifecycle is consistent.
@@ -180,7 +180,7 @@ or assign `source-file::`.
 GIVEN llm-wiki.yml is configured with tool: logseq and wiki_path: /tmp/test-wiki
 AND the wiki has a Schema page and a Wiki/Tech hub page
 AND no page exists for "Redis"
-WHEN the user runs /wiki ingest "https://redis.io/docs/about/"
+WHEN the user runs /wiki-ingest "https://redis.io/docs/about/"
 THEN the system SHALL create a new page Wiki___Tech___Redis.md
 AND the page SHALL have properties: type:: entity, entity-type:: technology,
     created:: [today], updated:: [today], status:: active, source:: ingest
@@ -196,7 +196,7 @@ AND the report SHALL show: 1 page created, 1 hub updated, N cross-refs added
 ```
 GIVEN a page Wiki___Tech___Strapi.md exists with content "Headless CMS for Node.js"
 AND the page has updated:: 2026-03-01
-WHEN the user runs /wiki ingest "Strapi 5 uses documentId for PUT, not numeric id"
+WHEN the user runs /wiki-ingest "Strapi 5 uses documentId for PUT, not numeric id"
 THEN the system SHALL append a new block to the existing page
 AND the original content "Headless CMS for Node.js" SHALL still be present unchanged
 AND updated:: SHALL be changed to [today]

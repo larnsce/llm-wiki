@@ -16,7 +16,7 @@ This guide covers the last mile: getting a Zotero item into Logseq as a
 `notes/literature/@<citekey>` page that (1) holds your reading in your own words and (2) points at
 the same `ingested/...` source the wiki cites. The `## my reading` block is a **`notes/` page** —
 human-written, machine-exempt (see [`namespaces.md`](../openspec/specs/namespaces.md)). It is not a
-`wiki/` page and `/wiki` never edits it.
+`wiki/` page and the wiki skills never edit it.
 
 ## Recommended plugin
 
@@ -84,7 +84,7 @@ source-file::
 2. In Logseq: right-click the item page title → *Zotero: Sync annotations* (or command palette →
    *Sync all annotations*).
 3. Write `## my reading` in your own words — this is the literature note.
-4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki ingest`, then
+4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki-ingest`, then
    set `source-file::` here to the `ingested/` path the ingest produced.
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
    `[[notes/literature/@citekey]]`.

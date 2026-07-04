@@ -15,7 +15,7 @@ Maintain the wiki's cache hygiene. Two modes:
   6 months).
 
 Spec: openspec/specs/prune.md REQ-600..622 (prune); status is the read-only report
-ported from the legacy /wiki status workflow, reusing the health rules of
+ported from the status verb of the legacy v1 single command, reusing the health rules of
 openspec/specs/lint.md REQ-100..222 without writes
 
 Shared conventions (read before executing):
