@@ -170,6 +170,61 @@ or assign `source-file::`.
   MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
   and committed as ONE atomic commit.
 
+### Voice Sources
+
+This extends Phases 1-5 for sources that are unprocessed `voice_notes` rows in
+archive.db (specs/storage.md) instead of files in `raw_dir`. The base contract
+applies unchanged: the checkpoint (REQ-025), the quality gate (REQ-040/042/044),
+the secret gate over promoted text (REQ-042), and the namespace scope rule
+(specs/namespaces.md REQ-965..967). The file lifecycle (REQ-070/072/075) does
+NOT apply: the row's `processed` flag is the lifecycle. STAGING: this section
+takes effect with the voice pipeline implementation (v3.0, P-3); until then no
+voice source exists.
+
+- REQ-080 (source and lifecycle): A voice source is ONE unprocessed
+  `voice_notes` row; the system starts from the stored transcript (transcription
+  itself is outside this workflow: deterministic and re-runnable). The row SHALL
+  be marked `processed` only after the run's writes are committed. A failed or
+  aborted run leaves the row unprocessed; the queue is resumable (mirroring
+  REQ-072).
+- REQ-081 (interactive only): Voice ingestion SHALL always run the REQ-025
+  checkpoint. There is NO `--auto` path for voice sources: REQ-026 does not
+  apply to them, and when `--auto` is passed the system SHALL state that voice
+  sources are interactive-only and run the checkpoint anyway.
+- REQ-082 (default routing: the journal): The default destination for a voice
+  note is a 2-4 line summary on today's journal page with `[[links]]` and the
+  provenance id. Journal summaries MAY be batch-confirmed at the checkpoint.
+  The daily journal summary opens with the pipeline status line per
+  specs/storage.md REQ-1140.
+- REQ-083 (wiki writes are per-row opt-in): Any update touching a wiki page is
+  OPT-IN per row at the checkpoint: the system SHALL show the full sentence(s)
+  it would write (no truncation) and write nothing to a wiki page without an
+  explicit yes for that specific row. Declined rows stay in the journal summary
+  or the transcript.
+- REQ-084 (people rows confirmed individually): Any row that touches a people
+  page or that names a person SHALL require INDIVIDUAL confirmation, with the
+  full sentence shown. Such rows MUST NOT ride a batch confirmation, regardless
+  of batch size or how the rest of the plan is confirmed.
+- REQ-085 (sensitive content is never promoted): Assessments of people (their
+  health, family, grades, conflicts, or performance) SHALL NOT be promoted out
+  of the checkpoint onto any wiki page, REGARDLESS of confirmation. They remain
+  in the transcript (archive.db) only. This is a standing content rule, not a
+  pattern gate: it binds the system even when no credential-style pattern
+  matches and even when the user confirms the row.
+- REQ-086 (provenance shape): A wiki page or claim written from a voice source
+  SHALL carry the capture ref `archive.db:voice_notes/<id>`: at page level in
+  `source-file::` (comma-separated alongside any other origins) and at block
+  level as the `cite::` ref on the claims it supports (block-native per
+  specs/citations.md REQ-900). For the citations union invariant (REQ-904),
+  capture refs count as cite targets exactly like `ingested/` paths: a page's
+  `source-file::` includes an `archive.db:` ref precisely when a block cites it.
+  Capture refs are capture-backed provenance: `reliability::` defaults per
+  schema REQ-586b and audit reports such claims per audit REQ-927.
+- REQ-087 (TODO extraction): TODOs found in the transcript SHALL be OFFERED at
+  the checkpoint for the human to place (today's journal, or a `para/` page the
+  human edits themself). The system SHALL NOT write to `para/` or `notes/`
+  (specs/namespaces.md REQ-966); voice sources do not change the scope rule.
+
 ---
 
 ## Scenarios
@@ -203,7 +258,7 @@ AND updated:: SHALL be changed to [today]
 AND the report SHALL show: 1 page updated
 ```
 
-### Scenario 3: Credential detected in source — ingest blocked
+### Scenario 3: Credential detected in source - ingest blocked
 
 ```
 GIVEN the user provides source text containing "api-key:: sk-abc123def456ghi789"
@@ -213,7 +268,7 @@ AND the system SHALL warn: "Credential pattern detected. Move to L1 memory, not 
 AND no wiki pages SHALL be created or modified
 ```
 
-### Scenario 4: L1 candidate detected — recommend memory
+### Scenario 4: L1 candidate detected - recommend memory
 
 ```
 GIVEN the user provides source text "PM2 reload does not work with npm start"
@@ -227,7 +282,7 @@ AND the system SHALL still proceed with wiki ingest if the user confirms
 ### Scenario 5: Page touch count below minimum
 
 ```
-GIVEN a simple source with one fact about an existing page
+GIVEN a small source with one fact about an existing page
 WHEN the ingest completes with only 2 page touches
 THEN the system SHALL emit a warning: "Only 2 page touches (target: 5-15).
     Consider adding cross-references to related pages."
@@ -254,7 +309,7 @@ THEN the system SHALL create Wiki___Projects___NewProject.md with required prope
 AND the system SHALL append [[Wiki/Projects/NewProject]] to Wiki___Projects.md
 ```
 
-### Scenario 8: Obsidian mode — YAML frontmatter format
+### Scenario 8: Obsidian mode - YAML frontmatter format
 
 ```
 GIVEN llm-wiki.yml is configured with tool: obsidian and wiki_path: /tmp/test-wiki
@@ -337,6 +392,39 @@ THEN wiki pages are written and source-file:: records ingested/notes/<file>
 AND the moved file's path is gitignored; its bytes never enter git history
 ```
 
+### Scenario 15: Voice note routes to the journal by default
+
+```
+GIVEN an unprocessed voice_notes row with a rambling 4-minute transcript
+WHEN /wiki-ingest processes it as a voice source (a --auto flag is declined
+    with a notice; the checkpoint always runs)
+THEN the default plan is a 2-4 line summary on today's journal page with
+    [[links]] and the provenance id archive.db:voice_notes/17
+AND no wiki page is touched unless the user opts in per row
+AND the row is marked processed only after the commit
+```
+
+### Scenario 16: People row requires individual confirmation
+
+```
+GIVEN the checkpoint plan contains a row updating a people page
+WHEN the checkpoint presents the plan
+THEN that row is shown with the FULL sentence to be written (no truncation)
+AND it is confirmed individually - it can never ride a batch confirmation
+AND declining it leaves the sentence in the journal summary or the transcript
+```
+
+### Scenario 17: Sensitive assessment is never promoted
+
+```
+GIVEN a transcript sentence assessing a named student's family situation
+WHEN the user confirms that row at the checkpoint anyway
+THEN the system SHALL NOT write it to any wiki page (REQ-085 overrides
+    confirmation)
+AND the content remains only in the transcript (archive.db)
+AND the checkpoint states why the row was withheld
+```
+
 ---
 
 ## Acceptance Criteria
@@ -344,7 +432,7 @@ AND the moved file's path is gitignored; its bytes never enter git history
 - [ ] All 5 phases execute in order (Analysis, Scan, Operations, Quality Gate, Report)
 - [ ] URL, file path, and inline text sources all work
 - [ ] New pages have ALL required properties per Schema
-- [ ] Existing pages are never overwritten — only appended to
+- [ ] Existing pages are never overwritten - only appended to
 - [ ] Hub pages list all child pages after ingest
 - [ ] Every created/updated active page has a routing line in its hub `### Index`
 - [ ] Every touched page has at least 1 cross-reference
@@ -357,6 +445,12 @@ AND the moved file's path is gitignored; its bytes never enter git history
 - [ ] Max 3 pages loaded simultaneously during processing
 - [ ] Namespace depth never exceeds 3 levels
 - [ ] All dates use ISO 8601 format
+- [ ] Voice sources always run the checkpoint; --auto never applies to them (v3.0)
+- [ ] Voice wiki writes are per-row opt-in; people rows are confirmed
+      individually with the full sentence shown
+- [ ] Assessments of people are never promoted out of the checkpoint (v3.0)
+- [ ] Voice provenance uses archive.db:voice_notes/<id> and is capture-backed
+      (schema REQ-586b, audit REQ-927)
 
 ---
 
@@ -365,3 +459,5 @@ AND the moved file's path is gitignored; its bytes never enter git history
 - `llm-wiki.yml` must exist and be valid
 - Schema page must exist in the wiki
 - specs/l1-l2-routing.md defines the L1/L2 routing decision logic used in Phase 1
+- specs/storage.md defines archive.db and the `voice_notes` table consumed by
+  the Voice Sources section (v3.0)

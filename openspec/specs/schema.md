@@ -211,6 +211,18 @@ lint (validation).
   the ingest. `s2-metrics::` is ADVISORY: it informs the qualitative `reliability::` judgment
   (REQ-586) but MUST NOT be used to derive `reliability::` by formula or citation-count
   threshold. The qualitative rubric remains the decision.
+- REQ-586b (capture-backed provenance): A claim whose provenance is an archive.db
+  row (a `source-file::`/`cite::` ref of shape `archive.db:voice_notes/<id>`,
+  specs/ingest.md Voice Sources) is CAPTURE-BACKED: raw capture, not a vetted
+  source. A transcript is what was said, not a source for what is true.
+  Capture-backed claims default to `reliability:: low` (they rate with the
+  speculative/anecdotal tier of the REQ-586 rubric), and the page roll-up applies
+  as usual. Raising a capture-backed claim above `low` SHALL require a real
+  source ingested through the normal pipeline (`raw/` to `ingested/`) that
+  supports the claim: a transcript cannot corroborate itself, and multiple voice
+  notes from the same speaker count as ONE source for REQ-586 corroboration.
+  This is the single normative statement of the capture-backed default; other
+  specs (ingest, audit, storage) cite it rather than restate it.
 - REQ-587: `confidence::` (REQ-530/533) and `reliability::` (REQ-586) are TWO SEPARATE
   axes and MUST NOT be cross-derived. `confidence::` answers "is this content current and
   verified" (and follows the 90-day staleness lifecycle); `reliability::` answers "how good
@@ -377,3 +389,6 @@ AND the system SHALL NOT create two pages or use a multi-domain value
 - specs/config.md determines tool mode (Logseq vs Obsidian)
 - specs/namespaces.md (v2.2) binds the promotion seam to the personal-synthesis
   rubric case (REQ-586) and consumes the naming rules (REQ-580..583)
+- specs/storage.md and specs/ingest.md (Voice Sources, v3.0) define the
+  archive.db capture ref whose reliability default is REQ-586b; specs/audit.md
+  REQ-927 reports such claims as capture-backed
