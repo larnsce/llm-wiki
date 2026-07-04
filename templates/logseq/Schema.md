@@ -5,7 +5,7 @@
 - type:: schema
 - ## Namespace Conventions
 	- Top-Level: {{NAMESPACES}}
-	- Page Naming: Title Case, hyphens for multi-word (`Wiki/Projects/My-Project`)
+	- Page Naming: lowercase structural segments, hyphen (U+002D) for multi-word (`wiki/projects/my-project`); no spaces, underscores, or en/em dashes in structural segments. Proper-noun leaves keep natural casing (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`). Pre-migration `Wiki/` corpora are grandfathered until the lowercase migration runs.
 	- Max Depth: 3 levels (e.g., `Wiki/Business/Clients/ClientName`)
 	- Hub Pages: Every namespace level has a hub page listing its children
 	- File Names: `___` (triple underscore) as namespace separator (e.g., `Wiki___Tech___Docker.md`)
@@ -64,6 +64,7 @@
 	- high:: peer-reviewed primary source or official standard/spec.
 	- medium:: single secondary source, preprint, or expert blog post.
 	- low:: speculative, anecdotal, forum/unverified, or model-generated without a source.
+	- Personal synthesis = medium: a source promoted from the human-owned `para/` or `notes/` namespaces rates medium by default, unless its claims carry external citations that justify higher under this rubric.
 	- Corroboration works at CLAIM level: a claim supported by 2+ INDEPENDENT sources rated medium or better is high. Partial corroboration does not raise a claim. The page's reliability is the MINIMUM across its claims.
 - ## Trust Axes: confidence vs reliability (do NOT conflate)
 	- These are TWO SEPARATE, independently-set axes. Neither is derived from the other; lint NEVER auto-converts between them.

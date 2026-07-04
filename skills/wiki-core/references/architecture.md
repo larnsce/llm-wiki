@@ -2,7 +2,7 @@
 
 Spec: openspec/specs/l1-l2-routing.md REQ-300..364; openspec/specs/query.md
 REQ-440..452; openspec/specs/prune.md REQ-600..622; openspec/specs/namespaces.md
-REQ-600..641
+REQ-960..981
 
 ## L1/L2 cache model
 
@@ -64,11 +64,11 @@ cache profile. Format and rules in [formats.md](formats.md).
 ## Namespace scope rule
 
 Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
-future verb) operates ONLY on pages in the wiki namespace (namespaces REQ-610).
+future verb) operates ONLY on pages in the wiki namespace (namespaces REQ-965).
 Never create, modify, lint, or audit pages under `para/` or `notes/` (human-owned;
-REQ-611), and never modify non-wiki pages such as existing notes or journals.
+REQ-966), and never modify non-wiki pages such as existing notes or journals.
 Reading `para/` or `notes/` pages for context when the user asks is allowed, but
-never write to them as a side effect (REQ-612). The only path from `para/` or
+never write to them as a side effect (REQ-967). The only path from `para/` or
 `notes/` into the wiki is the promotion seam through `raw/` and the ingest
-pipeline (REQ-620..623). This section is the single statement of the scope rule
-loaded by every skill (REQ-613).
+pipeline (REQ-970..973). This section is the single statement of the scope rule
+loaded by every skill (REQ-968).

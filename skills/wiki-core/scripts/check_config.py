@@ -10,7 +10,8 @@ Checks:
 - v2 source-pipeline keys (REQ-623): raw_dir, ingested_dir, source_types,
   default_source_type; missing keys are WARNINGS with a copy-paste snippet
 - sensitive_source_types subset of source_types (REQ-624)
-- para_dir / notes_dir recognized as optional keys (namespaces.md REQ-640)
+- para_dir / notes_dir recognized as optional keys (config.md REQ-625,
+  namespaces.md REQ-980)
 
 Exit codes: 0 = clean, 1 = warnings only, 2 = critical.
 """

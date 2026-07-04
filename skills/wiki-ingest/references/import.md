@@ -62,7 +62,7 @@ Phase 4 - Verification:
 ## Boundary with the promotion seam (v2.2)
 
 Once the `para/` / `notes/` namespace contract applies (v2.2,
-openspec/specs/namespaces.md REQ-620..623), content under `para/` or `notes/`
+openspec/specs/namespaces.md REQ-970..973), content under `para/` or `notes/`
 enters the wiki ONLY through the promotion seam: the human copies it into
 `raw/` and runs the regular ingest pipeline. `--import` is for other existing
 notes; it does not bypass that seam.

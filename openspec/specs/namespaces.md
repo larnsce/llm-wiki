@@ -1,4 +1,4 @@
-# Spec: Namespaces — wiki/ | para/ | notes/ Contract & Scope
+# Spec: Namespaces - wiki/ | para/ | notes/ Contract & Scope
 
 ## Description
 
@@ -11,10 +11,13 @@ toolchain never creates, edits, lints, or audits them. The only path from `para/
 ingest pipeline, receiving provenance like any other source.
 
 This spec defines the namespace contract, the scope rule that binds every wiki workflow, the
-promotion seam, and the note-type vocabulary the tool recognizes but does not author.
+promotion seam, the note-type vocabulary the tool recognizes but does not author, and the
+query-page tiering decision for the human layers.
 
-> Spec version: introduced for v2.2. Naming rules live in `specs/schema.md` (Namespace
-> Conventions); mechanical enforcement lives in `specs/lint.md` (naming-hygiene, namespace-hygiene).
+> Spec version: introduced for v2.2. This spec uses the globally unique REQ-960..981 range
+> (the merged draft used IDs in the 600s, which collided with `specs/config.md` and
+> `specs/prune.md`). Naming rules live in `specs/schema.md` (Namespace Conventions);
+> mechanical enforcement lives in `specs/lint.md` (naming-hygiene, namespace-hygiene).
 
 ---
 
@@ -22,63 +25,72 @@ promotion seam, and the note-type vocabulary the tool recognizes but does not au
 
 ### The Three-Namespace Contract
 
-- REQ-600: The graph SHALL define exactly three content namespaces at the top level:
-  - `wiki/` — machine-written, source-backed knowledge. The full schema (`specs/schema.md`),
+- REQ-960: The graph SHALL define exactly three content namespaces at the top level:
+  - `wiki/` - machine-written, source-backed knowledge. The full schema (`specs/schema.md`),
     provenance/trust, citations, lint, and audit conventions apply.
-  - `para/` — human-owned tasks and projects (PARA). EXEMPT from all wiki conventions.
-  - `notes/` — human-written thinking (Zettelkasten). EXEMPT from all wiki conventions. Never
+  - `para/` - human-owned tasks and projects (PARA). EXEMPT from all wiki conventions.
+  - `notes/` - human-written thinking (Zettelkasten). EXEMPT from all wiki conventions. Never
     machine-generated.
-- REQ-601: `para/` and `notes/` pages SHALL NOT be required to carry `source-file::`,
+- REQ-961: `para/` and `notes/` pages SHALL NOT be required to carry `source-file::`,
   `reliability::`, `confidence::`, citations, routing lines, or any other wiki-only property. Their
   absence on a `para/`/`notes/` page SHALL NOT be flagged by lint.
-- REQ-602: Journals and a small set of deliberate root pages (Schema, hub pages, query pages,
+- REQ-962: Journals and a small set of deliberate root pages (Schema, hub pages, query pages,
   Dashboard, Access-Log) are recognized structural pages outside the three content namespaces and
   SHALL NOT be treated as stray by namespace-hygiene checks.
 
 ### Scope Rule (binds every wiki workflow)
 
-- REQ-610: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
+- REQ-965: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
   future verb) SHALL operate ONLY on pages whose name starts with `wiki/`.
-- REQ-611: A wiki workflow SHALL NOT create, modify, lint, or audit any page under `para/` or
+- REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under `para/` or
   `notes/`. These namespaces are human-authored.
-- REQ-612: A wiki workflow MAY READ `para/` and `notes/` pages when the user asks for context
+- REQ-967: A wiki workflow MAY READ `para/` and `notes/` pages when the user asks for context
   (e.g. a query that references a linked note), but SHALL NOT write to them as a side effect.
-- REQ-613: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by
+- REQ-968: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by
   every skill; it SHALL NOT be restated divergently per skill (enforced by `check_canon.py`).
 
 ### The Promotion Seam (the only path in)
 
-- REQ-620: The ONLY sanctioned path from `para/` or `notes/` into `wiki/` is via `raw/`: the human
+- REQ-970: The ONLY sanctioned path from `para/` or `notes/` into `wiki/` is via `raw/`: the human
   copies the durable content into a source file (`raw/para-<project>.md` or `raw/note-<name>.md`)
   and runs the normal ingest pipeline (`specs/ingest.md`). The wiki SHALL NOT silently absorb
   para/notes content by any other route.
-- REQ-621: A page ingested from a `para/`/`notes/`-derived source SHALL receive `reliability::
-  medium` ("personal synthesis") by default, UNLESS it carries external citations that justify a
-  higher rating under the reliability rubric (`specs/schema.md`). The rubric's "personal synthesis =
-  medium" case is the single normative statement of this default.
-- REQ-622: A promoted source SHALL follow the standard `raw/` → `ingested/<type>/` lifecycle and
+- REQ-971: A page ingested from a `para/`/`notes/`-derived source is personal synthesis: it SHALL
+  receive the default rating given by the reliability rubric's personal-synthesis case
+  (`specs/schema.md` REQ-586), UNLESS it carries external citations that justify a higher rating
+  under that rubric. The rubric is the single normative statement of the default value; this
+  requirement only binds the seam to it.
+- REQ-972: A promoted source SHALL follow the standard `raw/` → `ingested/<type>/` lifecycle and
   atomic move+commit (REQ-589). The provenance seam is identical to any other source; being
   personal in origin does not exempt it from provenance.
-- REQ-623: When a `notes/literature/@<citekey>` page and a `wiki/` page both derive from the same
+- REQ-973: When a `notes/literature/@<citekey>` page and a `wiki/` page both derive from the same
   archived source, the note's `source-file::` SHOULD point at the SAME `ingested/<type>/<file>`
-  path the wiki page cites — one archived source, two readings. (Full claim-level auditability of
+  path the wiki page cites - one archived source, two readings. (Full claim-level auditability of
   this seam depends on block-native citations, `specs/citations.md`.)
 
 ### Note-Type Vocabulary (recognized, not authored)
 
-- REQ-630: The tool SHALL recognize the `notes/` type vocabulary carried as a `type::` property:
+- REQ-975: The tool SHALL recognize the `notes/` type vocabulary carried as a `type::` property:
   `fleeting | literature | permanent`. These types are informational to the tool (they scope the
   human's own queries); the tool does not create or mutate them.
-- REQ-631: Lint SHALL treat a `notes/literature/@<citekey>` leaf segment (a proper-noun citekey) as
-  a valid name under the naming rules (proper-noun exemption, `specs/schema.md`), NOT as a
+- REQ-976: Lint SHALL treat a `notes/literature/@<citekey>` leaf segment (a proper-noun citekey) as
+  a valid name under the naming rules (proper-noun-leaf exemption, `specs/schema.md`), NOT as a
   structural-name violation.
+
+### Query-Page Tiering (decision)
+
+- REQ-977: The vault-side query pages documented for the human layers (`para/live-list`,
+  `notes/fleeting-inbox`; see `docs/para-notes-workflow.md`) are Logseq tier-1: the documented
+  `#+BEGIN_QUERY` pages are the supported form. The Dataview equivalent on Obsidian is
+  EXPERIMENTAL and NOT maintained by this project. These query pages are human-created; the tool
+  does not scaffold, edit, or lint them (they are recognized structural pages per REQ-962).
 
 ### Configuration
 
-- REQ-640: `llm-wiki.yml` MAY declare `para_dir` and `notes_dir` so the tool can recognize the
-  namespaces for the scope rule and namespace-hygiene. Absent keys default to `para/` and `notes/`
-  relative to the pages directory.
-- REQ-641: `para/` and `notes/` are candidate members of `sensitive_source_types`
+- REQ-980: The scope rule and namespace-hygiene SHALL resolve the human namespaces from the
+  optional `para_dir` and `notes_dir` keys defined in `specs/config.md` (REQ-625). Absent keys
+  default as defined there (`para/` and `notes/` relative to the pages directory).
+- REQ-981: `para/` and `notes/` are candidate members of `sensitive_source_types`
   (`specs/config.md`); when a promoted source is of a sensitive type, the pre-archive secret gate
   (`specs/ingest.md`) applies before any commit into `ingested/`.
 
@@ -158,14 +170,15 @@ THEN it SHALL flag the page as outside the namespace contract (info/warning)
 - [ ] para/ and notes/ pages are exempt from wiki-only lint rules
 - [ ] The notes type vocabulary is recognized without being authored by the tool
 - [ ] The literature citekey naming exemption is specified
+- [ ] The Obsidian query-page tiering decision is recorded (Logseq tier-1, Dataview experimental)
 
 ---
 
 ## Dependencies
 
-- specs/schema.md — naming rules (lowercase, proper-noun exemption), reliability rubric incl. the
-  "personal synthesis = medium" case
-- specs/lint.md — naming-hygiene and namespace-hygiene rules that enforce this contract
-- specs/ingest.md — the promotion seam runs on the standard ingest pipeline + pre-archive secret gate
-- specs/config.md — `para_dir`, `notes_dir`, `sensitive_source_types`
-- specs/citations.md (v2.1) — full claim-level auditability of the "one source, two readings" seam
+- specs/schema.md - naming rules (lowercase structural names, proper-noun-leaf exemption),
+  reliability rubric incl. the "personal synthesis = medium" case (REQ-586)
+- specs/lint.md - naming-hygiene and namespace-hygiene rules that enforce this contract
+- specs/ingest.md - the promotion seam runs on the standard ingest pipeline + pre-archive secret gate
+- specs/config.md - `para_dir`, `notes_dir` (REQ-625), `sensitive_source_types` (REQ-624)
+- specs/citations.md (v2.1) - full claim-level auditability of the "one source, two readings" seam

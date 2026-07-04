@@ -21,9 +21,13 @@ Judgment (agent, this layer):
   memory files at `memory_path`. "Substantially the same information" is a
   semantic call, not a string match. Severity info; no auto-fix, the user
   decides which location is authoritative.
-- Naming quality: page and namespace names in Title Case, hyphens for
-  multi-word names, depth of at most 3 (REQ-580..582); flag names that are
-  technically valid but unclear or misleading.
+- Naming quality: lowercase structural segments, hyphens for multi-word
+  names, depth of at most 3 (REQ-580..582); flag names that are technically
+  valid but unclear or misleading. Proper-noun-leaf exemption (REQ-580b,
+  namespaces REQ-976): a leaf segment naming a person, tool, paper, or
+  `@citekey` (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`) keeps
+  natural casing and is NOT a naming violation; this is a judgment call, not
+  a mechanical check.
 - Routing-description quality: hub `### Index` descriptions must be
   distinctive routing keys, at most 120 chars, no filler like "Info
   about ..." (REQ-555, REQ-557). lint.py only catches EMPTY descriptions
