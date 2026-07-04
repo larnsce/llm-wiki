@@ -326,6 +326,9 @@ No system is perfect. Some things to know:
 - [Logseq vs. Obsidian](docs/logseq-vs-obsidian.md) — Detailed comparison and migration notes
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how /wiki fits
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
+- [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`
+- [Zotero setup](docs/zotero-setup.md) - Wire Zotero so literature notes are born as `notes/literature/@citekey`
+- [Roadmap: v2.2](docs/roadmap-v2.2-para-notes-zotero.md) - The para/notes/Zotero assessment and issue breakdown
 
 ## Credits
 
