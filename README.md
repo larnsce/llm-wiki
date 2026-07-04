@@ -23,9 +23,9 @@ llm-wiki is an implementation of that idea. Claude Code is the LLM brain; Logseq
 | `wiki-query` | The read path: two-stage retrieval via hub indexes, targeted page reads, Access-Log update, synthesized answer with sources |
 | `wiki-lint` | Two-layer health check: mechanical rules via `lint.py` and `check_canon.py`, judgment rules on top; fixes only with confirmation |
 | `wiki-maintain` | Status report (read-only metrics, hot/cold cache profile) and prune (LRU-Demote eviction of cold pages from the live index) |
-| `wiki-migrate` | One-time, interactive v1-to-v2 corpus migration driving `migrate_wiki.py` |
-| `wiki-audit` | Stub, ships in v2.1: verify a page claim by claim against its cited sources |
-| `wiki-update` | Stub, ships in v2.1: the sanctioned non-append edit path for cited content |
+| `wiki-migrate` | One-time, interactive corpus migrations driving `migrate_wiki.py`: the v1-to-v2 schema pass and the lowercase rename pass (`Wiki/` to `wiki/`, `--lowercase`) |
+| `wiki-audit` | Verify a page claim by claim against its cited sources (one isolated subagent per source); read-only by default, `--fix` writes only after confirmation |
+| `wiki-update` | The sanctioned non-append edit path for cited content: diff-first, source-required; superseded claims stay legible |
 
 `skills/wiki-core/` is not a skill; it is the shared library the suite runs on: the scripts (`init_wiki.py`, `lint.py`, `check_canon.py`, `secret_scan.py`, `migrate_wiki.py`, config discovery) and the shared reference docs (config, architecture, formats, trust).
 
