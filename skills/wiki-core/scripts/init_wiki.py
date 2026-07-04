@@ -27,6 +27,11 @@ import wikilib
 
 NAMESPACE_RE = re.compile(r"^[A-Za-z][A-Za-z0-9-]*$")
 
+# Stamped on every scaffolded page so fresh pages are NOT grandfathered by
+# lint. Must match SCHEMA_SPEC_VERSION in lint.py and both Schema templates
+# (check_canon.py verifies those surfaces).
+SCHEMA_SPEC_VERSION = "2.0.0"
+
 GITIGNORE = {
     "logseq": """logseq/bak/
 logseq/.recycle/
@@ -111,6 +116,27 @@ def read_template(template_dir, name):
         return handle.read()
 
 
+def stamp_schema_version(content, tool):
+    """Ensure the page carries `schema-spec-version` (correct syntax per mode).
+
+    Every page init_wiki.py scaffolds conforms to the current schema, so it
+    gets the stamp; pages without it are treated as pre-2.0.0 by lint
+    (grandfather mode). Templates that already carry the property (the
+    Schema page) are left untouched.
+    """
+    if "schema-spec-version" in content:
+        return content
+    if tool == "logseq":
+        return "- schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
+                                                   content)
+    lines = content.splitlines(True)
+    if lines and lines[0].strip() == "---":
+        lines.insert(1, 'schema-spec-version: "%s"\n' % SCHEMA_SPEC_VERSION)
+        return "".join(lines)
+    return '---\nschema-spec-version: "%s"\n---\n%s' % (SCHEMA_SPEC_VERSION,
+                                                        content)
+
+
 def render_pages(scaffold, tool, wiki_path, pages_path, template_dir,
                  namespaces, today):
     """Page creation, ported from the python heredoc in setup.sh Step 8."""
@@ -131,32 +157,39 @@ def render_pages(scaffold, tool, wiki_path, pages_path, template_dir,
         dashboard = dashboard.replace("{{NAMESPACE_LINKS}}", ns_links)
 
         scaffold.write_file(os.path.join(pages_path, "Wiki___Schema.md"),
-                            schema, "Wiki/Schema")
+                            stamp_schema_version(schema, tool), "Wiki/Schema")
         scaffold.write_file(os.path.join(pages_path, "Wiki___Dashboard.md"),
-                            dashboard, "Wiki/Dashboard")
+                            stamp_schema_version(dashboard, tool),
+                            "Wiki/Dashboard")
         for ns in namespaces:
             hub = hub_tpl.replace("{{NAMESPACE}}", ns).replace("{{DATE}}", today)
             scaffold.write_file(os.path.join(pages_path, "Wiki___%s.md" % ns),
-                                hub, "Wiki/%s" % ns)
+                                stamp_schema_version(hub, tool),
+                                "Wiki/%s" % ns)
         scaffold.write_file(
             os.path.join(pages_path, "Wiki___Reference___Access-Log.md"),
-            access_log, "Wiki/Reference/Access-Log")
+            stamp_schema_version(access_log, tool),
+            "Wiki/Reference/Access-Log")
     else:
         wiki_dir = os.path.join(wiki_path, "Wiki")
         ns_links = "\n".join("- [[Wiki/%s]]" % ns for ns in namespaces)
         dashboard = dashboard.replace("{{NAMESPACE_LINKS}}", ns_links)
 
         scaffold.write_file(os.path.join(wiki_dir, "Schema.md"),
-                            schema, "Wiki/Schema.md")
+                            stamp_schema_version(schema, tool),
+                            "Wiki/Schema.md")
         scaffold.write_file(os.path.join(wiki_dir, "Dashboard.md"),
-                            dashboard, "Wiki/Dashboard.md")
+                            stamp_schema_version(dashboard, tool),
+                            "Wiki/Dashboard.md")
         for ns in namespaces:
             hub = hub_tpl.replace("{{NAMESPACE}}", ns).replace("{{DATE}}", today)
             scaffold.write_file(os.path.join(wiki_dir, ns, "_index.md"),
-                                hub, "Wiki/%s/_index.md" % ns)
+                                stamp_schema_version(hub, tool),
+                                "Wiki/%s/_index.md" % ns)
         scaffold.write_file(
             os.path.join(wiki_dir, "Reference", "Access-Log.md"),
-            access_log, "Wiki/Reference/Access-Log.md")
+            stamp_schema_version(access_log, tool),
+            "Wiki/Reference/Access-Log.md")
 
 
 def scaffold_pipeline(scaffold, wiki_path):

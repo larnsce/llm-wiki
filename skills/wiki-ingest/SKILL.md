@@ -144,7 +144,11 @@ Interaction rules:
 
 - Create new pages with ALL required properties for their declared type per the
   Schema (REQ-030), in the correct tool format and file naming
-  ([formats](../wiki-core/references/formats.md), REQ-031/038). Namespace depth
+  ([formats](../wiki-core/references/formats.md), REQ-031/038). Stamp every
+  NEW page with `schema-spec-version:: 2.0.0` (Logseq) or
+  `schema-spec-version: "2.0.0"` in the YAML frontmatter (Obsidian) so it is
+  not grandfathered by lint; existing pages keep whatever they have (the
+  stamp is written on creation, never backfilled by ingest). Namespace depth
   max 3 (REQ-039): on overflow, merge the content into the parent page and note
   it in the report
 - Update existing pages append-only: NEVER overwrite existing content blocks
@@ -239,7 +243,12 @@ block, and `--auto` never bypasses a blocking failure (REQ-026).
 
 - (source pipeline) Only after the quality gate passes: MOVE each processed
   source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
-  MUST match what `source-file::` records (REQ-075)
+  MUST match what `source-file::` records (REQ-075). Use plain `mv` followed
+  by `git add` of BOTH paths (the vanished `raw_dir` path and the new
+  `ingested/` path); do NOT use `git mv`, which fails on a source that
+  entered `raw_dir` after the last commit (untracked). Alternatively,
+  `git add` the raw file first and then `git mv`; either way the move and
+  the page edits land in the same commit
 - (source pipeline) Stage the page edits AND the file move together and commit
   as ONE atomic commit: `wiki: ingest <filename> (<n> pages, reliability
   <level>)` (REQ-075; the atomicity invariant is stated in

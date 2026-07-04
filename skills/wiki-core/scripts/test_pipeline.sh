@@ -199,6 +199,12 @@ for tool in logseq obsidian; do
   run py lint.py --config "$clean/llm-wiki.yml" --json
   assert_exit 0 "lint($tool): green on clean fixture"
 
+  # A fresh scaffold must also be strict-clean: every scaffolded page carries
+  # schema-spec-version:: (no grandfather floor to hide behind), and the Hub
+  # templates keep their [[...]] placeholder examples backticked.
+  run py lint.py --config "$clean/llm-wiki.yml" --json --strict
+  assert_exit 0 "lint($tool): green on clean fixture with --strict"
+
   for entry in "${LINT_DEFECTS[@]}"; do
     defect="${entry%%:*}"
     req="${entry##*:}"
