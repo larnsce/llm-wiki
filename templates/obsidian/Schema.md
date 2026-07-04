@@ -1,5 +1,6 @@
 ---
 wiki-version: "1.0"
+schema-spec-version: "2.0.0"
 last-updated: "{{DATE}}"
 maintained-by: llm-wiki
 type: schema
@@ -16,6 +17,20 @@ type: schema
 - Folder Hierarchy: Namespaces map to folders (e.g., `Wiki/Tech/Docker.md`)
 
 ## Page Types and Required Properties
+
+Every page declares exactly one type; the valid values are:
+
+```yaml
+type: entity | project | knowledge | feedback | hub
+```
+
+Pages that conform to this schema carry the contract version in their frontmatter:
+
+```yaml
+schema-spec-version: "2.0.0"
+```
+
+Pages WITHOUT the current schema-spec-version are treated as pre-2.0.0 by lint (grandfather mode): findings on them are reported one severity tier lower, except credential leaks, which always stay critical. `lint.py --strict` disables the floor.
 
 ### Entity (Person, Client, Tool, Service, Technology)
 
@@ -76,13 +91,16 @@ Added by the source pipeline. YAML frontmatter on ingested pages (`source-file` 
 ```yaml
 source-file: ingested/papers/smith-2024.md   # comma-separated path(s) into ingested/, plain text not a [[link]]
 reliability: high | medium | low             # source QUALITY; page value = MINIMUM across its claims
-last-reviewed: YYYY-MM-DD                     # optional: date a human last verified the page
+last-reviewed: YYYY-MM-DD                    # optional: date a human last verified the page
 s2-metrics: cites=120 influential=8 venue=... type=... year=2024  # optional: raw Semantic Scholar figures (or "none")
+canonical-url: https://example.org/my-course # marks a deliberate stub whose source of truth is external
 ```
 
 `s2-metrics` is OPTIONAL and present only when a Semantic Scholar MCP enriched the ingest. It is EVIDENCE that INFORMS the qualitative `reliability` decision; it does NOT set `reliability` by formula (no citation-count thresholds).
 
-NOTE: `source-file` is separate from the existing `source` property. `source` records the METHOD (memory-migration | ingest | manual); `source-file` records WHICH origin file. Both may appear.
+`canonical-url` marks a deliberate stub ("stub, don't ingest"): the page's source of truth is an external URL the user maintains. A stub with `canonical-url` carries NO `source-file` and is exempt from the ingested-page requirements above; lint rule 12 checks the URL still resolves.
+
+NOTE: `source-file` is separate from the existing `source` property. `source` records the METHOD (memory-migration, ingest, or manual); `source-file` records WHICH origin file. Both may appear.
 
 ### Reliability Rubric (per source)
 
@@ -96,9 +114,9 @@ Corroboration works at CLAIM level: a claim supported by 2+ INDEPENDENT sources 
 
 These are TWO SEPARATE, independently-set axes. Neither is derived from the other; lint NEVER auto-converts between them.
 
-- `confidence` (existing — high | medium | low | stale) answers "is this content CURRENT and VERIFIED?" It follows the staleness lifecycle (goes `stale` when `updated` is 90+ days old).
-- `reliability` (new — high | medium | low) answers "how GOOD were the SOURCES this rests on?"
-- A page can be `confidence: high` (recently verified by a human) yet `reliability: low` (rests on a single weak source), and vice-versa. Set each on its own merits.
+- The `confidence` property (existing) answers "is this content CURRENT and VERIFIED?" It follows the staleness lifecycle (goes stale when the `updated` date is 90+ days old).
+- The `reliability` property answers "how GOOD were the SOURCES this rests on?"
+- A page can be high confidence (recently verified by a human) yet low reliability (rests on a single weak source), and vice-versa. Set each on its own merits.
 
 ### Pending Review Convention
 
@@ -163,17 +181,24 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 7. Add cross-references
 8. Set `updated` property on all changed pages
 
+<!-- canon:lint-rules start -->
 ## Lint Rules
 
-- **Orphan Detection**: Pages with 0 incoming [[links]] (hub pages excluded)
-- **Stale Detection**: `updated` > 90 days old AND `confidence: high`
-- **Missing Properties**: Pages missing type-specific required properties
-- **Broken References**: [[links]] to non-existent pages
-- **Hub Completeness**: Hub pages missing children in their namespace
-- **Credential Leak**: Scan for token/password/secret patterns
-- **Empty Pages**: Only properties, no content
-- **Cross-Ref Minimum**: Pages with fewer than 1 outgoing [[link]]
-- **L1/L2 Duplicates**: Same info in Memory AND Wiki
+12 rules (openspec/specs/lint.md). The mechanical subset runs via `lint.py`; rules 2 and 9 plus all quality judgments run agent-side in the wiki-lint skill. Fixes are only ever applied agent-side after confirmation.
+
+- **Rule 1 Orphan Detection** (REQ-110): pages with 0 incoming `[[links]]`; hub and system pages exempt
+- **Rule 2 Stale Detection** (REQ-120): updated date more than 90 days old AND high confidence
+- **Rule 3 Missing Properties** (REQ-130): pages missing type-specific required properties, or property values outside the allowed lists
+- **Rule 4 Broken References** (REQ-140): `[[links]]` to non-existent pages
+- **Rule 5 Hub Completeness** (REQ-150): hub pages missing children in their namespace
+- **Rule 6 Credential Leak** (REQ-160): credential-shaped property patterns (token, password, secret, api-key) and long base64 runs; CRITICAL, never auto-fixed
+- **Rule 7 Empty Pages** (REQ-170): pages with only properties, no content
+- **Rule 8 Cross-Ref Minimum** (REQ-180): pages with fewer than 1 outgoing `[[link]]`
+- **Rule 9 L1/L2 Duplicates** (REQ-190): same info in Memory AND Wiki
+- **Rule 10 Index Drift** (REQ-193): orphaned routing lines, unroutable active pages, empty routing descriptions
+- **Rule 11 Archived-in-Live-Index** (REQ-197): archived pages whose routing line still sits in the hub `### Index`
+- **Rule 12 External Link Rot** (REQ-220): canonical-url targets that no longer resolve; URL-shape check by default, real HTTP check with `--check-urls`
+<!-- canon:lint-rules end -->
 
 ## Conventions
 
