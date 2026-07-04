@@ -5,24 +5,79 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - Unreleased
+
+The multi-skill suite. The single `/wiki` command (`wiki.md`) is removed and its
+workflows are re-homed across eight skills backed by a spec canon, shared scripts,
+and a mechanical test harness. BREAKING: the v1 command file is no longer shipped
+or supported; see `docs/migration-v2.md`.
+
+The 2.0.0 tag waits on the real-vault release gate (issue #21): `wiki-lint` must
+run against a real, non-fixture vault with a manageable violation count and a
+documented remediation path before the release is tagged.
+
+### Added
+
+- **Skill suite** (`skills/`): `wiki-setup`, `wiki-ingest`, `wiki-query`,
+  `wiki-lint`, `wiki-maintain` (status + prune), `wiki-migrate`, plus
+  `wiki-audit` and `wiki-update` as stubs (implementation in v2.1, issue #18).
+  Shared conventions and scripts live in `skills/wiki-core/`.
+- **Core scripts** (stdlib-only, both tool modes): `init_wiki.py` (scaffolding),
+  `lint.py` (mechanical lint layer with a grandfather severity floor),
+  `check_canon.py` (spec-consistency across specs, references, and templates),
+  `secret_scan.py` (pre-archive secret gate), `migrate_wiki.py` (v1-to-v2
+  corpus converter), `find_config.py`/`check_config.py` (config discovery and
+  validation).
+- **Interactive ingest**: one consolidated checkpoint before any write
+  (ingest.md REQ-025); `--auto` opts out for queue draining (REQ-026);
+  `--import` replaces the v1 import verb.
+- **Pre-archive secret gate**: source bytes are scanned before any file moves
+  into the git-tracked `ingested/` tree (REQ-045); `sensitive_source_types`
+  keeps configured types out of git history entirely (REQ-046).
+- **Two-layer lint**: mechanical rules via scripts (report-only), judgment
+  rules agent-side; 12 rules including canonical-url link rot; fixes are
+  proposed per finding and applied only after user confirmation.
+- **Corpus migration**: grandfather lint mode plus the one-time converter and
+  the `wiki-migrate` skill (`docs/migration.md`).
+- **Test harness**: `test_pipeline.sh` (62 assertions, fixtures generated at
+  runtime for both tool modes), golden transcripts, `docs/testing.md`.
+- **Docs**: `docs/migration-v2.md` (v1 command to skill suite) and
+  `docs/design-vs-karpathy.md` (two-way review against the original gist).
+
+### Removed
+
+- **`wiki.md`** (the v1 single command). Every workflow it provided has a
+  skill home; an installed legacy copy keeps working but is unsupported, and
+  `wiki-setup` offers its removal (setup.md REQ-806).
+- **The provenance sentinel comments** that marked fork-overlay regions in the
+  templates and workflow text. The fork seam they protected is gone; the
+  Schema-page upgrade now keys on section headings and `schema-spec-version::`.
+
+### Deferred to v2.1
+
+- Block-native citations (`cite::`, issue #17) including born-cited pages
+  (ingest REQ-033b).
+- `wiki-audit` and `wiki-update` implementations (issue #18); both ship as
+  stub SKILL.md files in 2.0.0.
+
 ## [1.5.0] - 2026-06-25
 
 Fork feature (larnsce). A literature-research workflow guide and an optional
 Semantic-Scholar enrichment for the provenance pipeline added in 1.4.0. This is mostly
 documentation: how to combine Connected Papers, Semantic Scholar, Elicit, and Zotero with
-`/wiki` so discovery stays fast and only read papers cross into the wiki. The only tool change
-is an optional `s2-metrics::` property, and it rides inside the existing `larnsce:provenance`
-sentinel regions, so the fork seam does not widen.
+the wiki command so discovery stays fast and only read papers cross into the wiki. The only
+tool change is an optional `s2-metrics::` property, and it rides inside the existing
+provenance regions (sentinel comments, removed in 2.0.0), so the fork seam did not widen.
 
 ### Added
 
 - **`docs/literature-research.md`** - the four-tool pipeline (each tool does one stage,
   Claude Code orchestrates), the funnel rule ("discovery feeds Zotero, Zotero feeds ingest,
-  only read papers cross the line"), `/wiki query` before discovery, the Semantic Scholar MCP
+  only read papers cross the line"), a wiki query (now `/wiki-query`) before discovery, the Semantic Scholar MCP
   setup, and the convention for ingesting an Elicit synthesis as a `knowledge` page (a usage
   habit stated at ingest time, not a new command). Linked from the README Documentation list.
-- **Optional `s2-metrics::` property.** When a Semantic Scholar MCP is configured, `/wiki
-  ingest` can record a source's raw bibliometric figures (citations, influential citations,
+- **Optional `s2-metrics::` property.** When a Semantic Scholar MCP is configured, ingest
+  (now `/wiki-ingest`) can record a source's raw bibliometric figures (citations, influential citations,
   venue, type, year) verbatim on the page for audit. Documented in both Schema templates and
   specified in `openspec/specs/schema.md` (REQ-586a) and `ingest.md` (REQ-073a).
 
@@ -43,11 +98,12 @@ sentinel regions, so the fork seam does not widen.
 ## [1.4.0] - 2026-06-25
 
 Fork feature (larnsce). A source-provenance pipeline and a trust layer, ported as ideas
-from vanillaflava/llm-wiki-skills, adapted to Logseq and this tool's `/wiki` command. The
+from vanillaflava/llm-wiki-skills, adapted to Logseq and this tool's v1 wiki command. The
 goal is reproducibility: every synthesised claim traces back to a specific archived source,
-and weakly-supported pages are visibly flagged until corroborated. Implemented as additive,
-sentinel-wrapped blocks (`larnsce:provenance`) so the fork stays rebaseable against upstream;
-the base `## Workflow: ingest (Default)` is left verbatim and only overlaid.
+and weakly-supported pages are visibly flagged until corroborated. Implemented as additive
+provenance regions (sentinel comments, removed in 2.0.0) so the fork stayed rebaseable
+against upstream; the base `## Workflow: ingest (Default)` was left verbatim and only
+overlaid.
 
 ### Added
 
@@ -126,7 +182,7 @@ imprecise; these keep retrieval sharp.
   routing lines (`[[page]] -- description #tags`); query reads the cheap index first,
   picks the 3 best pages by description, then reads only those. Full-text grep becomes
   the L3 fallback. `ingest` maintains the routing line for every page (the wiki's page table).
-- **LRU-Demote** — new `/wiki prune [--months N]` command. `query` appends every full-page
+- **LRU-Demote** - a new prune verb, `[--months N]` (now `/wiki-maintain prune`). `query` appends every full-page
   read to an append-only `Wiki/Reference/Access-Log`; `prune` evicts pages with no access
   in N months (default 6) from the live index into the hub `### Archive`, marked `archived::`.
   Eviction never deletes, renames, or moves a file — incoming `[[links]]` stay valid and the
@@ -147,7 +203,7 @@ imprecise; these keep retrieval sharp.
 
 ### Notes
 
-- Backward compatible. Existing wikis keep working; run `/wiki lint --fix` once to backfill
+- Backward compatible. Existing wikis keep working; run lint with `--fix` (now `/wiki-lint`) once to backfill
   routing lines into hubs that predate this release.
 - `archived::` is the canonical demote marker and is valid on any page type. `status:: archived`
   is set additionally only where the type's status enum allows it (Entity).
@@ -198,10 +254,10 @@ First stable release.
 
 ### Added
 
-- `/wiki ingest` — 5-phase source processing pipeline (URL, file, text)
-- `/wiki query` — Search, synthesis, and source attribution
-- `/wiki lint` — 9 automated health checks with `--fix` auto-repair
-- `/wiki status` — Wiki metrics and health dashboard
+- The ingest verb (now `/wiki-ingest`) - 5-phase source processing pipeline (URL, file, text)
+- The query verb (now `/wiki-query`) - search, synthesis, and source attribution
+- The lint verb (now `/wiki-lint`) - 9 automated health checks with `--fix` auto-repair
+- The status verb (now `/wiki-maintain`) - wiki metrics and health dashboard
 - `setup.sh` — Interactive installer for Logseq and Obsidian
 - L1/L2 dual-layer cache architecture (CPU cache metaphor)
 - Templates for both Logseq (outliner) and Obsidian (flat markdown)

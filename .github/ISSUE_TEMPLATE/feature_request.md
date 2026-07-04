@@ -14,10 +14,10 @@ labels: enhancement
 
 ## Which area does this affect?
 
-- [ ] `/wiki ingest`
-- [ ] `/wiki query`
-- [ ] `/wiki lint`
-- [ ] `/wiki status`
+- [ ] `/wiki-ingest`
+- [ ] `/wiki-query`
+- [ ] `/wiki-lint`
+- [ ] `/wiki-maintain`
 - [ ] `setup.sh`
 - [ ] Templates (Logseq/Obsidian)
 - [ ] Schema / page types

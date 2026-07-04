@@ -41,7 +41,8 @@ Shared conventions (read before executing):
 - **`--import`:** pull notes already written in the graph (or a directory of
   existing markdown notes) into wiki format. Same write path and quality gate,
   but NO file move and NO `source-file::`; see
-  [import](references/import.md). Replaces the legacy `/wiki import`.
+  [import](references/import.md). Replaces the import verb of the legacy v1
+  single command.
 
 Steps marked "(source pipeline)" apply only when `llm-wiki.yml` configures the
 pipeline keys (`raw_dir`, `ingested_dir`, `source_types`,

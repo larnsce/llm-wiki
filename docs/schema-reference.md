@@ -11,7 +11,7 @@ Without a schema, the LLM creates inconsistent pages. One page might use `status
 | Logseq | `Wiki___Schema.md` (in your pages directory) |
 | Obsidian | `Wiki/Schema.md` (in your vault) |
 
-The `/wiki` skill reads this file before every operation.
+The wiki skills read this file before every operation.
 
 ## Page Types
 
@@ -224,9 +224,9 @@ A namespace index page that lists all child pages within its namespace. Hub page
 | `namespace::` | Namespace path | The namespace this hub indexes |
 
 A hub carries an `### Index` block: one **routing line** per child page, formatted
-`[[link]] -- description #tags`. This is the wiki's "page table" — `/wiki query` reads the index
+`[[link]] -- description #tags`. This is the wiki's "page table" - `/wiki-query` reads the index
 first (cheap) and only then opens the 1-3 pages whose description matches. Cold pages demoted by
-`/wiki prune` move to the `### Archive` block (see [Hub-Index-Routing & LRU-Demote](#hub-index-routing--lru-demote)).
+`/wiki-maintain prune` move to the `### Archive` block (see [Hub-Index-Routing & LRU-Demote](#hub-index-routing--lru-demote)).
 
 **Example (Logseq format):**
 
@@ -311,7 +311,7 @@ Every non-hub page should end with a `### Cross-References` section listing its 
 
 ## Lint Rules
 
-The `/wiki lint` command checks these rules automatically. Run with `--fix` to auto-repair where possible.
+The `/wiki-lint` command checks these rules automatically. Run with `--fix` to auto-repair where possible.
 
 ### 1. Orphan Detection
 
@@ -345,7 +345,7 @@ The `/wiki lint` command checks these rules automatically. Run with `--fix` to a
 
 **Why:** Broken links are false promises. They suggest knowledge exists when it does not. They also indicate that a page was deleted or renamed without updating references.
 
-**Auto-fix:** Create stub pages for broken links with the appropriate type and a "To be filled via /wiki ingest" placeholder.
+**Auto-fix:** Create stub pages for broken links with the appropriate type and a "To be filled via /wiki-ingest" placeholder.
 
 ### 5. Hub Completeness
 
@@ -496,18 +496,18 @@ keep L2 precise while it scales — the CPU-cache analogy, carried through to th
 Each hub page carries an `### Index` block: one routing line per active child page, formatted
 `[[Wiki/NS/Page]] -- <one-sentence description, <=120 chars> #tag #tag`.
 
-- **Stage 1** — `/wiki query` reads only the hub `### Index` blocks of the candidate namespaces and
+- **Stage 1** - `/wiki-query` reads only the hub `### Index` blocks of the candidate namespaces and
   picks the 3 (max 5) most relevant pages by description. This is the wiki's *page table / TLB*.
 - **Stage 2** — it then reads only those full pages. Grep-over-everything is just the **L3 fallback**
   when routing finds nothing.
-- `/wiki ingest` maintains the routing line for every page it creates or updates (required, else the
+- `/wiki-ingest` maintains the routing line for every page it creates or updates (required, else the
   page is unroutable). The description is the routing key: terse, distinctive, no filler.
 
-### LRU-Demote (`/wiki prune`, default 6 months)
+### LRU-Demote (`/wiki-maintain prune`, default 6 months)
 
-- `/wiki query` appends every full-page hit to the **Access-Log** page (append-only, non-structural,
+- `/wiki-query` appends every full-page hit to the **Access-Log** page (append-only, non-structural,
   no per-query commit).
-- `/wiki prune` computes the last access per page (never logged -> `created::` proxy). Cold = no access
+- `/wiki-maintain prune` computes the last access per page (never logged -> `created::` proxy). Cold = no access
   in N months.
 - Demote = **eviction from the index, not deletion or rename**: the routing line moves from `### Index`
   to `### Archive`, and the page is marked `archived:: <date>` (the canonical demote marker, valid on
@@ -525,7 +525,7 @@ Each hub page carries an `### Index` block: one routing line per active child pa
 block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended — do not
 hand-edit it. Each line carries a `matched:` routing reason (`... -- query -- matched: "<reason>"`) —
 the index description or grep term that selected the page — so the log records not just WHICH page
-loaded but WHY (routing transparency, surfaced by `/wiki status`). Legacy lines without `matched:`
+loaded but WHY (routing transparency, surfaced by `/wiki-maintain`). Legacy lines without `matched:`
 remain valid; the suffix does not affect prune/status parsing.
 
 ### Related lint rules

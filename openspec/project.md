@@ -16,7 +16,8 @@ inspired by CPU memory hierarchies.
 - **L1 (Fast, auto-loaded):** Claude Code memory directory (~10-20 files). Rules, gotchas,
   credentials, identity. Loaded every session. Git-excluded.
 - **L2 (On-demand):** Logseq or Obsidian wiki (~50-200 pages). Projects, workflows,
-  research, deep knowledge. Queried via `/wiki` commands. Git-tracked.
+  research, deep knowledge. Queried via the wiki skill suite (`/wiki-query` etc.).
+  Git-tracked.
 
 ## Tech Stack
 
@@ -32,7 +33,7 @@ inspired by CPU memory hierarchies.
 |------|-----|---------------|
 | Maintainer | Mehmet Goekce | Architecture, releases, specs |
 | Contributors | Open-source community | Features, bug fixes, templates |
-| Users | Claude Code users | Install, configure, use /wiki commands |
+| Users | Claude Code users | Install, configure, use the wiki skills |
 
 ## Constraints
 
@@ -46,13 +47,17 @@ inspired by CPU memory hierarchies.
 
 ## Specs
 
-| Spec | Covers | Requirements | Scenarios |
-|------|--------|-------------|-----------|
-| specs/ingest.md | /wiki ingest — 5-phase source processing pipeline | 25 | 10 |
-| specs/query.md | /wiki query — search, synthesis, write-back | 16 | 10 |
-| specs/lint.md | /wiki lint — 9 automated health checks with auto-fix | 23 | 10 |
-| specs/schema.md | Page types, properties, validation, format rules | 30 | 10 |
-| specs/config.md | llm-wiki.yml loading, validation, error handling | 18 | 8 |
-| specs/setup.md | setup.sh interactive installer (11 steps) | 28 | 10 |
-| specs/l1-l2-routing.md | L1/L2 boundary decision logic | 22 | 8 |
-| **Total** | **Complete system coverage** | **162** | **66** |
+| Spec | Covers |
+|------|--------|
+| specs/ingest.md | /wiki-ingest - source processing pipeline, interactive checkpoint, source pipeline, secret gate |
+| specs/query.md | /wiki-query - two-stage retrieval, synthesis, write-back, Access-Log |
+| specs/lint.md | /wiki-lint - 12 automated health checks with auto-fix |
+| specs/prune.md | /wiki-maintain prune - LRU-Demote index eviction |
+| specs/schema.md | Page types, properties, validation, format rules, provenance |
+| specs/config.md | llm-wiki.yml loading, validation, error handling |
+| specs/setup.md | wiki-setup and installer behavior |
+| specs/l1-l2-routing.md | L1/L2 boundary decision logic |
+| specs/namespaces.md | Namespace scope rules (wiki/ vs para/ and notes/) |
+| specs/citations.md | Block-native citations (v2.1, not yet implemented) |
+| specs/audit.md | wiki-audit claim verification (v2.1, not yet implemented) |
+| specs/update.md | wiki-update sanctioned non-append edits (v2.1, not yet implemented) |

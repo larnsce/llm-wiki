@@ -1,4 +1,4 @@
-# Spec: /wiki lint - Automated Health Checks
+# Spec: /wiki-lint - Automated Health Checks
 
 ## Description
 
@@ -62,7 +62,7 @@ certain issues when run with the `--fix` flag. There are 12 lint rules.
 - REQ-142: Auto-fix (--fix): The system SHALL create a stub page for each broken
   reference with: type:: knowledge, domain:: tech, confidence:: low,
   created:: [today], updated:: [today], and a placeholder note
-  "To be filled via /wiki ingest".
+  "To be filled via /wiki-ingest".
 - REQ-143: Stub pages SHALL include a cross-reference back to the page that
   contained the broken link.
 
@@ -92,7 +92,7 @@ certain issues when run with the `--fix` flag. There are 12 lint rules.
   substantive content below the properties section.
 - REQ-171: A page with only type/date properties and no knowledge blocks SHALL
   be flagged as a warning.
-- REQ-172: No auto-fix (page should be filled via /wiki ingest or deleted).
+- REQ-172: No auto-fix (page should be filled via /wiki-ingest or deleted).
 
 ### Rule 8: Cross-Reference Minimum
 
@@ -171,7 +171,7 @@ GIVEN a wiki with 10 pages, all with required properties, cross-references,
     and current updated:: dates
 AND all hub pages list their children
 AND no credential patterns exist in any page
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the report SHALL show: 10 pages scanned, 0 issues found
 AND no pages SHALL be modified
 ```
@@ -182,7 +182,7 @@ AND no pages SHALL be modified
 GIVEN a page Wiki___Tech___Redis.md exists
 AND no other wiki page contains a [[Wiki/Tech/Redis]] link
 AND Redis is NOT a hub page
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag Wiki/Tech/Redis as "orphan" (warning)
 AND suggest: "Add [[Wiki/Tech/Redis]] to the Wiki/Tech hub page"
 ```
@@ -191,7 +191,7 @@ AND suggest: "Add [[Wiki/Tech/Redis]] to the Wiki/Tech hub page"
 
 ```
 GIVEN the same orphan condition as Scenario 2
-WHEN the user runs /wiki lint --fix
+WHEN the user runs /wiki-lint --fix
 THEN the system SHALL append [[Wiki/Tech/Redis]] to Wiki___Tech.md
 AND the report SHALL show: "Fixed: Added Wiki/Tech/Redis to hub Wiki/Tech"
 ```
@@ -202,7 +202,7 @@ AND the report SHALL show: "Fixed: Added Wiki/Tech/Redis to hub Wiki/Tech"
 GIVEN a page Wiki___Tech___Strapi.md with updated:: 2026-01-01
 AND the page has confidence:: high
 AND today is 2026-04-10 (100 days later, exceeds 90-day threshold)
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag the page as "stale" (warning)
 AND suggest: "Confidence is 'high' but page is 100 days old. Review or downgrade."
 ```
@@ -211,7 +211,7 @@ AND suggest: "Confidence is 'high' but page is 100 days old. Review or downgrade
 
 ```
 GIVEN the same stale condition as Scenario 4
-WHEN the user runs /wiki lint --fix
+WHEN the user runs /wiki-lint --fix
 THEN the system SHALL change confidence:: from high to stale
 AND the updated:: property SHALL remain 2026-01-01 (NOT changed)
 AND the report SHALL show: "Fixed: Downgraded confidence from high to stale"
@@ -222,7 +222,7 @@ AND the report SHALL show: "Fixed: Downgraded confidence from high to stale"
 ```
 GIVEN a page Wiki___Tech___Deployment.md contains the text
     "api-key:: sk-ant-abc123def456ghi789jkl012mno345pqr678"
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag the page as "credential leak" (critical)
 AND suggest: "Move credential to L1 memory. Wiki pages are git-tracked."
 AND the finding SHALL be listed first in the report (critical severity)
@@ -233,10 +233,10 @@ AND the finding SHALL be listed first in the report (critical severity)
 ```
 GIVEN a page Wiki___Projects___MyProject.md contains [[Wiki/Tech/NewTool]]
 AND no file Wiki___Tech___NewTool.md exists
-WHEN the user runs /wiki lint --fix
+WHEN the user runs /wiki-lint --fix
 THEN the system SHALL create a stub page Wiki___Tech___NewTool.md with:
     type:: knowledge, domain:: tech, confidence:: low, created:: [today],
-    updated:: [today], and content "To be filled via /wiki ingest"
+    updated:: [today], and content "To be filled via /wiki-ingest"
 AND the stub SHALL contain [[Wiki/Projects/MyProject]] as a cross-reference
 AND the Wiki___Tech.md hub SHALL be updated to list the new page
 ```
@@ -246,7 +246,7 @@ AND the Wiki___Tech.md hub SHALL be updated to list the new page
 ```
 GIVEN Wiki___Tech.md (hub) lists: [[Wiki/Tech/Strapi]], [[Wiki/Tech/Stack]]
 AND Wiki___Tech___Deployment.md also exists in the pages directory
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag Wiki/Tech hub as "incomplete" (warning)
 AND suggest: "Hub Wiki/Tech is missing child: [[Wiki/Tech/Deployment]]"
 ```
@@ -261,9 +261,9 @@ GIVEN a page Wiki___Learning___Rust.md contains only:
     updated:: 2026-03-15
     confidence:: low
 AND no content blocks exist below the properties
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag the page as "empty" (warning)
-AND suggest: "Page has properties but no content. Fill via /wiki ingest or delete."
+AND suggest: "Page has properties but no content. Fill via /wiki-ingest or delete."
 ```
 
 ### Scenario 10: L1/L2 duplicate detected
@@ -271,7 +271,7 @@ AND suggest: "Page has properties but no content. Fill via /wiki ingest or delet
 ```
 GIVEN L1 memory file feedback_deploy_ram.md contains "Stop ClamAV before deploy"
 AND wiki page Wiki___Tech___Deployment.md also contains "Stop ClamAV before deploy"
-WHEN the user runs /wiki lint
+WHEN the user runs /wiki-lint
 THEN the system SHALL flag as "L1/L2 duplicate" (info)
 AND suggest: "Same info in L1 memory and L2 wiki. Decide which is authoritative."
 ```
@@ -281,7 +281,7 @@ AND suggest: "Same info in L1 memory and L2 wiki. Decide which is authoritative.
 ```
 GIVEN a page Wiki___Tech___Redis.md exists and is active (not archived)
 AND the Wiki/Tech hub `### Index` has no routing line for [[Wiki/Tech/Redis]]
-WHEN the user runs /wiki lint --fix
+WHEN the user runs /wiki-lint --fix
 THEN the system SHALL flag Wiki/Tech/Redis as "index drift: unroutable" (warning)
 AND backfill a routing line into the Wiki/Tech hub `### Index`:
     "[[Wiki/Tech/Redis]] -- <description from title + first block> #<existing tags>"
@@ -292,7 +292,7 @@ AND backfill a routing line into the Wiki/Tech hub `### Index`:
 ```
 GIVEN Wiki___Tech___Legacy-Foo.md has archived:: 2026-06-07 (and status:: archived, an entity page)
 AND its routing line still sits in the Wiki/Tech hub `### Index`
-WHEN the user runs /wiki lint --fix
+WHEN the user runs /wiki-lint --fix
 THEN the system SHALL flag it as "archived-in-live-index" (warning)
 AND move the routing line from `### Index` to `### Archive`
 AND NOT rename or move the Legacy-Foo page file

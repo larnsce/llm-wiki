@@ -92,7 +92,7 @@ If you mix conventions (e.g., triple-underscore files inside an Obsidian vault),
 
 ### The wiki skills aren't available or can't find the wiki
 
-**Cause:** Either the skill suite is not installed into `.claude/skills/`, or config discovery cannot locate your `llm-wiki.yml`. Since v2 there is no `<CONFIG_PATH>` placeholder to patch; the skills discover the config at runtime.
+**Cause:** Either the skill suite is not installed into `.claude/skills/`, or config discovery cannot locate your `llm-wiki.yml`. Since v2 there is no config-path placeholder to patch into the skill files; the skills discover the config at runtime.
 
 **Fix:**
 
@@ -110,7 +110,7 @@ If you mix conventions (e.g., triple-underscore files inside an Obsidian vault),
 
 Restart Claude Code after installing skills so they are picked up.
 
-### `/wiki ingest` runs forever or times out
+### `/wiki-ingest` runs forever or times out
 
 **Cause:** Source is too large, or the wiki has grown past the batch limit and Claude is trying to load too many pages at once.
 
@@ -120,7 +120,7 @@ Restart Claude Code after installing skills so they are picked up.
 - The ingest pipeline has a 3-page batch limit - if your wiki has hundreds of pages and many are relevant to the source, processing takes proportionally longer.
 - If Claude Code hits a context limit mid-ingest, it will stop and report. Re-run the same ingest - Claude's append-only discipline prevents duplicates.
 
-### `/wiki ingest` blocks with a credential-leak warning but the content has no credentials
+### `/wiki-ingest` blocks with a credential-leak warning but the content has no credentials
 
 **Cause:** False positive from lint rule #6. The credential-leak regex includes base64-like patterns (`[A-Za-z0-9+/]{40,}`), which also match innocent long strings - long URLs, hashes, or technical identifiers.
 
@@ -141,15 +141,15 @@ Never commit around the lint by force. The false positive rate is low, and genui
 
 **Fix:**
 
-- **Two-stage routing handles retrieval precision automatically.** Since v1.2.0, `/wiki query` reads the hub `### Index` routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line's description terse and distinctive - that is what keeps routing sharp as the wiki grows.
-- **Run `/wiki prune` periodically (default every 6 months).** It evicts cold pages - no read in N months - from the live hub index into `### Archive`, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.
+- **Two-stage routing handles retrieval precision automatically.** Since v1.2.0, `/wiki-query` reads the hub `### Index` routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line's description terse and distinctive - that is what keeps routing sharp as the wiki grows.
+- **Run `/wiki-maintain prune` periodically (default every 6 months).** It evicts cold pages - no read in N months - from the live hub index into `### Archive`, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.
 - **Split namespaces.** If `Wiki/Tech/` has 50+ pages, consider splitting into `Wiki/Tech/Infrastructure/`, `Wiki/Tech/Languages/`, etc. Namespaces can go 3 levels deep.
-- **Run `/wiki lint --fix`.** Beyond stale detection (90+ days), it now also fixes index drift - backfilling missing routing lines and tidying archived pages left in the live index.
+- **Run `/wiki-lint --fix`.** Beyond stale detection (90+ days), it now also fixes index drift - backfilling missing routing lines and tidying archived pages left in the live index.
 - **Audit L1/L2.** If you find yourself querying the same L2 page every session, promote the essential part to L1.
 
-The wiki scales, but like any knowledge system, it requires periodic gardening - now mostly automated by `/wiki prune` and `/wiki lint --fix`.
+The wiki scales, but like any knowledge system, it requires periodic gardening - now mostly automated by `/wiki-maintain prune` and `/wiki-lint --fix`.
 
-### `/wiki lint` keeps flagging the same orphan pages
+### `/wiki-lint` keeps flagging the same orphan pages
 
 **Cause:** Pages that have no incoming links are flagged as orphans. If the same pages appear every run, they are genuinely unlinked.
 
@@ -157,6 +157,6 @@ The wiki scales, but like any knowledge system, it requires periodic gardening -
 
 - Add the page to the appropriate hub page (e.g., `Wiki/Tech` hub should list all `Wiki/Tech/*` pages).
 - Add cross-references from related pages - if `Wiki/Projects/X` mentions `Wiki/Tech/Y`, make sure it uses `[[Wiki/Tech/Y]]` syntax.
-- Run `/wiki lint --fix` - it auto-adds missing hub entries where obvious.
+- Run `/wiki-lint --fix` - it auto-adds missing hub entries where obvious.
 
 If a page is genuinely isolated and cannot be linked from anywhere, it may be a sign the page is misplaced (wrong namespace) or should be deleted.

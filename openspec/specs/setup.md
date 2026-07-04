@@ -4,8 +4,8 @@
 
 The setup script is the entry point for new users. It guides them through an
 interactive 11-step process to configure their wiki, create initial pages (Schema,
-Dashboard, Hub pages), generate the config file, and optionally install the /wiki
-skill for Claude Code. It requires only bash, python3, and git.
+Dashboard, Hub pages), generate the config file, and optionally install the wiki
+skills for Claude Code. It requires only bash, python3, and git.
 
 ---
 
@@ -231,7 +231,7 @@ AND exit with code 1
 
 ```
 WHEN the user enters "skip" for the skill installation prompt
-THEN the system SHALL NOT copy wiki.md anywhere
+THEN the system SHALL NOT copy any skill directory anywhere
 AND SHALL NOT modify any files outside the wiki directory
 AND SHALL continue to the git commit step
 ```

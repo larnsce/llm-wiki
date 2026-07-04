@@ -1,7 +1,7 @@
 # Import mode (--import)
 
-Spec: openspec/specs/ingest.md (write path, Phases 2-5). Replaces the legacy
-`/wiki import` workflow.
+Spec: openspec/specs/ingest.md (write path, Phases 2-5). Replaces the import
+verb of the legacy v1 single command.
 
 Import pulls notes ALREADY written in the graph, or a directory of existing
 markdown files, into wiki format. The content originates from the conversation

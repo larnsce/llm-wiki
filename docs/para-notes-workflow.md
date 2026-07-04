@@ -1,20 +1,20 @@
-# PARA + Zettelkasten in the same graph as `/wiki`
+# PARA + Zettelkasten in the same graph as the wiki
 
 How to run a PARA task/project layer (`para/`) and a Zettelkasten note layer (`notes/`) in the
 same graph as your machine-written `wiki/`, without the two ever colliding.
 
-> **Scope.** This is a **vault-side workflow guide**, not a `/wiki` command reference. The `/wiki`
-> tool does not manage `para/` or `notes/` — by design (see
+> **Scope.** This is a **vault-side workflow guide**, not a skill reference. The wiki
+> toolchain does not manage `para/` or `notes/` - by design (see
 > [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md)) it never writes to them. The
 > pages, queries, and task markers below are things **you** create and maintain in Logseq/Obsidian.
 > The tool's only involvement is the promotion seam at the end: durable content you deliberately
-> copy into `raw/` and run through `/wiki ingest`.
+> copy into `raw/` and run through `/wiki-ingest`.
 
 ## The three-namespace contract
 
 | Namespace | Owner | What lives there | Tool touches it? |
 |---|---|---|---|
-| `wiki/` | machine (via `/wiki`) | source-backed, synthesized knowledge | writes, lints, audits |
+| `wiki/` | machine (via the wiki skills) | source-backed, synthesized knowledge | writes, lints, audits |
 | `para/` | you | tasks, projects, areas, resources | **never** (may read for context) |
 | `notes/` | you | fleeting / literature / permanent notes | **never** (may read for context) |
 
@@ -127,7 +127,7 @@ it by hand:
    under a `## outcome` heading on the page.
 3. **Harvest (optional).** Ask yourself: does this project hold knowledge the `wiki/` should keep?
    If yes, copy the durable blocks + the outcome summary verbatim into `raw/para-<project>.md` and
-   run `/wiki ingest`. It enters at `reliability:: medium` ("personal synthesis") unless it carries
+   run `/wiki-ingest`. It enters at `reliability:: medium` ("personal synthesis") unless it carries
    external citations that justify higher.
 4. **Move.** Rename `para/projects/<project>` → `para/archives/<project>`; set `status:: archived`
    and `archived:: <date>`.
@@ -157,7 +157,7 @@ Create a `notes/schema` page recording these:
   - fleeting → task: move it to the owning `para/` page as a `TODO`.
   - Anything not promoted within ~2 weeks: delete without guilt.
 - **notes → wiki (deliberate only):** copy the note into `raw/note-<name>.md` and run
-  `/wiki ingest`. It arrives at `reliability:: medium`.
+  `/wiki-ingest`. It arrives at `reliability:: medium`.
 
 ### The fleeting inbox (a query page you own)
 
