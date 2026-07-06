@@ -87,6 +87,23 @@ knowledge gaps. It is the primary read path — the counterpart to ingest (write
 - REQ-434: If no relevant pages are found, the system SHALL clearly state:
   "No information found in the wiki for this topic." and offer to create a page
   via write-back (REQ-420).
+- REQ-435 (dual register): Every answer SHALL be delivered in two registers,
+  in fixed order: first the PRECISE register (the REQ-410..414 synthesis,
+  technical vocabulary intact), then the PLAIN register under the marker
+  heading `In plain terms`. Both are always present, including the
+  no-results case (REQ-434), where the plain register restates that the
+  wiki has no answer.
+- REQ-436 (plain-register discipline): The plain register SHALL restate the
+  SAME facts and caveats as the precise register in language a
+  non-specialist can follow: no unexplained jargon (an unavoidable
+  technical term is explained in the sentence that uses it), and NO new
+  claims (REQ-414 binds both registers). Staleness (REQ-431),
+  low-confidence (REQ-432), and contradiction (REQ-413) warnings SHALL
+  appear in BOTH registers, phrased appropriately for each; the plain
+  register never drops a warning.
+- REQ-437 (shared attribution): Source attribution (REQ-430) and plane
+  attribution (REQ-463) SHALL appear ONCE per answer, after both
+  registers, shared by them; they are not duplicated per register.
 
 ### Two-Plane Routing (v3.0 P-5)
 
@@ -300,7 +317,20 @@ AND the answer SHALL name its plane: "Sources: [[wiki/tech/whisper]];
     index.db (fts: whisper)"
 ```
 
-### Scenario 15: Entity question ignores the index plane
+### Scenario 15: Dual-register answer with a stale-source warning
+
+```
+GIVEN Wiki/Tech/Docker has updated:: 2025-12-01 (stale) and answers the question
+WHEN the user runs /wiki-query "what Docker version are we using?"
+THEN the answer SHALL open with the precise register (current synthesis style)
+AND continue under "In plain terms" with the same answer in plain language,
+    technical terms explained where they cannot be avoided
+AND BOTH registers SHALL carry the staleness warning, each in its own phrasing
+AND the sources line SHALL appear once, after both registers:
+    "Sources: [[Wiki/Tech/Docker]]"
+```
+
+### Scenario 16: Entity question ignores the index plane
 
 ```
 GIVEN the same configured index.db
@@ -330,6 +360,9 @@ AND the answer reads "Sources: [[wiki/tech/docker]]" with no index attribution
 - [ ] No fabrication — "not found" when wiki has no answer
 - [ ] Write-back requires explicit user confirmation
 - [ ] Source attribution in every answer
+- [ ] Every answer carries both registers: precise first, then "In plain terms"
+- [ ] The plain register keeps every warning and adds no new claims
+- [ ] Attribution appears once per answer, shared by both registers
 - [ ] L1 Memory consulted when relevant
 - [ ] Works in both Logseq and Obsidian modes
 - [ ] (two-plane) Aggregate/temporal/full-text questions route to index.db;
