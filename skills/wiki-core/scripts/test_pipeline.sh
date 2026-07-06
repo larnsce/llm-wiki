@@ -526,6 +526,15 @@ run py secret_scan.py --json "$FIXTURES/sources/clipped-page.html"
 assert_exit 2 "secret_scan: blocking (exit 2) on fake AWS key in clipped HTML"
 assert_scan_pattern "secret_scan: aws-access-key pattern fired" aws-access-key
 
+# The tracking-param carve-out (issue #68) is URL-query-scoped only: the
+# same high-entropy value in a bare assignment still blocks. The URL side
+# is pinned by the clean fixture above.
+ENTROPY_NOTE="$WORK/entropy-note.md"
+printf 'config dump\ndeploy_id = AfmBOor7RPqK3x9ZtWc5dd2Xw1QhVbnJ4uE\n' >"$ENTROPY_NOTE"
+run py secret_scan.py --json "$ENTROPY_NOTE"
+assert_exit 2 "secret_scan: blocking (exit 2) on bare high-entropy assignment"
+assert_scan_pattern "secret_scan: high-entropy-token pattern fired" high-entropy-token
+
 run py secret_scan.py --json "$FIXTURES/sources/personal-note.md"
 assert_exit 1 "secret_scan: advisory (exit 1) on email + national-ID note"
 assert_scan_pattern "secret_scan: email-address pattern fired" email-address
