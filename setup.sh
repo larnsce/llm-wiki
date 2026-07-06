@@ -44,6 +44,9 @@ Options:
                        layer (PARA + Zettelkasten seed pages) and add
                        para_dir/notes_dir to the config; intended for a
                        fresh graph (see docs/para-notes-workflow.md)
+  --with-glossary      with --init: also scaffold the glossary layer
+                       (index + seed domain page; see
+                       docs/glossary-workflow.md)
   --with-personal      also install the personal-tier skills
                        (wiki-ingest-voice); skipped by default because they
                        depend on maintainer-run infrastructure (archive.db,
@@ -76,6 +79,7 @@ WIKI_PATH=""
 NAMESPACES=""
 MEMORY_PATH=""
 WITH_PARA_NOTES=0
+WITH_GLOSSARY=0
 WITH_PERSONAL=0
 GIT_INIT=0
 POINTER_MODE="offer"   # offer | force | never
@@ -97,6 +101,7 @@ while [ "$#" -gt 0 ]; do
         --namespaces)  need_value "$@"; NAMESPACES="$2"; shift 2 ;;
         --memory-path) need_value "$@"; MEMORY_PATH="$2"; shift 2 ;;
         --with-para-notes) WITH_PARA_NOTES=1; shift ;;
+        --with-glossary) WITH_GLOSSARY=1; shift ;;
         --with-personal) WITH_PERSONAL=1; shift ;;
         --git-init)    GIT_INIT=1; shift ;;
         --pointer)     POINTER_MODE="force"; shift ;;
@@ -285,6 +290,9 @@ if [ "$DO_INIT" = 1 ]; then
     fi
     if [ "$WITH_PARA_NOTES" = 1 ]; then
         init_args+=(--with-para-notes)
+    fi
+    if [ "$WITH_GLOSSARY" = 1 ]; then
+        init_args+=(--with-glossary)
     fi
 
     echo ""

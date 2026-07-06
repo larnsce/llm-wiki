@@ -4,11 +4,12 @@ How to run a hand-maintained EN-DE terminology layer (`glossary/`) in the same g
 wiki, so blog posts, teaching material, and AI-generated drafts stay consistent. Modeled on the
 termbases professional translators maintain.
 
-> **Status (v2.3 G-0, 2026-07-04).** This is the hand-run layer: two page templates and this
-> guide, nothing else. Capture, curation, and promotion run manually for at least 4 weeks. The
-> tooling layer (spec, lint rule, scaffold flag, skill) is gated behind
-> [#54](https://github.com/larnsce/llm-wiki/issues/54); see [The tooling gate](#the-tooling-gate)
-> below. Concept note: [`prompts/glossary-concept.md`](../prompts/glossary-concept.md).
+> **Status (v2.3, 2026-07-06).** The hand-run layer (G-0, 2026-07-04) plus the tooling layer
+> ([#54](https://github.com/larnsce/llm-wiki/issues/54), shipped 2026-07-06 under the gate
+> waiver): spec ([`openspec/specs/glossary.md`](../openspec/specs/glossary.md)), lint rule 15,
+> `--with-glossary` scaffold, and the `/wiki-glossary` skill; see
+> [The tooling layer](#the-tooling-layer) below. Concept note:
+> [`prompts/glossary-concept.md`](../prompts/glossary-concept.md).
 
 > **Scope.** This is a **vault-side workflow guide**, not a skill reference. The wiki toolchain
 > does not manage `glossary/` pages; you create and maintain them by hand from the templates.
@@ -135,28 +136,39 @@ requested terms have no de entry.
 Three requested terms must produce at most three rows; verify the count before moving on. The
 same pattern works for any structured termbase (TBX, CSV, or a terminology collection export).
 
-## The tooling gate
+## The tooling layer
 
-The formal layer - a glossary spec, lint rule 15 (glossary hygiene), an
-`init_wiki.py --with-glossary` scaffold flag, and a wiki-glossary skill - is stubbed and gated
-in [#54](https://github.com/larnsce/llm-wiki/issues/54). It gets built only after **20 or more
-hand-decided Rule rows** exist. If 4 weeks of hand-running produce fewer, the tooling is not
-built and the glossary stays a manual convention (the kill criterion). No verb gets formalized
-before it has been done by hand enough to know the ceremony pays off.
+The formal layer originally gated behind 20-plus hand-decided rows shipped under the 2026-07-05
+gate waiver ([#54](https://github.com/larnsce/llm-wiki/issues/54)):
 
-Until that layer lands, `glossary/` sits outside the three-namespace contract
-([`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md) REQ-960), so `lint.py`
-reports a **namespace-hygiene warning (rule 14, REQ-240)** on every glossary page. This is
-expected and harmless during the hand-run period. Because the glossary page types and links
-are not registered either, lint may also report unknown-type, orphan, and cross-ref findings on
-the same pages; same story. On fresh pages (no `schema-spec-version::`) all of these are floored
-to info severity and lint still exits clean. The gated layer recognizes `glossary/` and retires
-these findings.
+- `glossary/` is the fourth namespace of the contract
+  ([`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md) REQ-960); its ownership
+  model (human-DECIDED, tool-READABLE, structure-LINTED) is normative in
+  [`openspec/specs/glossary.md`](../openspec/specs/glossary.md).
+- Lint recognizes glossary pages: no more rule 14 strays, no wiki-only findings
+  (source-file, reliability, cite, routing). **Rule 15 (glossary hygiene)** checks structure
+  only: the exact `| EN | DE | Rule | Note |` header, the rule enum, empty-Rule rows on
+  domain pages, and `source::`/`status::` on `glossary/imported/` staging pages. It never
+  judges or auto-fixes a decision.
+- `init_wiki.py --with-glossary` (or `setup.sh --init ... --with-glossary`) scaffolds the
+  `glossary` index and a seed domain page from the templates; the `glossary_dir` config key
+  (default `glossary`) names the namespace.
+- The `/wiki-glossary` skill automates the mechanical parts of this guide: it drains
+  `#glossary-todo` captures into a curation checkpoint, writes ONLY the rows you confirm,
+  runs the promote flow (staging row to domain page to optional term page), and loads domain
+  pages as drafting context. Everything it writes lands under `glossary/` and nothing is
+  written without your confirmation at the checkpoint.
+
+The hand-run loop in this guide remains the core of the workflow; the skill only removes the
+copying and collecting. The standing rules bind the skill exactly as they bind you: import is
+pull not bulk, staging pages are never drafting context, and the Rule column stays a human
+decision.
 
 ## Related
 
 - [`prompts/glossary-concept.md`](../prompts/glossary-concept.md) - the concept note this layer implements
 - [`docs/roadmap-glossary-personal-pipeline.md`](roadmap-glossary-personal-pipeline.md) - the plan and the premortem revisions that gated the tooling
-- [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md) - the namespace contract glossary pages currently sit outside of
+- [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md) - the namespace contract; glossary/ is its fourth namespace
+- [`openspec/specs/glossary.md`](../openspec/specs/glossary.md) - the normative glossary spec (REQ-1000..1014)
 - [Schema Reference](schema-reference.md) - naming, properties, lint rules
 - [PARA + Zettelkasten workflow](para-notes-workflow.md) - the other human-owned layers in the graph

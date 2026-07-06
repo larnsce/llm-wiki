@@ -199,6 +199,37 @@ funnel. The query pages described there are Logseq tier-1; the Dataview
 equivalent on Obsidian is experimental.
 """
 
+GLOSSARY_CONFIG_BLOCK = """\
+# Glossary namespace (specs/config.md REQ-628, specs/glossary.md):
+# human-decided terminology; the tool scaffolds and structure-lints it and
+# writes only rows confirmed at the /wiki-glossary checkpoint.
+glossary_dir: {glossary_dir}
+"""
+
+GLOSSARY_INDEX_LOGSEQ = """\
+type:: glossary-index
+
+- ## glossary
+	- The EN-DE terminology layer: one domain page per subject, decisions recorded once. See `docs/glossary-workflow.md` in the llm-wiki repository.
+	- ### Index
+		- [[glossary/tech]] -- software, git, and computing terms #glossary
+"""
+
+GLOSSARY_INDEX_OBSIDIAN = """\
+---
+type: glossary-index
+---
+
+# glossary
+
+The EN-DE terminology layer: one domain page per subject, decisions
+recorded once. See `docs/glossary-workflow.md` in the llm-wiki repository.
+
+## Index
+
+- [[glossary/tech]] -- software, git, and computing terms #glossary
+"""
+
 PARA_NOTES_CONFIG_BLOCK = """\
 # Human namespaces (specs/config.md REQ-625, specs/namespaces.md REQ-980):
 # para/ (PARA task layer) and notes/ (Zettelkasten) are human-owned; the
@@ -449,13 +480,41 @@ def scaffold_para_notes(scaffold, tool, pages_path, today):
                         "notes/schema.md")
 
 
+def scaffold_glossary(scaffold, tool, pages_path, template_dir, today):
+    """Opt-in glossary layer (issue #54; specs/glossary.md REQ-1003): the
+    index page plus one seed domain page from the G-0 template. Both are
+    human-editable after scaffolding; the toolchain writes rows only at the
+    /wiki-glossary checkpoint."""
+    domain = stamp_schema_version(
+        read_template(template_dir, "glossary-domain.md"), tool)
+    if tool == "logseq":
+        scaffold.write_file(os.path.join(pages_path, "glossary.md"),
+                            stamp_schema_version(GLOSSARY_INDEX_LOGSEQ,
+                                                 tool),
+                            "glossary")
+        scaffold.write_file(os.path.join(pages_path, "glossary___tech.md"),
+                            domain, "glossary/tech")
+        return
+    root = os.path.join(pages_path, wikilib.DEFAULT_GLOSSARY_DIR)
+    os.makedirs(root, exist_ok=True)
+    scaffold.write_file(os.path.join(root, "_index.md"),
+                        stamp_schema_version(GLOSSARY_INDEX_OBSIDIAN, tool),
+                        "glossary/_index.md")
+    scaffold.write_file(os.path.join(root, "tech.md"), domain,
+                        "glossary/tech.md")
+
+
 def build_config(tool, wiki_path, pages_dir, memory_path, namespaces, today,
-                 with_para_notes=False):
+                 with_para_notes=False, with_glossary=False):
     para_notes_block = ""
     if with_para_notes:
         para_notes_block = "\n" + PARA_NOTES_CONFIG_BLOCK.format(
             para_dir=wikilib.DEFAULT_PARA_DIR,
             notes_dir=wikilib.DEFAULT_NOTES_DIR,
+        )
+    if with_glossary:
+        para_notes_block += "\n" + GLOSSARY_CONFIG_BLOCK.format(
+            glossary_dir=wikilib.DEFAULT_GLOSSARY_DIR,
         )
     text = CONFIG_TEMPLATE.format(
         date=today,
@@ -496,6 +555,10 @@ def main():
                              "templates/<tool>/)")
     parser.add_argument("--date", default=None,
                         help="date stamp YYYY-MM-DD (default: today)")
+    parser.add_argument("--with-glossary", action="store_true",
+                        help="also scaffold the glossary layer: index page "
+                             "plus one seed domain page "
+                             "(specs/glossary.md, issue #54)")
     parser.add_argument("--with-para-notes", action="store_true",
                         help="also scaffold the human para/ + notes/ layer "
                              "(PARA + Zettelkasten seed pages; adds "
@@ -572,6 +635,11 @@ def main():
         scaffold.note("Scaffolding human layer (para/ + notes/)...")
         scaffold_para_notes(scaffold, args.tool, pages_path, today)
 
+    if args.with_glossary:
+        scaffold.note("Scaffolding glossary layer (index + seed domain)...")
+        scaffold_glossary(scaffold, args.tool, pages_path, template_dir,
+                          today)
+
     if not args.no_gitignore:
         scaffold.write_file(os.path.join(wiki_path, ".gitignore"),
                             GITIGNORE[args.tool], ".gitignore")
@@ -580,7 +648,8 @@ def main():
     if not args.no_config:
         content = build_config(args.tool, wiki_path, pages_dir, memory_path,
                                args.namespaces, today,
-                               with_para_notes=args.with_para_notes)
+                               with_para_notes=args.with_para_notes,
+                               with_glossary=args.with_glossary)
         if os.path.exists(config_path) and args.overwrite_config:
             os.remove(config_path)
         scaffold.write_file(config_path, content, wikilib.CONFIG_FILENAME)
@@ -593,6 +662,7 @@ def main():
             "wiki_path": wiki_path,
             "config_path": config_path if not args.no_config else None,
             "with_para_notes": args.with_para_notes,
+            "with_glossary": args.with_glossary,
             "created": scaffold.created,
             "skipped": scaffold.skipped,
         })

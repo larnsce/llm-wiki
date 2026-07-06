@@ -94,6 +94,17 @@ TEMPLATE_ENUM_RE = re.compile(
 VERSION_RE = re.compile(r"schema-spec-version::?\s*\"?([0-9][0-9A-Za-z.-]*)")
 LINT_CONST_RE = re.compile(r'^SCHEMA_SPEC_VERSION\s*=\s*"([^"]+)"', re.M)
 LINT_COUNT_RE = re.compile(r"^LINT_RULE_COUNT\s*=\s*(\d+)", re.M)
+# Namespace contract (specs/namespaces.md REQ-960, specs/glossary.md;
+# premortem revision 8): the REQ-960 top-level bullets vs the wikilib
+# CONTENT_NAMESPACES tuple, plus a repo-wide grep gate against stale
+# "three namespaces" prose.
+NS_BULLET_RE = re.compile(r"^  - `([a-z-]+)/` - ", re.M)
+NS_TUPLE_RE = re.compile(r"^CONTENT_NAMESPACES\s*=\s*\(([^)]*)\)", re.M)
+NS_STALE_PHRASES = ("three namespaces", "exactly three content namespaces",
+                    "Three-Namespace", "three-namespace")
+NS_GREP_DIRS = ("openspec/specs", "skills", "templates", "docs", "examples")
+NS_GREP_EXCLUDE = ("docs/premortem-report", "docs/roadmap-",
+                   "docs/migration")
 SEGMENT_TOKEN_RE = re.compile(r"^[a-z0-9-]+")
 
 
@@ -244,6 +255,8 @@ def main():
         "templates/logseq/Schema.md": None,
         "templates/obsidian/Schema.md": None,
         "skills/wiki-core/scripts/lint.py": None,
+        "openspec/specs/namespaces.md": None,
+        "skills/wiki-core/scripts/wikilib.py": None,
     }
     canon = Canon()
     for rel in paths:
@@ -263,6 +276,8 @@ def main():
     tpl_logseq = paths["templates/logseq/Schema.md"]
     tpl_obsidian = paths["templates/obsidian/Schema.md"]
     lint_py = paths["skills/wiki-core/scripts/lint.py"]
+    namespaces_md = paths["openspec/specs/namespaces.md"]
+    wikilib_py = paths["skills/wiki-core/scripts/wikilib.py"]
 
     # 1. Lint-rule count.
     count_spec = canon.lint_md_rule_count(lint_md, "openspec/specs/lint.md")
@@ -336,6 +351,42 @@ def main():
          template_version(tpl_obsidian, "templates/obsidian/Schema.md")),
     ])
 
+    # 5. Namespace contract (REQ-960 vs wikilib.CONTENT_NAMESPACES) plus
+    # the stale-phrase grep gate (premortem revision 8).
+    req960 = namespaces_md.split("- REQ-960:", 1)
+    bullets = NS_BULLET_RE.findall(req960[1].split("- REQ-961:", 1)[0]) \
+        if len(req960) == 2 else []
+    tuple_match = NS_TUPLE_RE.search(wikilib_py)
+    tuple_count = len([v for v in tuple_match.group(1).split(",")
+                       if v.strip()]) if tuple_match else None
+    if tuple_count is None:
+        canon.error("wikilib.py: CONTENT_NAMESPACES tuple not found")
+    canon.compare("namespace count", [
+        ("openspec/specs/namespaces.md (REQ-960 bullets)",
+         len(bullets) or None),
+        ("skills/wiki-core/scripts/wikilib.py (CONTENT_NAMESPACES)",
+         tuple_count),
+    ])
+    for directory in NS_GREP_DIRS:
+        base = os.path.join(root, directory)
+        for dirpath, dirnames, filenames in os.walk(base):
+            dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+            for filename in sorted(filenames):
+                if not filename.endswith((".md", ".py")):
+                    continue
+                rel = os.path.relpath(os.path.join(dirpath, filename), root)
+                if any(rel.startswith(prefix) for prefix in NS_GREP_EXCLUDE):
+                    continue
+                if rel == "skills/wiki-core/scripts/check_canon.py":
+                    continue  # holds the phrase list itself
+                text = read(os.path.join(dirpath, filename))
+                for phrase in NS_STALE_PHRASES:
+                    if phrase in text:
+                        canon.error(
+                            "%s: stale namespace-count prose ('%s'); the "
+                            "contract is REQ-960, narrated nowhere else"
+                            % (rel, phrase))
+
     report(canon)
     return EXIT_MISMATCH if canon.errors else EXIT_OK
 
@@ -351,7 +402,7 @@ def report(canon):
     else:
         print("check_canon: all surfaces aligned (rule count, property "
               "enums, reliability aggregation, citation union invariant, "
-              "schema-spec-version).")
+              "schema-spec-version, namespace contract).")
 
 
 if __name__ == "__main__":
