@@ -5,6 +5,9 @@ Creates, for either tool mode:
 - the pages directory and the initial pages rendered from templates/
   (Schema, Dashboard, one Hub per namespace, the Access-Log page)
 - the source-pipeline scaffold: raw/ and ingested/<type>/ with .gitkeep
+- Logseq mode: :hidden ["raw" "ingested"] in logseq/config.edn so the
+  source trees stay out of the Logseq index (created, or merged into an
+  existing :hidden vector; specs/setup.md REQ-787)
 - the tool-specific .gitignore (unless --no-gitignore)
 - llm-wiki.yml (unless --no-config; existing config is kept unless
   --overwrite-config)
@@ -75,8 +78,9 @@ NOTES_SUBDIRS = ("literature", "permanent")
 # stamp. type:: schema marks them as reference pages for the human's own
 # queries. Content condenses docs/para-notes-workflow.md.
 PARA_SCHEMA_LOGSEQ = """\
-- type:: schema
-- last-updated:: {date}
+type:: schema
+last-updated:: {date}
+
 - ## para/ conventions
 	- This page and everything under `para/` is yours: the wiki toolchain never creates, edits, lints, or audits it (see `docs/para-notes-workflow.md` in the llm-wiki repository). Edit this page freely; the tool does not read it.
 - ## layout
@@ -96,8 +100,9 @@ PARA_SCHEMA_LOGSEQ = """\
 """
 
 NOTES_SCHEMA_LOGSEQ = """\
-- type:: schema
-- last-updated:: {date}
+type:: schema
+last-updated:: {date}
+
 - ## notes/ conventions
 	- This page and everything under `notes/` is yours: human-written, always. The wiki toolchain never creates, edits, lints, or audits it (see `docs/para-notes-workflow.md` in the llm-wiki repository). If Claude drafts it, it is not a note; it is a `wiki/` page.
 - ## note types
@@ -266,8 +271,10 @@ def stamp_schema_version(content, tool):
     if "schema-spec-version" in content:
         return content
     if tool == "logseq":
-        return "- schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
-                                                   content)
+        # Page properties are unbulleted per schema REQ-591; the stamp joins
+        # the template's leading property block.
+        return "schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
+                                                 content)
     lines = content.splitlines(True)
     if lines and lines[0].strip() == "---":
         lines.insert(1, 'schema-spec-version: "%s"\n' % SCHEMA_SPEC_VERSION)
@@ -345,6 +352,62 @@ def scaffold_pipeline(scaffold, wiki_path):
             scaffold.created.append(os.path.relpath(gitkeep, wiki_path))
     scaffold.note("  Scaffolded: raw/ and ingested/{%s}/"
                   % ",".join(wikilib.DEFAULT_SOURCE_TYPES))
+
+
+def ensure_logseq_hidden(scaffold, wiki_path, hidden_dirs):
+    """Hide the source dirs from the Logseq index (issue #69, REQ-787).
+
+    Logseq indexes every markdown file under the graph root recursively
+    unless the directory is listed in :hidden in logseq/config.edn. Living
+    beside pages/ keeps raw/ and ingested/ out of the pages directory, but
+    only :hidden keeps them out of the index; without it archived sources
+    render as graph pages and their TOC anchor links parse as #hashtags.
+
+    Creates a minimal config.edn when none exists; otherwise merges the
+    missing entries into the first uncommented :hidden vector (the app
+    writes :hidden [] on graph init). An existing config.edn with no
+    parseable :hidden gets the key appended before its closing brace.
+    """
+    config_path = os.path.join(wiki_path, "logseq", "config.edn")
+    rel = os.path.join("logseq", "config.edn")
+    quoted = " ".join('"%s"' % d for d in hidden_dirs)
+    if not os.path.exists(config_path):
+        scaffold.write_file(config_path, "{:hidden [%s]}\n" % quoted, rel)
+        return
+
+    with open(config_path, "r", encoding="utf-8") as handle:
+        text = handle.read()
+    match = None
+    for candidate in re.finditer(r":hidden\s*\[([^\]]*)\]", text):
+        line_start = text.rfind("\n", 0, candidate.start()) + 1
+        if ";" not in text[line_start:candidate.start()]:
+            match = candidate
+            break
+    if match:
+        existing = set(re.findall(r'"([^"]+)"', match.group(1)))
+        missing = [d for d in hidden_dirs if d not in existing]
+        if not missing:
+            scaffold.note("  Unchanged: %s (:hidden already covers %s)"
+                          % (rel, ", ".join(hidden_dirs)))
+            return
+        inner = match.group(1).strip()
+        merged = ((inner + " ") if inner else "") \
+            + " ".join('"%s"' % d for d in missing)
+        text = text[:match.start()] + ":hidden [%s]" % merged \
+            + text[match.end():]
+    else:
+        brace = text.rfind("}")
+        if brace == -1:
+            scaffold.skipped.append(rel)
+            scaffold.note("  Skipped: %s exists but is not a parseable EDN "
+                          "map; add :hidden [%s] manually" % (rel, quoted))
+            return
+        text = text[:brace] + " :hidden [%s]\n" % quoted + text[brace:]
+    with open(config_path, "w", encoding="utf-8") as handle:
+        handle.write(text)
+    scaffold.created.append("%s (:hidden)" % rel)
+    scaffold.note("  Updated: %s (:hidden now covers %s); re-index the "
+                  "graph in Logseq to apply" % (rel, ", ".join(hidden_dirs)))
 
 
 def scaffold_para_notes(scaffold, tool, pages_path, today):
@@ -501,6 +564,9 @@ def main():
 
     scaffold.note("Scaffolding source pipeline (raw/ + ingested/)...")
     scaffold_pipeline(scaffold, wiki_path)
+
+    if args.tool == "logseq":
+        ensure_logseq_hidden(scaffold, wiki_path, ("raw", "ingested"))
 
     if args.with_para_notes:
         scaffold.note("Scaffolding human layer (para/ + notes/)...")

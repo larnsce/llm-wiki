@@ -51,8 +51,9 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-030: The system SHALL create new pages with ALL required properties for the
   declared page type (per Schema). Missing required properties are a spec violation.
 - REQ-031: The system SHALL use the correct format for the configured tool:
-  Logseq (outliner with `- ` prefix, `property:: value`) or Obsidian (flat markdown,
-  YAML frontmatter).
+  Logseq (outliner with `- ` body prefix, unbulleted `property:: value` page
+  properties per specs/schema.md REQ-591) or Obsidian (flat markdown, YAML
+  frontmatter).
 - REQ-032: The system MUST NOT overwrite existing content blocks when updating pages.
   New facts SHALL be appended as new blocks below existing content.
 - REQ-033: The system SHALL update hub pages to list any newly created child pages
@@ -69,6 +70,10 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   with the citations implementation (v2.1, #17); v2.0.0 ingest is exempt.
 - REQ-034: The system SHALL add `[[Wiki/Namespace/Page]]` cross-references between
   all affected pages. Every page touched MUST have at least 1 outgoing wiki link.
+  Navigation cross-links SHALL be written under a `## Cross-References` section
+  with that exact heading (specs/schema.md REQ-573): the citation checker exempts
+  it from claim coverage, while synonym headings (Related, See also) drift out of
+  the exemption on other tooling.
 - REQ-035: The system SHALL set the `updated::` property (or YAML `updated` field)
   to today's date on every modified page.
 - REQ-036: When a page mentions an entity that has its own wiki page, the system
@@ -145,6 +150,12 @@ or assign `source-file::`.
   SHALL scan `raw_dir` and process every file there oldest-first (drain the queue). When
   given a path/URL argument, that single source is the input; a local file outside
   `raw_dir` SHALL be copied into `raw_dir` first so the lifecycle is consistent.
+- REQ-070a (intake slugging): When a file entering processing from `raw_dir` has a
+  filename containing whitespace, commas, `#`, or other non-kebab characters, the
+  system SHALL rename it (and any companion asset folder) to a kebab-case slug
+  BEFORE planning, so `source-file::` and `cite::` refs are born valid: the
+  citation checker rejects refs containing whitespace (specs/citations.md REQ-901),
+  and refs are comma-separated, so a comma in a filename breaks ref parsing.
 - REQ-071: For each source the system SHALL infer its type (one of `source_types`),
   falling back to `default_source_type`, asking the user only if genuinely ambiguous.
 - REQ-072: If processing fails partway, the system SHALL LEAVE the source in `raw_dir`

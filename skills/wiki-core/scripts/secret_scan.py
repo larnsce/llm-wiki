@@ -62,6 +62,16 @@ ENTROPY_MIN_BITS = 4.5
 ENTROPY_TOKEN_RE = re.compile(
     r"\b([A-Za-z_][A-Za-z0-9_.\-]{1,40})\s*[:=]\s*[\"'`]?"
     r"([A-Za-z0-9+/=_\-]{20,64})[\"'`]?")
+# Documented ad/search attribution parameters, pervasive in clipped web
+# content (issue #68). They are genuinely high-entropy but are tracking IDs,
+# not credentials; suppressed ONLY when the assignment sits in a URL query
+# context (preceded by ?, & or the ; of a &amp; entity), so a bare
+# `gclid = ...` assignment outside a URL still scans normally.
+TRACKING_PARAM_RE = re.compile(
+    r"^(?:srsltid|gclid|dclid|wbraid|gbraid|fbclid|msclkid|mc_eid|igshid"
+    r"|yclid|twclid|ttclid|epik|_hsenc|_hsmi|vero_id|mkt_tok"
+    r"|utm_[a-z]+)$", re.IGNORECASE)
+
 # Keys whose values are legitimately high-entropy in raw web/source formats
 # (subresource integrity, content hashes, cache tags): never entropy-flag.
 ENTROPY_KEY_ALLOWLIST = {
@@ -188,7 +198,8 @@ POINT_PATTERNS = [
 PROCEDURAL_PATTERNS = [
     ("high-entropy-token", "blocking",
      "high-entropy token (20-64 chars, assignment context, text files only; "
-     "never binary streams, data: URIs, or integrity/hash attributes)"),
+     "never binary streams, data: URIs, integrity/hash attributes, or known "
+     "ad/search tracking params inside URL query strings)"),
     ("phone-dense", "advisory",
      "phone-number-dense content (%d+ phone-shaped numbers in one file)"
      % PHONE_DENSE_THRESHOLD),
@@ -266,6 +277,9 @@ def _scan_entropy_line(path, line_text, line_no, findings, seen):
     for match in ENTROPY_TOKEN_RE.finditer(line_text):
         key_name, value = match.group(1), match.group(2)
         if key_name.lower().strip("_-.") in ENTROPY_KEY_ALLOWLIST:
+            continue
+        if (TRACKING_PARAM_RE.match(key_name) and match.start() > 0
+                and line_text[match.start() - 1] in "?&;"):
             continue
         # never fire inside data: URIs / base64 media payloads
         context = line_text[max(0, match.start() - 48):match.start()]

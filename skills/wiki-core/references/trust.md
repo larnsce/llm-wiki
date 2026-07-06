@@ -15,7 +15,10 @@ its knowledge is written into wiki pages (REQ-589). Presence in `ingested/` mean
 processed; the move is the atomic provenance commit and rides the SAME git commit as
 the page edits it produced. Source files are IMMUTABLE: the wiki reads and links
 them by path, never edits them. `raw/` and `ingested/` live beside the pages
-directory so they are not rendered as wiki pages.
+directory, which keeps sources out of the pages tree; keeping them out of the
+tool's INDEX takes a tool setting on top (Logseq: `:hidden` in
+`logseq/config.edn`, written by setup, REQ-787; Obsidian: Files and links ->
+Excluded files, manual).
 
 ## source-file::
 
@@ -74,11 +77,12 @@ claim, remove resolved ones, delete the section when all resolve, and recompute
 Example (Logseq):
 
 ```
-- type:: knowledge
-- domain:: tech
-- confidence:: high
-- source-file:: ingested/papers/smith-2024.md
-- reliability:: medium
+type:: knowledge
+domain:: tech
+confidence:: high
+source-file:: ingested/papers/smith-2024.md
+reliability:: medium
+
 - ## Body
   - Synthesised claim from the source.
 - ## Pending Review

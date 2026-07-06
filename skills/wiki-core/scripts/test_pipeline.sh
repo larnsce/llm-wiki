@@ -229,6 +229,34 @@ run python3 "$SCRIPT_DIR/init_wiki.py" \
   --wiki-path "$WORK/fc-wiki" --tool logseq --date 2026-07-01
 assert_exit 1 "init_wiki: warns (exit 1) instead of overwriting existing pages"
 
+# Logseq :hidden scaffold (issue #69, REQ-787): a fresh scaffold writes
+# logseq/config.edn hiding the source dirs; an app-initialized graph gets
+# the entries MERGED into its existing :hidden vector (commented vectors
+# are not touched).
+HIDDEN_WIKI="$WORK/hidden-fresh"
+run python3 "$SCRIPT_DIR/init_wiki.py" \
+  --wiki-path "$HIDDEN_WIKI" --tool logseq --date 2026-07-01
+assert_exit 0 "init_wiki: clean scaffold including logseq/config.edn"
+if grep -q ':hidden \["raw" "ingested"\]' "$HIDDEN_WIKI/logseq/config.edn"; then
+  report PASS "init_wiki: fresh config.edn hides raw/ and ingested/"
+else
+  report FAIL "init_wiki: fresh config.edn hides raw/ and ingested/"
+fi
+
+HIDDEN_WIKI="$WORK/hidden-merge"
+mkdir -p "$HIDDEN_WIKI/logseq"
+printf '{:meta/version 1\n ;; :hidden ["commented"]\n :hidden ["existing"]}\n' \
+  >"$HIDDEN_WIKI/logseq/config.edn"
+run python3 "$SCRIPT_DIR/init_wiki.py" \
+  --wiki-path "$HIDDEN_WIKI" --tool logseq --date 2026-07-01
+assert_exit 0 "init_wiki: clean scaffold over an app-initialized graph"
+if grep -q ':hidden \["existing" "raw" "ingested"\]' "$HIDDEN_WIKI/logseq/config.edn" \
+  && grep -q ';; :hidden \["commented"\]' "$HIDDEN_WIKI/logseq/config.edn"; then
+  report PASS "init_wiki: merges :hidden entries, leaves commented vector alone"
+else
+  report FAIL "init_wiki: merges :hidden entries, leaves commented vector alone"
+fi
+
 # ---------------------------------------------------------------------------
 # lint: clean fixtures green, planted defects red, in BOTH tool modes
 # ---------------------------------------------------------------------------
@@ -486,6 +514,34 @@ for tool in logseq obsidian; do
     REQ-904 critical
 done
 
+# A ref whose path contains whitespace (un-slugged web-clipping filename,
+# issue #67): the union invariant fires critical AND the REQ-901 warning
+# points at the actual cause (slugify at intake) instead of the generic
+# malformed-ref message.
+wiki="$WORK/logseq-spacey-ref"
+make_wiki "$wiki" "logseq"
+mkdir -p "$wiki/ingested/clippings"
+cat > "$wiki/pages/wiki___tech___spacey-ref.md" <<'EOF'
+- type:: knowledge
+- domain:: tech
+- created:: 2026-07-01
+- updated:: 2026-07-01
+- confidence:: medium
+- source:: ingest
+- source-file:: ingested/clippings/Before the Guardrails.md
+- reliability:: medium
+- schema-spec-version:: 2.0.0
+- ## Body
+	- A claim citing an un-slugged clipping filename.
+	  cite:: ingested/clippings/Before the Guardrails.md
+- ## Cross-References
+	- [[wiki/tech]]
+EOF
+run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+assert_exit 2 "check_citations: critical (exit 2) on whitespace ref (union unresolvable)"
+assert_report "check_citations: whitespace ref gets the slugify hint" \
+  "any(f['id'] == 'REQ-901' and 'slugify' in f['message'] for f in r['findings'])"
+
 # ---------------------------------------------------------------------------
 # check_canon: green on the repo, red on a mutated copy
 # ---------------------------------------------------------------------------
@@ -525,6 +581,15 @@ assert_exit 0 "secret_scan: green on clean source"
 run py secret_scan.py --json "$FIXTURES/sources/clipped-page.html"
 assert_exit 2 "secret_scan: blocking (exit 2) on fake AWS key in clipped HTML"
 assert_scan_pattern "secret_scan: aws-access-key pattern fired" aws-access-key
+
+# The tracking-param carve-out (issue #68) is URL-query-scoped only: the
+# same high-entropy value in a bare assignment still blocks. The URL side
+# is pinned by the clean fixture above.
+ENTROPY_NOTE="$WORK/entropy-note.md"
+printf 'config dump\ndeploy_id = AfmBOor7RPqK3x9ZtWc5dd2Xw1QhVbnJ4uE\n' >"$ENTROPY_NOTE"
+run py secret_scan.py --json "$ENTROPY_NOTE"
+assert_exit 2 "secret_scan: blocking (exit 2) on bare high-entropy assignment"
+assert_scan_pattern "secret_scan: high-entropy-token pattern fired" high-entropy-token
 
 run py secret_scan.py --json "$FIXTURES/sources/personal-note.md"
 assert_exit 1 "secret_scan: advisory (exit 1) on email + national-ID note"

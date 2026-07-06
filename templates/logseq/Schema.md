@@ -1,8 +1,9 @@
-- wiki-version:: 1.0
-- schema-spec-version:: 2.0.0
-- last-updated:: {{DATE}}
-- maintained-by:: llm-wiki
-- type:: schema
+wiki-version:: 1.0
+schema-spec-version:: 2.0.0
+last-updated:: {{DATE}}
+maintained-by:: llm-wiki
+type:: schema
+
 - ## Namespace Conventions
 	- Top-Level: {{NAMESPACES}}
 	- Page Naming: lowercase structural segments, hyphen (U+002D) for multi-word (`wiki/projects/my-project`); no spaces, underscores, or en/em dashes in structural segments. Proper-noun leaves keep natural casing (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`). Pre-migration `Wiki/` corpora are grandfathered until the lowercase migration runs.
@@ -78,7 +79,7 @@
 - ## Source Lifecycle
 	- A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
 	- Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
-	- `raw/` and `ingested/` live BESIDE `pages/`, so Logseq does not render sources as wiki pages.
+	- `raw/` and `ingested/` live BESIDE `pages/`, which keeps sources out of the pages directory; only the `:hidden` entries in `logseq/config.edn` keep them out of the Logseq index (setup writes them; re-index the graph after changing them).
 - ## Cross-Reference Rules
 	- Every wiki page MUST have at least one `[[wiki/...]]` link to another wiki page
 	- Hub pages MUST list ALL child pages in their namespace
@@ -87,9 +88,9 @@
 	- Tags: `#tag` for lightweight categorization (e.g., `#docker`, `#deploy`, `#critical`)
 	- External links: `[Text](URL)` for URLs outside the wiki
 - ## Content Format Rules
-	- Every line is a Logseq block (starts with `- `)
+	- Every BODY line is a Logseq block (starts with `- `)
 	- Properties: `property:: value` syntax (NO YAML frontmatter)
-	- Page properties go on the first blocks of the page
+	- Page properties are UNBULLETED `property:: value` lines at the top of the file, followed by one blank line (this matches what the Logseq app itself writes; bulleted page properties get rewritten by the app on first open). Block properties (e.g. `cite::`) stay as indented continuation lines under their block.
 	- Sections: `## Heading` syntax inside a block: `- ## Section Name`
 	- Code blocks: fenced with triple backticks inside a block
 	- NEVER store credentials, passwords, or API tokens in wiki pages

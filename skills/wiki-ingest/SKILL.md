@@ -73,6 +73,16 @@ provenance, and ensure structural integrity.
   (drain the queue) (REQ-070)
 - A path/URL argument -> that single source. A local file outside `raw_dir` is
   copied into `raw_dir` first so the lifecycle is consistent (REQ-070)
+- Slugify filenames at intake (REQ-070a): when a file entering processing
+  from `raw_dir` has a name containing spaces, commas, `#`, or other
+  non-kebab characters (web clippings arrive with page titles as filenames),
+  RENAME it to a kebab-case slug -- lowercase, hyphens, keep the extension,
+  drop or transliterate everything else -- and rename any companion asset
+  folder the same way, BEFORE planning. `source-file::` and `cite::` refs
+  are born valid this way: the citation checker rejects paths with
+  whitespace, and refs are comma-separated so a comma in a filename breaks
+  parsing. Truncate to something readable (~60 chars); on a name collision
+  in `raw_dir` or `ingested/<type>/`, append `-2`, `-3`, ...
 - Infer each source's type (one of `source_types`): paper/PDF/Zotero export ->
   `papers`; web clip -> `clippings`; news/blog -> `articles`; dataset/CSV ->
   `data`; personal note -> `notes`; image/binary -> `assets`. Fall back to
@@ -180,8 +190,11 @@ Interaction rules:
   the line in the namespace hub's `### Index` in the routing-line format from
   [formats](../wiki-core/references/formats.md) (REQ-033/033a). The description
   is the routing key consumed by query Phase 0
-- Add `[[cross-references]]` between all affected pages; every touched page
-  needs at least 1 outgoing wiki link (REQ-034)
+- Add cross-references between all affected pages, written under a
+  `## Cross-References` section (this EXACT heading, schema REQ-573: the
+  citation checker exempts it from claim coverage; synonyms like Related or
+  See also get counted as uncited claims). Every touched page needs at least
+  1 outgoing wiki link (REQ-034)
 - Set `updated::` (or the YAML `updated` field) to today on every modified
   page (REQ-035); ISO 8601 dates throughout (REQ-061)
 - (source pipeline) On every created or updated ingested page: set

@@ -56,14 +56,15 @@ Obsidian is the better choice when:
 
 ### Properties
 
-**Logseq** uses inline property syntax on the first lines of the page:
+**Logseq** uses inline property syntax: unbulleted `property:: value` lines at the top of the page, followed by one blank line (this is the shape the Logseq app itself writes; pre-v2.3 pages with `- `-bulleted properties still parse):
 
 ```markdown
-- type:: knowledge
-- domain:: tech
-- confidence:: high
-- created:: 2026-03-15
-- updated:: 2026-04-07
+type:: knowledge
+domain:: tech
+confidence:: high
+created:: 2026-03-15
+updated:: 2026-04-07
+
 - ## Topic Title
   - Content goes here as indented blocks.
 ```
@@ -191,9 +192,9 @@ If you started with Logseq and want to switch to Obsidian:
 **Step 1 -- Convert properties.** Replace inline `property:: value` with YAML frontmatter.
 
 ```
-Before (Logseq):
-- type:: knowledge
-- domain:: tech
+Before (Logseq, page properties unbulleted; older pages may carry a "- " prefix on them):
+type:: knowledge
+domain:: tech
 
 After (Obsidian):
 ---
@@ -221,9 +222,9 @@ After:  wiki/tech/Strapi.md
 
 If you started with Obsidian and want to switch to Logseq:
 
-**Step 1 -- Convert properties.** Replace YAML frontmatter with inline `property:: value` syntax.
+**Step 1 -- Convert properties.** Replace YAML frontmatter with inline `property:: value` syntax: unbulleted lines at the top of the file, followed by one blank line.
 
-**Step 2 -- Add outliner prefixes.** Every line must start with `- `. Indentation creates hierarchy.
+**Step 2 -- Add outliner prefixes.** Every BODY line must start with `- ` (the page-property block stays unbulleted). Indentation creates hierarchy.
 
 **Step 3 -- Flatten files.** Move from nested directories to flat directory with triple-underscore names.
 

@@ -103,6 +103,18 @@ skills for Claude Code. It requires only bash, python3, and git.
 - REQ-785: The system SHALL create parent directories as needed (`mkdir -p`).
 - REQ-786: The system SHALL NOT overwrite existing pages. If a page already
   exists, the system SHOULD skip it with a warning.
+- REQ-787 (Logseq index exclusion): In Logseq mode the system SHALL ensure
+  `logseq/config.edn` lists the source directories (`raw`, `ingested`) in
+  `:hidden`: create a minimal config.edn when none exists, else merge the
+  missing entries into the existing `:hidden` vector (never overwrite the
+  file). Rationale: Logseq indexes every markdown file in the graph folder
+  recursively; living beside `pages/` keeps sources out of the pages
+  directory, but only `:hidden` keeps them out of the index, where archived
+  sources render as graph pages and their TOC anchor links parse as
+  `#hashtags`. Editing config.edn requires a graph re-index to take effect;
+  the system SHALL say so when it changes an existing file. Obsidian has the
+  equivalent manual setting (Files and links -> Excluded files); the system
+  does not automate it.
 
 ### Step 9: Config File Generation
 
