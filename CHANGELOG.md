@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-07-06
+
+The journal seam and dual-register answers, from first live use of the
+v2.3/v3.0 stack: the journal becomes the daily surface of the ingest
+pipeline, and query answers become readable by anyone.
+
+### Added
+
+- Journal seam (`openspec/specs/ingest.md` REQ-090..095, issues #83/#84/#85):
+  every ingest run appends one bullet per source to a single daily
+  `Ingested` block on today's journal page, with links to the touched wiki
+  pages and an empty child bullet reserved for the user's own notes;
+  append-only inside the journal (REQ-094), visible at the checkpoint
+  (REQ-092), riding the run's atomic commit (REQ-095).
+- Wiki-to-journal back-link (schema REQ-585c, ingest REQ-093, issue #84):
+  optional `journal::` property on ingested pages, refreshed like
+  `updated::` to the most recent ingest day's journal page; together with
+  the journal bullet it forms the bidirectional wiki-journal link pair.
+- Dual-register query answers (`openspec/specs/query.md` REQ-435..437,
+  issues #82/#88): every /wiki-query answer carries the precise register
+  first, then a plain-language version under `In plain terms`; same facts,
+  same warnings, no new claims; source and plane attribution appear once,
+  shared by both registers.
+- Config key `journals_dir` (config REQ-629, default `journals`, issue #86):
+  names the journal directory per tool flavor; recognized by page
+  enumeration (`wikilib.py`), namespace classification (`lint.py` rule 14),
+  and `check_config.py`.
+
+### Changed
+
+- Ingest REQ-060 now names the journal seam as the single sanctioned
+  machine write path into journals (append-only); the voice journal summary
+  (REQ-082) writes through the same discipline instead of carving its own
+  exception (issue #85).
+
 ## [3.0.0] - 2026-07-06
 
 The personal pipeline: a SQLite machine plane beside the markdown vault,
