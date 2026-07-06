@@ -6,14 +6,17 @@ description: Search the wiki for an answer to a question. Two-stage retrieval vi
 # wiki-query
 
 Search the wiki (two-stage via hub index) and synthesize an answer. This is the
-primary read path; the counterpart to wiki-ingest (write path).
+primary read path; the counterpart to wiki-ingest (write path). When the
+storage plane is configured, aggregate, temporal, and full-text questions
+route to index.db SQL (the second plane); entity questions stay on pages.
 
-Spec: openspec/specs/query.md REQ-400..452
+Spec: openspec/specs/query.md REQ-400..452, two-plane routing REQ-460..464
 
 Shared conventions (read before executing):
 
 - [config](../wiki-core/references/config.md): discover and read `llm-wiki.yml`
-  FIRST (tool, wiki_path, pages_dir, memory_path, namespaces).
+  FIRST (tool, wiki_path, pages_dir, memory_path, namespaces; optional
+  `index_db`, config REQ-627, enables the index plane).
 - [architecture](../wiki-core/references/architecture.md): L1/L2 boundary,
   two-stage routing, L3 fallback, LRU-Demote, retrieval and commit discipline,
   namespace scope rule.
@@ -29,6 +32,14 @@ access log that makes retrieval auditable.
 <workflow>
 ## Phase 0 - Routing (Stage 1, cheap index read)
 
+- Plane decision first (REQ-460), only when `index_db` is configured AND the
+  file exists; otherwise skip straight to hub routing:
+  - Entity/topic questions ("what do we know about X", "how do I Y") ->
+    markdown plane (below), the default. When in doubt, the markdown plane
+    wins.
+  - Aggregate (counts/lists across many pages), temporal (date ranges over
+    journals and meetings), or needle-in-haystack full-text ("which page
+    mentions X") -> the index plane (Phase 0b)
 - Parse the question -> identify candidate namespaces (Business, Tech, Content,
   Projects, People, Learning, Reference, Careers, plus any configured in
   llm-wiki.yml)
@@ -37,6 +48,27 @@ access log that makes retrieval auditable.
   [formats](../wiki-core/references/formats.md)) against the question
 - Pick the 3 most relevant child pages (max 5). This is the "page table": index,
   not full scan
+
+## Phase 0b - Index plane (only when routed there, REQ-460..462)
+
+- Staleness first (REQ-461, storage REQ-1133): run
+
+  ```
+  python3 skills/wiki-core/scripts/rebuild_index.py --config <llm-wiki.yml> --stale-check
+  ```
+
+  Exit 1 (stale): either rebuild now (same script without the flag) and
+  answer fresh, or answer from the stale index with an EXPLICIT staleness
+  warning in the output. Never answer from a stale index silently.
+- Read with python3 stdlib `sqlite3`, SELECT-only against the frozen schema
+  (storage REQ-1130). Starting shapes:
+  - people: `SELECT page, name, aliases FROM people WHERE name LIKE ? OR aliases LIKE ?`
+  - meetings: `SELECT page, date, text FROM meetings WHERE date BETWEEN ? AND ? ORDER BY date, page`
+  - full-text: `SELECT page FROM page_text WHERE page_text MATCH ? ORDER BY rank`
+- Index results are pointers, not sources (REQ-464): aggregate answers
+  (counts, page-name or date lists) may come from SQL alone; anything
+  quoted as content routes a Phase 1 read of the hit's `page` instead.
+  Never write to index.db from this workflow.
 
 ## Phase 1 - Targeted Read (Stage 2, only the chosen pages)
 
@@ -56,7 +88,9 @@ access log that makes retrieval auditable.
   [formats](../wiki-core/references/formats.md)
 - The `matched:` reason = the "and why" of the routing (loading transparency): on
   index routing (Phase 0) the hub `### Index` routing description / #tag that
-  matched the question; on the L3 fallback the grep term that found the page
+  matched the question; on the L3 fallback the grep term that found the page;
+  on an index-plane hit (Phase 0b) the index route, e.g. `fts: <term>` or
+  `meetings: <range>` (REQ-464)
   (length and quoting rules: [formats](../wiki-core/references/formats.md)). The
   log then shows not just WHICH page loaded but WHY it was picked for this
   question; surfaced via the wiki-maintain status report (cache profile)
@@ -91,6 +125,10 @@ access log that makes retrieval auditable.
 
 - Answer with source pages: "Sources: [[wiki/tech/deployment]],
   [[wiki/reference/gotchas]]"
+- Plane attribution (REQ-463): state which plane answered: pages, index.db,
+  or both, e.g. "Sources: [[wiki/tech/deployment]]; index.db (meetings,
+  12 rows)". Include the staleness warning here when answering from a stale
+  index (REQ-461)
 - Flag stale sources (updated:: more than 90 days ago) and low-confidence sources
   with an explicit warning
 - Suggest related pages
