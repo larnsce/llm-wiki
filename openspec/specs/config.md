@@ -71,6 +71,13 @@ All downstream behavior depends on this file being valid.
   file means the voice queue is empty, not a config error. The placement
   invariants of specs/storage.md REQ-1103 (outside git, or gitignored) bind
   whatever value is configured; validation is shape-only.
+- REQ-627: The config MAY contain the key `index_db` (default
+  `~/archive/index.db`): the path where `rebuild_index.py` writes the derived,
+  disposable index database (specs/storage.md REQ-1130..1133). Expanded like
+  `wiki_path`; not required to exist (the first rebuild creates it). The
+  REQ-1103 placement invariants bind the value: when the path resolves inside
+  the vault's git-tracked tree and is not gitignored, the rebuild SHALL refuse
+  to write.
 
 ### Validation Rules
 

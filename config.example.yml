@@ -60,3 +60,7 @@ default_source_type: papers
 # the voice-pipeline guide; the file is not required to exist (no file means
 # an empty voice queue). Must live outside git or be gitignored (REQ-1103).
 # archive_db: ~/archive/archive.db
+# index_db (openspec/specs/config.md REQ-627): where rebuild_index.py writes
+# the derived, disposable index database (storage REQ-1130..1133). Created on
+# first rebuild; delete it any time, it rebuilds from the markdown.
+# index_db: ~/archive/index.db

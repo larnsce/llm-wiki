@@ -95,8 +95,9 @@ private by default.
     `docs/voice-pipeline.md`; report `inbox n/a` when the directory is
     absent),
   - the unprocessed row count from the query above,
-  - the age of the last index rebuild (from index.db's staleness stamp;
-    report `index n/a` until the index layer (v3.0 P-4) is installed).
+  - the age of the last index rebuild (the index.db file's mtime, storage
+    REQ-1131; the path is the `index_db` config key, default
+    `~/archive/index.db`; report `index n/a` when no index.db exists yet).
 
   Format: `pipeline: inbox newest 2h | unprocessed 3 | index rebuilt 26h ago`
 
