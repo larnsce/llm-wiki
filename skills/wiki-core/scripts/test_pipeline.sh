@@ -512,6 +512,14 @@ for tool in logseq obsidian; do
   assert_lint_finding \
     "check_citations($tool): union mismatch reports REQ-904" \
     REQ-904 critical
+
+  # Capture refs (ingest REQ-086): archive.db:voice_notes/<id> is a valid
+  # cite target and joins the source-file union like an ingested/ path.
+  wiki="$WORK/$tool-capture-cited"
+  make_wiki "$wiki" "$tool"
+  cp -R "$FIXTURES/citations/$tool/capture-cited/." "$wiki/"
+  run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 0 "check_citations($tool): green on capture-ref cited page (REQ-086)"
 done
 
 # A ref whose path contains whitespace (un-slugged web-clipping filename,
@@ -624,6 +632,28 @@ assert_exit 0 "secret_scan: gitignore-check green on ignored path"
 run py secret_scan.py --json --gitignore-check "$GITWIKI" \
   "ingested/papers/tracked.md"
 assert_exit 2 "secret_scan: gitignore-check red on path that would enter history"
+
+# ---------------------------------------------------------------------------
+# setup.sh personal tier (setup REQ-803) + archive_db config key (config
+# REQ-626). setup.sh runs non-interactively here: no init, no pointer.
+# ---------------------------------------------------------------------------
+run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-default"
+assert_exit 0 "setup: default install runs clean"
+run test -d "$WORK/tier-default/.claude/skills/wiki-ingest"
+assert_exit 0 "setup: default install includes wiki-ingest"
+run test -d "$WORK/tier-default/.claude/skills/wiki-ingest-voice"
+assert_exit 1 "setup: default install SKIPS wiki-ingest-voice (REQ-803)"
+
+run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-personal" --with-personal
+assert_exit 0 "setup: --with-personal install runs clean"
+run test -d "$WORK/tier-personal/.claude/skills/wiki-ingest-voice"
+assert_exit 0 "setup: --with-personal installs wiki-ingest-voice (REQ-803)"
+
+ARCHWIKI="$WORK/arch-wiki"
+make_wiki "$ARCHWIKI" logseq
+echo "archive_db: ~/archive/archive.db" >>"$ARCHWIKI/llm-wiki.yml"
+run py check_config.py "$ARCHWIKI/llm-wiki.yml"
+assert_exit 0 "check_config: archive_db is a known optional key (REQ-626)"
 
 # ---------------------------------------------------------------------------
 # Summary

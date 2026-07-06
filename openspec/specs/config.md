@@ -63,6 +63,14 @@ All downstream behavior depends on this file being valid.
   human-owned namespaces (specs/namespaces.md). They are recognized by the
   namespace scope rule and the namespace-hygiene lint check; when absent, the
   defaults apply and the namespaces are still recognized.
+- REQ-626: The config MAY contain the key `archive_db` (default
+  `~/archive/archive.db`, the convention of `docs/voice-pipeline.md`): the path
+  to the archive.db capture database consumed by the voice ingest workflow
+  (specs/ingest.md Voice Sources; specs/storage.md). The path is expanded like
+  `wiki_path` (tilde to `$HOME`) and is NOT required to exist: absence of the
+  file means the voice queue is empty, not a config error. The placement
+  invariants of specs/storage.md REQ-1103 (outside git, or gitignored) bind
+  whatever value is configured; validation is shape-only.
 
 ### Validation Rules
 

@@ -15,6 +15,9 @@ Checks:
   shape-only validation: relative to the pages directory (no absolute
   path, no tilde), no '..' traversal (criticals), lowercase advisory
   (warning, schema.md REQ-580)
+- archive_db: optional key (config.md REQ-626): path to the archive.db
+  capture database for the voice ingest workflow. Shape-only: the file is
+  not required to exist (absence means an empty voice queue)
 
 Exit codes: 0 = clean, 1 = warnings only, 2 = critical.
 """
@@ -40,6 +43,7 @@ KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
     "sensitive_source_types",
     "para_dir",
     "notes_dir",
+    "archive_db",
 }
 
 PIPELINE_SNIPPET = """raw_dir: raw

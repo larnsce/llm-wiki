@@ -53,3 +53,10 @@ default_source_type: papers
 # list them above if promoted content can carry governed personal data.
 # para_dir: para
 # notes_dir: notes
+
+# Personal tier (optional; openspec/specs/config.md REQ-626): path to the
+# archive.db capture database consumed by /wiki-ingest-voice (see
+# openspec/specs/storage.md and docs/voice-pipeline.md). The default matches
+# the voice-pipeline guide; the file is not required to exist (no file means
+# an empty voice queue). Must live outside git or be gitignored (REQ-1103).
+# archive_db: ~/archive/archive.db

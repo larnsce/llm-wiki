@@ -27,6 +27,15 @@ frozen.
   plan for that promoted note (v2.2, namespaces REQ-970..973): the
   wiki/learning/tidy-data page touch, the `medium` personal-synthesis
   reliability default (schema REQ-586), and the planned cite targets.
+- `source/voice-note-1-transcript.txt`: pinned fixture transcript, a FAKE
+  rambling voice memo written for this suite; it enters as `voice_notes`
+  row id 1 of a scratch archive.db (insert snippet in the golden file).
+- `ingest-voice.golden.md`: the expected `/wiki-ingest-voice` checkpoint
+  for that row (v3.0 P-3, ingest REQ-080..087): journal-default summary,
+  per-row wiki offers with the capture-backed `low` reliability, the
+  individual confirmation for the row naming a person, the
+  sensitive-content refusal, the TODO hand-over, and the dead-man status
+  line (storage REQ-1140).
 
 ## When to re-run
 
@@ -51,6 +60,11 @@ Re-run the golden check after any change to:
    For `promotion-seam.golden.md`, copy `tests/golden/source/note-tidy-data.md`
    instead (keep the filename: the `note-` prefix is what marks the source
    as promoted).
+
+   For `ingest-voice.golden.md`, copy no file: create the scratch
+   archive.db with the insert snippet recorded in the golden file, add
+   `archive_db: /tmp/golden-archive.db` to the scratch vault's
+   `llm-wiki.yml`, and run `/wiki-ingest-voice` instead of `/wiki-ingest`.
 
 2. In a Claude Code session pointed at that vault, run `/wiki-ingest` in
    interactive mode and stop at the batch checkpoint (Phase 1-2 only; do
