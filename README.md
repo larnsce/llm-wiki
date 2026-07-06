@@ -26,6 +26,8 @@ llm-wiki is an implementation of that idea. Claude Code is the LLM brain; Logseq
 | `wiki-migrate` | One-time, interactive corpus migrations driving `migrate_wiki.py`: the v1-to-v2 schema pass and the lowercase rename pass (`Wiki/` to `wiki/`, `--lowercase`) |
 | `wiki-audit` | Verify a page claim by claim against its cited sources (one isolated subagent per source); read-only by default, `--fix` writes only after confirmation |
 | `wiki-update` | The sanctioned non-append edit path for cited content: diff-first, source-required; superseded claims stay legible |
+| `wiki-glossary` | The glossary curation loop (v2.3): drain `#glossary-todo` captures into one checkpoint, promote staging rows, pull-only termbase import; every write is human-confirmed, the tool never decides a Rule |
+| `wiki-ingest-voice` | Personal tier (v3.0, `--with-personal` only): drain unprocessed voice transcripts from archive.db to journal summaries; wiki writes per-row opt-in, interactive only |
 
 `skills/wiki-core/` is not a skill; it is the shared library the suite runs on: the scripts (`init_wiki.py`, `lint.py`, `check_canon.py`, `secret_scan.py`, `migrate_wiki.py`, config discovery) and the shared reference docs (config, architecture, formats, trust).
 
@@ -37,7 +39,7 @@ cd llm-wiki
 ./setup.sh
 ```
 
-`setup.sh` copies (or, with `--symlink`, links) the skills into `~/.claude/skills/` (or `<project>/.claude/skills/` with `--project`), optionally scaffolds a wiki via `init_wiki.py` (`--init --tool logseq --wiki-path ~/notes`), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run `./setup.sh --help` for all options.
+`setup.sh` copies (or, with `--symlink`, links) the skills into `~/.claude/skills/` (or `<project>/.claude/skills/` with `--project`), optionally scaffolds a wiki via `init_wiki.py` (`--init --tool logseq --wiki-path ~/notes`, with `--with-para-notes` and `--with-glossary` for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run `./setup.sh --help` for all options.
 
 Requirements: bash, python3, git. No npm, no pip.
 
@@ -52,6 +54,17 @@ Requirements: bash, python3, git. No npm, no pip.
 ```
 
 The wiki starts sparse and gets denser with every ingest. Ingest is interactive by default: it presents a consolidated plan (pages to create and update, reliability ratings) and waits for your approval before writing anything.
+
+## The personal tier (v3.0)
+
+The repo ships a personal pipeline beside the generic tool, behind an explicit opt-in (`setup.sh --with-personal`); the default install never includes it. It is built for one concrete setup (macOS, whisper.cpp, a phone that syncs voice memos) and the repo documents it rather than fully shipping it:
+
+- **Storage planes** (`openspec/specs/storage.md`): markdown is what a human writes; SQLite is what a machine accumulates. `archive.db` (raw capture, irreplaceable, backed up, never in git) and `index.db` (derived from the vault by `rebuild_index.py`, disposable, rebuilt any time) are never merged.
+- **Voice pipeline** (`docs/voice-pipeline.md` + `/wiki-ingest-voice`): phone memo to whisper.cpp transcript to a journal summary with provenance (`archive.db:voice_notes/<id>`). Journal-only by default; anything touching a wiki page or naming a person is confirmed per row; assessments of people never leave the transcript.
+- **Two-plane query**: aggregate, temporal, and full-text questions route to `index.db` SQL (FTS5, stdlib sqlite3) with a staleness check before every read; entity questions stay on pages. Every answer names its plane.
+- **Archive layer** (`docs/archive-layer.md`): Google Takeout (mail, calendar, contacts) into archive.db, documented copy-paste importers, lazy alias resolution.
+
+Zero external dependencies still holds: sqlite3 and FTS5 come with python3.
 
 ## Support tiering
 
