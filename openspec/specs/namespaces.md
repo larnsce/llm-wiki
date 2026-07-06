@@ -1,12 +1,15 @@
-# Spec: Namespaces - wiki/ | para/ | notes/ Contract & Scope
+# Spec: Namespaces - wiki/ | para/ | notes/ | glossary/ Contract & Scope
 
 ## Description
 
-The graph holds three top-level namespaces with different ownership and different obligations.
+The graph holds four top-level namespaces with different ownership and different obligations.
 `wiki/` is machine-written and source-backed: the full schema, provenance, citation, reliability,
 lint, and audit conventions apply to it. `para/` (PARA task/project layer) and `notes/`
 (Zettelkasten layer) are human-authored and EXEMPT from the wiki conventions - the wiki
-toolchain never creates, edits, lints, or audits them. The only path from `para/` or `notes/` into
+toolchain never creates, edits, lints, or audits them. `glossary/` (v2.3) is human-DECIDED,
+tool-READABLE, and structure-LINTED: the tool never invents or edits a terminology decision,
+may scaffold and structure-check the pages, and loads domain pages as drafting context
+(ownership model in `specs/glossary.md`). The only path from `para/` or `notes/` into
 `wiki/` is the explicit promotion seam: content is copied into `raw/` and enters through the normal
 ingest pipeline, receiving provenance like any other source.
 
@@ -14,7 +17,9 @@ This spec defines the namespace contract, the scope rule that binds every wiki w
 promotion seam, the note-type vocabulary the tool recognizes but does not author, and the
 query-page tiering decision for the human layers.
 
-> Spec version: introduced for v2.2. This spec uses the globally unique REQ-960..981 range
+> Spec version: introduced for v2.2; REQ-960 amended for v2.3 (the `glossary/` namespace,
+> `specs/glossary.md`, in the same PR as the check_canon namespace surface per the premortem).
+> This spec uses the globally unique REQ-960..981 range
 > (the merged draft used IDs in the 600s, which collided with `specs/config.md` and
 > `specs/prune.md`). Naming rules live in `specs/schema.md` (Namespace Conventions);
 > mechanical enforcement lives in `specs/lint.md` (naming-hygiene, namespace-hygiene).
@@ -23,14 +28,19 @@ query-page tiering decision for the human layers.
 
 ## Requirements
 
-### The Three-Namespace Contract
+### The Namespace Contract
 
-- REQ-960: The graph SHALL define exactly three content namespaces at the top level:
+- REQ-960: The graph SHALL define exactly four content namespaces at the top level:
   - `wiki/` - machine-written, source-backed knowledge. The full schema (`specs/schema.md`),
     provenance/trust, citations, lint, and audit conventions apply.
   - `para/` - human-owned tasks and projects (PARA). EXEMPT from all wiki conventions.
   - `notes/` - human-written thinking (Zettelkasten). EXEMPT from all wiki conventions. Never
     machine-generated.
+  - `glossary/` - human-DECIDED terminology (v2.3, `specs/glossary.md`): the tool never
+    invents, edits, or deletes a decision; it MAY scaffold pages, write rows the human
+    confirmed at a checkpoint, read domain pages as drafting context, and lint STRUCTURE
+    only (lint rule 15). Exempt from the wiki-only conventions (source-file, reliability,
+    citations, routing lines).
 - REQ-961: `para/` and `notes/` pages SHALL NOT be required to carry `source-file::`,
   `reliability::`, `confidence::`, citations, routing lines, or any other wiki-only property. Their
   absence on a `para/`/`notes/` page SHALL NOT be flagged by lint.
@@ -89,7 +99,9 @@ query-page tiering decision for the human layers.
 
 - REQ-980: The scope rule and namespace-hygiene SHALL resolve the human namespaces from the
   optional `para_dir` and `notes_dir` keys defined in `specs/config.md` (REQ-625). Absent keys
-  default as defined there (`para/` and `notes/` relative to the pages directory).
+  default as defined there (`para/` and `notes/` relative to the pages directory). The glossary
+  namespace resolves from the optional `glossary_dir` key (`specs/config.md` REQ-628, default
+  `glossary`) the same way.
 - REQ-981: `para/` and `notes/` are candidate members of `sensitive_source_types`
   (`specs/config.md`); when a promoted source is of a sensitive type, the pre-archive secret gate
   (`specs/ingest.md`) applies before any commit into `ingested/`.
@@ -152,10 +164,10 @@ THEN the @Forte2022 leaf SHALL be accepted (proper-noun exemption)
 AND SHALL NOT be flagged for the capital letter or the @ character
 ```
 
-### Scenario 7: stray page outside the three namespaces
+### Scenario 7: stray page outside the namespace contract
 
 ```
-GIVEN a page "Scratchpad" that is not under wiki/, para/, notes/, journals, or a deliberate root page
+GIVEN a page "Scratchpad" that is not under wiki/, para/, notes/, glossary/, journals, or a deliberate root page
 WHEN /wiki-lint runs the namespace-hygiene check
 THEN it SHALL flag the page as outside the namespace contract (info/warning)
 ```
@@ -164,7 +176,7 @@ THEN it SHALL flag the page as outside the namespace contract (info/warning)
 
 ## Acceptance Criteria
 
-- [ ] The three namespaces and their obligations are defined with no overlap
+- [ ] The four namespaces and their obligations are defined with no overlap
 - [ ] The scope rule binds every wiki workflow and is stated once (check_canon-enforceable)
 - [ ] The promotion seam is the only sanctioned path in, with provenance and a medium default
 - [ ] para/ and notes/ pages are exempt from wiki-only lint rules
@@ -180,5 +192,7 @@ THEN it SHALL flag the page as outside the namespace contract (info/warning)
   reliability rubric incl. the "personal synthesis = medium" case (REQ-586)
 - specs/lint.md - naming-hygiene and namespace-hygiene rules that enforce this contract
 - specs/ingest.md - the promotion seam runs on the standard ingest pipeline + pre-archive secret gate
-- specs/config.md - `para_dir`, `notes_dir` (REQ-625), `sensitive_source_types` (REQ-624)
+- specs/config.md - `para_dir`, `notes_dir` (REQ-625), `glossary_dir` (REQ-628),
+  `sensitive_source_types` (REQ-624)
+- specs/glossary.md - the glossary ownership model, table canon, and staging contract
 - specs/citations.md (v2.1) - full claim-level auditability of the "one source, two readings" seam

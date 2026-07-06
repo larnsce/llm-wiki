@@ -79,8 +79,15 @@ requires explicit confirmation.
   the para/notes directory trees on Obsidian) and writes the
   `para_dir`/`notes_dir` keys into llm-wiki.yml (config.md REQ-625,
   namespaces.md REQ-980).
+- Offer the optional glossary layer the same way: "Also scaffold the
+  glossary/ terminology layer (index + one seed domain page)? Decisions
+  stay yours; the tool structure-lints it and writes only rows you confirm;
+  see docs/glossary-workflow.md." If accepted, add `--with-glossary`: it
+  scaffolds the `glossary` index and `glossary/tech` seed page and writes
+  the `glossary_dir` key (config.md REQ-628, specs/glossary.md).
 - Run `python3 ../wiki-core/scripts/init_wiki.py --wiki-path <path> --tool
-  <tool> [--namespaces ...] [--memory-path ...] [--with-para-notes]`.
+  <tool> [--namespaces ...] [--memory-path ...] [--with-para-notes]
+  [--with-glossary]`.
 - Exit code semantics: 0 clean, 1 files were skipped because they already
   exist (nothing was overwritten, REQ-786; tell the user which), 2 critical
   (report and stop).

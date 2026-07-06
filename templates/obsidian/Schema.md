@@ -214,7 +214,8 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 - **Rule 11 Archived-in-Live-Index** (REQ-197): archived pages whose routing line still sits in the hub `### Index`
 - **Rule 12 External Link Rot** (REQ-220): canonical-url targets that no longer resolve; URL-shape check by default, real HTTP check with `--check-urls`
 - **Rule 13 Naming Hygiene** (REQ-230): structural name segments with spaces, uppercase, underscores, or en/em dashes; hyphen (U+002D) is the only separator. Leaves are only flagged mechanically for separator violations; proper-noun leaves (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`) are a wiki-lint judgment call, never auto-fixed
-- **Rule 14 Namespace Hygiene** (REQ-240): pages outside wiki/, para/, notes/, journals, and the recognized root pages; para/ and notes/ pages are accepted here and exempt from all wiki-only rules, never auto-fixed
+- **Rule 14 Namespace Hygiene** (REQ-240): pages outside wiki/, para/, notes/, glossary/, journals, and the recognized root pages; para/, notes/, and glossary/ pages are accepted here and exempt from all wiki-only rules, never auto-fixed
+- **Rule 15 Glossary Hygiene** (REQ-250): glossary/ table shape (| EN | DE | Rule | Note |), the rule enum (keep-en | translate | context), undecided rows on domain pages, and source::/status:: on imported staging pages; structure only, decisions are human and never auto-fixed
 <!-- canon:lint-rules end -->
 
 ## Conventions

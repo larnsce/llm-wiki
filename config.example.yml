@@ -64,3 +64,10 @@ default_source_type: papers
 # the derived, disposable index database (storage REQ-1130..1133). Created on
 # first rebuild; delete it any time, it rebuilds from the markdown.
 # index_db: ~/archive/index.db
+
+# Glossary namespace (openspec/specs/config.md REQ-628, specs/glossary.md):
+# human-decided EN-DE terminology; the tool scaffolds and structure-lints it
+# (lint rule 15) and writes only rows confirmed at the /wiki-glossary
+# checkpoint. Scaffold with init_wiki.py --with-glossary. Default applies
+# even when the key is absent.
+# glossary_dir: glossary

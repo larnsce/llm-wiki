@@ -78,6 +78,13 @@ All downstream behavior depends on this file being valid.
   REQ-1103 placement invariants bind the value: when the path resolves inside
   the vault's git-tracked tree and is not gitignored, the rebuild SHALL refuse
   to write.
+- REQ-628: The config MAY contain the key `glossary_dir` (default
+  `glossary`): the path, relative to the pages directory, naming the
+  human-decided glossary namespace (`specs/glossary.md`,
+  `specs/namespaces.md` REQ-960/980). Recognized by namespace-hygiene
+  (lint rule 14) and the glossary structure check (rule 15); when absent,
+  the default applies and the namespace is still recognized. Shape rules as
+  for `para_dir`/`notes_dir` (REQ-625).
 
 ### Validation Rules
 

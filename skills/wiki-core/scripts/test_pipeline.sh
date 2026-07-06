@@ -634,6 +634,71 @@ run py secret_scan.py --json --gitignore-check "$GITWIKI" \
 assert_exit 2 "secret_scan: gitignore-check red on path that would enter history"
 
 # ---------------------------------------------------------------------------
+# Glossary layer (specs/glossary.md): --with-glossary scaffold, config
+# REQ-628, lint rule 15 (REQ-250..253).
+# ---------------------------------------------------------------------------
+for tool in logseq obsidian; do
+  GLWIKI="$WORK/glossary-$tool"
+  run python3 "$SCRIPT_DIR/init_wiki.py" --wiki-path "$GLWIKI" \
+    --tool "$tool" --date 2026-07-01 --with-glossary
+  assert_exit 0 "init_wiki($tool): --with-glossary scaffolds clean"
+  run py check_config.py "$GLWIKI/llm-wiki.yml"
+  assert_exit 0 "check_config($tool): glossary_dir is a known key (REQ-628)"
+  run py lint.py --config "$GLWIKI/llm-wiki.yml" --strict --json
+  assert_exit 0 "lint($tool): --with-glossary scaffold lints clean under --strict"
+done
+
+GLDEFECT="$WORK/glossary-defects"
+make_wiki "$GLDEFECT" logseq
+cat >"$GLDEFECT/pages/glossary___tech.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-domain
+
+- ## Terms
+	- | EN | DE | Rule | Note |
+	  | --- | --- | --- | --- |
+	  | prompt | der Prompt | keep-english | invalid enum value |
+	  | workflow | der Arbeitsablauf | | undecided row on a domain page |
+EOF
+cat >"$GLDEFECT/pages/glossary___teaching.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-domain
+
+- ## Terms
+	- | EN | German | Rule | Note |
+	  | --- | --- | --- | --- |
+	  | homework | die Hausaufgabe | translate | header is off-canon |
+EOF
+cat >"$GLDEFECT/pages/glossary___imported___glosario.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-staging
+source:: Glosario (The Carpentries), CC-BY
+
+- ## Terms
+	- | EN | DE | Rule | Note |
+	  | --- | --- | --- | --- |
+	  | repository | das Repositorium | | staging row, empty Rule is fine |
+EOF
+cat >"$GLDEFECT/pages/glossary___tech___repository.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-term
+alias:: Repository, Repositorium
+domain:: tech
+
+- Term page without rule::
+EOF
+run py lint.py --config "$GLDEFECT/llm-wiki.yml" --json
+assert_exit_nonzero "lint(logseq): red on glossary defect vault"
+assert_lint_finding "lint(logseq): invalid Rule enum reports REQ-251" REQ-251
+assert_lint_finding "lint(logseq): off-canon header reports REQ-250" REQ-250
+assert_lint_finding "lint(logseq): staging without status reports REQ-252" REQ-252
+assert_lint_finding "lint(logseq): term page without rule:: reports REQ-253" REQ-253
+assert_report "lint(logseq): undecided domain row flagged, staging row accepted (REQ-251)" \
+  "len([f for f in r['findings'] if f['id'] == 'REQ-251' and 'undecided' in f['message']]) == 1"
+assert_report "lint(logseq): no wiki-only findings on glossary pages (REQ-1002)" \
+  "not [f for f in r['findings'] if f['page'].startswith('glossary') and f['id'] not in ('REQ-250', 'REQ-251', 'REQ-252', 'REQ-253')]"
+
+# ---------------------------------------------------------------------------
 # setup.sh personal tier (setup REQ-803) + archive_db config key (config
 # REQ-626). setup.sh runs non-interactively here: no init, no pointer.
 # ---------------------------------------------------------------------------

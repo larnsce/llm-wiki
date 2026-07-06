@@ -18,13 +18,14 @@ same graph as your machine-written `wiki/`, without the two ever colliding.
 > yours). The tool's only involvement is the promotion seam at the end: durable content you
 > deliberately copy into `raw/` and run through `/wiki-ingest`.
 
-## The three-namespace contract
+## The namespace contract
 
 | Namespace | Owner | What lives there | Tool touches it? |
 |---|---|---|---|
 | `wiki/` | machine (via the wiki skills) | source-backed, synthesized knowledge | writes, lints, audits |
 | `para/` | you | tasks, projects, areas, resources | **never** (may read for context) |
 | `notes/` | you | fleeting / literature / permanent notes | **never** (may read for context) |
+| `glossary/` | you (decisions) | EN-DE terminology decisions | scaffolds, structure-lints, reads as drafting context; writes only rows you confirm (see [glossary workflow](glossary-workflow.md)) |
 
 The only path from `para/`/`notes/` into `wiki/` is through `raw/` (namespaces REQ-970): the same
 door every external source uses, so promoted content gets the same lifecycle and provenance

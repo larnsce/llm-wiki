@@ -4,7 +4,7 @@
 
 The lint command scans all wiki pages for structural issues, data quality problems,
 and security concerns. It reports findings grouped by severity and can auto-fix
-certain issues when run with the `--fix` flag. There are 14 lint rules.
+certain issues when run with the `--fix` flag. There are 15 lint rules.
 
 ---
 
@@ -167,10 +167,10 @@ certain issues when run with the `--fix` flag. There are 14 lint rules.
 ### Rule 14: Namespace Hygiene (pages outside the contract)
 
 - REQ-240: The system SHALL flag any page outside `wiki/`, the configured
-  `para_dir` and `notes_dir` namespaces (specs/config.md REQ-625,
-  specs/namespaces.md REQ-980), journals, and the recognized deliberate root
-  pages, as a stray outside the namespace contract (specs/namespaces.md
-  REQ-960/962). Severity: warning (the grandfather floor reports it as info
+  `para_dir`, `notes_dir`, and `glossary_dir` namespaces (specs/config.md
+  REQ-625/628, specs/namespaces.md REQ-980), journals, and the recognized
+  deliberate root pages, as a stray outside the namespace contract
+  (specs/namespaces.md REQ-960/962). Severity: warning (the grandfather floor reports it as info
   on pages without the current `schema-spec-version::`).
 - REQ-241: Recognized deliberate root pages SHALL NOT be flagged: Schema,
   Dashboard, Access-Log, Contents, hub pages (`type:: hub`), and query pages
@@ -179,9 +179,35 @@ certain issues when run with the `--fix` flag. There are 14 lint rules.
 - REQ-242: Pages under `para_dir` and `notes_dir` are IN-contract for this
   rule and EXEMPT from all wiki-only rules (specs/namespaces.md REQ-961/966):
   the system SHALL NOT run any other rule against them (rule 13 reports its
-  advisory info-level structural findings only). No auto-fix: moving a page
-  between namespaces is a human decision; content enters `wiki/` only through
-  the promotion seam (specs/namespaces.md REQ-970).
+  advisory info-level structural findings only). Pages under `glossary_dir`
+  are IN-contract, exempt from the wiki-only rules (specs/glossary.md
+  REQ-1002), and checked by rules 13 (advisory) and 15 (glossary
+  structure). No auto-fix: moving a page between namespaces is a human
+  decision; content enters `wiki/` only through the promotion seam
+  (specs/namespaces.md REQ-970).
+
+### Rule 15: Glossary Hygiene (structure only, never the decisions)
+
+Mechanical enforcement of specs/glossary.md; runs only on pages under
+`glossary_dir` (config REQ-628). The decisions themselves (which Rule, which
+DE form) are human and never judged.
+
+- REQ-250 (table shape): In a terms table under a `## Terms` heading on a
+  glossary page, the header SHALL be exactly `| EN | DE | Rule | Note |`;
+  a deviating header or a data row with a different column count SHALL be
+  flagged as a warning.
+- REQ-251 (rule enum): A non-empty Rule cell SHALL be one of
+  `keep-en | translate | context`; any other value is a warning. An EMPTY
+  Rule cell is a warning on a domain page (an undecided row belongs on
+  staging) and accepted on a `glossary/imported/` staging page
+  (specs/glossary.md REQ-1010).
+- REQ-252 (staging hygiene): A page under `glossary/imported/` SHALL carry
+  `source::` (attribution) and `status::`; a missing property is a warning.
+- REQ-253 (term pages): A term page (`glossary/<domain>/<term>`, not under
+  `glossary/imported/`) SHALL carry `rule::` with a REQ-251 enum value; a
+  missing or invalid value is a warning. No auto-fix anywhere in rule 15:
+  every fix is a terminology decision, and those are human
+  (specs/glossary.md REQ-1000).
 
 ### Reporting
 
@@ -375,7 +401,7 @@ AND para/projects/secret-plan is NOT flagged by any wiki-only rule (REQ-242)
 
 ## Acceptance Criteria
 
-- [ ] All 14 rules execute during a lint run
+- [ ] All 15 rules execute during a lint run
 - [ ] Findings grouped by severity: critical > warning > info
 - [ ] Report includes totals (pages scanned, healthy, issues by rule)
 - [ ] Auto-fix (--fix) only modifies rules 1, 2, 4, 5, 8, 10, 11 (the 7 auto-fixable rules)
@@ -384,6 +410,7 @@ AND para/projects/secret-plan is NOT flagged by any wiki-only rule (REQ-242)
 - [ ] Archived-in-Live-Index (rule 11) moves routing lines but never renames/moves page files
 - [ ] Naming Hygiene (rule 13) flags structural segments mechanically; leaf proper-noun judgment stays in the wiki-lint skill
 - [ ] Namespace Hygiene (rule 14) flags strays, accepts the recognized root pages, and exempts para/ and notes/ from all wiki-only rules
+- [ ] Glossary Hygiene (rule 15) checks table shape, the rule enum, and staging hygiene on glossary/ pages, and never auto-fixes a decision
 - [ ] Credential detection is case-insensitive and scans both content and frontmatter
 - [ ] Stale detection uses exact 90-day threshold from updated:: to today
 - [ ] Hub completeness checks ALL child pages, not just recently created ones

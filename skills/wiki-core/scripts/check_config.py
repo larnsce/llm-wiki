@@ -45,6 +45,7 @@ KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
     "sensitive_source_types",
     "para_dir",
     "notes_dir",
+    "glossary_dir",
     "archive_db",
     "index_db",
 }
