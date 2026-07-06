@@ -89,6 +89,7 @@ Added by the source pipeline. YAML frontmatter on ingested pages (`source-file` 
 
 ```yaml
 source-file: ingested/papers/smith-2024.md   # comma-separated path(s) into ingested/, plain text not a [[link]]
+author: Jane Smith, Wei Chen                 # optional: source author name(s), plain text (schema REQ-585a); union-appended on corroboration, never required
 reliability: high | medium | low             # source QUALITY; page value = MINIMUM across its claims
 last-reviewed: YYYY-MM-DD                    # optional: date a human last verified the page
 s2-metrics: cites=120 influential=8 venue=... type=... year=2024  # optional: raw Semantic Scholar figures (or "none")

@@ -15,6 +15,10 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-010: The system SHALL accept three source types: URL (fetched via WebFetch),
   file path (read from disk), and inline text (parsed directly).
 - REQ-011: The system SHALL extract entities, facts, relationships, dates, and
+- REQ-011a (author extraction, #73): The system SHALL extract the source's
+  author(s) where identifiable: clip frontmatter, byline, paper author
+  list, or Semantic Scholar metadata (REQ-073a). Absence of an
+  identifiable author is normal and never blocks; nothing is guessed.
   decisions from the source material.
 - REQ-012: The system SHALL classify extracted knowledge into exactly one of six
   categories: business, technical, content, project, learning, reference.
@@ -33,6 +37,18 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   and topics to identify update targets.
 - REQ-023: The system SHALL read existing target pages before modifying them.
   Maximum 3 pages loaded simultaneously (JIT retrieval).
+- REQ-024a (author recurrence, #74): When a source's extracted author
+  already appears in the `author::` values (or `ingested/` provenance) of
+  existing pages - the SECOND source by the same person - the plan SHALL
+  include a `wiki/people/<name>` page (proper-noun leaf): `type:: entity`,
+  `entity-type:: person`, a one-line who-this-is, links to the pages built
+  on their work, and a routing line in the people hub. The page is born
+  cited: its who-this-is claim cites the `ingested/` files of the works
+  themselves, so `source-file::` is their union and the citation invariants
+  (REQ-033b, citations REQ-904) hold with no exemption. Below the
+  threshold `author::` alone suffices; the user MAY request a person page
+  for any author at the checkpoint, and the proposed create appears in the
+  plan table like any other create (overridable per run).
 - REQ-024: The system SHALL produce a page operation plan: pages to create,
   pages to update, cross-references to add, hub pages to update.
 - REQ-025 (interactive checkpoint): After the page operation plan and BEFORE any
@@ -64,6 +80,11 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   and specs/query.md Phase 0). The description is the routing key consumed by two-stage
   query and MUST be terse and distinctive, not filler. A page without a routing line is
   unroutable.
+- REQ-033c (author emission, #73): The system SHALL set `author::` on
+  created ingested pages when Phase 1 identified author(s) (schema
+  REQ-585a), and SHALL append missing authors (union, deduplicated) when a
+  corroborating update touches the page. Never backfilled outside an
+  ingest that touches the page.
 - REQ-033b: On ingested pages, the system SHALL attach a `cite::` reference to every
   non-common-knowledge factual claim block it writes, per specs/citations.md
   (REQ-900..905). Pages are born auditable. STAGING: this requirement takes effect

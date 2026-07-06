@@ -47,6 +47,7 @@ type:: schema
 		- namespace:: (the namespace this hub page indexes)
 - ## Provenance Properties (ingested pages)
 	- source-file:: comma-separated relative path(s) into `ingested/` (e.g. `ingested/papers/smith-2024.md`). Plain text, NOT a `[[link]]` - it points at a source file, not a wiki page. Present on ingested pages; omit on hand-written pages.
+	- author:: optional - comma-separated source author name(s), plain text (schema REQ-585a). Structured authorship for ingested pages; omit when the source has no meaningful author (datasets, org pages). Union-appended on corroborating updates, never required by lint.
 	- reliability:: high | medium | low
 		- REQUIRED on ingested pages (hand-written pages omit it). Rates the QUALITY of the page's sources; assessed per claim and rolled up: the page value is the MINIMUM across its claims.
 	- last-reviewed:: YYYY-MM-DD - date a human last verified the page (optional; useful for stewardship).

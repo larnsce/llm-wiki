@@ -634,6 +634,73 @@ run py secret_scan.py --json --gitignore-check "$GITWIKI" \
 assert_exit 2 "secret_scan: gitignore-check red on path that would enter history"
 
 # ---------------------------------------------------------------------------
+# author:: provenance (schema REQ-585a, ingest REQ-011a/033c, #73) and the
+# born-cited person page (ingest REQ-024a, #74): both shapes lint clean and
+# pass the citation gate.
+# ---------------------------------------------------------------------------
+AUTHWIKI="$WORK/author-wiki"
+make_wiki "$AUTHWIKI" logseq
+mkdir -p "$AUTHWIKI/ingested/clippings"
+echo "clipped text" >"$AUTHWIKI/ingested/clippings/insanely-human-kieffer.md"
+cat >"$AUTHWIKI/pages/wiki___tech___insanely-human.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+domain:: tech
+created:: 2026-07-01
+updated:: 2026-07-01
+confidence:: medium
+source:: ingest
+source-file:: ingested/clippings/insanely-human-kieffer.md
+author:: Sam Kieffer
+reliability:: medium
+
+- ## Body
+	- Being insanely human is the differentiator.
+	  cite:: ingested/clippings/insanely-human-kieffer.md
+- ## Pending Review
+	- Single medium source.
+- ## Cross-References
+	- [[wiki/tech]]
+EOF
+cat >"$AUTHWIKI/pages/wiki___people___Sam Kieffer.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: entity
+entity-type:: person
+created:: 2026-07-01
+updated:: 2026-07-01
+confidence:: medium
+status:: active
+source:: ingest
+source-file:: ingested/clippings/insanely-human-kieffer.md
+author:: Sam Kieffer
+reliability:: medium
+
+- ## Sam Kieffer
+	- Author of the clipped essays behind [[wiki/tech/insanely-human]].
+	  cite:: ingested/clippings/insanely-human-kieffer.md
+- ## Pending Review
+	- Synthesis from provenance metadata; single source.
+- ## Cross-References
+	- [[wiki/tech/insanely-human]]
+EOF
+python3 - "$AUTHWIKI/pages" <<'PY'
+import sys, pathlib
+pages = pathlib.Path(sys.argv[1])
+lines = {
+    "wiki___tech.md": "\t\t- [[wiki/tech/insanely-human]] -- what makes work insanely human #essay\n",
+    "wiki___people.md": "\t\t- [[wiki/people/Sam Kieffer]] -- essayist behind the insanely-human clippings #author\n",
+}
+for name, line in lines.items():
+    hub = pages / name
+    hub.write_text(hub.read_text().replace("\t- ### Index\n",
+                                           "\t- ### Index\n" + line, 1))
+PY
+run py lint.py --config "$AUTHWIKI/llm-wiki.yml" --strict --json
+assert_exit 0 "lint(logseq): author:: page + born-cited person page lint clean under --strict (REQ-585a/024a)"
+run py check_citations.py --config "$AUTHWIKI/llm-wiki.yml" --json
+assert_exit 0 "check_citations(logseq): person page cites the works' ingested files (union holds, REQ-024a)"
+
+# ---------------------------------------------------------------------------
 # Glossary layer (specs/glossary.md): --with-glossary scaffold, config
 # REQ-628, lint rule 15 (REQ-250..253).
 # ---------------------------------------------------------------------------
