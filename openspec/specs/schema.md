@@ -238,7 +238,9 @@ lint (validation).
   `ingested/<type>/` once its knowledge is written into wiki pages. Presence in
   `ingested/` means processed; the move is the atomic provenance commit. Source files are
   immutable (read and linked by path, never edited). `raw/` and `ingested/` live BESIDE
-  the pages directory so they are not rendered as wiki pages.
+  the pages directory, keeping sources out of the pages tree; keeping them out of the
+  tool's index additionally requires the tool-side exclusion (Logseq `:hidden`,
+  specs/setup.md REQ-787; Obsidian Excluded files).
 
 ### Tool-Specific Format Rules
 

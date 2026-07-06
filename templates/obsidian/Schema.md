@@ -144,7 +144,7 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 
 - A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
 - Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
-- `raw/` and `ingested/` live BESIDE the vault pages, so Obsidian does not render sources as wiki pages.
+- `raw/` and `ingested/` live BESIDE the vault pages, which keeps sources out of the pages tree; to keep them out of Obsidian's index too, add both to Settings -> Files and links -> Excluded files.
 
 ## Cross-Reference Rules
 

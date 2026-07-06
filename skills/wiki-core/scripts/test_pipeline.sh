@@ -229,6 +229,34 @@ run python3 "$SCRIPT_DIR/init_wiki.py" \
   --wiki-path "$WORK/fc-wiki" --tool logseq --date 2026-07-01
 assert_exit 1 "init_wiki: warns (exit 1) instead of overwriting existing pages"
 
+# Logseq :hidden scaffold (issue #69, REQ-787): a fresh scaffold writes
+# logseq/config.edn hiding the source dirs; an app-initialized graph gets
+# the entries MERGED into its existing :hidden vector (commented vectors
+# are not touched).
+HIDDEN_WIKI="$WORK/hidden-fresh"
+run python3 "$SCRIPT_DIR/init_wiki.py" \
+  --wiki-path "$HIDDEN_WIKI" --tool logseq --date 2026-07-01
+assert_exit 0 "init_wiki: clean scaffold including logseq/config.edn"
+if grep -q ':hidden \["raw" "ingested"\]' "$HIDDEN_WIKI/logseq/config.edn"; then
+  report PASS "init_wiki: fresh config.edn hides raw/ and ingested/"
+else
+  report FAIL "init_wiki: fresh config.edn hides raw/ and ingested/"
+fi
+
+HIDDEN_WIKI="$WORK/hidden-merge"
+mkdir -p "$HIDDEN_WIKI/logseq"
+printf '{:meta/version 1\n ;; :hidden ["commented"]\n :hidden ["existing"]}\n' \
+  >"$HIDDEN_WIKI/logseq/config.edn"
+run python3 "$SCRIPT_DIR/init_wiki.py" \
+  --wiki-path "$HIDDEN_WIKI" --tool logseq --date 2026-07-01
+assert_exit 0 "init_wiki: clean scaffold over an app-initialized graph"
+if grep -q ':hidden \["existing" "raw" "ingested"\]' "$HIDDEN_WIKI/logseq/config.edn" \
+  && grep -q ';; :hidden \["commented"\]' "$HIDDEN_WIKI/logseq/config.edn"; then
+  report PASS "init_wiki: merges :hidden entries, leaves commented vector alone"
+else
+  report FAIL "init_wiki: merges :hidden entries, leaves commented vector alone"
+fi
+
 # ---------------------------------------------------------------------------
 # lint: clean fixtures green, planted defects red, in BOTH tool modes
 # ---------------------------------------------------------------------------

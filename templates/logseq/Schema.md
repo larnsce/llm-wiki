@@ -78,7 +78,7 @@
 - ## Source Lifecycle
 	- A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
 	- Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
-	- `raw/` and `ingested/` live BESIDE `pages/`, so Logseq does not render sources as wiki pages.
+	- `raw/` and `ingested/` live BESIDE `pages/`, which keeps sources out of the pages directory; only the `:hidden` entries in `logseq/config.edn` keep them out of the Logseq index (setup writes them; re-index the graph after changing them).
 - ## Cross-Reference Rules
 	- Every wiki page MUST have at least one `[[wiki/...]]` link to another wiki page
 	- Hub pages MUST list ALL child pages in their namespace
