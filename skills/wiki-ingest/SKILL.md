@@ -180,8 +180,11 @@ Interaction rules:
   the line in the namespace hub's `### Index` in the routing-line format from
   [formats](../wiki-core/references/formats.md) (REQ-033/033a). The description
   is the routing key consumed by query Phase 0
-- Add `[[cross-references]]` between all affected pages; every touched page
-  needs at least 1 outgoing wiki link (REQ-034)
+- Add cross-references between all affected pages, written under a
+  `## Cross-References` section (this EXACT heading, schema REQ-573: the
+  citation checker exempts it from claim coverage; synonyms like Related or
+  See also get counted as uncited claims). Every touched page needs at least
+  1 outgoing wiki link (REQ-034)
 - Set `updated::` (or the YAML `updated` field) to today on every modified
   page (REQ-035); ISO 8601 dates throughout (REQ-061)
 - (source pipeline) On every created or updated ingested page: set

@@ -19,8 +19,8 @@ Claim-block heuristic (documented honestly): a claim block is a bullet line
 (`- ...`, any indent) in the page body that is NOT a heading, a `key:: value`
 property line, a `{{query}}`/embed line, a bare `[[link]]`-only bullet, a
 hub routing line (`[[...]] -- ...`), inside a fenced code block, or under one
-of the structural sections Cross-References, Pending Review, Index, Archive,
-or Log. Prose paragraphs (Obsidian) and block continuation lines (Logseq)
+of the structural sections Cross-References (canonical; Related and See also
+are tolerated synonyms), Pending Review, Index, Archive, or Log. Prose paragraphs (Obsidian) and block continuation lines (Logseq)
 are OUTSIDE the heuristic: the cite convention attaches to bullets (REQ-900),
 so only bullets are counted. Whether an uncited bullet is common knowledge
 or marked synthesis (both exempt per REQ-902) is a judgment call, so the
@@ -87,8 +87,10 @@ INGESTED_REF_RE = re.compile(r"^ingested/[^\s#]+(?:#\S+)?$")
 URL_REF_RE = re.compile(r"^url:<?(https?://[^\s>]+)>?$")
 URL_SHAPE_RE = re.compile(r"^https?://[^\s/]+\.[^\s/]+(/\S*)?$")
 
-EXCLUDED_SECTIONS = {"cross-references", "pending review", "index",
-                     "archive", "log"}
+# "related" and "see also" are tolerated synonyms for pre-existing pages;
+# ingest writes the canonical "## Cross-References" heading (ingest REQ-034).
+EXCLUDED_SECTIONS = {"cross-references", "related", "see also",
+                     "pending review", "index", "archive", "log"}
 
 
 def indent_width(whitespace):

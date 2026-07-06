@@ -69,6 +69,10 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   with the citations implementation (v2.1, #17); v2.0.0 ingest is exempt.
 - REQ-034: The system SHALL add `[[Wiki/Namespace/Page]]` cross-references between
   all affected pages. Every page touched MUST have at least 1 outgoing wiki link.
+  Navigation cross-links SHALL be written under a `## Cross-References` section
+  with that exact heading (specs/schema.md REQ-573): the citation checker exempts
+  it from claim coverage, while synonym headings (Related, See also) drift out of
+  the exemption on other tooling.
 - REQ-035: The system SHALL set the `updated::` property (or YAML `updated` field)
   to today's date on every modified page.
 - REQ-036: When a page mentions an entity that has its own wiki page, the system
