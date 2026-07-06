@@ -5,15 +5,17 @@ right properties, and stay auditable against the same archived source the `wiki/
 
 > **Status (v2.2, 2026-07-04).** Guide drafted; the schema side shipped in v2.2 (the `@citekey`
 > proper-noun leaf, namespaces REQ-976, and the literature-variant reminder in `/wiki-ingest`,
-> REQ-973). The plugin verify-once (existence, settings, version pin) and one end-to-end loop run
-> are maintainer-verified items tracked in
+> REQ-973). The plugin verify-once (existence, settings, version pin) was done 2026-07-06; the
+> one end-to-end loop run is the remaining maintainer-verified item, tracked in
 > [#28](https://github.com/larnsce/llm-wiki/issues/28).
 
 > **Verify before you trust this.** The plugin and settings below are **known-good as of
-> 2026-07** but community plugins move. Before relying on this guide, confirm the plugin still
-> exists in the marketplace and its settings match what is described here, and **pin the plugin
-> version** rather than tracking its latest - so the metadata your provenance rests on does not
-> shift under you.
+> 2026-07-06 at plugin version v3.5.5** (repo active, latest release 2026-06-28; template
+> placeholders, page-name template, Better BibTeX pinned-citekey setup, and the
+> `zotero-last-sync` mechanism all confirmed against the plugin README). Community plugins move:
+> before relying on this guide, confirm the plugin still exists in the marketplace, and **pin the
+> plugin version** rather than tracking its latest - so the metadata your provenance rests on
+> does not shift under you.
 
 ## Where this fits
 
@@ -32,6 +34,10 @@ human-written, machine-exempt (see [`namespaces.md`](../openspec/specs/namespace
 - Fully **templated** properties.
 - **Incremental annotation sync** - only annotations added since the last sync are appended,
   tracked via a `zotero-last-sync` property per page, so re-syncing never clobbers your prose.
+  Caveat from the 2026-07-06 verify-once: the plugin README documents annotation sync under its
+  **Logseq DB** section; the plugin supports both DB and file-based MD graphs, but this wiki runs
+  on an MD graph, so confirm annotation sync behaves as described during the end-to-end loop run
+  ([#28](https://github.com/larnsce/llm-wiki/issues/28)) before leaning on it.
 
 (Obsidian users: the equivalent is the **Zotero Integration** plugin. This guide is written for the
 Logseq plugin; the property template idea transfers.)
