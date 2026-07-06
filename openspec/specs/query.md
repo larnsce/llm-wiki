@@ -88,6 +88,48 @@ knowledge gaps. It is the primary read path — the counterpart to ingest (write
   "No information found in the wiki for this topic." and offer to create a page
   via write-back (REQ-420).
 
+### Two-Plane Routing (v3.0 P-5)
+
+Extends Phase 0 when the storage plane (specs/storage.md) is configured: an
+`index_db` key in the config (config REQ-627) and an index.db built by
+`rebuild_index.py`. Without the key or the file, every requirement below is
+inert and query behaves exactly as REQ-440..444.
+
+- REQ-460 (routing decision): Entity and topic questions ("what do we know
+  about X", "how do I Y") SHALL route to the markdown plane: hub routing per
+  REQ-440..444, unchanged, the default. Aggregate questions (counts or lists
+  across many pages), temporal questions (date-range lookups over journals
+  and meetings), and needle-in-haystack full-text questions ("which page
+  mentions X") SHALL route to index.db SQL. Routing is a judgment made from
+  the question's shape; when in doubt, the markdown plane wins.
+- REQ-461 (staleness before every index read, storage REQ-1133): before
+  answering from index.db, the system SHALL run
+  `rebuild_index.py --stale-check`. On exit 1 it SHALL either rebuild
+  (`rebuild_index.py`) and then answer, or answer from the stale index WITH
+  an explicit staleness warning in the output. It SHALL NOT answer from a
+  stale index silently. No hook rebuilds the index; this query-time check is
+  the only trigger.
+- REQ-462 (SQL reads only, frozen schema): index.db access SHALL use
+  python3's stdlib `sqlite3` and SHALL be SELECT-only against the REQ-1130
+  schema. The three starting shapes: people lookup
+  (`SELECT page, name, aliases FROM people WHERE ...`), meetings by date
+  range (`SELECT page, date, text FROM meetings WHERE date BETWEEN ...`),
+  and full-text (`SELECT page FROM page_text WHERE page_text MATCH ...`).
+  The query workflow never writes to index.db (writes happen only through
+  `rebuild_index.py`).
+- REQ-463 (plane attribution): Every answer SHALL state which plane
+  answered: pages, index.db, or both (e.g. `Sources: [[wiki/tech/docker]];
+  index.db (meetings, 12 rows)`). An honest answer names its plane; this is
+  the two-plane counterpart of REQ-430.
+- REQ-464 (index results are pointers, not sources): index.db only
+  re-arranges the markdown (storage REQ-1132), so content claims in the
+  answer SHALL come from pages: an FTS or table hit routes a Phase 1 page
+  read (the hit's `page` value), it is not quoted as page content itself.
+  Aggregate answers (counts, lists of page names or dates) MAY come from
+  SQL alone, attributed to index.db. Pages read after an index hit are
+  Access-Logged per REQ-450, with the matched reason recording the index
+  route (e.g. `fts: <term>` or `meetings: <range>`).
+
 ---
 
 ## Scenarios
@@ -244,6 +286,30 @@ AND on confirmation SHALL move its routing line from `### Archive` to `### Index
 AND remove the archived:: property and reset status::
 ```
 
+### Scenario 14: Two-plane routing with a stale index (v3.0 P-5)
+
+```
+GIVEN llm-wiki.yml configures index_db and index.db exists
+AND a page was edited after the last rebuild
+WHEN the user runs /wiki-query "which pages mention whisper?"
+THEN the system SHALL classify the question as full-text and route to index.db
+AND rebuild_index.py --stale-check SHALL report stale (exit 1)
+AND the system SHALL rebuild (or warn explicitly) before answering
+AND the FTS hits SHALL be read as pages before content is quoted (REQ-464)
+AND the answer SHALL name its plane: "Sources: [[wiki/tech/whisper]];
+    index.db (fts: whisper)"
+```
+
+### Scenario 15: Entity question ignores the index plane
+
+```
+GIVEN the same configured index.db
+WHEN the user runs /wiki-query "what do we know about Docker?"
+THEN the system SHALL route to the markdown plane (hub routing, REQ-440..444)
+AND SHALL NOT open index.db at all
+AND the answer reads "Sources: [[wiki/tech/docker]]" with no index attribution
+```
+
 ---
 
 ## Acceptance Criteria
@@ -266,6 +332,12 @@ AND remove the archived:: property and reset status::
 - [ ] Source attribution in every answer
 - [ ] L1 Memory consulted when relevant
 - [ ] Works in both Logseq and Obsidian modes
+- [ ] (two-plane) Aggregate/temporal/full-text questions route to index.db;
+      entity questions stay on pages; markdown plane wins when in doubt
+- [ ] (two-plane) --stale-check runs before every index.db read; no silent
+      stale answer
+- [ ] (two-plane) Every answer names its plane; index hits become page reads
+      before content is quoted
 
 ---
 
@@ -277,3 +349,6 @@ AND remove the archived:: property and reset status::
 - specs/ingest.md Phase 3 rules apply to write-back operations and maintain routing lines
 - specs/prune.md defines LRU-Demote, which consumes the Access-Log this command writes
 - specs/l1-l2-routing.md defines when L1 Memory is relevant
+- specs/storage.md (REQ-1130..1133) defines index.db, its frozen schema, and
+  the staleness rule the two-plane section binds to; specs/config.md REQ-627
+  defines the index_db key

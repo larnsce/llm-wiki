@@ -705,6 +705,27 @@ sys.exit(0 if dump_hash() == first else 1)
 PY
 assert_exit 0 "rebuild_index: two rebuilds produce identical dumps (REQ-1131)"
 
+# The three P-5 SQL template shapes (query.md REQ-462) run against the
+# frozen schema and find the fixture rows.
+run python3 - "$WORK/idx-db/index.db" <<'PY'
+import sqlite3, sys
+db = sqlite3.connect(sys.argv[1])
+people = db.execute(
+    "SELECT page, name, aliases FROM people WHERE name LIKE ? OR "
+    "aliases LIKE ?", ("%Ada%", "%Ada%")).fetchall()
+meetings = db.execute(
+    "SELECT page, date, text FROM meetings WHERE date BETWEEN ? AND ? "
+    "ORDER BY date, page", ("2026-07-01", "2026-07-31")).fetchall()
+fts = db.execute(
+    "SELECT page FROM page_text WHERE page_text MATCH ? ORDER BY rank",
+    ("index",)).fetchall()
+ok = (len(people) == 1 and len(meetings) == 1
+      and meetings[0][1] == "2026-07-01"
+      and any("journals/2026_07_01" in row for row, in [(r[0],) for r in fts]))
+sys.exit(0 if ok else 1)
+PY
+assert_exit 0 "rebuild_index: P-5 SQL templates (people, meetings, fts) hit the fixtures (REQ-462)"
+
 run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --stale-check
 assert_exit 0 "rebuild_index: stale-check fresh after rebuild (REQ-1133)"
 echo "- new content" >"$IDXWIKI/pages/wiki___tech___fresh-page.md"
