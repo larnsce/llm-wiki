@@ -46,6 +46,10 @@ DEFAULT_NOTES_DIR = "notes"
 # specs/config.md REQ-628).
 DEFAULT_GLOSSARY_DIR = "glossary"
 
+# Journal (daily notes) directory, relative to wiki_path (specs/config.md
+# REQ-629): default applies even when the key is absent from the config.
+DEFAULT_JOURNALS_DIR = "journals"
+
 # The namespace contract (specs/namespaces.md REQ-960). check_canon.py
 # compares this tuple's length against the REQ-960 bullet count; amending
 # the contract means changing both in the same commit.
@@ -215,13 +219,14 @@ def _pruned_dirs(config):
         config.get("raw_dir") or "raw",
         config.get("ingested_dir") or "ingested",
         "logseq",
-        "journals",
         "assets",
     }
     # Absent keys still prune the default trees (REQ-980: the human
-    # namespaces are recognized even when the keys are not set).
+    # namespaces are recognized even when the keys are not set;
+    # REQ-629: same rule for the journal directory).
     for key, default in (("para_dir", DEFAULT_PARA_DIR),
-                         ("notes_dir", DEFAULT_NOTES_DIR)):
+                         ("notes_dir", DEFAULT_NOTES_DIR),
+                         ("journals_dir", DEFAULT_JOURNALS_DIR)):
         value = config.get(key) or default
         pruned.add(value.strip("/"))
     return pruned

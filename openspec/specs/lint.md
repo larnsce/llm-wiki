@@ -168,7 +168,8 @@ certain issues when run with the `--fix` flag. There are 15 lint rules.
 
 - REQ-240: The system SHALL flag any page outside `wiki/`, the configured
   `para_dir`, `notes_dir`, and `glossary_dir` namespaces (specs/config.md
-  REQ-625/628, specs/namespaces.md REQ-980), journals, and the recognized
+  REQ-625/628, specs/namespaces.md REQ-980), the configured `journals_dir`
+  (specs/config.md REQ-629), and the recognized
   deliberate root pages, as a stray outside the namespace contract
   (specs/namespaces.md REQ-960/962). Severity: warning (the grandfather floor reports it as info
   on pages without the current `schema-spec-version::`).

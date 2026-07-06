@@ -10,14 +10,15 @@ checkpoint for the whole run, then write: create and update pages append-only
 with hub routing lines, cross-references, and provenance, and archive processed
 sources with an atomic move-plus-commit. Counterpart to wiki-query (read path).
 
-Spec: openspec/specs/ingest.md REQ-010..075
+Spec: openspec/specs/ingest.md REQ-010..075, journal seam REQ-090..095
 
 Shared conventions (read before executing):
 
 - [config](../wiki-core/references/config.md): discover and read `llm-wiki.yml`
   FIRST (tool, wiki_path, pages_dir, namespaces; source pipeline keys `raw_dir`,
   `ingested_dir`, `source_types`, `default_source_type`,
-  `sensitive_source_types`).
+  `sensitive_source_types`; journal seam key `journals_dir`, default
+  `journals`, config REQ-629).
 - [architecture](../wiki-core/references/architecture.md): L1/L2 routing rule,
   credential boundary, retrieval and commit discipline, namespace scope rule.
 - [formats](../wiki-core/references/formats.md): tool-specific formats, required
@@ -167,6 +168,10 @@ The checkpoint table, one row per source:
 - Reliability: the Phase 1 rating with its one-line rationale (omit this column
   when the source pipeline is not configured)
 - Contradictions: count plus one line each, or "none"
+- (source pipeline) Below the table, ONE summary line for the journal seam
+  (REQ-092): the journal page that will receive the daily Ingested block
+  and the number of bullets to append, e.g.
+  `Journal: journals/2026_07_06 <- 3 bullets in the Ingested block`
 
 Then ask, verbatim from REQ-025: "What should I emphasize, skip, or route to
 L1 Memory?"
@@ -207,6 +212,13 @@ Interaction rules:
   1 outgoing wiki link (REQ-034)
 - Set `updated::` (or the YAML `updated` field) to today on every modified
   page (REQ-035); ISO 8601 dates throughout (REQ-061)
+- (source pipeline) Set or refresh `journal::` on every created or updated
+  page to today's journal page link, tool-native format (journal seam
+  REQ-093, schema REQ-585c). Refresh mirrors `updated::`: it is metadata,
+  and the append-only rule for content blocks is untouched. Resolve the
+  journal page name from existing files in `journals_dir` when any exist,
+  else the tool default (Logseq `journals/YYYY_MM_DD.md` with the graph's
+  date-format reference; Obsidian `<journals_dir>/YYYY-MM-DD.md`) (REQ-091)
 - Set `author::` on created ingested pages when Phase 1 identified
   author(s); on corroborating updates append missing names (union,
   deduplicated) (REQ-033c, schema REQ-585a). Never backfill outside an
@@ -319,6 +331,25 @@ blocking failure (REQ-026).
 
 ## Phase 5 - Archive, Commit, Report
 
+- (source pipeline) Journal seam, daily Ingested block (REQ-090/091/094):
+  after the quality gate passes, append to TODAY's journal page a block
+  headed `Ingested`: one bullet per processed source with the source title,
+  its type, and `[[wiki/...]]` links to every page it created or updated,
+  plus one EMPTY child bullet under each entry, reserved for the user's own
+  notes. One block per day: when the page already has an `Ingested` block
+  from an earlier run today, append bullets to it; never create a second
+  block. Create the journal page when it does not exist (REQ-091). NEVER
+  modify existing journal content: earlier bullets, the user's notes under
+  them, or anything else on the page (REQ-094). Logseq shape:
+
+  ```
+  - Ingested
+    - <source-title> (<type>) -> [[wiki/ns/page]], [[wiki/ns/other]]
+      -
+  ```
+
+  Obsidian: the same structure as nested list items under an `## Ingested`
+  heading. A source blocked by the quality gate gets no bullet (REQ-095)
 - (source pipeline) Only after the quality gate passes: MOVE each processed
   source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
   MUST match what `source-file::` records (REQ-075). Use plain `mv` followed
@@ -327,7 +358,8 @@ blocking failure (REQ-026).
   entered `raw_dir` after the last commit (untracked). Alternatively,
   `git add` the raw file first and then `git mv`; either way the move and
   the page edits land in the same commit
-- (source pipeline) Stage the page edits AND the file move together and commit
+- (source pipeline) Stage the page edits, the journal edit (REQ-095), AND
+  the file move together and commit
   as ONE atomic commit: `wiki: ingest <filename> (<n> pages, reliability
   <level>)` (REQ-075; the atomicity invariant is stated in
   [trust](../wiki-core/references/trust.md)). A quality-gate failure on one
@@ -341,7 +373,8 @@ blocking failure (REQ-026).
 - Without the source pipeline: recommend a git commit after the structural
   changes (REQ-052)
 - Report summary: pages created (with types), pages updated, cross-references
-  added, hub pages updated (REQ-050); all warnings (page-touch count, L1
+  added, hub pages updated (REQ-050); the journal page that received the
+  Ingested bullets (REQ-092); all warnings (page-touch count, L1
   candidates found, skipped items) with their reasons (REQ-051); Pending Review
   flags raised or resolved
 - (source pipeline) Literature-note reminder (namespaces REQ-973): when a

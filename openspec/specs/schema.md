@@ -193,6 +193,17 @@ lint (validation).
   deduplicated), like `source-file::`. Lint recognizes it and never
   requires it; ingest never backfills it onto existing pages (same rule as
   the schema-spec-version stamp).
+- REQ-585c (journal back-link, journal seam): An ingested page MAY carry an
+  OPTIONAL `journal::` property: a single tool-native link to the journal
+  page of the most recent ingest day that touched the page (Logseq: the
+  graph's journal page reference for that date; Obsidian: a `[[link]]` to
+  the daily note). Set and REFRESHED on every ingest touch, like
+  `updated::`; earlier journal days stay reachable through the journal
+  side of the seam (the daily Ingested block links to the page, so the
+  connection survives in Linked References). Lint recognizes it and never
+  requires it; ingest never backfills it outside a run that touches the
+  page. Together with the daily Ingested block (specs/ingest.md REQ-090)
+  this forms the bidirectional wiki-journal link pair.
 - REQ-586: An ingested page SHALL carry a `reliability::` property, one of
   `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
   (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up

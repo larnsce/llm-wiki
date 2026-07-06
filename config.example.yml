@@ -54,6 +54,14 @@ default_source_type: papers
 # para_dir: para
 # notes_dir: notes
 
+# Journal directory (optional; openspec/specs/config.md REQ-629): daily
+# notes, relative to wiki_path. Logseq: the native journals/ directory,
+# sibling of pages/. Obsidian: your daily-notes folder. Human-owned; the
+# journal seam (specs/ingest.md REQ-090..095) appends the daily Ingested
+# block there and never modifies existing journal content. Default applies
+# even when the key is absent.
+# journals_dir: journals
+
 # Personal tier (optional; openspec/specs/config.md REQ-626): path to the
 # archive.db capture database consumed by /wiki-ingest-voice (see
 # openspec/specs/storage.md and docs/voice-pipeline.md). The default matches

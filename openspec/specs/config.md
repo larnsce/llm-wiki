@@ -85,6 +85,17 @@ All downstream behavior depends on this file being valid.
   (lint rule 14) and the glossary structure check (rule 15); when absent,
   the default applies and the namespace is still recognized. Shape rules as
   for `para_dir`/`notes_dir` (REQ-625).
+- REQ-629: The config MAY contain the key `journals_dir` (default
+  `journals`): the path, relative to `wiki_path`, naming the journal
+  (daily notes) directory. For Logseq this is the native `journals/`
+  directory, a sibling of `pages/`; for Obsidian it is the daily-notes
+  folder relative to the vault root. Consumed by the journal seam
+  (specs/ingest.md REQ-090..095), page enumeration pruning, and the
+  namespace classification in lint. When absent, the default applies and
+  journal pages are still recognized. Shape rules as for
+  `para_dir`/`notes_dir` (REQ-625). The journal namespace stays
+  human-owned; the journal seam's daily Ingested block is the single
+  sanctioned machine write into it.
 
 ### Validation Rules
 

@@ -150,8 +150,11 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 
 ### Cross-Cutting
 
-- REQ-060: The system MUST NOT modify any non-wiki pages (existing Logseq journals,
-  personal notes, other vault content).
+- REQ-060: The system MUST NOT modify any non-wiki pages (personal notes,
+  other vault content). Journal pages admit EXACTLY ONE machine write path:
+  the journal seam (REQ-090..095), which is append-only and never modifies
+  existing journal content. The voice journal summary (REQ-082) writes
+  through the same seam discipline. No other journal write is sanctioned.
 - REQ-061: The system SHALL use ISO 8601 date format (YYYY-MM-DD) for all date
   properties.
 - REQ-062: When the configured tool is Logseq, every line of wiki content MUST start
@@ -202,6 +205,49 @@ or assign `source-file::`.
   MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
   and committed as ONE atomic commit.
 
+### Journal Seam
+
+The journal is the daily working surface; the wiki is the knowledge store.
+The seam connects them in both directions on every ingest run: the day's
+journal page records what was ingested (with room for the human's own
+notes), and every touched wiki page links back to the journal day. This
+section extends Phases 3 and 5 when the source pipeline is configured;
+without the pipeline the seam is inert. The journal directory resolves from
+the config key `journals_dir` (specs/config.md REQ-629).
+
+- REQ-090 (daily Ingested block): After the Quality Gate passes, the system
+  SHALL append to TODAY's journal page a block under the heading `Ingested`:
+  one bullet per source processed in the run, carrying the source title, its
+  type, and `[[wiki/...]]` links to every page the source created or
+  updated, plus one EMPTY child bullet reserved for the user's own notes.
+  One block per day, not per resource: when the day's journal page already
+  has an `Ingested` block (an earlier run today), the system SHALL append
+  bullets to that block instead of creating a second one.
+- REQ-091 (journal page resolution): The journal page name and file path
+  SHALL be resolved per tool flavor: derive the naming pattern from
+  existing files in `journals_dir` when any exist; otherwise use the tool
+  default (Logseq `journals/YYYY_MM_DD.md` with the graph's date-format
+  page reference; Obsidian `<journals_dir>/YYYY-MM-DD.md`). When today's
+  journal page does not exist, the system SHALL create it with the
+  Ingested block as its only machine-written content.
+- REQ-092 (checkpoint visibility): The planned journal append SHALL be
+  visible at the REQ-025 checkpoint (a summary line naming the journal page
+  and the bullet count is sufficient), and SHALL be included in the Phase 5
+  report. `--auto` runs carry it into the report like the rest of the plan.
+- REQ-093 (wiki-to-journal back-link): On every page created or updated in
+  the run, the system SHALL set or refresh the `journal::` property to
+  today's journal page link, tool-native format, per schema REQ-585c. The
+  refresh mirrors `updated::`: metadata, not content; the append-only rule
+  for content blocks (REQ-032) is untouched.
+- REQ-094 (append-only inside the journal): The system MUST NOT modify or
+  delete ANY existing journal content: earlier bullets, the user's notes
+  under them, or anything else on the page. The seam only appends bullets
+  to today's Ingested block (or creates the block, or the page). Child
+  bullets written by the user under earlier entries are never touched.
+- REQ-095 (atomicity): The journal edit SHALL ride the same atomic commit
+  as the page edits and the file move (REQ-075). A quality-gate failure
+  that blocks a source also drops that source's journal bullet.
+
 ### Voice Sources
 
 This extends Phases 1-5 for sources that are unprocessed `voice_notes` rows in
@@ -227,7 +273,9 @@ voice source exists.
   note is a 2-4 line summary on today's journal page with `[[links]]` and the
   provenance id. Journal summaries MAY be batch-confirmed at the checkpoint.
   The daily journal summary opens with the pipeline status line per
-  specs/storage.md REQ-1140.
+  specs/storage.md REQ-1140. The write follows the journal-seam discipline
+  (REQ-091 page resolution, REQ-094 append-only): it never modifies
+  existing journal content.
 - REQ-083 (wiki writes are per-row opt-in): Any update touching a wiki page is
   OPT-IN per row at the checkpoint: the system SHALL show the full sentence(s)
   it would write (no truncation) and write nothing to a wiki page without an
@@ -424,7 +472,28 @@ THEN wiki pages are written and source-file:: records ingested/notes/<file>
 AND the moved file's path is gitignored; its bytes never enter git history
 ```
 
-### Scenario 15: Voice note routes to the journal by default
+### Scenario 15: Daily Ingested block, second run same day
+
+```
+GIVEN journals_dir resolves to journals/ and today is 2026-07-06
+AND journals/2026_07_06.md already has an Ingested block from a morning run:
+    - Ingested
+      - smith-2024 (papers) -> [[wiki/learning/spaced-repetition]]
+        -
+      - (user's own note written under the bullet)
+WHEN /wiki-ingest processes clip-sanitation.md touching wiki/tech/sanitation
+THEN the system SHALL append ONE bullet to the EXISTING Ingested block:
+    "clip-sanitation (clippings) -> [[wiki/tech/sanitation]]" plus an empty
+    child bullet for notes
+AND SHALL NOT create a second Ingested block
+AND SHALL NOT modify the morning bullets or the user's note (REQ-094)
+AND wiki/tech/sanitation SHALL carry journal:: linking today's journal page
+    (REQ-093, schema REQ-585c)
+AND the journal edit SHALL be in the same commit as the page edits and the
+    file move (REQ-095)
+```
+
+### Scenario 16: Voice note routes to the journal by default
 
 ```
 GIVEN an unprocessed voice_notes row with a rambling 4-minute transcript
@@ -436,7 +505,7 @@ AND no wiki page is touched unless the user opts in per row
 AND the row is marked processed only after the commit
 ```
 
-### Scenario 16: People row requires individual confirmation
+### Scenario 17: People row requires individual confirmation
 
 ```
 GIVEN the checkpoint plan contains a row updating a people page
@@ -446,7 +515,7 @@ AND it is confirmed individually - it can never ride a batch confirmation
 AND declining it leaves the sentence in the journal summary or the transcript
 ```
 
-### Scenario 17: Sensitive assessment is never promoted
+### Scenario 18: Sensitive assessment is never promoted
 
 ```
 GIVEN a transcript sentence assessing a named student's family situation
@@ -477,6 +546,13 @@ AND the checkpoint states why the row was withheld
 - [ ] Max 3 pages loaded simultaneously during processing
 - [ ] Namespace depth never exceeds 3 levels
 - [ ] All dates use ISO 8601 format
+- [ ] Each run appends to the day's single Ingested journal block; a second
+      block is never created (REQ-090)
+- [ ] Existing journal content, including the user's notes under earlier
+      bullets, is never modified (REQ-094)
+- [ ] Every touched page carries journal:: linking today's journal page
+      (REQ-093)
+- [ ] The journal edit rides the run's atomic commit (REQ-095)
 - [ ] Voice sources always run the checkpoint; --auto never applies to them (v3.0)
 - [ ] Voice wiki writes are per-row opt-in; people rows are confirmed
       individually with the full sentence shown
