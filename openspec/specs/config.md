@@ -63,6 +63,28 @@ All downstream behavior depends on this file being valid.
   human-owned namespaces (specs/namespaces.md). They are recognized by the
   namespace scope rule and the namespace-hygiene lint check; when absent, the
   defaults apply and the namespaces are still recognized.
+- REQ-626: The config MAY contain the key `archive_db` (default
+  `~/archive/archive.db`, the convention of `docs/voice-pipeline.md`): the path
+  to the archive.db capture database consumed by the voice ingest workflow
+  (specs/ingest.md Voice Sources; specs/storage.md). The path is expanded like
+  `wiki_path` (tilde to `$HOME`) and is NOT required to exist: absence of the
+  file means the voice queue is empty, not a config error. The placement
+  invariants of specs/storage.md REQ-1103 (outside git, or gitignored) bind
+  whatever value is configured; validation is shape-only.
+- REQ-627: The config MAY contain the key `index_db` (default
+  `~/archive/index.db`): the path where `rebuild_index.py` writes the derived,
+  disposable index database (specs/storage.md REQ-1130..1133). Expanded like
+  `wiki_path`; not required to exist (the first rebuild creates it). The
+  REQ-1103 placement invariants bind the value: when the path resolves inside
+  the vault's git-tracked tree and is not gitignored, the rebuild SHALL refuse
+  to write.
+- REQ-628: The config MAY contain the key `glossary_dir` (default
+  `glossary`): the path, relative to the pages directory, naming the
+  human-decided glossary namespace (`specs/glossary.md`,
+  `specs/namespaces.md` REQ-960/980). Recognized by namespace-hygiene
+  (lint rule 14) and the glossary structure check (rule 15); when absent,
+  the default applies and the namespace is still recognized. Shape rules as
+  for `para_dir`/`notes_dir` (REQ-625).
 
 ### Validation Rules
 

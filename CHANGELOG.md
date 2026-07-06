@@ -5,6 +5,98 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-07-06
+
+The personal pipeline: a SQLite machine plane beside the markdown vault,
+voice capture as an ingest source, and two-plane query routing. Completes
+the v3.0 milestone (issue #61) under the 2026-07-05 gate waiver (all
+adoption-pacing gates dropped except the archive.db backup-before-first-note
+rule and the voice per-row confirmation rules, which are implemented as
+standing requirements, not gates).
+
+### Added
+
+- Storage-plane contract (`openspec/specs/storage.md`, REQ-1100..1141,
+  issue #55): markdown is what a human writes, SQLite is what a machine
+  accumulates; `archive.db` (raw capture, irreplaceable, REQ-1120..1122
+  durability) and `index.db` (derived, disposable, frozen three-table
+  schema) are never merged and never enter git; voice provenance shape
+  `archive.db:voice_notes/<id>` with capture-backed `reliability:: low`
+  (schema REQ-586b) and the `capture-backed` audit verdict (audit REQ-927);
+  the dead-man pipeline status line (REQ-1140/1141).
+- Voice pipeline guide (`docs/voice-pipeline.md`, issue #56): whisper.cpp,
+  phone sync, archive.db DDL and insert script, nightly watcher, canary
+  memo, the Phase 0 exit test; adoption-ordered with durability first.
+- `wiki-ingest-voice` skill (issue #57): drains unprocessed `voice_notes`
+  rows; journal-default (REQ-082), wiki writes per-row opt-in with the full
+  sentence shown (REQ-083), individual confirmation for anything naming a
+  person (REQ-084), assessments of people never promoted (REQ-085), TODOs
+  human-placed (REQ-087), rows marked processed only after the atomic
+  commit (REQ-080), no `--auto` path (REQ-081). Ships behind
+  `setup.sh --with-personal` (setup REQ-803); golden transcript pinned
+  (`tests/golden/ingest-voice.golden.md`).
+- `rebuild_index.py` (issue #58): vault to index.db, concrete frozen schema
+  written into storage REQ-1130 (people, meetings, page_properties,
+  page_text FTS5, rebuild_stamp); deterministic content-hash stamp so two
+  rebuilds from the same vault state produce byte-identical dumps
+  (REQ-1131, harness-asserted); `--stale-check`; REQ-1103 placement guard;
+  no hooks (REQ-1133).
+- Two-plane query routing (`query.md` REQ-460..464, issue #59): aggregate,
+  temporal, and full-text questions route to index.db SQL (SELECT-only,
+  stdlib sqlite3); staleness checked before every index read; every answer
+  names its plane; index hits become page reads before content is quoted.
+- Archive layer guide (`docs/archive-layer.md`, issue #60): Google Takeout
+  into archive.db (mbox, ics, vcf), tested stdlib importer snippets, lazy
+  alias resolution, backup discipline; never-index.db rule (REQ-1132).
+- Author provenance (issues #73/#74, from live vault use): optional
+  `author::` on ingested pages (schema REQ-585a; extraction REQ-011a,
+  emission REQ-033c) and born-cited `wiki/people/` pages for recurring
+  authors (ingest REQ-024a).
+- Config keys: `archive_db` (REQ-626), `index_db` (REQ-627).
+- Capture refs are valid cite targets: `check_citations.py` accepts
+  `archive.db:voice_notes/<id>` in the source-file union (ingest REQ-086).
+
+### Fixed
+
+- Live-vault feedback round (issues #66..#70, PR #71): ingest names the
+  exact `## Cross-References` heading and the checker tolerates
+  `Related`/`See also`; `secret_scan.py` exempts ad/search tracking params
+  only in URL query context; ingest Phase 0 slugifies source filenames at
+  intake (REQ-070a); `init_wiki.py` writes `:hidden ["raw" "ingested"]`
+  into `logseq/config.edn` (setup REQ-787); Logseq page properties are
+  written unbulleted (schema REQ-590/591), matching what the app writes.
+- Zotero guide verify-once (issue #28, partial): plugin pinned at v3.5.5,
+  known-good stamped 2026-07-06, MD-graph annotation-sync caveat recorded.
+
+### Notes
+
+- The section 8 exit test in `docs/voice-pipeline.md` remains the
+  recommended first run of the voice loop; the archive.db off-machine copy
+  must exist before the first real voice note (REQ-1120, unwaived).
+- Harness at 149 assertions (was 108 at v2.2.0); `check_canon.py` gains
+  the namespace-contract surface.
+
+## [2.3.0] - 2026-07-06
+
+The glossary layer: hand-run first (G-0), tooling under the same waiver.
+Completes the v2.3 milestone.
+
+### Added
+
+- Hand-run glossary (G-0, issue #53): domain and term page templates for
+  both modes plus `docs/glossary-workflow.md` (capture with
+  `#glossary-todo`, weekly curation, promote selectively, pull-only
+  import, staging never as drafting context).
+- Glossary tooling (issue #54): `openspec/specs/glossary.md`
+  (REQ-1000..1014, human-DECIDED / tool-READABLE / structure-LINTED);
+  namespaces REQ-960 amended to exactly four content namespaces WITH the
+  check_canon namespace surface and the repo-wide stale-phrase grep gate
+  in the same PR (premortem revision 8); lint rule 15 (REQ-250..253:
+  table shape, rule enum, staging hygiene; structure only, no auto-fix);
+  `init_wiki.py --with-glossary` and the `glossary_dir` config key
+  (REQ-628); the `wiki-glossary` skill (curate / promote / import /
+  context modes, every write checkpoint-confirmed).
+
 ## [2.2.0] - 2026-07-04
 
 The human layer: PARA tasks (`para/`) and Zettelkasten notes (`notes/`) in the

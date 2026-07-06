@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """lint.py - mechanical wiki linter (layer 1 of the two-layer lint).
 
-Implements the mechanical subset of the 14 lint rules from
+Implements the mechanical subset of the 15 lint rules from
 openspec/specs/lint.md. Finding ids equal spec REQ ids; findings that live
 in openspec/specs/schema.md (date format, enums, provenance, format mixing)
 use their schema.md REQ ids.
@@ -20,6 +20,7 @@ Mechanical rules covered here:
   Rule 12  External Link Rot           REQ-220 / REQ-221 (canonical-url)
   Rule 13  Naming Hygiene              REQ-230 / REQ-231 (structural names)
   Rule 14  Namespace Hygiene           REQ-240 (pages outside the contract)
+  Rule 15  Glossary Hygiene            REQ-250..253 (structure, never decisions)
 
   Schema-level mechanical checks: date format (REQ-560, REQ-563),
   completed project without completed date (REQ-522, info),
@@ -69,7 +70,7 @@ SCHEMA_SPEC_VERSION = "2.0.0"
 # The canonical number of lint rules. check_canon.py verifies this matches
 # the "### Rule N:" headings in openspec/specs/lint.md and the rule lists
 # in both templates/*/Schema.md.
-LINT_RULE_COUNT = 14
+LINT_RULE_COUNT = 15
 
 SEVERITY_RANK = {"critical": 0, "warning": 1, "info": 2}
 
@@ -300,13 +301,19 @@ class Linter:
         # notes_dir config keys (config.md REQ-625, namespaces REQ-980).
         self.para_prefix = (config.get("para_dir") or "para").strip("/")
         self.notes_prefix = (config.get("notes_dir") or "notes").strip("/")
+        # Human-decided glossary namespace (config.md REQ-628,
+        # specs/glossary.md): structure-linted by rule 15, exempt from the
+        # wiki-only rules.
+        self.glossary_prefix = (config.get("glossary_dir")
+                                or wikilib.DEFAULT_GLOSSARY_DIR).strip("/")
 
     # -- infrastructure ----------------------------------------------------
 
     def classify_namespace(self, name):
         """Which namespace a page name belongs to (namespaces REQ-960).
 
-        Returns "wiki", "para", "notes", "journals", or "outside".
+        Returns "wiki", "para", "notes", "glossary", "journals", or
+        "outside".
         Matching is case-insensitive so pre-migration Wiki/ corpora keep
         their wiki classification (grandfather floor, schema REQ-580c);
         the uppercase itself is rule 13's business.
@@ -316,6 +323,7 @@ class Linter:
             ("wiki", "wiki"),
             ("para", self.para_prefix.lower()),
             ("notes", self.notes_prefix.lower()),
+            ("glossary", self.glossary_prefix.lower()),
             ("journals", "journals"),
         )
         for namespace, prefix in prefixes:
@@ -391,6 +399,11 @@ class Linter:
         for page in self.pages:
             self.check_namespace_hygiene(page)                 # rule 14
             self.check_naming_hygiene(page)                    # rule 13
+            if page["ns"] == "glossary":
+                # Human-decided glossary: exempt from the wiki-only rules
+                # (glossary REQ-1002); rule 15 checks structure only.
+                self.check_glossary_hygiene(page)              # rule 15
+                continue
             if page["ns"] in ("para", "notes"):
                 # Human namespaces: exempt from every wiki-only rule
                 # (namespaces REQ-961/966, rule 14 REQ-242). The wiki
@@ -629,12 +642,86 @@ class Linter:
         if self.is_recognized_root(page):
             return
         self.add(page, "REQ-240", "namespace-hygiene", "warning",
-                 "page is outside wiki/, %s/, %s/, journals, and the "
+                 "page is outside wiki/, %s/, %s/, %s/, journals, and the "
                  "recognized root pages (namespace contract)"
-                 % (self.para_prefix, self.notes_prefix),
+                 % (self.para_prefix, self.notes_prefix,
+                    self.glossary_prefix),
                  fix="ingest the content into wiki/, move it into %s/ or "
                      "%s/ by hand, or delete it; no auto-fix (REQ-242)"
                      % (self.para_prefix, self.notes_prefix))
+
+    GLOSSARY_RULE_ENUM = ("keep-en", "translate", "context")
+    GLOSSARY_HEADER = ("EN", "DE", "Rule", "Note")
+
+    def check_glossary_hygiene(self, page):
+        """Rule 15 (REQ-250..253): structure of glossary/ pages
+        (specs/glossary.md). Table shape and the rule enum are mechanical;
+        the decisions themselves are human and never judged. No auto-fix."""
+        name = page["name"]
+        rel = name[len(self.glossary_prefix):].strip("/")
+        segments = [s for s in rel.split("/") if s] if rel else []
+        is_staging = bool(segments) and segments[0].lower() == "imported"
+
+        # REQ-252: staging pages carry source:: and status::.
+        if is_staging and len(segments) >= 2:
+            for prop in ("source", "status"):
+                if prop not in page["props"]:
+                    self.add(page, "REQ-252", "glossary-hygiene", "warning",
+                             "staging page is missing %s:: "
+                             "(specs/glossary.md REQ-1010)" % prop,
+                             fix="add the property by hand; imports arrive "
+                                 "with source:: and status:: unreviewed")
+
+        # REQ-253: term pages carry rule:: with an enum value.
+        if len(segments) == 2 and not is_staging:
+            rule = page["props"].get("rule", "")
+            if rule not in self.GLOSSARY_RULE_ENUM:
+                detail = ("missing" if not rule
+                          else "invalid ('%s')" % rule)
+                self.add(page, "REQ-253", "glossary-hygiene", "warning",
+                         "term page rule:: is %s; enum: %s"
+                         % (detail, " | ".join(self.GLOSSARY_RULE_ENUM)),
+                         fix="record the decision on the page; no auto-fix "
+                             "(the rule is a human call, REQ-1000)")
+
+        # REQ-250/251: terms-table shape and Rule cells.
+        in_terms, header_seen = False, False
+        for number, raw in enumerate(page["stripped"].splitlines(), 1):
+            line = raw.strip().lstrip("-").strip()
+            if line.startswith("#") and line.lstrip("#").strip():
+                in_terms = line.lstrip("#").strip().lower() == "terms"
+                header_seen = False
+                continue
+            if not in_terms or not line.startswith("|"):
+                continue
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if all(set(c) <= {"-", " ", ":"} for c in cells):
+                continue  # separator row
+            if not header_seen:
+                header_seen = True
+                if tuple(cells) != self.GLOSSARY_HEADER:
+                    self.add(page, "REQ-250", "glossary-hygiene", "warning",
+                             "terms-table header is '| %s |'; canon is "
+                             "'| EN | DE | Rule | Note |' "
+                             "(specs/glossary.md REQ-1004)"
+                             % " | ".join(cells))
+                continue
+            if len(cells) != len(self.GLOSSARY_HEADER):
+                self.add(page, "REQ-250", "glossary-hygiene", "warning",
+                         "terms-table row (line %d) has %d column(s); "
+                         "the canon table has 4" % (number, len(cells)))
+                continue
+            rule = cells[2]
+            if rule and rule not in self.GLOSSARY_RULE_ENUM:
+                self.add(page, "REQ-251", "glossary-hygiene", "warning",
+                         "invalid Rule '%s' (line %d); enum: %s"
+                         % (rule, number,
+                            " | ".join(self.GLOSSARY_RULE_ENUM)))
+            elif not rule and not is_staging:
+                self.add(page, "REQ-251", "glossary-hygiene", "warning",
+                         "undecided row (line %d): empty Rule belongs on a "
+                         "%s/imported/ staging page, not a domain page"
+                         % (number, self.glossary_prefix))
 
     def nearest_hub_name(self, page_name):
         parts = page_name.split("/")

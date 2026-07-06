@@ -12,9 +12,10 @@ well-structured, cross-referenced wiki page.
 #### Logseq format
 
 ```markdown
-- type:: knowledge
-- created:: 2025-03-10
-- updated:: 2025-03-10
+type:: knowledge
+created:: 2025-03-10
+updated:: 2025-03-10
+
 - ## Newsletter
 	- We send a newsletter.
 ```
@@ -40,11 +41,12 @@ We send a newsletter.
 #### Logseq format
 
 ```markdown
-- type:: knowledge
-- domain:: content
-- created:: 2025-03-10
-- updated:: 2025-06-15
-- confidence:: high
+type:: knowledge
+domain:: content
+created:: 2025-03-10
+updated:: 2025-06-15
+confidence:: high
+
 - ## Newsletter
 	- Monthly email newsletter sent to subscribers with project updates, technical insights, and community highlights.
 - ## Workflow

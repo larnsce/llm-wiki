@@ -103,6 +103,18 @@ skills for Claude Code. It requires only bash, python3, and git.
 - REQ-785: The system SHALL create parent directories as needed (`mkdir -p`).
 - REQ-786: The system SHALL NOT overwrite existing pages. If a page already
   exists, the system SHOULD skip it with a warning.
+- REQ-787 (Logseq index exclusion): In Logseq mode the system SHALL ensure
+  `logseq/config.edn` lists the source directories (`raw`, `ingested`) in
+  `:hidden`: create a minimal config.edn when none exists, else merge the
+  missing entries into the existing `:hidden` vector (never overwrite the
+  file). Rationale: Logseq indexes every markdown file in the graph folder
+  recursively; living beside `pages/` keeps sources out of the pages
+  directory, but only `:hidden` keeps them out of the index, where archived
+  sources render as graph pages and their TOC anchor links parse as
+  `#hashtags`. Editing config.edn requires a graph re-index to take effect;
+  the system SHALL say so when it changes an existing file. Obsidian has the
+  equivalent manual setting (Files and links -> Excluded files); the system
+  does not automate it.
 
 ### Step 9: Config File Generation
 
@@ -121,6 +133,12 @@ skills for Claude Code. It requires only bash, python3, and git.
   chosen skills directory, creating it if needed. No file is patched during
   install: config location is resolved at runtime by discovery
   (specs/config.md REQ-652).
+- REQ-803 (personal tier is opt-in): The default install SHALL SKIP the
+  personal-tier skills (`skills/wiki-ingest-voice`); they are installed only
+  when `--with-personal` is passed. The personal tier depends on
+  maintainer-run infrastructure (archive.db, `docs/voice-pipeline.md`) that
+  the generic tool does not assume; the public tool and the personal system
+  share a repo but not a default surface.
 - REQ-805: The system SHALL offer to write the global pointer file
   `~/.config/llm-wiki/config.yml` (specs/config.md REQ-653) so the skills work
   from any project directory.

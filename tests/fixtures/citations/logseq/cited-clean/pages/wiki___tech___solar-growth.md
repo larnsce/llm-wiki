@@ -16,3 +16,7 @@
 	  cite:: url:https://example.org/pv-price-tracker
 - ## Cross-References
 	- [[wiki/tech]]
+- ## Related
+	- Pre-existing navigation bullet under a synonym heading; exempt from claim coverage (#70).
+- ## See also
+	- Another tolerated synonym section with an uncited navigation bullet.

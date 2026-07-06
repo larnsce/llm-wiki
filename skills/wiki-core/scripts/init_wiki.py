@@ -5,6 +5,9 @@ Creates, for either tool mode:
 - the pages directory and the initial pages rendered from templates/
   (Schema, Dashboard, one Hub per namespace, the Access-Log page)
 - the source-pipeline scaffold: raw/ and ingested/<type>/ with .gitkeep
+- Logseq mode: :hidden ["raw" "ingested"] in logseq/config.edn so the
+  source trees stay out of the Logseq index (created, or merged into an
+  existing :hidden vector; specs/setup.md REQ-787)
 - the tool-specific .gitignore (unless --no-gitignore)
 - llm-wiki.yml (unless --no-config; existing config is kept unless
   --overwrite-config)
@@ -75,8 +78,9 @@ NOTES_SUBDIRS = ("literature", "permanent")
 # stamp. type:: schema marks them as reference pages for the human's own
 # queries. Content condenses docs/para-notes-workflow.md.
 PARA_SCHEMA_LOGSEQ = """\
-- type:: schema
-- last-updated:: {date}
+type:: schema
+last-updated:: {date}
+
 - ## para/ conventions
 	- This page and everything under `para/` is yours: the wiki toolchain never creates, edits, lints, or audits it (see `docs/para-notes-workflow.md` in the llm-wiki repository). Edit this page freely; the tool does not read it.
 - ## layout
@@ -96,8 +100,9 @@ PARA_SCHEMA_LOGSEQ = """\
 """
 
 NOTES_SCHEMA_LOGSEQ = """\
-- type:: schema
-- last-updated:: {date}
+type:: schema
+last-updated:: {date}
+
 - ## notes/ conventions
 	- This page and everything under `notes/` is yours: human-written, always. The wiki toolchain never creates, edits, lints, or audits it (see `docs/para-notes-workflow.md` in the llm-wiki repository). If Claude drafts it, it is not a note; it is a `wiki/` page.
 - ## note types
@@ -194,6 +199,37 @@ funnel. The query pages described there are Logseq tier-1; the Dataview
 equivalent on Obsidian is experimental.
 """
 
+GLOSSARY_CONFIG_BLOCK = """\
+# Glossary namespace (specs/config.md REQ-628, specs/glossary.md):
+# human-decided terminology; the tool scaffolds and structure-lints it and
+# writes only rows confirmed at the /wiki-glossary checkpoint.
+glossary_dir: {glossary_dir}
+"""
+
+GLOSSARY_INDEX_LOGSEQ = """\
+type:: glossary-index
+
+- ## glossary
+	- The EN-DE terminology layer: one domain page per subject, decisions recorded once. See `docs/glossary-workflow.md` in the llm-wiki repository.
+	- ### Index
+		- [[glossary/tech]] -- software, git, and computing terms #glossary
+"""
+
+GLOSSARY_INDEX_OBSIDIAN = """\
+---
+type: glossary-index
+---
+
+# glossary
+
+The EN-DE terminology layer: one domain page per subject, decisions
+recorded once. See `docs/glossary-workflow.md` in the llm-wiki repository.
+
+## Index
+
+- [[glossary/tech]] -- software, git, and computing terms #glossary
+"""
+
 PARA_NOTES_CONFIG_BLOCK = """\
 # Human namespaces (specs/config.md REQ-625, specs/namespaces.md REQ-980):
 # para/ (PARA task layer) and notes/ (Zettelkasten) are human-owned; the
@@ -266,8 +302,10 @@ def stamp_schema_version(content, tool):
     if "schema-spec-version" in content:
         return content
     if tool == "logseq":
-        return "- schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
-                                                   content)
+        # Page properties are unbulleted per schema REQ-591; the stamp joins
+        # the template's leading property block.
+        return "schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
+                                                 content)
     lines = content.splitlines(True)
     if lines and lines[0].strip() == "---":
         lines.insert(1, 'schema-spec-version: "%s"\n' % SCHEMA_SPEC_VERSION)
@@ -347,6 +385,62 @@ def scaffold_pipeline(scaffold, wiki_path):
                   % ",".join(wikilib.DEFAULT_SOURCE_TYPES))
 
 
+def ensure_logseq_hidden(scaffold, wiki_path, hidden_dirs):
+    """Hide the source dirs from the Logseq index (issue #69, REQ-787).
+
+    Logseq indexes every markdown file under the graph root recursively
+    unless the directory is listed in :hidden in logseq/config.edn. Living
+    beside pages/ keeps raw/ and ingested/ out of the pages directory, but
+    only :hidden keeps them out of the index; without it archived sources
+    render as graph pages and their TOC anchor links parse as #hashtags.
+
+    Creates a minimal config.edn when none exists; otherwise merges the
+    missing entries into the first uncommented :hidden vector (the app
+    writes :hidden [] on graph init). An existing config.edn with no
+    parseable :hidden gets the key appended before its closing brace.
+    """
+    config_path = os.path.join(wiki_path, "logseq", "config.edn")
+    rel = os.path.join("logseq", "config.edn")
+    quoted = " ".join('"%s"' % d for d in hidden_dirs)
+    if not os.path.exists(config_path):
+        scaffold.write_file(config_path, "{:hidden [%s]}\n" % quoted, rel)
+        return
+
+    with open(config_path, "r", encoding="utf-8") as handle:
+        text = handle.read()
+    match = None
+    for candidate in re.finditer(r":hidden\s*\[([^\]]*)\]", text):
+        line_start = text.rfind("\n", 0, candidate.start()) + 1
+        if ";" not in text[line_start:candidate.start()]:
+            match = candidate
+            break
+    if match:
+        existing = set(re.findall(r'"([^"]+)"', match.group(1)))
+        missing = [d for d in hidden_dirs if d not in existing]
+        if not missing:
+            scaffold.note("  Unchanged: %s (:hidden already covers %s)"
+                          % (rel, ", ".join(hidden_dirs)))
+            return
+        inner = match.group(1).strip()
+        merged = ((inner + " ") if inner else "") \
+            + " ".join('"%s"' % d for d in missing)
+        text = text[:match.start()] + ":hidden [%s]" % merged \
+            + text[match.end():]
+    else:
+        brace = text.rfind("}")
+        if brace == -1:
+            scaffold.skipped.append(rel)
+            scaffold.note("  Skipped: %s exists but is not a parseable EDN "
+                          "map; add :hidden [%s] manually" % (rel, quoted))
+            return
+        text = text[:brace] + " :hidden [%s]\n" % quoted + text[brace:]
+    with open(config_path, "w", encoding="utf-8") as handle:
+        handle.write(text)
+    scaffold.created.append("%s (:hidden)" % rel)
+    scaffold.note("  Updated: %s (:hidden now covers %s); re-index the "
+                  "graph in Logseq to apply" % (rel, ", ".join(hidden_dirs)))
+
+
 def scaffold_para_notes(scaffold, tool, pages_path, today):
     """Opt-in human layer (issue #29; specs/namespaces.md).
 
@@ -386,13 +480,41 @@ def scaffold_para_notes(scaffold, tool, pages_path, today):
                         "notes/schema.md")
 
 
+def scaffold_glossary(scaffold, tool, pages_path, template_dir, today):
+    """Opt-in glossary layer (issue #54; specs/glossary.md REQ-1003): the
+    index page plus one seed domain page from the G-0 template. Both are
+    human-editable after scaffolding; the toolchain writes rows only at the
+    /wiki-glossary checkpoint."""
+    domain = stamp_schema_version(
+        read_template(template_dir, "glossary-domain.md"), tool)
+    if tool == "logseq":
+        scaffold.write_file(os.path.join(pages_path, "glossary.md"),
+                            stamp_schema_version(GLOSSARY_INDEX_LOGSEQ,
+                                                 tool),
+                            "glossary")
+        scaffold.write_file(os.path.join(pages_path, "glossary___tech.md"),
+                            domain, "glossary/tech")
+        return
+    root = os.path.join(pages_path, wikilib.DEFAULT_GLOSSARY_DIR)
+    os.makedirs(root, exist_ok=True)
+    scaffold.write_file(os.path.join(root, "_index.md"),
+                        stamp_schema_version(GLOSSARY_INDEX_OBSIDIAN, tool),
+                        "glossary/_index.md")
+    scaffold.write_file(os.path.join(root, "tech.md"), domain,
+                        "glossary/tech.md")
+
+
 def build_config(tool, wiki_path, pages_dir, memory_path, namespaces, today,
-                 with_para_notes=False):
+                 with_para_notes=False, with_glossary=False):
     para_notes_block = ""
     if with_para_notes:
         para_notes_block = "\n" + PARA_NOTES_CONFIG_BLOCK.format(
             para_dir=wikilib.DEFAULT_PARA_DIR,
             notes_dir=wikilib.DEFAULT_NOTES_DIR,
+        )
+    if with_glossary:
+        para_notes_block += "\n" + GLOSSARY_CONFIG_BLOCK.format(
+            glossary_dir=wikilib.DEFAULT_GLOSSARY_DIR,
         )
     text = CONFIG_TEMPLATE.format(
         date=today,
@@ -433,6 +555,10 @@ def main():
                              "templates/<tool>/)")
     parser.add_argument("--date", default=None,
                         help="date stamp YYYY-MM-DD (default: today)")
+    parser.add_argument("--with-glossary", action="store_true",
+                        help="also scaffold the glossary layer: index page "
+                             "plus one seed domain page "
+                             "(specs/glossary.md, issue #54)")
     parser.add_argument("--with-para-notes", action="store_true",
                         help="also scaffold the human para/ + notes/ layer "
                              "(PARA + Zettelkasten seed pages; adds "
@@ -502,9 +628,17 @@ def main():
     scaffold.note("Scaffolding source pipeline (raw/ + ingested/)...")
     scaffold_pipeline(scaffold, wiki_path)
 
+    if args.tool == "logseq":
+        ensure_logseq_hidden(scaffold, wiki_path, ("raw", "ingested"))
+
     if args.with_para_notes:
         scaffold.note("Scaffolding human layer (para/ + notes/)...")
         scaffold_para_notes(scaffold, args.tool, pages_path, today)
+
+    if args.with_glossary:
+        scaffold.note("Scaffolding glossary layer (index + seed domain)...")
+        scaffold_glossary(scaffold, args.tool, pages_path, template_dir,
+                          today)
 
     if not args.no_gitignore:
         scaffold.write_file(os.path.join(wiki_path, ".gitignore"),
@@ -514,7 +648,8 @@ def main():
     if not args.no_config:
         content = build_config(args.tool, wiki_path, pages_dir, memory_path,
                                args.namespaces, today,
-                               with_para_notes=args.with_para_notes)
+                               with_para_notes=args.with_para_notes,
+                               with_glossary=args.with_glossary)
         if os.path.exists(config_path) and args.overwrite_config:
             os.remove(config_path)
         scaffold.write_file(config_path, content, wikilib.CONFIG_FILENAME)
@@ -527,6 +662,7 @@ def main():
             "wiki_path": wiki_path,
             "config_path": config_path if not args.no_config else None,
             "with_para_notes": args.with_para_notes,
+            "with_glossary": args.with_glossary,
             "created": scaffold.created,
             "skipped": scaffold.skipped,
         })

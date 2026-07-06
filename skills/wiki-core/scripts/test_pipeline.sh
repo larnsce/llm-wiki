@@ -229,6 +229,34 @@ run python3 "$SCRIPT_DIR/init_wiki.py" \
   --wiki-path "$WORK/fc-wiki" --tool logseq --date 2026-07-01
 assert_exit 1 "init_wiki: warns (exit 1) instead of overwriting existing pages"
 
+# Logseq :hidden scaffold (issue #69, REQ-787): a fresh scaffold writes
+# logseq/config.edn hiding the source dirs; an app-initialized graph gets
+# the entries MERGED into its existing :hidden vector (commented vectors
+# are not touched).
+HIDDEN_WIKI="$WORK/hidden-fresh"
+run python3 "$SCRIPT_DIR/init_wiki.py" \
+  --wiki-path "$HIDDEN_WIKI" --tool logseq --date 2026-07-01
+assert_exit 0 "init_wiki: clean scaffold including logseq/config.edn"
+if grep -q ':hidden \["raw" "ingested"\]' "$HIDDEN_WIKI/logseq/config.edn"; then
+  report PASS "init_wiki: fresh config.edn hides raw/ and ingested/"
+else
+  report FAIL "init_wiki: fresh config.edn hides raw/ and ingested/"
+fi
+
+HIDDEN_WIKI="$WORK/hidden-merge"
+mkdir -p "$HIDDEN_WIKI/logseq"
+printf '{:meta/version 1\n ;; :hidden ["commented"]\n :hidden ["existing"]}\n' \
+  >"$HIDDEN_WIKI/logseq/config.edn"
+run python3 "$SCRIPT_DIR/init_wiki.py" \
+  --wiki-path "$HIDDEN_WIKI" --tool logseq --date 2026-07-01
+assert_exit 0 "init_wiki: clean scaffold over an app-initialized graph"
+if grep -q ':hidden \["existing" "raw" "ingested"\]' "$HIDDEN_WIKI/logseq/config.edn" \
+  && grep -q ';; :hidden \["commented"\]' "$HIDDEN_WIKI/logseq/config.edn"; then
+  report PASS "init_wiki: merges :hidden entries, leaves commented vector alone"
+else
+  report FAIL "init_wiki: merges :hidden entries, leaves commented vector alone"
+fi
+
 # ---------------------------------------------------------------------------
 # lint: clean fixtures green, planted defects red, in BOTH tool modes
 # ---------------------------------------------------------------------------
@@ -484,7 +512,43 @@ for tool in logseq obsidian; do
   assert_lint_finding \
     "check_citations($tool): union mismatch reports REQ-904" \
     REQ-904 critical
+
+  # Capture refs (ingest REQ-086): archive.db:voice_notes/<id> is a valid
+  # cite target and joins the source-file union like an ingested/ path.
+  wiki="$WORK/$tool-capture-cited"
+  make_wiki "$wiki" "$tool"
+  cp -R "$FIXTURES/citations/$tool/capture-cited/." "$wiki/"
+  run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 0 "check_citations($tool): green on capture-ref cited page (REQ-086)"
 done
+
+# A ref whose path contains whitespace (un-slugged web-clipping filename,
+# issue #67): the union invariant fires critical AND the REQ-901 warning
+# points at the actual cause (slugify at intake) instead of the generic
+# malformed-ref message.
+wiki="$WORK/logseq-spacey-ref"
+make_wiki "$wiki" "logseq"
+mkdir -p "$wiki/ingested/clippings"
+cat > "$wiki/pages/wiki___tech___spacey-ref.md" <<'EOF'
+- type:: knowledge
+- domain:: tech
+- created:: 2026-07-01
+- updated:: 2026-07-01
+- confidence:: medium
+- source:: ingest
+- source-file:: ingested/clippings/Before the Guardrails.md
+- reliability:: medium
+- schema-spec-version:: 2.0.0
+- ## Body
+	- A claim citing an un-slugged clipping filename.
+	  cite:: ingested/clippings/Before the Guardrails.md
+- ## Cross-References
+	- [[wiki/tech]]
+EOF
+run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+assert_exit 2 "check_citations: critical (exit 2) on whitespace ref (union unresolvable)"
+assert_report "check_citations: whitespace ref gets the slugify hint" \
+  "any(f['id'] == 'REQ-901' and 'slugify' in f['message'] for f in r['findings'])"
 
 # ---------------------------------------------------------------------------
 # check_canon: green on the repo, red on a mutated copy
@@ -526,6 +590,15 @@ run py secret_scan.py --json "$FIXTURES/sources/clipped-page.html"
 assert_exit 2 "secret_scan: blocking (exit 2) on fake AWS key in clipped HTML"
 assert_scan_pattern "secret_scan: aws-access-key pattern fired" aws-access-key
 
+# The tracking-param carve-out (issue #68) is URL-query-scoped only: the
+# same high-entropy value in a bare assignment still blocks. The URL side
+# is pinned by the clean fixture above.
+ENTROPY_NOTE="$WORK/entropy-note.md"
+printf 'config dump\ndeploy_id = AfmBOor7RPqK3x9ZtWc5dd2Xw1QhVbnJ4uE\n' >"$ENTROPY_NOTE"
+run py secret_scan.py --json "$ENTROPY_NOTE"
+assert_exit 2 "secret_scan: blocking (exit 2) on bare high-entropy assignment"
+assert_scan_pattern "secret_scan: high-entropy-token pattern fired" high-entropy-token
+
 run py secret_scan.py --json "$FIXTURES/sources/personal-note.md"
 assert_exit 1 "secret_scan: advisory (exit 1) on email + national-ID note"
 assert_scan_pattern "secret_scan: email-address pattern fired" email-address
@@ -559,6 +632,251 @@ assert_exit 0 "secret_scan: gitignore-check green on ignored path"
 run py secret_scan.py --json --gitignore-check "$GITWIKI" \
   "ingested/papers/tracked.md"
 assert_exit 2 "secret_scan: gitignore-check red on path that would enter history"
+
+# ---------------------------------------------------------------------------
+# author:: provenance (schema REQ-585a, ingest REQ-011a/033c, #73) and the
+# born-cited person page (ingest REQ-024a, #74): both shapes lint clean and
+# pass the citation gate.
+# ---------------------------------------------------------------------------
+AUTHWIKI="$WORK/author-wiki"
+make_wiki "$AUTHWIKI" logseq
+mkdir -p "$AUTHWIKI/ingested/clippings"
+echo "clipped text" >"$AUTHWIKI/ingested/clippings/insanely-human-kieffer.md"
+cat >"$AUTHWIKI/pages/wiki___tech___insanely-human.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+domain:: tech
+created:: 2026-07-01
+updated:: 2026-07-01
+confidence:: medium
+source:: ingest
+source-file:: ingested/clippings/insanely-human-kieffer.md
+author:: Sam Kieffer
+reliability:: medium
+
+- ## Body
+	- Being insanely human is the differentiator.
+	  cite:: ingested/clippings/insanely-human-kieffer.md
+- ## Pending Review
+	- Single medium source.
+- ## Cross-References
+	- [[wiki/tech]]
+EOF
+cat >"$AUTHWIKI/pages/wiki___people___Sam Kieffer.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: entity
+entity-type:: person
+created:: 2026-07-01
+updated:: 2026-07-01
+confidence:: medium
+status:: active
+source:: ingest
+source-file:: ingested/clippings/insanely-human-kieffer.md
+author:: Sam Kieffer
+reliability:: medium
+
+- ## Sam Kieffer
+	- Author of the clipped essays behind [[wiki/tech/insanely-human]].
+	  cite:: ingested/clippings/insanely-human-kieffer.md
+- ## Pending Review
+	- Synthesis from provenance metadata; single source.
+- ## Cross-References
+	- [[wiki/tech/insanely-human]]
+EOF
+python3 - "$AUTHWIKI/pages" <<'PY'
+import sys, pathlib
+pages = pathlib.Path(sys.argv[1])
+lines = {
+    "wiki___tech.md": "\t\t- [[wiki/tech/insanely-human]] -- what makes work insanely human #essay\n",
+    "wiki___people.md": "\t\t- [[wiki/people/Sam Kieffer]] -- essayist behind the insanely-human clippings #author\n",
+}
+for name, line in lines.items():
+    hub = pages / name
+    hub.write_text(hub.read_text().replace("\t- ### Index\n",
+                                           "\t- ### Index\n" + line, 1))
+PY
+run py lint.py --config "$AUTHWIKI/llm-wiki.yml" --strict --json
+assert_exit 0 "lint(logseq): author:: page + born-cited person page lint clean under --strict (REQ-585a/024a)"
+run py check_citations.py --config "$AUTHWIKI/llm-wiki.yml" --json
+assert_exit 0 "check_citations(logseq): person page cites the works' ingested files (union holds, REQ-024a)"
+
+# ---------------------------------------------------------------------------
+# Glossary layer (specs/glossary.md): --with-glossary scaffold, config
+# REQ-628, lint rule 15 (REQ-250..253).
+# ---------------------------------------------------------------------------
+for tool in logseq obsidian; do
+  GLWIKI="$WORK/glossary-$tool"
+  run python3 "$SCRIPT_DIR/init_wiki.py" --wiki-path "$GLWIKI" \
+    --tool "$tool" --date 2026-07-01 --with-glossary
+  assert_exit 0 "init_wiki($tool): --with-glossary scaffolds clean"
+  run py check_config.py "$GLWIKI/llm-wiki.yml"
+  assert_exit 0 "check_config($tool): glossary_dir is a known key (REQ-628)"
+  run py lint.py --config "$GLWIKI/llm-wiki.yml" --strict --json
+  assert_exit 0 "lint($tool): --with-glossary scaffold lints clean under --strict"
+done
+
+GLDEFECT="$WORK/glossary-defects"
+make_wiki "$GLDEFECT" logseq
+cat >"$GLDEFECT/pages/glossary___tech.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-domain
+
+- ## Terms
+	- | EN | DE | Rule | Note |
+	  | --- | --- | --- | --- |
+	  | prompt | der Prompt | keep-english | invalid enum value |
+	  | workflow | der Arbeitsablauf | | undecided row on a domain page |
+EOF
+cat >"$GLDEFECT/pages/glossary___teaching.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-domain
+
+- ## Terms
+	- | EN | German | Rule | Note |
+	  | --- | --- | --- | --- |
+	  | homework | die Hausaufgabe | translate | header is off-canon |
+EOF
+cat >"$GLDEFECT/pages/glossary___imported___glosario.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-staging
+source:: Glosario (The Carpentries), CC-BY
+
+- ## Terms
+	- | EN | DE | Rule | Note |
+	  | --- | --- | --- | --- |
+	  | repository | das Repositorium | | staging row, empty Rule is fine |
+EOF
+cat >"$GLDEFECT/pages/glossary___tech___repository.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: glossary-term
+alias:: Repository, Repositorium
+domain:: tech
+
+- Term page without rule::
+EOF
+run py lint.py --config "$GLDEFECT/llm-wiki.yml" --json
+assert_exit_nonzero "lint(logseq): red on glossary defect vault"
+assert_lint_finding "lint(logseq): invalid Rule enum reports REQ-251" REQ-251
+assert_lint_finding "lint(logseq): off-canon header reports REQ-250" REQ-250
+assert_lint_finding "lint(logseq): staging without status reports REQ-252" REQ-252
+assert_lint_finding "lint(logseq): term page without rule:: reports REQ-253" REQ-253
+assert_report "lint(logseq): undecided domain row flagged, staging row accepted (REQ-251)" \
+  "len([f for f in r['findings'] if f['id'] == 'REQ-251' and 'undecided' in f['message']]) == 1"
+assert_report "lint(logseq): no wiki-only findings on glossary pages (REQ-1002)" \
+  "not [f for f in r['findings'] if f['page'].startswith('glossary') and f['id'] not in ('REQ-250', 'REQ-251', 'REQ-252', 'REQ-253')]"
+
+# ---------------------------------------------------------------------------
+# setup.sh personal tier (setup REQ-803) + archive_db config key (config
+# REQ-626). setup.sh runs non-interactively here: no init, no pointer.
+# ---------------------------------------------------------------------------
+run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-default"
+assert_exit 0 "setup: default install runs clean"
+run test -d "$WORK/tier-default/.claude/skills/wiki-ingest"
+assert_exit 0 "setup: default install includes wiki-ingest"
+run test -d "$WORK/tier-default/.claude/skills/wiki-ingest-voice"
+assert_exit 1 "setup: default install SKIPS wiki-ingest-voice (REQ-803)"
+
+run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-personal" --with-personal
+assert_exit 0 "setup: --with-personal install runs clean"
+run test -d "$WORK/tier-personal/.claude/skills/wiki-ingest-voice"
+assert_exit 0 "setup: --with-personal installs wiki-ingest-voice (REQ-803)"
+
+ARCHWIKI="$WORK/arch-wiki"
+make_wiki "$ARCHWIKI" logseq
+echo "archive_db: ~/archive/archive.db" >>"$ARCHWIKI/llm-wiki.yml"
+echo "index_db: ~/archive/index.db" >>"$ARCHWIKI/llm-wiki.yml"
+run py check_config.py "$ARCHWIKI/llm-wiki.yml"
+assert_exit 0 "check_config: archive_db and index_db are known optional keys (REQ-626/627)"
+
+# ---------------------------------------------------------------------------
+# rebuild_index.py (storage REQ-1130..1133, config REQ-627)
+# ---------------------------------------------------------------------------
+IDXWIKI="$WORK/idx-wiki"
+make_wiki "$IDXWIKI" logseq
+echo "index_db: $WORK/idx-db/index.db" >>"$IDXWIKI/llm-wiki.yml"
+cat >"$IDXWIKI/pages/wiki___people___Ada Example.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: person
+alias:: Ada, A. Example
+created:: 2026-07-01
+updated:: 2026-07-01
+
+- ## Ada Example
+	- Fixture person page for the index harness.
+- ## Cross-References
+	- [[wiki/people]]
+EOF
+mkdir -p "$IDXWIKI/journals"
+cat >"$IDXWIKI/journals/2026_07_01.md" <<'EOF'
+- #meeting sync with [[wiki/people/Ada Example]] about the index layer
+- an ordinary journal line without a tag
+EOF
+
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --json
+assert_exit 0 "rebuild_index: clean rebuild on scaffolded vault"
+assert_report "rebuild_index: one people row indexed (REQ-1130)" \
+  "r['people'] == 1"
+assert_report "rebuild_index: one #meeting block indexed with the journal date" \
+  "r['meetings'] == 1"
+
+# Reproducibility (REQ-1131): two rebuilds from the same vault state
+# produce identical dumps.
+run python3 - "$SCRIPT_DIR/rebuild_index.py" "$IDXWIKI/llm-wiki.yml" \
+  "$WORK/idx-db/index.db" <<'PY'
+import hashlib, sqlite3, subprocess, sys
+script, config, db_path = sys.argv[1:4]
+def dump_hash():
+    db = sqlite3.connect(db_path)
+    digest = hashlib.sha256("\n".join(db.iterdump()).encode()).hexdigest()
+    db.close()
+    return digest
+first = dump_hash()
+subprocess.run([sys.executable, script, "--config", config],
+               check=True, capture_output=True)
+sys.exit(0 if dump_hash() == first else 1)
+PY
+assert_exit 0 "rebuild_index: two rebuilds produce identical dumps (REQ-1131)"
+
+# The three P-5 SQL template shapes (query.md REQ-462) run against the
+# frozen schema and find the fixture rows.
+run python3 - "$WORK/idx-db/index.db" <<'PY'
+import sqlite3, sys
+db = sqlite3.connect(sys.argv[1])
+people = db.execute(
+    "SELECT page, name, aliases FROM people WHERE name LIKE ? OR "
+    "aliases LIKE ?", ("%Ada%", "%Ada%")).fetchall()
+meetings = db.execute(
+    "SELECT page, date, text FROM meetings WHERE date BETWEEN ? AND ? "
+    "ORDER BY date, page", ("2026-07-01", "2026-07-31")).fetchall()
+fts = db.execute(
+    "SELECT page FROM page_text WHERE page_text MATCH ? ORDER BY rank",
+    ("index",)).fetchall()
+ok = (len(people) == 1 and len(meetings) == 1
+      and meetings[0][1] == "2026-07-01"
+      and any("journals/2026_07_01" in row for row, in [(r[0],) for r in fts]))
+sys.exit(0 if ok else 1)
+PY
+assert_exit 0 "rebuild_index: P-5 SQL templates (people, meetings, fts) hit the fixtures (REQ-462)"
+
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --stale-check
+assert_exit 0 "rebuild_index: stale-check fresh after rebuild (REQ-1133)"
+echo "- new content" >"$IDXWIKI/pages/wiki___tech___fresh-page.md"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --stale-check
+assert_exit 1 "rebuild_index: stale-check detects a vault change (REQ-1133)"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml"
+assert_exit 0 "rebuild_index: rebuild clears staleness"
+
+# Placement guard (REQ-1103): a target inside the vault's git tree that is
+# not gitignored is refused; gitignoring it makes the same path legal.
+git -C "$IDXWIKI" -c init.defaultBranch=main init -q
+cp "$IDXWIKI/llm-wiki.yml" "$IDXWIKI/llm-wiki-inside.yml"
+sed -i.bak "s|^index_db:.*|index_db: $IDXWIKI/index.db|" \
+  "$IDXWIKI/llm-wiki-inside.yml" && rm "$IDXWIKI/llm-wiki-inside.yml.bak"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki-inside.yml"
+assert_exit 2 "rebuild_index: refuses an unignored in-vault target (REQ-1103)"
+echo "index.db" >>"$IDXWIKI/.gitignore"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki-inside.yml"
+assert_exit 0 "rebuild_index: gitignored in-vault target is accepted (REQ-1103)"
 
 # ---------------------------------------------------------------------------
 # Summary

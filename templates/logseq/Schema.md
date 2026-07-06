@@ -1,8 +1,9 @@
-- wiki-version:: 1.0
-- schema-spec-version:: 2.0.0
-- last-updated:: {{DATE}}
-- maintained-by:: llm-wiki
-- type:: schema
+wiki-version:: 1.0
+schema-spec-version:: 2.0.0
+last-updated:: {{DATE}}
+maintained-by:: llm-wiki
+type:: schema
+
 - ## Namespace Conventions
 	- Top-Level: {{NAMESPACES}}
 	- Page Naming: lowercase structural segments, hyphen (U+002D) for multi-word (`wiki/projects/my-project`); no spaces, underscores, or en/em dashes in structural segments. Proper-noun leaves keep natural casing (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`). Pre-migration `Wiki/` corpora are grandfathered until the lowercase migration runs.
@@ -46,6 +47,7 @@
 		- namespace:: (the namespace this hub page indexes)
 - ## Provenance Properties (ingested pages)
 	- source-file:: comma-separated relative path(s) into `ingested/` (e.g. `ingested/papers/smith-2024.md`). Plain text, NOT a `[[link]]` - it points at a source file, not a wiki page. Present on ingested pages; omit on hand-written pages.
+	- author:: optional - comma-separated source author name(s), plain text (schema REQ-585a). Structured authorship for ingested pages; omit when the source has no meaningful author (datasets, org pages). Union-appended on corroborating updates, never required by lint.
 	- reliability:: high | medium | low
 		- REQUIRED on ingested pages (hand-written pages omit it). Rates the QUALITY of the page's sources; assessed per claim and rolled up: the page value is the MINIMUM across its claims.
 	- last-reviewed:: YYYY-MM-DD - date a human last verified the page (optional; useful for stewardship).
@@ -78,7 +80,7 @@
 - ## Source Lifecycle
 	- A source file lives in `raw/` while pending and is MOVED to `ingested/<type>/` once its knowledge has been written into wiki pages. Presence in `ingested/` = processed. The move is the atomic provenance commit.
 	- Source files are immutable: the wiki reads from them and links to them by path, but never edits them.
-	- `raw/` and `ingested/` live BESIDE `pages/`, so Logseq does not render sources as wiki pages.
+	- `raw/` and `ingested/` live BESIDE `pages/`, which keeps sources out of the pages directory; only the `:hidden` entries in `logseq/config.edn` keep them out of the Logseq index (setup writes them; re-index the graph after changing them).
 - ## Cross-Reference Rules
 	- Every wiki page MUST have at least one `[[wiki/...]]` link to another wiki page
 	- Hub pages MUST list ALL child pages in their namespace
@@ -87,9 +89,9 @@
 	- Tags: `#tag` for lightweight categorization (e.g., `#docker`, `#deploy`, `#critical`)
 	- External links: `[Text](URL)` for URLs outside the wiki
 - ## Content Format Rules
-	- Every line is a Logseq block (starts with `- `)
+	- Every BODY line is a Logseq block (starts with `- `)
 	- Properties: `property:: value` syntax (NO YAML frontmatter)
-	- Page properties go on the first blocks of the page
+	- Page properties are UNBULLETED `property:: value` lines at the top of the file, followed by one blank line (this matches what the Logseq app itself writes; bulleted page properties get rewritten by the app on first open). Block properties (e.g. `cite::`) stay as indented continuation lines under their block.
 	- Sections: `## Heading` syntax inside a block: `- ## Section Name`
 	- Code blocks: fenced with triple backticks inside a block
 	- NEVER store credentials, passwords, or API tokens in wiki pages
@@ -134,7 +136,8 @@
 	- **Rule 11 Archived-in-Live-Index** (REQ-197): archived pages whose routing line still sits in the hub `### Index`
 	- **Rule 12 External Link Rot** (REQ-220): canonical-url targets that no longer resolve; URL-shape check by default, real HTTP check with `--check-urls`
 	- **Rule 13 Naming Hygiene** (REQ-230): structural name segments with spaces, uppercase, underscores, or en/em dashes; hyphen (U+002D) is the only separator. Leaves are only flagged mechanically for separator violations; proper-noun leaves (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`) are a wiki-lint judgment call, never auto-fixed
-	- **Rule 14 Namespace Hygiene** (REQ-240): pages outside wiki/, para/, notes/, journals, and the recognized root pages; para/ and notes/ pages are accepted here and exempt from all wiki-only rules, never auto-fixed
+	- **Rule 14 Namespace Hygiene** (REQ-240): pages outside wiki/, para/, notes/, glossary/, journals, and the recognized root pages; para/, notes/, and glossary/ pages are accepted here and exempt from all wiki-only rules, never auto-fixed
+	- **Rule 15 Glossary Hygiene** (REQ-250): glossary/ table shape (| EN | DE | Rule | Note |), the rule enum (keep-en | translate | context), undecided rows on domain pages, and source::/status:: on imported staging pages; structure only, decisions are human and never auto-fixed
 - <!-- canon:lint-rules end -->
 - ## Conventions
 	- Language: English (customize per project)

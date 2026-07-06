@@ -185,6 +185,14 @@ lint (validation).
   `[[link]]`. Hand-written pages omit it. `source-file::` is distinct from the existing
   `source::` property: `source::` records the METHOD (memory-migration | ingest | manual),
   `source-file::` records WHICH origin file.
+- REQ-585a (author provenance, v3.x #73): An ingested page MAY carry an
+  OPTIONAL `author::` property: comma-separated person names, plain text,
+  recording the source's author(s) as structured metadata. Optional because
+  not every source has a meaningful author (datasets, organization pages).
+  On corroborating updates the value is a UNION (append new authors,
+  deduplicated), like `source-file::`. Lint recognizes it and never
+  requires it; ingest never backfills it onto existing pages (same rule as
+  the schema-spec-version stamp).
 - REQ-586: An ingested page SHALL carry a `reliability::` property, one of
   `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
   (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up
@@ -211,6 +219,18 @@ lint (validation).
   the ingest. `s2-metrics::` is ADVISORY: it informs the qualitative `reliability::` judgment
   (REQ-586) but MUST NOT be used to derive `reliability::` by formula or citation-count
   threshold. The qualitative rubric remains the decision.
+- REQ-586b (capture-backed provenance): A claim whose provenance is an archive.db
+  row (a `source-file::`/`cite::` ref of shape `archive.db:voice_notes/<id>`,
+  specs/ingest.md Voice Sources) is CAPTURE-BACKED: raw capture, not a vetted
+  source. A transcript is what was said, not a source for what is true.
+  Capture-backed claims default to `reliability:: low` (they rate with the
+  speculative/anecdotal tier of the REQ-586 rubric), and the page roll-up applies
+  as usual. Raising a capture-backed claim above `low` SHALL require a real
+  source ingested through the normal pipeline (`raw/` to `ingested/`) that
+  supports the claim: a transcript cannot corroborate itself, and multiple voice
+  notes from the same speaker count as ONE source for REQ-586 corroboration.
+  This is the single normative statement of the capture-backed default; other
+  specs (ingest, audit, storage) cite it rather than restate it.
 - REQ-587: `confidence::` (REQ-530/533) and `reliability::` (REQ-586) are TWO SEPARATE
   axes and MUST NOT be cross-derived. `confidence::` answers "is this content current and
   verified" (and follows the 90-day staleness lifecycle); `reliability::` answers "how good
@@ -226,14 +246,23 @@ lint (validation).
   `ingested/<type>/` once its knowledge is written into wiki pages. Presence in
   `ingested/` means processed; the move is the atomic provenance commit. Source files are
   immutable (read and linked by path, never edited). `raw/` and `ingested/` live BESIDE
-  the pages directory so they are not rendered as wiki pages.
+  the pages directory, keeping sources out of the pages tree; keeping them out of the
+  tool's index additionally requires the tool-side exclusion (Logseq `:hidden`,
+  specs/setup.md REQ-787; Obsidian Excluded files).
 
 ### Tool-Specific Format Rules
 
-- REQ-590: In Logseq mode, every line of wiki content MUST start with `- `
-  (outliner block prefix). No exceptions.
+- REQ-590: In Logseq mode, every line of wiki BODY content MUST start with `- `
+  (outliner block prefix). The page-property block at the top of the file is the
+  one exception (REQ-591).
 - REQ-591: In Logseq mode, properties MUST use inline syntax: `property:: value`.
-  YAML frontmatter is NOT allowed.
+  YAML frontmatter is NOT allowed. PAGE properties SHALL be written as unbulleted
+  `property:: value` lines at the top of the file followed by one blank line,
+  matching what the Logseq app itself writes (a bulleted page-property block is
+  normalized by the app on first open, producing spurious diffs). BLOCK
+  properties (e.g. `cite::`) remain continuation lines under their block.
+  Readers SHALL accept both the bulleted and unbulleted page-property shapes
+  (pre-v2.3 pages are bulleted).
 - REQ-592: In Obsidian mode, properties MUST be in YAML frontmatter
   (between `---` fences at the top of the file).
 - REQ-593: In Obsidian mode, content uses standard markdown. The `- ` block
@@ -377,3 +406,6 @@ AND the system SHALL NOT create two pages or use a multi-domain value
 - specs/config.md determines tool mode (Logseq vs Obsidian)
 - specs/namespaces.md (v2.2) binds the promotion seam to the personal-synthesis
   rubric case (REQ-586) and consumes the naming rules (REQ-580..583)
+- specs/storage.md and specs/ingest.md (Voice Sources, v3.0) define the
+  archive.db capture ref whose reliability default is REQ-586b; specs/audit.md
+  REQ-927 reports such claims as capture-backed

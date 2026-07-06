@@ -44,6 +44,13 @@ Options:
                        layer (PARA + Zettelkasten seed pages) and add
                        para_dir/notes_dir to the config; intended for a
                        fresh graph (see docs/para-notes-workflow.md)
+  --with-glossary      with --init: also scaffold the glossary layer
+                       (index + seed domain page; see
+                       docs/glossary-workflow.md)
+  --with-personal      also install the personal-tier skills
+                       (wiki-ingest-voice); skipped by default because they
+                       depend on maintainer-run infrastructure (archive.db,
+                       docs/voice-pipeline.md)
   --git-init           run git init plus a best-effort initial commit in the
                        scaffolded wiki (also offered interactively)
   --pointer            write ~/.config/llm-wiki/config.yml (needs a wiki path)
@@ -57,6 +64,7 @@ Examples:
   ./setup.sh --project ~/myrepo --symlink    # project-level, symlinked
   ./setup.sh --init --tool logseq --wiki-path ~/notes --yes
   ./setup.sh --init --tool logseq --wiki-path ~/notes --with-para-notes --yes
+  ./setup.sh --with-personal                 # include the personal tier
 USAGE
 }
 
@@ -71,6 +79,8 @@ WIKI_PATH=""
 NAMESPACES=""
 MEMORY_PATH=""
 WITH_PARA_NOTES=0
+WITH_GLOSSARY=0
+WITH_PERSONAL=0
 GIT_INIT=0
 POINTER_MODE="offer"   # offer | force | never
 
@@ -91,6 +101,8 @@ while [ "$#" -gt 0 ]; do
         --namespaces)  need_value "$@"; NAMESPACES="$2"; shift 2 ;;
         --memory-path) need_value "$@"; MEMORY_PATH="$2"; shift 2 ;;
         --with-para-notes) WITH_PARA_NOTES=1; shift ;;
+        --with-glossary) WITH_GLOSSARY=1; shift ;;
+        --with-personal) WITH_PERSONAL=1; shift ;;
         --git-init)    GIT_INIT=1; shift ;;
         --pointer)     POINTER_MODE="force"; shift ;;
         --no-pointer)  POINTER_MODE="never"; shift ;;
@@ -157,10 +169,26 @@ else
 fi
 mkdir -p "$SKILLS_DEST"
 
+# Personal-tier skills are installed only with --with-personal
+# (openspec/specs/setup.md REQ-803).
+PERSONAL_SKILLS="wiki-ingest-voice"
+
+is_personal_skill() {
+    local name="$1" p
+    for p in $PERSONAL_SKILLS; do
+        [ "$name" = "$p" ] && return 0
+    done
+    return 1
+}
+
 echo "Installing skills into $SKILLS_DEST ($LINK_MODE mode):"
 for src in "$SCRIPT_DIR"/skills/wiki-*; do
     [ -d "$src" ] || continue
     name="$(basename "$src")"
+    if is_personal_skill "$name" && [ "$WITH_PERSONAL" = 0 ]; then
+        echo "  $name -> skipped (personal tier; pass --with-personal to install)"
+        continue
+    fi
     dest="$SKILLS_DEST/$name"
     replaced=""
     if [ -e "$dest" ] || [ -L "$dest" ]; then
@@ -262,6 +290,9 @@ if [ "$DO_INIT" = 1 ]; then
     fi
     if [ "$WITH_PARA_NOTES" = 1 ]; then
         init_args+=(--with-para-notes)
+    fi
+    if [ "$WITH_GLOSSARY" = 1 ]; then
+        init_args+=(--with-glossary)
     fi
 
     echo ""

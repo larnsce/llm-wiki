@@ -8,9 +8,14 @@ Always use the correct format for the configured tool.
 
 ## Logseq mode
 
-- Every line of wiki content starts with `- ` (outliner format; REQ-590).
-- Properties: inline `property:: value` syntax on the first lines; NO YAML
-  frontmatter (REQ-591).
+- Every line of wiki BODY content starts with `- ` (outliner format; REQ-590).
+- Page properties: UNBULLETED `property:: value` lines at the top of the file,
+  followed by one blank line; NO YAML frontmatter (REQ-591). This matches what
+  the Logseq app itself writes; a bulleted property block (`- type:: ...`,
+  the pre-v2.3 convention) is rewritten by the app the first time the page is
+  opened, producing noisy diffs. Readers accept both shapes; write the
+  unbulleted one. Block properties (e.g. `cite::` under a claim) are
+  continuation lines under their block and are NOT affected.
 - File naming: triple-underscore for namespaces (`wiki___tech___Strapi.md`), all
   files flat in the `pages/` directory (REQ-583).
 - Hub file naming: `wiki___<namespace>.md`.
@@ -103,8 +108,9 @@ transparency, one line per page read (REQ-569).
 Logseq:
 
 ```
-- access-log:: true
-- type:: reference
+access-log:: true
+type:: reference
+
 - ## Log (append-only, newest at bottom)
   - 2026-06-07 -- [[wiki/tech/Strapi]] -- query -- matched: "Strapi 5 -- ports, deploy, migration"
   - 2026-06-07 -- [[wiki/projects/GEO]] -- query -- matched: "L3-grep: geo strategy"

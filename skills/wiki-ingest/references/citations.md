@@ -33,8 +33,11 @@ Both shapes match one grep: `^\s*(- )?cite:: `.
 The value is one or more comma-separated refs. Each ref is either:
 
 - a relative path into `ingested/` with an OPTIONAL `#<locator>` suffix, a
-  free-text page, section, or table pointer (`#p12`, `#sec-3.2`), or
-- a live-web ref of the form `url:<https://...>`.
+  free-text page, section, or table pointer (`#p12`, `#sec-3.2`),
+- a live-web ref of the form `url:<https://...>`, or
+- a capture ref `archive.db:voice_notes/<id>` (voice provenance, ingest
+  REQ-086; written by `/wiki-ingest-voice`). Shape-checked only by the
+  gate; wiki-audit resolves the id against archive.db (audit REQ-927).
 
 Refs are plain text, NOT `[[links]]`: they point at source files, not wiki
 pages, and must not create graph nodes (REQ-905). At write time the ref uses
@@ -60,8 +63,9 @@ underlying work are ONE source.
 
 ## The union invariant (REQ-904)
 
-The page-level `source-file::` equals the union of the page's ingested/ cite
-targets (paths only, locators stripped, deduplicated). This is mechanical:
+The page-level `source-file::` equals the union of the page's ingested/ and
+capture cite targets (paths only, locators stripped, deduplicated; capture
+refs count exactly like ingested/ paths, REQ-086). This is mechanical:
 when Phase 3 adds a claim citing a new source, it appends that source's path
 to `source-file::` in the same edit. The invariant is enforced by the
 quality gate; a mismatch blocks the write/commit.

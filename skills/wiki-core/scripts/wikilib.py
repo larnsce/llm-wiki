@@ -42,6 +42,15 @@ DEFAULT_SOURCE_TYPES = [
 DEFAULT_PARA_DIR = "para"
 DEFAULT_NOTES_DIR = "notes"
 
+# Human-decided, tool-readable glossary namespace (specs/glossary.md,
+# specs/config.md REQ-628).
+DEFAULT_GLOSSARY_DIR = "glossary"
+
+# The namespace contract (specs/namespaces.md REQ-960). check_canon.py
+# compares this tuple's length against the REQ-960 bullet count; amending
+# the contract means changing both in the same commit.
+CONTENT_NAMESPACES = ("wiki", "para", "notes", "glossary")
+
 CONFIG_FILENAME = "llm-wiki.yml"
 POINTER_FILE = os.path.join("~", ".config", "llm-wiki", "config.yml")
 

@@ -9,7 +9,7 @@ Two-layer health check for the wiki. The mechanical layer runs first
 (scripts, deterministic, report-only); the judgment layer runs on top
 (agent reasoning); fixes are always applied agent-side.
 
-Spec: openspec/specs/lint.md REQ-100..242 (14 rules; finding ids = REQ ids)
+Spec: openspec/specs/lint.md REQ-100..253 (15 rules; finding ids = REQ ids)
 
 Shared conventions (read before executing):
 
@@ -17,7 +17,8 @@ Shared conventions (read before executing):
   FIRST (tool, wiki_path, pages_dir, memory_path, namespaces).
 - [architecture](../wiki-core/references/architecture.md): L1/L2 boundary,
   hub-index routing, LRU-Demote invariants (never rename or move a demoted
-  page file), namespace scope rule (never lint `para/` or `notes/`).
+  page file), namespace scope rule (never lint `para/` or `notes/`;
+  `glossary/` gets structure-only rule 15, never the wiki-only rules).
 - [formats](../wiki-core/references/formats.md): tool-specific formats,
   routing-line format, Access-Log exemptions.
 - [trust](../wiki-core/references/trust.md): provenance properties,
@@ -95,7 +96,8 @@ Apply the non-mechanizable rules from
   never auto-fixed at all (REQ-164), they must be moved to L1 memory by the
   user.
 - Only rules 1, 2, 4, 5, 8, 10, 11 are fixable (REQ-112, 123, 142/143,
-  152, 181, 196, 198); rules 3, 6, 7, 9, 12 require human judgment. The
+  152, 181, 196, 198); rules 3, 6, 7, 9, 12, and 15 require human
+  judgment (a rule 15 fix is a terminology decision, glossary REQ-1000). The
   exact fix recipes are in
   [judgment-rules](references/judgment-rules.md).
 - Git commit after applying fixes, and report what changed (REQ-203).

@@ -6,10 +6,12 @@ Checks the `cite::` convention (REQ-900..905) on wiki pages, per page:
 - cite coverage stats: claim blocks with vs. without a `cite::` reference
   (REQ-902 / ingest REQ-033b, born-cited pages),
 - every cite target resolves: `ingested/` refs must exist on disk (or be
-  pending in `raw_dir`, see below); `url:` refs must be http(s)-URL-shaped,
+  pending in `raw_dir`, see below); `url:` refs must be http(s)-URL-shaped;
+  capture refs (`archive.db:voice_notes/<id>`, ingest REQ-086) are
+  shape-checked only (wiki-audit resolves the id, audit REQ-927),
 - the source-file union invariant (REQ-904): the page-level `source-file::`
-  equals the union of the page's `ingested/` cite targets (paths only,
-  locators stripped, deduplicated),
+  equals the union of the page's `ingested/` and capture cite targets
+  (paths only, locators stripped, deduplicated),
 - orphaned cites: a cite target missing from the `source-file::` union, a
   `source-file::` entry no claim cites, or a `cite::` line with no claim
   block above it,
@@ -19,8 +21,8 @@ Claim-block heuristic (documented honestly): a claim block is a bullet line
 (`- ...`, any indent) in the page body that is NOT a heading, a `key:: value`
 property line, a `{{query}}`/embed line, a bare `[[link]]`-only bullet, a
 hub routing line (`[[...]] -- ...`), inside a fenced code block, or under one
-of the structural sections Cross-References, Pending Review, Index, Archive,
-or Log. Prose paragraphs (Obsidian) and block continuation lines (Logseq)
+of the structural sections Cross-References (canonical; Related and See also
+are tolerated synonyms), Pending Review, Index, Archive, or Log. Prose paragraphs (Obsidian) and block continuation lines (Logseq)
 are OUTSIDE the heuristic: the cite convention attaches to bullets (REQ-900),
 so only bullets are counted. Whether an uncited bullet is common knowledge
 or marked synthesis (both exempt per REQ-902) is a judgment call, so the
@@ -84,11 +86,18 @@ FENCE_RE = re.compile(r"^\s*(?:-\s+)?```")
 LINK_ONLY_RE = re.compile(r"^\[\[[^\]]+\]\]$")
 ROUTING_LINE_RE = re.compile(r"^\[\[[^\]]+\]\]\s+--\s")
 INGESTED_REF_RE = re.compile(r"^ingested/[^\s#]+(?:#\S+)?$")
+# Capture ref (ingest REQ-086, storage.md): a voice provenance id. Counts as
+# a cite target exactly like an ingested/ path for the union invariant;
+# resolution against archive.db is wiki-audit's job (audit REQ-927), not a
+# filesystem check here.
+CAPTURE_REF_RE = re.compile(r"^archive\.db:voice_notes/\d+$")
 URL_REF_RE = re.compile(r"^url:<?(https?://[^\s>]+)>?$")
 URL_SHAPE_RE = re.compile(r"^https?://[^\s/]+\.[^\s/]+(/\S*)?$")
 
-EXCLUDED_SECTIONS = {"cross-references", "pending review", "index",
-                     "archive", "log"}
+# "related" and "see also" are tolerated synonyms for pre-existing pages;
+# ingest writes the canonical "## Cross-References" heading (ingest REQ-034).
+EXCLUDED_SECTIONS = {"cross-references", "related", "see also",
+                     "pending review", "index", "archive", "log"}
 
 
 def indent_width(whitespace):
@@ -258,6 +267,11 @@ class Checker:
                              "ingested/ (and no matching pending file in "
                              "raw_dir)" % target)
                 continue
+            if CAPTURE_REF_RE.match(ref):
+                # Union-relevant like an ingested/ path (REQ-086/904); no
+                # file resolution (audit REQ-927 resolves ids in archive.db).
+                ingested_targets.add(ref)
+                continue
             url_match = URL_REF_RE.match(ref)
             if url_match:
                 if not URL_SHAPE_RE.match(url_match.group(1)):
@@ -265,9 +279,16 @@ class Checker:
                              "url cite ref '%s' is not a valid http(s) URL"
                              % ref)
                 continue
+            if ref.startswith("ingested/") and re.search(r"\s", ref):
+                self.add(name, "REQ-901", "warning",
+                         "cite ref '%s' contains whitespace; slugify the "
+                         "source filename to kebab-case at intake (ingest "
+                         "REQ-070a) and update the refs" % ref)
+                continue
             self.add(name, "REQ-901", "warning",
                      "malformed cite ref '%s' (expected an ingested/ path "
-                     "with optional #locator, or url:<https://...>)" % ref)
+                     "with optional #locator, url:<https://...>, or a "
+                     "capture ref archive.db:voice_notes/<id>)" % ref)
 
         # Union invariant (mechanical, blocking) - enforced once the page
         # carries at least one cite:: line (staging per ingest REQ-033b).

@@ -55,9 +55,14 @@ requires explicit confirmation.
   (for example the source-pipeline block for configs predating REQ-623).
 - Offer to apply fixes to `llm-wiki.yml`: append missing optional keys, correct
   invalid values. Ask before writing; show the exact diff.
-- If the config is valid and the user asked for an upgrade, continue with
-  Phase 5 (Schema-page v2 upgrade). Otherwise confirm what the user wants:
-  repair, upgrade, or a second wiki (fresh init at a different path).
+- Logseq vaults: check that `logseq/config.edn` lists the configured
+  `raw_dir` and `ingested_dir` in `:hidden` (specs/setup.md REQ-787).
+  If either is missing, offer to patch config.edn (merge into the existing
+  `:hidden` vector, never overwrite the file) and tell the user to re-index
+  the graph afterwards. Without the entries, Logseq indexes archived
+  sources as graph pages and their TOC anchor links pollute the tag index
+  as phantom `#hashtags`. Obsidian equivalent (manual, worth mentioning):
+  Settings -> Files and links -> Excluded files.
 
 ## Phase 2 - Fresh init
 
@@ -74,8 +79,15 @@ requires explicit confirmation.
   the para/notes directory trees on Obsidian) and writes the
   `para_dir`/`notes_dir` keys into llm-wiki.yml (config.md REQ-625,
   namespaces.md REQ-980).
+- Offer the optional glossary layer the same way: "Also scaffold the
+  glossary/ terminology layer (index + one seed domain page)? Decisions
+  stay yours; the tool structure-lints it and writes only rows you confirm;
+  see docs/glossary-workflow.md." If accepted, add `--with-glossary`: it
+  scaffolds the `glossary` index and `glossary/tech` seed page and writes
+  the `glossary_dir` key (config.md REQ-628, specs/glossary.md).
 - Run `python3 ../wiki-core/scripts/init_wiki.py --wiki-path <path> --tool
-  <tool> [--namespaces ...] [--memory-path ...] [--with-para-notes]`.
+  <tool> [--namespaces ...] [--memory-path ...] [--with-para-notes]
+  [--with-glossary]`.
 - Exit code semantics: 0 clean, 1 files were skipped because they already
   exist (nothing was overwritten, REQ-786; tell the user which), 2 critical
   (report and stop).
