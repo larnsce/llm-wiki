@@ -652,8 +652,78 @@ assert_exit 0 "setup: --with-personal installs wiki-ingest-voice (REQ-803)"
 ARCHWIKI="$WORK/arch-wiki"
 make_wiki "$ARCHWIKI" logseq
 echo "archive_db: ~/archive/archive.db" >>"$ARCHWIKI/llm-wiki.yml"
+echo "index_db: ~/archive/index.db" >>"$ARCHWIKI/llm-wiki.yml"
 run py check_config.py "$ARCHWIKI/llm-wiki.yml"
-assert_exit 0 "check_config: archive_db is a known optional key (REQ-626)"
+assert_exit 0 "check_config: archive_db and index_db are known optional keys (REQ-626/627)"
+
+# ---------------------------------------------------------------------------
+# rebuild_index.py (storage REQ-1130..1133, config REQ-627)
+# ---------------------------------------------------------------------------
+IDXWIKI="$WORK/idx-wiki"
+make_wiki "$IDXWIKI" logseq
+echo "index_db: $WORK/idx-db/index.db" >>"$IDXWIKI/llm-wiki.yml"
+cat >"$IDXWIKI/pages/wiki___people___Ada Example.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: person
+alias:: Ada, A. Example
+created:: 2026-07-01
+updated:: 2026-07-01
+
+- ## Ada Example
+	- Fixture person page for the index harness.
+- ## Cross-References
+	- [[wiki/people]]
+EOF
+mkdir -p "$IDXWIKI/journals"
+cat >"$IDXWIKI/journals/2026_07_01.md" <<'EOF'
+- #meeting sync with [[wiki/people/Ada Example]] about the index layer
+- an ordinary journal line without a tag
+EOF
+
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --json
+assert_exit 0 "rebuild_index: clean rebuild on scaffolded vault"
+assert_report "rebuild_index: one people row indexed (REQ-1130)" \
+  "r['people'] == 1"
+assert_report "rebuild_index: one #meeting block indexed with the journal date" \
+  "r['meetings'] == 1"
+
+# Reproducibility (REQ-1131): two rebuilds from the same vault state
+# produce identical dumps.
+run python3 - "$SCRIPT_DIR/rebuild_index.py" "$IDXWIKI/llm-wiki.yml" \
+  "$WORK/idx-db/index.db" <<'PY'
+import hashlib, sqlite3, subprocess, sys
+script, config, db_path = sys.argv[1:4]
+def dump_hash():
+    db = sqlite3.connect(db_path)
+    digest = hashlib.sha256("\n".join(db.iterdump()).encode()).hexdigest()
+    db.close()
+    return digest
+first = dump_hash()
+subprocess.run([sys.executable, script, "--config", config],
+               check=True, capture_output=True)
+sys.exit(0 if dump_hash() == first else 1)
+PY
+assert_exit 0 "rebuild_index: two rebuilds produce identical dumps (REQ-1131)"
+
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --stale-check
+assert_exit 0 "rebuild_index: stale-check fresh after rebuild (REQ-1133)"
+echo "- new content" >"$IDXWIKI/pages/wiki___tech___fresh-page.md"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml" --stale-check
+assert_exit 1 "rebuild_index: stale-check detects a vault change (REQ-1133)"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki.yml"
+assert_exit 0 "rebuild_index: rebuild clears staleness"
+
+# Placement guard (REQ-1103): a target inside the vault's git tree that is
+# not gitignored is refused; gitignoring it makes the same path legal.
+git -C "$IDXWIKI" -c init.defaultBranch=main init -q
+cp "$IDXWIKI/llm-wiki.yml" "$IDXWIKI/llm-wiki-inside.yml"
+sed -i.bak "s|^index_db:.*|index_db: $IDXWIKI/index.db|" \
+  "$IDXWIKI/llm-wiki-inside.yml" && rm "$IDXWIKI/llm-wiki-inside.yml.bak"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki-inside.yml"
+assert_exit 2 "rebuild_index: refuses an unignored in-vault target (REQ-1103)"
+echo "index.db" >>"$IDXWIKI/.gitignore"
+run py rebuild_index.py --config "$IDXWIKI/llm-wiki-inside.yml"
+assert_exit 0 "rebuild_index: gitignored in-vault target is accepted (REQ-1103)"
 
 # ---------------------------------------------------------------------------
 # Summary

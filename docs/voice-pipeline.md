@@ -534,7 +534,12 @@ else
 fi
 sqlite3 "$HOME/archive/archive.db" \
   "SELECT 'unprocessed ' || count(*) FROM voice_notes WHERE processed = 0;"
-echo "index rebuilt: n/a (index.db lands with P-4)"
+if [ -f "$HOME/archive/index.db" ]; then
+  idx_h=$(( ( $(date +%s) - $(stat -f %m "$HOME/archive/index.db") ) / 3600 ))
+  echo "index rebuilt ${idx_h}h ago"
+else
+  echo "index rebuilt: n/a (no index.db yet; rebuild_index.py creates it)"
+fi
 ```
 
 Read it the way storage.md scenario 5 does: an old newest-file age with

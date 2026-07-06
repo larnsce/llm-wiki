@@ -85,14 +85,34 @@ pipeline silence visible.
 
 ### index.db - Derived and Disposable (premortem #6)
 
-- REQ-1130 (frozen schema): index.db SHALL contain exactly three tables:
-  `people`, `meetings`, and `page_properties`, plus FTS5 index structures over
-  page text. Adding any further table or column requires amending THIS spec
+- REQ-1130 (frozen schema): index.db SHALL contain exactly three content
+  tables, plus the rebuild stamp and FTS5 index structures over page text,
+  with exactly these columns (concrete schema fixed for P-4):
+  - `people(page TEXT PRIMARY KEY, name TEXT, aliases TEXT, updated TEXT)`:
+    one row per page in the people namespace; `name` is the leaf segment,
+    `aliases` the page's `alias::` value verbatim (empty string when
+    absent), `updated` the page's `updated::` value.
+  - `meetings(page TEXT, line INTEGER, date TEXT, text TEXT,
+    PRIMARY KEY (page, line))`: one row per `#meeting`-tagged block in a
+    page or journal; `date` is the journal date for journal blocks, else
+    the page's `date::` (else `updated::`, else empty), `text` the block
+    text.
+  - `page_properties(page TEXT, key TEXT, value TEXT,
+    PRIMARY KEY (page, key))`: every page-level property of every page and
+    journal.
+  - `page_text`: an FTS5 virtual table over `(page, text)`, one row per
+    page and journal, full markdown text.
+  - `rebuild_stamp(stamp TEXT)`: a single row holding the REQ-1131 content
+    stamp.
+  Adding any further table or column requires amending THIS spec
   first; an implementation-side schema addition is a spec violation.
 - REQ-1131 (reproducible rebuild): The rebuild SHALL be a deterministic function
   of the vault's content: two rebuilds from the same vault state SHALL produce
   identical database dumps. The harness asserts this reproducibility (v3.0,
-  P-4/P-7).
+  P-4/P-7). To keep dumps identical, the stamp is a deterministic content
+  hash of the indexed markdown (sorted relative paths plus per-file
+  hashes), NEVER wall-clock time; the rebuild AGE shown in the dead-man
+  status line (REQ-1140) is read from the index.db file's mtime instead.
 - REQ-1132 (nothing without a markdown source): Data that has no markdown source
   in the vault SHALL NOT enter index.db. Importers write to archive.db or, via
   the ingest pipeline, to the vault - NEVER to index.db. If a fact matters
@@ -100,9 +120,10 @@ pipeline silence visible.
   the markdown already says.
 - REQ-1133 (no hooks; staleness at query time): No pre-commit or other git hook
   SHALL rebuild index.db. Staleness is checked at QUERY time: when the rebuild
-  stamp recorded at the last rebuild lags the vault head, the query workflow
-  SHALL warn and MAY rebuild before answering (`specs/query.md`, extended by
-  P-5).
+  stamp recorded at the last rebuild lags the vault head (the stored stamp
+  differs from the recomputed REQ-1131 content hash;
+  `rebuild_index.py --stale-check`), the query workflow SHALL warn and MAY
+  rebuild before answering (`specs/query.md`, extended by P-5).
 
 ### Dead-Man Pipeline Status (premortem #4)
 
@@ -191,8 +212,8 @@ AND no pre-commit hook has rebuilt the index (none exists)
 - [ ] Vault agent guidance forbids `git clean -xfd` and equivalent
       ignored-file-removing commands
 - [ ] `voice_notes` has exactly the six specified columns
-- [ ] index.db is frozen to three tables plus FTS5; any addition amends this
-      spec first
+- [ ] index.db is frozen to the three content tables, the rebuild stamp, and
+      FTS5, with the REQ-1130 columns; any addition amends this spec first
 - [ ] Two rebuilds from the same vault state produce identical dumps
 - [ ] Nothing without a markdown source enters index.db; importers never write
       to it
