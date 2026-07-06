@@ -486,6 +486,34 @@ for tool in logseq obsidian; do
     REQ-904 critical
 done
 
+# A ref whose path contains whitespace (un-slugged web-clipping filename,
+# issue #67): the union invariant fires critical AND the REQ-901 warning
+# points at the actual cause (slugify at intake) instead of the generic
+# malformed-ref message.
+wiki="$WORK/logseq-spacey-ref"
+make_wiki "$wiki" "logseq"
+mkdir -p "$wiki/ingested/clippings"
+cat > "$wiki/pages/wiki___tech___spacey-ref.md" <<'EOF'
+- type:: knowledge
+- domain:: tech
+- created:: 2026-07-01
+- updated:: 2026-07-01
+- confidence:: medium
+- source:: ingest
+- source-file:: ingested/clippings/Before the Guardrails.md
+- reliability:: medium
+- schema-spec-version:: 2.0.0
+- ## Body
+	- A claim citing an un-slugged clipping filename.
+	  cite:: ingested/clippings/Before the Guardrails.md
+- ## Cross-References
+	- [[wiki/tech]]
+EOF
+run py check_citations.py --config "$wiki/llm-wiki.yml" --json
+assert_exit 2 "check_citations: critical (exit 2) on whitespace ref (union unresolvable)"
+assert_report "check_citations: whitespace ref gets the slugify hint" \
+  "any(f['id'] == 'REQ-901' and 'slugify' in f['message'] for f in r['findings'])"
+
 # ---------------------------------------------------------------------------
 # check_canon: green on the repo, red on a mutated copy
 # ---------------------------------------------------------------------------

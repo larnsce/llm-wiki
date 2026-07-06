@@ -149,6 +149,12 @@ or assign `source-file::`.
   SHALL scan `raw_dir` and process every file there oldest-first (drain the queue). When
   given a path/URL argument, that single source is the input; a local file outside
   `raw_dir` SHALL be copied into `raw_dir` first so the lifecycle is consistent.
+- REQ-070a (intake slugging): When a file entering processing from `raw_dir` has a
+  filename containing whitespace, commas, `#`, or other non-kebab characters, the
+  system SHALL rename it (and any companion asset folder) to a kebab-case slug
+  BEFORE planning, so `source-file::` and `cite::` refs are born valid: the
+  citation checker rejects refs containing whitespace (specs/citations.md REQ-901),
+  and refs are comma-separated, so a comma in a filename breaks ref parsing.
 - REQ-071: For each source the system SHALL infer its type (one of `source_types`),
   falling back to `default_source_type`, asking the user only if genuinely ambiguous.
 - REQ-072: If processing fails partway, the system SHALL LEAVE the source in `raw_dir`

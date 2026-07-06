@@ -73,6 +73,16 @@ provenance, and ensure structural integrity.
   (drain the queue) (REQ-070)
 - A path/URL argument -> that single source. A local file outside `raw_dir` is
   copied into `raw_dir` first so the lifecycle is consistent (REQ-070)
+- Slugify filenames at intake (REQ-070a): when a file entering processing
+  from `raw_dir` has a name containing spaces, commas, `#`, or other
+  non-kebab characters (web clippings arrive with page titles as filenames),
+  RENAME it to a kebab-case slug -- lowercase, hyphens, keep the extension,
+  drop or transliterate everything else -- and rename any companion asset
+  folder the same way, BEFORE planning. `source-file::` and `cite::` refs
+  are born valid this way: the citation checker rejects paths with
+  whitespace, and refs are comma-separated so a comma in a filename breaks
+  parsing. Truncate to something readable (~60 chars); on a name collision
+  in `raw_dir` or `ingested/<type>/`, append `-2`, `-3`, ...
 - Infer each source's type (one of `source_types`): paper/PDF/Zotero export ->
   `papers`; web clip -> `clippings`; news/blog -> `articles`; dataset/CSV ->
   `data`; personal note -> `notes`; image/binary -> `assets`. Fall back to

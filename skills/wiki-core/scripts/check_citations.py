@@ -267,6 +267,12 @@ class Checker:
                              "url cite ref '%s' is not a valid http(s) URL"
                              % ref)
                 continue
+            if ref.startswith("ingested/") and re.search(r"\s", ref):
+                self.add(name, "REQ-901", "warning",
+                         "cite ref '%s' contains whitespace; slugify the "
+                         "source filename to kebab-case at intake (ingest "
+                         "REQ-070a) and update the refs" % ref)
+                continue
             self.add(name, "REQ-901", "warning",
                      "malformed cite ref '%s' (expected an ingested/ path "
                      "with optional #locator, or url:<https://...>)" % ref)
