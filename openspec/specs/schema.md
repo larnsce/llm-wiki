@@ -185,6 +185,14 @@ lint (validation).
   `[[link]]`. Hand-written pages omit it. `source-file::` is distinct from the existing
   `source::` property: `source::` records the METHOD (memory-migration | ingest | manual),
   `source-file::` records WHICH origin file.
+- REQ-585a (author provenance, v3.x #73): An ingested page MAY carry an
+  OPTIONAL `author::` property: comma-separated person names, plain text,
+  recording the source's author(s) as structured metadata. Optional because
+  not every source has a meaningful author (datasets, organization pages).
+  On corroborating updates the value is a UNION (append new authors,
+  deduplicated), like `source-file::`. Lint recognizes it and never
+  requires it; ingest never backfills it onto existing pages (same rule as
+  the schema-spec-version stamp).
 - REQ-586: An ingested page SHALL carry a `reliability::` property, one of
   `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
   (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up

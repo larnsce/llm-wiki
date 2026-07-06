@@ -101,6 +101,9 @@ provenance, and ensure structural integrity.
 - Identify the source type: URL -> WebFetch, file path -> Read, inline text ->
   parse directly (REQ-010)
 - Extract entities, facts, relationships, dates, decisions (REQ-011)
+- Extract the source's author(s) where identifiable (REQ-011a): clip
+  frontmatter, byline, paper author list, or S2 metadata. No author is
+  normal; never guess one
 - Classify into exactly one of: business, technical, content, project,
   learning, reference (REQ-012)
 - L1/L2 check per the routing rule in
@@ -135,6 +138,13 @@ provenance, and ensure structural integrity.
   existing page, raise `reliability::` if warranted (rubric in
   [trust](../wiki-core/references/trust.md)), and resolve any Pending Review
   items it can
+- Author recurrence (REQ-024a): if an extracted author already appears in
+  the `author::` values (or ingested/ provenance) of existing pages, plan a
+  `wiki/people/<name>` page (proper-noun leaf; type entity, entity-type
+  person, one-line who-this-is citing the works' `ingested/` files, links
+  to the pages built on their work, people-hub routing line). Second source
+  by the same person is the threshold; below it `author::` suffices, and
+  the user can request a person page at the checkpoint
 - Produce the page operation plan: pages to create, pages to update,
   cross-references to add, hub pages to update (REQ-024)
 
@@ -197,6 +207,10 @@ Interaction rules:
   1 outgoing wiki link (REQ-034)
 - Set `updated::` (or the YAML `updated` field) to today on every modified
   page (REQ-035); ISO 8601 dates throughout (REQ-061)
+- Set `author::` on created ingested pages when Phase 1 identified
+  author(s); on corroborating updates append missing names (union,
+  deduplicated) (REQ-033c, schema REQ-585a). Never backfill outside an
+  ingest touching the page
 - (source pipeline) On every created or updated ingested page: set
   `source-file::` to the path the source WILL live at
   (`ingested/<type>/<filename>`; append comma-separated when corroborating) and
