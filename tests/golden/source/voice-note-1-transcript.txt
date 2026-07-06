@@ -1,0 +1,9 @@
+Okay, quick note after the seminar prep. I finally understood why the
+retrieval demo kept failing: the two-stage setup needs the hub index rebuilt
+before stage one runs, otherwise the routing descriptions are stale. I should
+write that down properly somewhere. Also talked to Jana Krause after the
+session, she agreed to review the retrieval chapter by next Friday, need to
+remember to email her the draft tomorrow. She seemed pretty stressed though,
+I think the situation with her mother is getting worse. Anyway. What else.
+Oh, and the demo laptop: the whisper model download takes forever on the
+university wifi, better do that at home. That's it, I think.

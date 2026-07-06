@@ -14,8 +14,10 @@ the repo stays a generic tool).
 > `wiki-ingest-voice` skill, tracked in
 > [#57](https://github.com/larnsce/llm-wiki/issues/57) and specified in
 > [`openspec/specs/ingest.md`](../openspec/specs/ingest.md) (Voice Sources,
-> REQ-080..087). Until that skill exists, synthesis is a manual Claude
-> session (section 8). The storage contract this guide implements is
+> REQ-080..087). The skill ships with the personal tier
+> (`setup.sh --with-personal`, setup REQ-803); the manual Claude session in
+> section 8 remains the Phase 0 exit test and the fallback when the skill
+> is not installed. The storage contract this guide implements is
 > [`openspec/specs/storage.md`](../openspec/specs/storage.md)
 > (REQ-1100..1141); where this guide and the spec disagree, the spec wins.
 
@@ -28,8 +30,8 @@ Phone recorder --sync--> ~/voice-inbox/ --nightly watcher--> whisper.cpp
                                                                  |
                                                        archive.db (voice_notes)
                                                                  |
-                                              manual Claude run (later: the
-                                              wiki-ingest-voice skill, #57)
+                                              /wiki-ingest-voice skill (or a
+                                              manual Claude run, section 8)
                                                                  |
                                                       journal summary (Logseq)
 ```
@@ -514,13 +516,13 @@ records nothing anywhere. See storage REQ-1140/1141.
 
 ### 7.1 The dead-man status line
 
-Per storage REQ-1140, once the voice skill (#57) exists, every daily journal
-summary begins with a one-line pipeline status: newest inbox file age,
+Per storage REQ-1140, every daily journal summary the voice skill (#57)
+writes begins with a one-line pipeline status: newest inbox file age,
 unprocessed `voice_notes` count, last index rebuild age (example in the
 REQ). Silence becomes visible in the one place you already look every
 morning.
 
-Until the skill exists, run the check manually once a week:
+When the skill is not installed, run the check manually once a week:
 
 ```bash
 newest=$(ls -t "$HOME/voice-inbox" 2>/dev/null | head -n 1)
@@ -541,8 +543,9 @@ nothing unprocessed means capture has stalled upstream, on the phone side.
 ### 7.2 The weekly canary memo
 
 Per storage REQ-1141: once a week, speak one test memo on the phone
-("canary, <today's date>") and expect it in tomorrow's journal (before the
-skill exists: expect the transcribed row, checked with the query below).
+("canary, <today's date>") and expect it in tomorrow's journal (when the
+skill is not installed: expect the transcribed row, checked with the query
+below).
 
 ```bash
 sqlite3 ~/archive/archive.db \
@@ -558,10 +561,13 @@ watcher and whisper.cpp (legs 2 and 3).
 
 ## 8. Phase 0 exit test
 
-This is the merge gate for the `wiki-ingest-voice` skill: per premortem
-revision 3, [#57](https://github.com/larnsce/llm-wiki/issues/57) does not
-merge until this test is recorded on that issue. It proves the whole loop
-with no automation you have not built yet.
+This was the merge gate for the `wiki-ingest-voice` skill (premortem
+revision 3); the maintainer waived the gate on 2026-07-05 (recorded on
+[#57](https://github.com/larnsce/llm-wiki/issues/57)) and the skill shipped
+ahead of it. The test remains the recommended FIRST run of the voice loop:
+it proves every leg with no automation you have not built yet, and step 1
+(backup plus restore drill before any real note) still binds per storage
+REQ-1120/1121.
 
 1. Confirm section 2 is done: the nightly copy job exists, and one restore
    drill has passed and is recorded (storage REQ-1120/1121 forbid real data
