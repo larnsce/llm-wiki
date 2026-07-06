@@ -35,12 +35,13 @@ Represents a person, client, tool, service, or technology. Anything that has ide
 **Example (Logseq format):**
 
 ```markdown
-- type:: entity
-- entity-type:: tool
-- created:: 2026-03-15
-- updated:: 2026-04-07
-- status:: active
-- source:: ingest
+type:: entity
+entity-type:: tool
+created:: 2026-03-15
+updated:: 2026-04-07
+status:: active
+source:: ingest
+
 - ## Strapi
   - Headless CMS used for blog and content management.
   - Version: 5.39.0
@@ -104,11 +105,12 @@ Tracks a project with timeline, status, and outcomes.
 **Example (Logseq format):**
 
 ```markdown
-- type:: project
-- status:: active
-- created:: 2026-03-01
-- updated:: 2026-04-07
-- started:: 2026-02-15
+type:: project
+status:: active
+created:: 2026-03-01
+updated:: 2026-04-07
+started:: 2026-02-15
+
 - ## Blog Series
   - Technical blog series on distributed systems.
   - ### Parts
@@ -151,11 +153,12 @@ Stores synthesized knowledge on a topic. The most common page type.
 **Example (Logseq format):**
 
 ```markdown
-- type:: knowledge
-- domain:: tech
-- confidence:: high
-- created:: 2026-02-01
-- updated:: 2026-04-07
+type:: knowledge
+domain:: tech
+confidence:: high
+created:: 2026-02-01
+updated:: 2026-04-07
+
 - ## Deployment Pipeline
   - CI/CD workflow for production deployments.
   - ### Pre-deploy Checklist
@@ -195,11 +198,12 @@ Captures lessons learned, gotchas, and operational rules. Often promoted to L1 i
 **Example (Logseq format):**
 
 ```markdown
-- type:: feedback
-- severity:: critical
-- created:: 2026-03-10
-- verified:: 2026-04-01
-- applies-to:: [[wiki/tech/PM2]], [[wiki/tech/deployment]]
+type:: feedback
+severity:: critical
+created:: 2026-03-10
+verified:: 2026-04-01
+applies-to:: [[wiki/tech/PM2]], [[wiki/tech/deployment]]
+
 - ## PM2 Reload Gotcha
   - `pm2 reload` does NOT work for processes started with
     `pm2 start npm --name X -- start`.
@@ -231,8 +235,9 @@ first (cheap) and only then opens the 1-3 pages whose description matches. Cold 
 **Example (Logseq format):**
 
 ```markdown
-- type:: hub
-- namespace:: wiki/tech
+type:: hub
+namespace:: wiki/tech
+
 - ## Tech
   - ### Index
     - [[wiki/tech/Strapi]] -- Headless CMS, ports, deploy + migration gotchas #strapi #deploy
@@ -429,10 +434,11 @@ Ask: **"If the LLM does not know this right now, what happens?"**
 ### Logseq Format
 
 ```
-- Every line is a block, prefixed with "- "
+- Every BODY line is a block, prefixed with "- "
 - Indentation creates hierarchy (2-space or tab)
   - Like this child block
 - Properties use inline syntax: property:: value
+- Page properties: unbulleted lines at the top, then one blank line
 - Headings go inside blocks: - ## Section Name
 - Code blocks use fenced syntax inside blocks:
   - ```bash

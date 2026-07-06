@@ -51,8 +51,9 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-030: The system SHALL create new pages with ALL required properties for the
   declared page type (per Schema). Missing required properties are a spec violation.
 - REQ-031: The system SHALL use the correct format for the configured tool:
-  Logseq (outliner with `- ` prefix, `property:: value`) or Obsidian (flat markdown,
-  YAML frontmatter).
+  Logseq (outliner with `- ` body prefix, unbulleted `property:: value` page
+  properties per specs/schema.md REQ-591) or Obsidian (flat markdown, YAML
+  frontmatter).
 - REQ-032: The system MUST NOT overwrite existing content blocks when updating pages.
   New facts SHALL be appended as new blocks below existing content.
 - REQ-033: The system SHALL update hub pages to list any newly created child pages

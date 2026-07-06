@@ -1,4 +1,5 @@
-- type:: glossary-domain
+type:: glossary-domain
+
 - ## Usage
 	- One page per domain, named lowercase: `glossary/tech`, `glossary/teaching`, `glossary/marketing` (Logseq file name: `glossary___tech.md`). Split by subject and audience, not by language pair; every domain glossary is EN-DE.
 	- The Rule column records the decision, not just the translation. Three values cover almost everything:

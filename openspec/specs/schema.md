@@ -244,10 +244,17 @@ lint (validation).
 
 ### Tool-Specific Format Rules
 
-- REQ-590: In Logseq mode, every line of wiki content MUST start with `- `
-  (outliner block prefix). No exceptions.
+- REQ-590: In Logseq mode, every line of wiki BODY content MUST start with `- `
+  (outliner block prefix). The page-property block at the top of the file is the
+  one exception (REQ-591).
 - REQ-591: In Logseq mode, properties MUST use inline syntax: `property:: value`.
-  YAML frontmatter is NOT allowed.
+  YAML frontmatter is NOT allowed. PAGE properties SHALL be written as unbulleted
+  `property:: value` lines at the top of the file followed by one blank line,
+  matching what the Logseq app itself writes (a bulleted page-property block is
+  normalized by the app on first open, producing spurious diffs). BLOCK
+  properties (e.g. `cite::`) remain continuation lines under their block.
+  Readers SHALL accept both the bulleted and unbulleted page-property shapes
+  (pre-v2.3 pages are bulleted).
 - REQ-592: In Obsidian mode, properties MUST be in YAML frontmatter
   (between `---` fences at the top of the file).
 - REQ-593: In Obsidian mode, content uses standard markdown. The `- ` block

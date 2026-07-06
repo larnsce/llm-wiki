@@ -78,8 +78,9 @@ NOTES_SUBDIRS = ("literature", "permanent")
 # stamp. type:: schema marks them as reference pages for the human's own
 # queries. Content condenses docs/para-notes-workflow.md.
 PARA_SCHEMA_LOGSEQ = """\
-- type:: schema
-- last-updated:: {date}
+type:: schema
+last-updated:: {date}
+
 - ## para/ conventions
 	- This page and everything under `para/` is yours: the wiki toolchain never creates, edits, lints, or audits it (see `docs/para-notes-workflow.md` in the llm-wiki repository). Edit this page freely; the tool does not read it.
 - ## layout
@@ -99,8 +100,9 @@ PARA_SCHEMA_LOGSEQ = """\
 """
 
 NOTES_SCHEMA_LOGSEQ = """\
-- type:: schema
-- last-updated:: {date}
+type:: schema
+last-updated:: {date}
+
 - ## notes/ conventions
 	- This page and everything under `notes/` is yours: human-written, always. The wiki toolchain never creates, edits, lints, or audits it (see `docs/para-notes-workflow.md` in the llm-wiki repository). If Claude drafts it, it is not a note; it is a `wiki/` page.
 - ## note types
@@ -269,8 +271,10 @@ def stamp_schema_version(content, tool):
     if "schema-spec-version" in content:
         return content
     if tool == "logseq":
-        return "- schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
-                                                   content)
+        # Page properties are unbulleted per schema REQ-591; the stamp joins
+        # the template's leading property block.
+        return "schema-spec-version:: %s\n%s" % (SCHEMA_SPEC_VERSION,
+                                                 content)
     lines = content.splitlines(True)
     if lines and lines[0].strip() == "---":
         lines.insert(1, 'schema-spec-version: "%s"\n' % SCHEMA_SPEC_VERSION)

@@ -1,6 +1,7 @@
-- type:: hub
-- namespace:: wiki/{{NAMESPACE}}
-- updated:: {{DATE}}
+type:: hub
+namespace:: wiki/{{NAMESPACE}}
+updated:: {{DATE}}
+
 - ## {{NAMESPACE}}
 	- ### Index
 		- Routing lines go here, one per child page: `[[wiki/{{NAMESPACE}}/sub-topic]] -- one-sentence description #tag`

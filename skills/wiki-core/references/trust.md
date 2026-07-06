@@ -77,11 +77,12 @@ claim, remove resolved ones, delete the section when all resolve, and recompute
 Example (Logseq):
 
 ```
-- type:: knowledge
-- domain:: tech
-- confidence:: high
-- source-file:: ingested/papers/smith-2024.md
-- reliability:: medium
+type:: knowledge
+domain:: tech
+confidence:: high
+source-file:: ingested/papers/smith-2024.md
+reliability:: medium
+
 - ## Body
   - Synthesised claim from the source.
 - ## Pending Review
