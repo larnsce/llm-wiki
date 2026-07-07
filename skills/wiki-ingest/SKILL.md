@@ -201,6 +201,12 @@ Interaction rules:
 - Update existing pages append-only: NEVER overwrite existing content blocks
   (REQ-032). Use `[[wiki/...]]` link syntax for entities that have their own
   pages (REQ-036)
+- Person names in anything you write (page claims, journal Ingested
+  bullets) are ALWAYS links: `[[wiki/people/<First> <Last>]]`, First-name
+  Surname order, normalized from "Last, First" sources (REQ-036a). Write
+  the link even when the person page does not exist yet (it is born at
+  the second-source threshold, REQ-024a; lint treats the interim link as
+  pending, not broken). `author::` stays plain text
 - Hub routing line, REQUIRED for every created or updated page: set or refresh
   the line in the namespace hub's `### Index` in the routing-line format from
   [formats](../wiki-core/references/formats.md) (REQ-033/033a). The description

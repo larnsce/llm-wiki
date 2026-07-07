@@ -39,10 +39,14 @@ specs/ingest.md REQ-100..106; guide: `docs/data-package-workflow.md`.
   snapshots and NEVER deletes one referenced by any page (REQ-105).
 - On dataset pages, only the managed properties and the machine-managed
   `## description` and `## data dictionary` sections regenerate; notes
-  under `## my notes` and annotations nested UNDER a dictionary row are
+  under `## fleeting` (or `## my notes` on pages created before the
+  rename, issue #100) and annotations nested UNDER a dictionary row are
   preserved. Free-standing bullets at machine level inside the two
   managed sections are machine territory; tell the user to write under
-  `## my notes` or as children of a row.
+  `## fleeting` or as children of a row.
+- Notes there are FLEETING notes in the user's Zettelkasten typing; the
+  user adds the `#fleeting` tag by hand when writing one. The tooling
+  never writes a `#tag`.
 - Detection is automated, writes are confirmed: never run a writing sync
   without showing the dry-run first (REQ-104).
 - A download failure is a clean stop; do not improvise another source

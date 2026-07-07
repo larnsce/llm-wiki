@@ -142,7 +142,12 @@ routing lines belong together, the same atomicity rule as ingest.
 
 Two places on a dataset page survive every future sync:
 
-- **`## my notes`** - free-form, never touched by the machine.
+- **`## fleeting`** - free-form, never touched by the machine. The name
+  states the note type: what you write here is a fleeting note in the
+  Zettelkasten sense; add the `#fleeting` tag by hand when you write one
+  (the tooling never writes tags), and promote what matures. Pages
+  created before this rename (issue #100) carry `## my notes` instead;
+  both are equally untouchable, no migration needed.
 - **Nested under a dictionary row** - indent one level deeper than the
   row (a child bullet of it). Preserved across regenerations, though it
   re-attaches at the end of the dictionary block when the rows change.
