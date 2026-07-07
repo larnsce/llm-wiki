@@ -139,6 +139,16 @@ skills for Claude Code. It requires only bash, python3, and git.
   maintainer-run infrastructure (archive.db, `docs/voice-pipeline.md`) that
   the generic tool does not assume; the public tool and the personal system
   share a repo but not a default surface.
+- REQ-804 (command installation): The install SHALL copy each repo
+  `.claude/commands/*.md` slash command into the matching commands
+  directory (`~/.claude/commands/` for a user install,
+  `<project>/.claude/commands/` for a project install), rewriting
+  relative `scripts/` and `docs/` references to absolute paths under the
+  checkout at install time, so commands like `/lit-sync` and `/data-sync`
+  work from any directory. Commands are ALWAYS copied, even in symlink
+  mode: the path substitution is per-install. This is the single
+  exception to the REQ-802 no-patching rule, and it patches only the
+  installed copy, never the repo.
 - REQ-805: The system SHALL offer to write the global pointer file
   `~/.config/llm-wiki/config.yml` (specs/config.md REQ-653) so the skills work
   from any project directory.

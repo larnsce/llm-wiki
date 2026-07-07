@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 # llm-wiki installer (v2).
 #
-# Thin by design. It does three things:
+# Thin by design. It does four things:
 #   1. copies or symlinks the skills/wiki-* directories into a Claude Code
 #      skills directory (user-level by default, project-level with --project)
-#   2. optionally scaffolds a wiki by delegating to
+#   2. copies the repo's .claude/commands/*.md slash commands into the
+#      matching commands directory, rewriting relative scripts/ and docs/
+#      references to this checkout's absolute paths (REQ-804), so /lit-sync
+#      and /data-sync work from any directory
+#   3. optionally scaffolds a wiki by delegating to
 #      skills/wiki-core/scripts/init_wiki.py (no page logic lives here)
-#   3. optionally writes the global pointer file
+#   4. optionally writes the global pointer file
 #      ~/.config/llm-wiki/config.yml so config discovery works from anywhere
 #
-# It patches no files during install: config location is resolved at runtime
-# by discovery (openspec/specs/config.md REQ-652). It also detects a legacy
-# v1 install (.claude/commands/wiki.md) and offers to remove it.
+# Beyond the path substitution in step 2 it patches no files during install:
+# config location is resolved at runtime by discovery (openspec/specs/
+# config.md REQ-652). It also detects a legacy v1 install
+# (.claude/commands/wiki.md) and offers to remove it.
 #
 # Spec: openspec/specs/setup.md (REQ-800..806 cover the install steps).
 
@@ -204,6 +209,39 @@ for src in "$SCRIPT_DIR"/skills/wiki-*; do
 done
 echo ""
 
+# ----- Step 1b: Install repo slash commands (REQ-804) -----
+
+if [ -n "$PROJECT" ]; then
+    COMMANDS_DEST="$PROJECT/.claude/commands"
+else
+    COMMANDS_DEST="$HOME/.claude/commands"
+fi
+
+if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
+    mkdir -p "$COMMANDS_DEST"
+    echo "Installing commands into $COMMANDS_DEST (script paths made absolute):"
+    for src in "$SCRIPT_DIR"/.claude/commands/*.md; do
+        [ -f "$src" ] || continue
+        name="$(basename "$src")"
+        dest="$COMMANDS_DEST/$name"
+        replaced=""
+        if [ -e "$dest" ] || [ -L "$dest" ]; then
+            replaced=" (replaced existing)"
+        fi
+        # Rewrite relative scripts/ and docs/ references to this checkout's
+        # absolute paths so the command works from any directory. Always a
+        # copy, even in --symlink mode: the substitution is per-install.
+        # The guard [^/A-Za-z0-9_] keeps longer paths (skills/wiki-core/
+        # scripts/...) untouched.
+        sed -E \
+            -e "s@(^|[^/A-Za-z0-9_])scripts/@\1$SCRIPT_DIR/scripts/@g" \
+            -e "s@(^|[^/A-Za-z0-9_])docs/@\1$SCRIPT_DIR/docs/@g" \
+            "$src" > "$dest"
+        echo "  /${name%.md} -> $dest$replaced"
+    done
+    echo ""
+fi
+
 # ----- Step 2: Legacy v1 detection (REQ-806) -----
 
 check_legacy() {
@@ -366,6 +404,9 @@ fi
 echo "Setup complete."
 echo ""
 echo "Skills installed: $SKILLS_DEST"
+if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
+    echo "Commands installed: $COMMANDS_DEST (/lit-sync, /data-sync, ...)"
+fi
 if [ "$INIT_RAN" = 1 ]; then
     echo "Wiki scaffolded:  $WIKI_PATH"
     echo "Config file:      $WIKI_PATH/llm-wiki.yml"
