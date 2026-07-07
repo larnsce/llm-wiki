@@ -3,19 +3,20 @@
 How to wire Zotero into the graph so literature notes are born in the right namespace with the
 right properties, and stay auditable against the same archived source the `wiki/` pages cite.
 
-> **Status (v2.2, 2026-07-04).** Guide drafted; the schema side shipped in v2.2 (the `@citekey`
-> proper-noun leaf, namespaces REQ-976, and the literature-variant reminder in `/wiki-ingest`,
-> REQ-973). The plugin verify-once (existence, settings, version pin) was done 2026-07-06; the
-> one end-to-end loop run is the remaining maintainer-verified item, tracked in
+> **Status (2026-07-07).** The logseq-zoterolocal-plugin recommended by earlier versions of
+> this guide **did not work in practice; the plugin approach is abandoned** (issue
+> [#90](https://github.com/larnsce/llm-wiki/issues/90)). Replacement: `scripts/lit_sync.py`
+> against Zotero's local HTTP API, driven by the `/lit-sync` command. The schema side is
+> unchanged from v2.2 (the `@citekey` proper-noun leaf, namespaces REQ-976, the
+> literature-variant reminder in `/wiki-ingest`, REQ-973). The end-to-end loop run with the
+> script is the remaining maintainer-verified item, tracked in
 > [#28](https://github.com/larnsce/llm-wiki/issues/28).
 
-> **Verify before you trust this.** The plugin and settings below are **known-good as of
-> 2026-07-06 at plugin version v3.5.5** (repo active, latest release 2026-06-28; template
-> placeholders, page-name template, Better BibTeX pinned-citekey setup, and the
-> `zotero-last-sync` mechanism all confirmed against the plugin README). Community plugins move:
-> before relying on this guide, confirm the plugin still exists in the marketplace, and **pin the
-> plugin version** rather than tracking its latest - so the metadata your provenance rests on
-> does not shift under you.
+> **Verify before you trust this.** The local API endpoint and behavior below are written
+> against **Zotero 9** (the local API arrived in Zotero 7 and is unchanged through current
+> releases: API v3 only, same endpoint, same enable switch). After each end-to-end loop run,
+> stamp this doc with the Zotero version it was verified on, so the metadata your provenance
+> rests on does not shift under you. Not yet verified end-to-end; #28 tracks the first run.
 
 ## Where this fits
 
@@ -26,56 +27,65 @@ the same `ingested/...` source the wiki cites. The `## my reading` block is a **
 human-written, machine-exempt (see [`namespaces.md`](../openspec/specs/namespaces.md)). It is not a
 `wiki/` page and the wiki skills never edit it.
 
-## Recommended plugin
+## The sync script
 
-**logseq-zoterolocal-plugin** (benjypng), from the Logseq marketplace. Why this one:
+**`scripts/lit_sync.py`**, run via the **`/lit-sync`** command. It talks to Zotero's **local
+HTTP API** (`http://localhost:23119/api/users/0`, Zotero 7+, API v3): no Logseq plugin, no
+Zotero cloud API, no BBT export file.
 
-- Connects to Zotero **locally** - no cloud sync required.
-- Fully **templated** properties.
-- **Incremental annotation sync** - only annotations added since the last sync are appended,
-  tracked via a `zotero-last-sync` property per page, so re-syncing never clobbers your prose.
-  Caveat from the 2026-07-06 verify-once: the plugin README documents annotation sync under its
-  **Logseq DB** section; the plugin supports both DB and file-based MD graphs, but this wiki runs
-  on an MD graph, so confirm annotation sync behaves as described during the end-to-end loop run
-  ([#28](https://github.com/larnsce/llm-wiki/issues/28)) before leaning on it.
+- **Idempotent metadata:** each run rewrites only the managed properties (`type`, `citekey`,
+  `authors`, `year`, `item-type`, `doi`, `zotero`); `source-file::` and any user-added
+  properties are preserved.
+- **Incremental annotation sync:** annotations are read as children of the PDF attachments,
+  sorted by position in the PDF, and only annotations with a Zotero version newer than the
+  page's `zotero-last-sync::` stamp are appended; the stamp is then updated from the library
+  version. Re-syncing never clobbers your prose; `## my reading` is never touched.
+- **Skips unpinned items with a warning:** the citekey is read from the item's `extra` field
+  (`Citation Key: xxx`, written by Better BibTeX pinning). Nothing is guessed.
 
-(Obsidian users: the equivalent is the **Zotero Integration** plugin. This guide is written for the
-Logseq plugin; the property template idea transfers.)
+(Obsidian users: the **Zotero Integration** plugin remains the equivalent there. This guide is
+written for the Logseq script; the property template idea transfers.)
 
 ### One-time setup
 
 1. Zotero → **Settings → Advanced** → check *Allow other applications on this computer to
-   communicate with Zotero*.
+   communicate with Zotero* (the local API returns 403 without it).
 2. Install **Better BibTeX**; set *Automatically pin citation key after* to `1` second (citekeys
    must be pinned to reach Logseq).
-3. In the plugin settings, confirm *Connection to Zotero is working*.
 
-## Page-name template
-
-In the plugin's page-name setting:
+### Running it
 
 ```
-notes/literature/@<% citeKey %>
+python3 scripts/lit_sync.py --vault <logseq-graph-root> --dry-run   # review first
+python3 scripts/lit_sync.py --vault <logseq-graph-root>            # then for real
 ```
 
-Every imported item is born in the right namespace with a zoteroRoam-style `@citekey` name, e.g.
-`notes/literature/@Forte2022`. (Lint recognizes the `@citekey` leaf as a proper noun - it is not a
-naming violation; see [`namespaces.md`](../openspec/specs/namespaces.md) REQ-976.)
+Or run `/lit-sync`, which wraps exactly this (dry-run, review, real run, commit). If the local
+connection fails, **stop**: fix the Zotero side; do not work around it with the cloud API.
+
+## Page name and file
+
+Every synced item gets the page `notes/literature/@<citekey>`, e.g.
+`notes/literature/@Forte2022` - the zoteroRoam-style proper-noun leaf (lint recognizes it; see
+[`namespaces.md`](../openspec/specs/namespaces.md) REQ-976). On disk the script matches the
+vault's existing namespace-filename encoding (`___` by default, `%2F` if the vault already uses
+it), so e.g. `pages/notes___literature___@Forte2022.md`.
 
 ## Page template
 
-Run *Insert Zotero template* and replace the generated block with this trimmed version - full
-metadata is noise; the raw source lives in `ingested/` anyway:
+The script writes this template on creation - full metadata is noise; the raw source lives in
+`ingested/` anyway:
 
 ```markdown
 type:: literature
-citekey:: <% citeKey %>
-authors:: <% creators %>
-year:: <% date %>
-item-type:: <% itemType %>
-doi:: <% DOI %>
-zotero:: <% libraryLink %>
+citekey:: Forte2022
+authors:: Tiago Forte
+year:: 2022
+item-type:: book
+doi::
+zotero:: zotero://select/library/items/<KEY>
 source-file::
+zotero-last-sync:: <library version>
 
 - ## my reading
 	-
@@ -97,8 +107,8 @@ source-file::
 ## The working loop
 
 1. Read + annotate the PDF in Zotero.
-2. In Logseq: right-click the item page title → *Zotero: Sync annotations* (or command palette →
-   *Sync all annotations*).
+2. Run `/lit-sync` (dry-run first, then real): new items get their `@citekey` page, new
+   annotations append under `## annotations`.
 3. Write `## my reading` in your own words - this is the literature note.
 4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki-ingest`, then
    set `source-file::` here to the `ingested/` path the ingest produced (the report's
