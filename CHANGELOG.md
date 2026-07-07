@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2026-07-07
+
+### Added
+
+- setup.sh installs the repo's slash commands (setup REQ-804, issue
+  #96): `.claude/commands/*.md` (`/lit-sync`, `/data-sync`) are copied
+  into `~/.claude/commands/` (or the `--project` equivalent) with
+  relative `scripts/` and `docs/` references rewritten to the
+  checkout's absolute paths, so the commands work from any directory,
+  not only inside the llm-wiki checkout. Always a copy, even in
+  `--symlink` mode; the only sanctioned install-time patching, applied
+  to the installed copy only.
+
 ## [3.2.0] - 2026-07-07
 
 Data enters the vault: R data packages as versioned, self-describing
