@@ -65,6 +65,16 @@ Phase 2b - Cache Profile (from the Access-Log page):
   hit via the same grep term instead of its index line signals a weak or missing
   routing description in its hub `### Index`
 
+Phase 2c - Data-package staleness (only when `data_packages` is
+configured, ingest REQ-106):
+
+- Run `Rscript scripts/data_pkg_sync.R --check` and include its report:
+  which registered packages have a newer version on GitHub than the
+  newest local snapshot. Detection only; when something is stale,
+  recommend `/data-sync`, never sync from here. Skip silently when the
+  config key is absent or Rscript is unavailable (note the degradation
+  in the report)
+
 Phase 3 - Activity:
 
 - Git log for wiki changes (last 7 days, last 30 days)
