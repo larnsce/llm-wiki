@@ -23,7 +23,7 @@ right properties, and stay auditable against the same archived source the `wiki/
 Zotero is your **citation source of truth** (see [Literature Research](literature-research.md)).
 This guide covers the last mile: getting a Zotero item into Logseq as a
 `notes/literature/@<citekey>` page that (1) holds your reading in your own words and (2) points at
-the same `ingested/...` source the wiki cites. The `## my reading` block is a **`notes/` page**:
+the same `ingested/...` source the wiki cites. The `## literature` block is a **`notes/` page**:
 human-written, machine-exempt (see [`namespaces.md`](../openspec/specs/namespaces.md)). It is not a
 `wiki/` page and the wiki skills never edit it.
 
@@ -39,7 +39,7 @@ Zotero cloud API, no BBT export file.
 - **Incremental annotation sync:** annotations are read as children of the PDF attachments,
   sorted by position in the PDF, and only annotations with a Zotero version newer than the
   page's `zotero-last-sync::` stamp are appended; the stamp is then updated from the library
-  version. Re-syncing never clobbers your prose; `## my reading` is never touched.
+  version. Re-syncing never clobbers your prose; the reading section (`## literature`; `## my reading` on pages created before the #101 rename) is never touched.
 - **Skips unpinned items with a warning:** the citekey is read from the item's `extra` field
   (`Citation Key: xxx`, written by Better BibTeX pinning). Nothing is guessed.
 
@@ -87,7 +87,7 @@ zotero:: zotero://select/library/items/<KEY>
 source-file::
 zotero-last-sync:: <library version>
 
-- ## my reading
+- ## literature
 	-
 - ## annotations
 	- (synced from Zotero below this line)
@@ -101,7 +101,7 @@ zotero-last-sync:: <library version>
   `citekey::` / `type:: literature` metadata), its report reminds you to set this property to the
   `ingested/` path it produced; setting it is always your edit, the tool never writes into
   `notes/`.
-- `## my reading` is yours; annotation sync appends under its own blocks and never touches your
+- `## literature` is yours: your literature note in the Zettelkasten sense (add the `#literature` tag by hand when you write it; the tooling never writes tags). Annotation sync appends under its own blocks and never touches your
   prose.
 
 ## The working loop
@@ -109,7 +109,7 @@ zotero-last-sync:: <library version>
 1. Read + annotate the PDF in Zotero.
 2. Run `/lit-sync` (dry-run first, then real): new items get their `@citekey` page, new
    annotations append under `## annotations`.
-3. Write `## my reading` in your own words - this is the literature note.
+3. Write `## literature` in your own words - this is the literature note (tag it `#literature` yourself).
 4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki-ingest`, then
    set `source-file::` here to the `ingested/` path the ingest produced (the report's
    literature-note reminder, REQ-973, tells you the exact path).

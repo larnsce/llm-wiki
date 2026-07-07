@@ -40,7 +40,11 @@ local HTTP API. Plugin-free: this replaces the logseq-zoterolocal-plugin
 - Only managed properties are rewritten (`type`, `citekey`, `authors`,
   `year`, `item-type`, `doi`, `zotero`); `source-file::` and user-added
   properties survive every run.
-- `## my reading` is never touched: it is human-written `notes/` content.
+- The reading section (`## literature`; `## my reading` on pages created
+  before the #101 rename) is never touched: it is human-written `notes/`
+  content. Notes there are LITERATURE notes in the user's Zettelkasten
+  typing; the user adds the `#literature` tag by hand. The tooling never
+  writes a `#tag`.
 - Annotations append incrementally: only Zotero versions newer than the
   page's `zotero-last-sync::` stamp, sorted by position in the PDF.
 - `source-file::` stays blank at creation; it is filled by hand when the

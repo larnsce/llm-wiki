@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2026-07-07
+
+Second live-use feedback round: person names as first-class links, and
+the human note sections named after their Zettelkasten note type.
+
+### Added
+
+- Person names are always linked (ingest REQ-036a, lint REQ-141a, issue
+  #99): names written into content (page claims, journal Ingested
+  bullets) become `[[wiki/people/<First> <Last>]]` links, normalized to
+  First-name Surname order; `author::` stays plain text. Lint rule 4
+  reports a link whose person page does not exist yet as info-level
+  "pending person page" instead of a broken-reference warning, and
+  `--fix` never stubs those targets (person pages are born through
+  ingest at the second-source threshold, REQ-024a).
+
+### Changed
+
+- Dataset pages seed `## fleeting` instead of `## my notes` (issue
+  #100); literature pages seed `## literature` instead of
+  `## my reading` (issue #101). The names state the Zettelkasten note
+  type; the user adds `#fleeting`/`#literature` tags by hand and the
+  tooling never writes a tag. Pages created before the rename keep
+  their old headings; both are equally machine-exempt, no migration.
+
 ## [3.3.0] - 2026-07-07
 
 ### Added

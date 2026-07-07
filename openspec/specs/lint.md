@@ -59,6 +59,15 @@ certain issues when run with the `--fix` flag. There are 15 lint rules.
 - REQ-140: The system SHALL identify all `[[Wiki/...]]` links in every page and
   verify that the target page exists on disk.
 - REQ-141: A link to a non-existent page SHALL be flagged as a warning.
+- REQ-141a (pending person pages): A link to a non-existent
+  `wiki/people/` target SHALL be reported at INFO severity with a
+  "pending person page" reason instead of the REQ-141 warning. Rationale:
+  ingest writes person-name links wherever names appear (ingest
+  REQ-036a) but creates the person page only at the second-source
+  threshold (ingest REQ-024a), so a person link legitimately precedes
+  its page. The `--fix` stub creation (REQ-142) SHALL NOT apply to these
+  targets: person pages are born through ingest with their citation
+  shape, not as knowledge stubs.
 - REQ-142: Auto-fix (--fix): The system SHALL create a stub page for each broken
   reference with: type:: knowledge, domain:: tech, confidence:: low,
   created:: [today], updated:: [today], and a placeholder note

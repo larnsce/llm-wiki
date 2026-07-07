@@ -13,8 +13,9 @@ Design decisions (issue #90; do not change without discussion):
    around via the cloud API.
 2. Idempotent metadata. Each run rewrites only the managed properties
    (type, citekey, authors, year, item-type, doi, zotero). source-file::
-   and any user-added properties are preserved. "## my reading" is never
-   touched (notes/ page: human-written, machine-exempt).
+   and any user-added properties are preserved. The reading section
+   ("## literature"; "## my reading" on pages created before the #101
+   rename) is never touched (notes/ page: human-written, machine-exempt).
 3. Incremental annotations. Annotations are children of PDF attachments;
    the script maps annotation -> attachment -> top item, sorts by
    annotationSortIndex, appends only annotations with Zotero version >
@@ -228,7 +229,7 @@ def new_page(values, sync_version):
     lines.append("source-file:: ")
     lines.append("%s:: %s" % (SYNC_PROP, sync_version))
     lines.append("")
-    lines.append("- ## my reading")
+    lines.append("- ## literature")
     lines.append("\t- ")
     lines.append("- ## annotations")
     lines.append("\t- (synced from Zotero below this line)")

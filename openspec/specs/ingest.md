@@ -99,6 +99,15 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
   to today's date on every modified page.
 - REQ-036: When a page mentions an entity that has its own wiki page, the system
   SHALL use `[[Wiki/...]]` link syntax instead of plain text.
+- REQ-036a (person names are always linked, #99): When the system writes a
+  PERSON's name into content (page claims, the journal seam's Ingested
+  bullets), it SHALL write it as a `[[wiki/people/<First> <Last>]]` link,
+  in First-name Surname order (normalize sources that deliver
+  "Last, First"). This holds even when the person page does not exist
+  yet: person pages are created at the second-source threshold
+  (REQ-024a), and lint reports the interim link as info-level pending
+  (lint REQ-141a), not broken. The `author::` property stays PLAIN text
+  (schema REQ-585a); only prose gets links.
 - REQ-037: The system SHOULD target 5-15 page touches per ingest. Fewer than 5
   suggests insufficient cross-referencing. More than 20 suggests the ingest should
   be split.

@@ -443,6 +443,18 @@ class Linter:
     def check_broken_refs(self, page, names):
         for target in sorted(set(page["links"])):
             if target not in names:
+                # Person links legitimately precede their page: ingest
+                # always links names (REQ-036a) but creates the person
+                # page at the second-source threshold (REQ-024a). Info,
+                # not warning, and never a --fix stub (REQ-141a).
+                if target.lower().startswith("wiki/people/"):
+                    self.add(page, "REQ-141a", "broken-reference", "info",
+                             "link target [[%s]] does not exist yet "
+                             "(pending person page)" % target,
+                             fix="born through ingest when the author "
+                                 "recurs (REQ-024a), or request the page "
+                                 "at an ingest checkpoint; never a stub")
+                    continue
                 self.add(page, "REQ-141", "broken-reference", "warning",
                          "link target [[%s]] does not exist on disk" % target,
                          fix="create the page or remove the link "

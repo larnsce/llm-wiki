@@ -199,7 +199,8 @@ prop_line <- function(key, value) sprintf("%s:: %s", key, value)
 # ("- ## description", "- ## data dictionary"), REQ-102: single-indent
 # children are machine rows and are regenerated; DEEPER-indented lines
 # (the user's annotations under a row) are preserved, appended after the
-# fresh rows. Free-standing notes belong under "## my notes", which is
+# fresh rows. Free-standing notes belong under "## fleeting" (issue
+# #100; "## my notes" on pages created before the rename), which is
 # never touched. Appends the block at EOF when absent.
 replace_managed_block <- function(lines, heading, children) {
   idx <- which(trimws(lines) == paste0("- ", heading))
@@ -285,7 +286,7 @@ write_dataset_page <- function(path, pkg, slug, version, license, url_field,
       "",
       sprintf("- %s", info$title),
       sprintf("  cite:: %s", doc_ref),
-      "- ## my notes",
+      "- ## fleeting",
       "\t- ",
       "- ## Cross-References",
       sprintf("\t- [[wiki/data/%s]]", pkg))
