@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premortem — Issues #107 + #108 (2026-07-07)</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#111827; --panel2:#0f1524; --line:#243047;
+    --text:#e2e8f0; --dim:#94a3b8; --faint:#64748b;
+    --red:#f87171; --amber:#fbbf24; --green:#34d399; --blue:#60a5fa;
+    --violet:#a78bfa; --cyan:#22d3ee; --rose:#fb7185; --lime:#a3e635; --orange:#fb923c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px 16px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:26px;line-height:1.25;margin-bottom:6px}
+  h2{font-size:19px;margin:36px 0 14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin-bottom:8px}
+  p{margin-bottom:10px}
+  .sub{color:var(--dim);margin-bottom:28px}
+  .frame{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--red);padding:14px 18px;border-radius:8px;margin-bottom:8px}
+  .frame b{color:var(--red)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:16px}
+  .panel.head{border-left:4px solid var(--amber)}
+  .panel.hidden-a{border-left:4px solid var(--violet)}
+  .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+  table{width:100%;border-collapse:collapse;margin:8px 0 4px}
+  th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:14px}
+  th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  .tablewrap{overflow-x:auto}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
+  .quad{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;margin:10px 0}
+  .q{border:1px solid var(--line);border-radius:8px;padding:12px;min-height:96px;background:var(--panel2)}
+  .q .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:6px}
+  .q.hot{border-color:#7f1d1d;background:#1a1016}
+  .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;margin:2px 4px 2px 0;border:1px solid var(--line);color:var(--text);background:var(--panel)}
+  .pill.r{border-color:#7f1d1d;color:var(--red)}
+  .pill.a{border-color:#78350f;color:var(--amber)}
+  .pill.g{border-color:#14532d;color:var(--green)}
+  ol,ul{margin:4px 0 10px 22px}
+  li{margin-bottom:6px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:18px;border-top:3px solid var(--blue)}
+  .card h3{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:16px}
+  .card .meta{margin:6px 0 12px}
+  .card .sec{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:12px 0 4px}
+  .badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .badge.p-hi{background:#7f1d1d;color:#fecaca}
+  .badge.p-md{background:#78350f;color:#fde68a}
+  .badge.p-lo{background:#1e3a5f;color:#bfdbfe}
+  .badge.d-hi{background:#4c0519;color:#fecdd3}
+  .badge.d-md{background:#3b2f0b;color:#fef3c7}
+  .c1{border-top-color:var(--red)} .c2{border-top-color:var(--orange)} .c3{border-top-color:var(--amber)}
+  .c4{border-top-color:var(--lime)} .c5{border-top-color:var(--green)} .c6{border-top-color:var(--cyan)}
+  .c7{border-top-color:var(--blue)} .c8{border-top-color:var(--violet)} .c9{border-top-color:var(--rose)}
+  .ovgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:10px}
+  .ov{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px}
+  .ov b{display:block;margin-bottom:2px}
+  .ov span{color:var(--dim)}
+  code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  footer{color:var(--faint);font-size:13px;margin-top:40px;padding-top:14px;border-top:1px solid var(--line)}
+  .assume{font-style:italic;color:var(--dim)}
+  .warn{color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Premortem — Issues #107 &amp; #108</h1>
+<p class="sub">Source-gap triage + AI-transcript ingest route (#107) and model tiering (#108), both scoped for one session on 2026-07-08 — the last day of free Fable 5. Method: Klein premortem, 8 parallel investigators + adversarial counter-check. Run 2026-07-07.</p>
+
+<div class="frame"><b>Frame:</b> It is 2026-10-07, three months later. Both issues shipped on the last free Fable day. Both have failed — the transcript route sits unused, the tier map was quietly abandoned. We look back and explain why.</div>
+
+<h2>Synthesis</h2>
+
+<div class="grid2">
+  <div class="panel head">
+    <div class="kicker">Most likely failure</div>
+    <p><b>The implementable crowds out the expiring</b> (reasons 1 + 8 + 9). Two canon-first spec PRs eat the day against the repo's verification bar; the Opus-vs-Fable trial — task 5 of 7, and the only workload with a hard deadline — is exactly what gets cut. The tier map's fable rows ship with zero demonstrations, unrepeatable at $10/$50 per MTok after midnight.</p>
+  </div>
+  <div class="panel head" style="border-left-color:var(--red)">
+    <div class="kicker">Most dangerous failure</div>
+    <p><b>Silent quality erosion</b> (reason 7). Regenerating the goldens on Sonnet re-baselines the regression net to Sonnet's own calibration — after that, the tests can only confirm Sonnet agrees with Sonnet. Same-tier audit subagents confirm their own tier's errors; inflated <code>reliability::</code> launders through the citation graph into durable wiki truth. Cheap to prevent tomorrow, nearly impossible to undo in October.</p>
+  </div>
+</div>
+
+<div class="panel hidden-a">
+  <div class="kicker">The hidden assumption</div>
+  <p><b>"Maximizing the last free Fable day means merging maximum tooling before midnight."</b> Inverted by the counter-check: code is the free part — Sonnet can write every line of both issues on Thursday. The only thing that expires at midnight is <i>Fable's judgment applied to real content</i>: frozen golden baselines, a comparison corpus, hand-run transcript ingests, adjudicated Pending-Review items. The plan burns the expiring asset to manufacture durable ones, and lets the expiring one lapse.</p>
+  <p class="assume">Sub-assumptions never questioned: a transcript is a small clean markdown file; a checker of the same tier as the worker adds independent signal; a self-written log field measures execution rather than intention.</p>
+</div>
+
+<div class="panel">
+  <div class="kicker">Likelihood × impact</div>
+  <div class="quad">
+    <div class="q hot"><div class="lbl">High probability · High damage — act first</div>
+      <span class="pill r">9 misallocated Fable day</span>
+      <span class="pill r">3 capture friction</span>
+      <span class="pill r">7 quality erosion</span>
+    </div>
+    <div class="q"><div class="lbl">High probability · Medium damage</div>
+      <span class="pill a">1 scope blowout</span>
+      <span class="pill a">8 trial yields no verdicts</span>
+      <span class="pill a">2 formalized before hand-use</span>
+      <span class="pill a">6 model log fiction</span>
+    </div>
+    <div class="q"><div class="lbl">Lower probability · High damage — insure</div>
+      <span class="pill r">4 gitignored provenance rot</span>
+    </div>
+    <div class="q"><div class="lbl">Medium · Medium</div>
+      <span class="pill a">5 triage blindness</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="kicker">The revised plan</div>
+  <p><b>Tonight (~30 min prep):</b></p>
+  <ol>
+    <li>Pick and commit the dense-paper fixture for the comparison corpus.</li>
+    <li>Save one real Claude Code <code>/export</code> file and one claude.ai conversation as raw material — real artifacts, not authored fixtures.</li>
+    <li>Write the one-paragraph scoring rubric <b>before</b> any run: a divergence is a failure iff it changes a <code>reliability::</code> value, misses a required <code>## Pending Review</code>, or accepts false corroboration. Page-plan cosmetics don't count.</li>
+  </ol>
+  <p><b>Tomorrow (Fable day) — bank judgment, build nothing:</b></p>
+  <ol start="4">
+    <li>Run Fable on the 3 existing goldens + the dense paper; commit outputs as frozen <code>fable-baseline</code> reference files. Never regenerated — future models diff against them. (The Opus/Sonnet sides are repeatable any day; only the Fable side expires.)</li>
+    <li>Do the transcript verb <b>by hand twice</b> (the real /export + the claude.ai chat), Fable driving, using existing ingest — no new machinery. This is #107's missing Phase-0 exit test and yields the real golden fixture.</li>
+    <li>Spend the rest of the day on what the tier map itself reserves for Fable: adjudicate contested Pending-Review items, audit the most-cited pages, sanity-pass the 11-gap decision table.</li>
+  </ol>
+  <p><b>Later, on Sonnet/Opus (no deadline) — implement descoped:</b></p>
+  <ol start="7">
+    <li><b>#107 descope:</b> ship <code>docs/source-routes.md</code> + a documented manual transcript protocol. The spec REQ block waits for 5 hand ingests. Design gains the pre-digest/trim verb real artifacts require; evaluate capture-at-source (end-of-session "write the decision log") as the primary mechanism over post-hoc export.</li>
+    <li><b>#107 provenance fix:</b> sensitive transcripts get a backup REQ mirroring archive.db's REQ-1120 (named off-machine copy before first real ingest) + an audit tripwire distinguishing source-missing from low-reliability.</li>
+    <li><b>#108 descope:</b> triage triggers rewritten to queue-decidable inputs — hand <code>wiki-triage</code> the hub index + Schema page list as context; length/type/multi-source proxies; the "supersedes" check moves to the Sonnet ingest checkpoint (which does read the wiki). Add a triage golden (must-flag / must-not-flag fixtures).</li>
+    <li><b>#108 logging fix:</b> log the dispatched agent <i>name</i> (observable), not a model alias (not observable); reconcile against the billing dashboard at the 2-week review; treat a fallback-free log as an anomaly.</li>
+    <li><b>#108 golden rule:</b> never regenerate goldens on the new model — diff against the frozen Fable baselines; a generous-direction <code>reliability::</code> diff means escalate the task, not re-baseline the test.</li>
+  </ol>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <div class="kicker">Kill criteria</div>
+    <ol>
+      <li><b>2026-07-08 12:00</b> — Fable baselines + both hand transcript ingests not done by noon → cancel all implementation for the day; bank Fable artifacts until midnight.</li>
+      <li><b>2026-07-22</b> — fewer than 5 hand-ingested transcripts → the spec REQ block does not get written; the route stays a manual protocol.</li>
+      <li><b>2026-07-21</b> — billing model-mix contradicts run-log counts, or the review doesn't happen → remove the agents; freeze at "Sonnet default + manual /model escalation."</li>
+    </ol>
+  </div>
+  <div class="panel">
+    <div class="kicker">Pre-launch checklist</div>
+    <ul>
+      <li>Dense-paper fixture committed (tonight).</li>
+      <li>One real /export + one claude.ai conversation saved raw (tonight).</li>
+      <li>Scoring rubric written and committed before any run.</li>
+      <li>Backup path for sensitive transcript bytes named <b>before</b> the first sensitive ingest ever happens.</li>
+      <li>Honest #65 check: the base-habit gate is still unticked and both issues are "expansion" under the standing premortem rules — tick the gate or accept the exception in writing.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Investigation overview</h2>
+<div class="ovgrid">
+  <div class="ov"><b>1 · Scope blowout</b><span>timing / execution</span></div>
+  <div class="ov"><b>2 · Formalized before hand-use</b><span>hidden assumption</span></div>
+  <div class="ov"><b>3 · Capture friction</b><span>demand / habit</span></div>
+  <div class="ov"><b>4 · Provenance rot</b><span>architecture</span></div>
+  <div class="ov"><b>5 · Triage blindness</b><span>design flaw</span></div>
+  <div class="ov"><b>6 · Model log fiction</b><span>measurement</span></div>
+  <div class="ov"><b>7 · Quality erosion</b><span>quality / compounding</span></div>
+  <div class="ov"><b>8 · Trial undoable</b><span>evidence / finance</span></div>
+  <div class="ov"><b>9 · Wrong scarce resource</b><span>counter-check — premise</span></div>
+</div>
+
+<h2>Failure cards</h2>
+
+<div class="card c1">
+  <h3>1 · Deadline-driven scope blowout <span class="badge p-hi">P high</span> <span class="badge d-md">D medium</span></h3>
+  <div class="sec">Failure story</div>
+  <p>The tell was already in the CHANGELOG: 3.4.0 <i>and</i> 3.4.1 both shipped 2026-07-07 — the queue was being force-drained toward the deadline. On the day, #107's decision table was done by 09:00; the transcript route wasn't. The <code>transcripts</code> sensitive-type entry broke fresh-scaffold <code>--strict</code> lint at 13:40 (the scaffold gitignore template didn't know <code>raw/chat-*.md</code>); the fix rippled into setup.sh, storage.md, check_canon.py. The golden — the part that pins LLM judgment and can't be rushed — was still unwritten at 16:00. First tip: the harness ran in only one tool mode "to save time." Second tip, 19:15: the PR body's e2e transcript written from memory of a partial run. #108 got ninety minutes: two of four agents, no model field, trial verdicts pasted from a single unrepeated run.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">A higher-capability model compresses the <i>verification</i> bar the way it compresses the writing — but harness, goldens, and e2e transcripts cost wall-clock time regardless of who types.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">Two releases tagged the day before the deadline (already visible) · any PR body whose e2e transcript timestamp predates the branch's final commit.</p>
+</div>
+
+<div class="card c2">
+  <h3>2 · Formalized before done by hand <span class="badge p-hi">P high</span> <span class="badge d-md">D med-high</span></h3>
+  <div class="sec">Failure story</div>
+  <p>Every artifact assumed "a transcript is a markdown file you rename to <code>raw/chat-*.md</code>." The golden fixture was a hand-written, idealized 200-line dialogue — nothing real existed to fixture from, because no transcript had ever been ingested by hand. First real attempt: Claude Code <code>/export</code> produced a 41,000-line file of tool calls and diffs; the checkpoint blew context before reaching the design discussion. claude.ai had no clean per-conversation export; copy-paste lost the structure the REQ block assumed. The real workflow required an undocumented pre-trim verb the spec never named — while the golden kept passing against its fictional fixture. The voice pipeline had a Phase-0 exit test <i>before</i> its skill was built; #107 skipped exactly that gate to catch the deadline.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">"Transcript" names an artifact like a voice memo — small, clean, self-contained — rather than an export-format problem never actually touched.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">Golden fixture authored, not captured — no real /export ever committed to tests/ · no Phase-0 manual-exit issue (the #57/#65 pattern) before the spec PR.</p>
+</div>
+
+<div class="card c3">
+  <h3>3 · Capture friction kills the habit <span class="badge p-hi">P high</span> <span class="badge d-hi">D high</span></h3>
+  <div class="sec">Failure story</div>
+  <p>Week one was novelty, not habit: two exports, July 9 and 11. The second checkpoint was the tip — re-litigating a decision made three days earlier, approve-then-opt-in, felt like being deposed about one's own conversation; twelve minutes to re-process something the brain had filed as <i>done</i>. The existing loop is one motion (drop, run, read); the chat route is five, and the first — noticing mid-conversation that this chat matters — has no trigger. Issue #65's gate A (10-of-14-days base review habit) was unticked when #107 shipped: a second habit stacked on an unformed first one. Zero transcripts after July 11; decisions from ~40 subsequent sessions evaporated exactly as before.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">Valuing captured decisions would generate the five-step capture behavior — motivation substituting for a trigger.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">Zero new ingested transcripts in any 14-day window after week one · median chat-to-ingest lag exceeding 48h for the ones that do get captured.</p>
+</div>
+
+<div class="card c4">
+  <h3>4 · Gitignored provenance rots <span class="badge p-lo">P low-med</span> <span class="badge d-hi">D high</span></h3>
+  <div class="sec">Failure story</div>
+  <p>Transcripts instantly became the most-cited source type — 40+ pages by September, many carrying <code>reliability:: low</code> claims only a re-read could raise. The tip was invisible: from the first ingest, the bytes existed in exactly one place, and nothing complained. The vault's durability story is "git is the backup," and the gitignore surgically removed transcripts from it. Voice notes got REQ-1120 (off-machine archive.db copy before first real data, restore drills); transcripts got the gitignore pattern and nothing else — the commit records the move, not the bytes. Laptop migration in September: fresh clone, old disk wiped after <code>git status</code> came back clean. October audit: ENOENT on every transcript citation — 60+ claims unverifiable exactly where decisions live.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">"In git history" and "durable" are the same property — so excluding bytes from git needs no replacement durability plan.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn"><code>git ls-files ingested/</code> diverging from <code>ls ingested/**/*</code> · fresh clone on a second machine immediately emits source-missing for all transcript citations.</p>
+</div>
+
+<div class="card c5">
+  <h3>5 · Triage agent structurally blind <span class="badge p-md">P medium</span> <span class="badge d-md">D medium</span></h3>
+  <div class="sec">Failure story</div>
+  <p>Week one it under-flagged: a preprint contradicting figures on an existing hub page hit triggers 1 and 2 — but Haiku could only see the queue file, not the wiki, so nothing looked like a conflict. Sonnet appended the new figure alongside the old; the contradiction hardened and three later ingests cited it as settled. "Is the target a hub page?" was equally unanswerable from the queue. Mid-August the prompt was "tightened" — <i>when in doubt, flag</i> — and an agent that could never evaluate its triggers was always in doubt: flag rate went ~4% → ~70%, Opus ran on grocery-list-grade captures, September's bill exceeded pre-tiering. Nobody caught either phase: no golden ever asserted "this fixture must flag, this one must not."</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">Escalation triggers defined in terms of existing wiki state can be evaluated by an agent whose inputs contain no wiki state.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">Sustained weekly flag rate &lt;5% or &gt;40% · any Sonnet-processed item later editing a hub/Schema page or changing a <code>reliability::</code> value.</p>
+</div>
+
+<div class="card c6">
+  <h3>6 · Self-reported model log is fiction <span class="badge p-hi">P high</span> <span class="badge d-md">D medium</span></h3>
+  <div class="sec">Failure story</div>
+  <p>Day one: the run-log spec told the executing LLM to write <code>model &lt;alias&gt;</code> — but a model can't introspect its ID, so the skill text effectively said "write the alias from the tier map." <code>~/.claude/agents/wiki-triage.md</code> wasn't installed (setup.sh never re-run, scope mismatch); the Agent tool silently fell back to the session model — and the Dashboard line read <code>model haiku</code> anyway. Fiction from run one. At the July 21 review, <code>/wiki-maintain status</code> counted 31 haiku / 9 sonnet / 4 opus; the review concluded haiku triage had "zero regressions" (the session model had been doing haiku's job) and demoted two more tasks. The instrument measured the plan, so it validated the plan. The only cross-check — billing — was never in the loop; October's invoice showed premium spend flat against a log claiming 78% haiku.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">The model executing a skill knows — or can be trusted to report — which model it actually is.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">Billing model-mix diverging from run-log counts (checkable in week one) · a 100%-clean model column with zero fallback/inherit entries — from self-report, itself the anomaly.</p>
+</div>
+
+<div class="card c7">
+  <h3>7 · Silent quality erosion <span class="badge p-md">P med-high</span> <span class="badge d-hi">D high</span></h3>
+  <div class="sec">Failure story</div>
+  <p>It tipped at the golden re-review. Sonnet's re-run diffed against Fable-era transcripts and the diffs looked <i>reasonable</i> — <code>reliability:: high</code> where Fable had said medium-with-Pending-Review. The maintainer judged the new output defensible and regenerated the goldens, re-baselining the regression net to Sonnet's calibration: from then on the tests could only confirm Sonnet agreed with Sonnet. Structurally, audit verification ran on Sonnet subagents making the same characteristic errors as Sonnet ingest — one-origin sources counted as independent corroboration, hedges read as assertions — so audits returned clean verdicts on pages ingested with those same errors. Pending-Review sections quietly emptied. Because pages take the minimum across claims and later pages cite earlier ones, inflated ratings laundered upward through the graph. October spot-check: a drifted claim under <code>reliability:: high</code>, and no way to tell which stratum to trust.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">Verification is a cheaper task than generation — a checker of the same tier as the worker adds independent signal.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">Rate of new <code>## Pending Review</code> sections per ingest drops after the switch · golden re-run diffs cluster in <code>reliability::</code> values, all in the generous direction.</p>
+</div>
+
+<div class="card c8">
+  <h3>8 · Opus-vs-Fable trial undoable as specified <span class="badge p-hi">P high</span> <span class="badge d-md">D medium</span></h3>
+  <div class="sec">Failure story</div>
+  <p>The trial was task 5 of 7 in #108, behind the implementation, where it died. By evening, "re-run goldens once on sonnet" became the whole trial: no opus run, no fable run, no dense paper — none was ever picked, because "genuinely dense" was never defined. The deeper tip was scoring: the golden README's own rule — a diff is a re-review signal, not automatically a failure — means a diff can't produce a verdict. The one hasty comparison that ran produced two defensible checkpoint tables differing on a hub cross-link and one reliability rationale; adjudication was deferred to the July 21 review, which never happened. Weekly Fable sessions were never scheduled — nothing in #108 creates a trigger, only "session discipline" prose. October: golden headers say validated-on-sonnet; the fable tier rows shipped with zero demonstrations, re-runs now cost $10/$50 per MTok.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">A regression net built to flag one model's drift can double, unchanged and unscored, as a cross-model benchmark squeezed into implementation leftovers.</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">End of 07-08: no Fable verdict line in any golden header, no verdict comment on #108 · no dense-paper fixture committed before the trial day started.</p>
+</div>
+
+<div class="card c9">
+  <h3>9 · The scarce resource is misidentified <span class="badge p-hi">P high</span> <span class="badge d-hi">D high</span> <span class="pill">counter-check</span></h3>
+  <div class="sec">Failure story</div>
+  <p>All eight reasons critique <i>how</i> the two issues get built; none questions whether building them is what a final frontier-model day is <i>for</i>. The repo's own premortem states the governing insight: the plan engineers the free part (code) and assumes the expensive part follows. Specs, configs, skills, setup.sh edits are the free part — Sonnet can produce them next week at no urgency. What becomes expensive at midnight is Fable <i>output</i>: frozen golden baselines, the comparison corpus, a Fable pass over the real source gaps, Fable adjudicating the wiki's actual contested claims. That is precisely the data #108's map needs to be "validated by real data" — and the plan schedules it last, guaranteeing it gets cut. The plan burns the expiring asset to manufacture durable ones and lets the expiring one lapse.</p>
+  <div class="sec">Underlying assumption</div>
+  <p class="assume">"Maximize the last free day" = "merge maximum PRs before the clock," when it should mean "bank maximum irreplaceable model judgment."</p>
+  <div class="sec">Early warning signs</div>
+  <p class="warn">By midday, the session transcript shows only scaffolding and spec-writing — zero Fable invocations against real wiki or transcript content · nothing in either merged PR is an artifact only Fable could have produced.</p>
+</div>
+
+<footer>
+  Premortem run 2026-07-07 over issues <a href="https://github.com/larnsce/llm-wiki/issues/107" style="color:var(--blue)">#107</a> and <a href="https://github.com/larnsce/llm-wiki/issues/108" style="color:var(--blue)">#108</a> · 8 investigators + 1 adversarial counter-check, run in parallel · full transcript: <code>prompts/2026-07-07-001-premortem-sources-tiering-issues.md</code>
+</footer>
+
+</div>
+</body>
+</html>
