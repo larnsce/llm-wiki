@@ -48,6 +48,10 @@ parse_config <- function(path) {
     if (stripped == "" || startsWith(stripped, "#")) next
     if (grepl("^\\s*-\\s+", line) && !is.null(open_key)) {
       item <- trimws(sub("^\\s*-\\s+", "", line))
+      # The opening "key:" line stored an empty string; the first list
+      # item replaces it (mirrors wikilib.parse_config_text, bug #98:
+      # keeping it made the no-arg run try slug "" first and stop).
+      if (identical(config[[open_key]], "")) config[[open_key]] <- character()
       config[[open_key]] <- c(config[[open_key]], item)
       next
     }
@@ -144,7 +148,8 @@ parse_dataset_rd <- function(path) {
 
 fetch_description_version <- function(slug) {
   url <- sprintf("https://raw.githubusercontent.com/%s/HEAD/DESCRIPTION", slug)
-  lines <- tryCatch(readLines(url, warn = FALSE), error = function(e) NULL)
+  lines <- suppressWarnings(
+    tryCatch(readLines(url, warn = FALSE), error = function(e) NULL))
   if (is.null(lines)) return(NULL)
   version_line <- grep("^Version:", lines, value = TRUE)
   if (!length(version_line)) return(NULL)
