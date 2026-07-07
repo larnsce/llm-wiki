@@ -23,7 +23,7 @@ lint (validation).
 
 - REQ-510: Entity pages MUST have ALL of these properties:
   - `type` = `entity`
-  - `entity-type` = one of: `person`, `client`, `tool`, `service`, `technology`
+  - `entity-type` = one of: `person`, `client`, `tool`, `service`, `technology`, `dataset`
   - `created` = date (YYYY-MM-DD)
   - `updated` = date (YYYY-MM-DD)
   - `status` = one of: `active`, `inactive`, `archived`
@@ -193,6 +193,23 @@ lint (validation).
   deduplicated), like `source-file::`. Lint recognizes it and never
   requires it; ingest never backfills it onto existing pages (same rule as
   the schema-spec-version stamp).
+- REQ-585c (journal back-link, journal seam): An ingested page MAY carry an
+  OPTIONAL `journal::` property: a single tool-native link to the journal
+  page of the most recent ingest day that touched the page (Logseq: the
+  graph's journal page reference for that date; Obsidian: a `[[link]]` to
+  the daily note). Set and REFRESHED on every ingest touch, like
+  `updated::`; earlier journal days stay reachable through the journal
+  side of the seam (the daily Ingested block links to the page, so the
+  connection survives in Linked References). Lint recognizes it and never
+  requires it; ingest never backfills it outside a run that touches the
+  page. Together with the daily Ingested block (specs/ingest.md REQ-090)
+  this forms the bidirectional wiki-journal link pair.
+- REQ-585d (dataset provenance, data-package seam): A dataset page
+  (`entity-type:: dataset`, specs/ingest.md REQ-101) MAY carry the
+  OPTIONAL managed properties `package::`, `version::`, `license::`,
+  `url::`, and `data-last-sync::`, maintained by `data_pkg_sync.R` and
+  refreshed on every sync (like `updated::`). Lint recognizes them and
+  never requires them.
 - REQ-586: An ingested page SHALL carry a `reliability::` property, one of
   `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
   (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up

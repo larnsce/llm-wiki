@@ -54,6 +54,14 @@ default_source_type: papers
 # para_dir: para
 # notes_dir: notes
 
+# Journal directory (optional; openspec/specs/config.md REQ-629): daily
+# notes, relative to wiki_path. Logseq: the native journals/ directory,
+# sibling of pages/. Obsidian: your daily-notes folder. Human-owned; the
+# journal seam (specs/ingest.md REQ-090..095) appends the daily Ingested
+# block there and never modifies existing journal content. Default applies
+# even when the key is absent.
+# journals_dir: journals
+
 # Personal tier (optional; openspec/specs/config.md REQ-626): path to the
 # archive.db capture database consumed by /wiki-ingest-voice (see
 # openspec/specs/storage.md and docs/voice-pipeline.md). The default matches
@@ -64,6 +72,16 @@ default_source_type: papers
 # the derived, disposable index database (storage REQ-1130..1133). Created on
 # first rebuild; delete it any time, it rebuilds from the markdown.
 # index_db: ~/archive/index.db
+
+# Data-package seam (optional; openspec/specs/config.md REQ-660/661,
+# specs/ingest.md REQ-100..106): registered R data packages, synced by
+# scripts/data_pkg_sync.R / the /data-sync command into versioned
+# ingested/data/<pkg>-<version>/ snapshots and wiki/data dataset pages.
+# data_snapshots_keep bounds retention (a snapshot cited by any page is
+# never deleted). Remove the keys to disable the seam.
+# data_packages:
+#   - owner/repo
+# data_snapshots_keep: 3
 
 # Glossary namespace (openspec/specs/config.md REQ-628, specs/glossary.md):
 # human-decided EN-DE terminology; the tool scaffolds and structure-lints it

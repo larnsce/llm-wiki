@@ -10,7 +10,8 @@ primary read path; the counterpart to wiki-ingest (write path). When the
 storage plane is configured, aggregate, temporal, and full-text questions
 route to index.db SQL (the second plane); entity questions stay on pages.
 
-Spec: openspec/specs/query.md REQ-400..452, two-plane routing REQ-460..464
+Spec: openspec/specs/query.md REQ-400..452 (dual-register output
+REQ-435..437), two-plane routing REQ-460..464
 
 Shared conventions (read before executing):
 
@@ -78,6 +79,14 @@ access log that makes retrieval auditable.
   missing/empty, no routing line matches): classic grep across all wiki pages ->
   top 3-5. This is the slow backing-store scan and should be the exception, not
   the default
+- Data reads (REQ-470..472, only when dataset pages exist): a question
+  about a dataset's CONTENTS routes via the wiki/data hub; the dataset
+  page's `## data dictionary` picks the dataset and columns; row-level
+  answers are computed READ-ONLY from the snapshot CSVs at the page's
+  `source-file::` (python3 stdlib csv/sqlite3). Attribute the
+  computation with file, package version, and row count, e.g.
+  `computed from ingested/data/<pkg>-<version>/<file>.csv (n rows)`.
+  Never consult a live R session for content answers (REQ-472)
 - If needed, also read L1 Memory for the complete picture
 
 ## Phase 1b - Access Logging (LRU signal + routing transparency)
@@ -123,15 +132,27 @@ access log that makes retrieval auditable.
 
 ## Phase 4 - Output
 
-- Answer with source pages: "Sources: [[wiki/tech/deployment]],
-  [[wiki/reference/gotchas]]"
-- Plane attribution (REQ-463): state which plane answered: pages, index.db,
+- Two registers, always both, in this order (REQ-435):
+  1. **Precise register:** the Phase 2 synthesis as-is; technical vocabulary
+     intact
+  2. **Plain register**, under the marker heading `In plain terms`: the SAME
+     facts and caveats rewritten so a non-specialist can follow them. No
+     unexplained jargon (an unavoidable technical term is explained in the
+     sentence that uses it) and NO new claims; the no-fabrication rule
+     (REQ-414) binds both registers (REQ-436)
+- Flag stale sources (updated:: more than 90 days ago) and low-confidence sources
+  with an explicit warning, in BOTH registers, phrased for each; the plain
+  register never drops a warning (REQ-436). Contradictions (REQ-413) appear
+  in both registers too
+- After both registers, ONCE (REQ-437): source pages, "Sources:
+  [[wiki/tech/deployment]], [[wiki/reference/gotchas]]"
+- Plane attribution (REQ-463), part of the same shared attribution: state
+  which plane answered: pages, index.db,
   or both, e.g. "Sources: [[wiki/tech/deployment]]; index.db (meetings,
   12 rows)". Include the staleness warning here when answering from a stale
   index (REQ-461)
-- Flag stale sources (updated:: more than 90 days ago) and low-confidence sources
-  with an explicit warning
 - Suggest related pages
 - If no relevant pages are found, state clearly: "No information found in the wiki
-  for this topic." and offer write-back (Phase 3)
+  for this topic." and offer write-back (Phase 3); the plain register
+  restates that the wiki has no answer (REQ-435)
 </workflow>

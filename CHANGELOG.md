@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-07-07
+
+Data enters the vault: R data packages as versioned, self-describing
+sources, and a plugin-free Zotero literature sync. Both follow the same
+pattern: an external system of record, an idempotent sync script,
+machine-managed regions beside untouchable human notes, and a version
+stamp.
+
+### Added
+
+- Data-package seam (`openspec/specs/ingest.md` REQ-100..106, config
+  REQ-660/661, schema REQ-585d, issues #92..#95): registered R data
+  packages (`data_packages` config key) sync into versioned
+  `ingested/data/<pkg>-<version>/` snapshots (CSVs materialized from
+  `data/*.rda` and copied from `inst/extdata`, per-dataset docs
+  extracted from the Rd documentation) and `wiki/data/<pkg>/<dataset>`
+  pages with machine-managed description and data-dictionary sections;
+  old snapshots stay citable after version updates; retention keeps the
+  last `data_snapshots_keep` snapshots and never deletes a referenced
+  one; `--check` compares GitHub DESCRIPTION versions for staleness
+  (detection automated, writes always confirmed).
+- `scripts/data_pkg_sync.R` (base R + tools, no package dependencies)
+  and the `/data-sync` command (issue #93); `entity-type:: dataset`
+  added to the schema enum on all canon surfaces.
+- Query data reads (`openspec/specs/query.md` REQ-470..472, issue #94):
+  dataset questions route via the data dictionary; row-level answers
+  compute read-only on snapshot CSVs with version-pinned attribution; a
+  live R session (mcptools) is explicitly not a query source (live
+  plane parked by maintainer decision).
+- Plugin-free Zotero literature sync (issue #90): `scripts/lit_sync.py`
+  against Zotero's local HTTP API plus the `/lit-sync` command replace
+  the abandoned logseq-zoterolocal-plugin; idempotent managed
+  properties, incremental annotation sync via `zotero-last-sync::`,
+  unpinned citekeys skipped with a warning; `docs/zotero-setup.md`
+  rewritten (verified against Zotero 9 conventions, end-to-end run
+  tracked in #28).
+- `docs/data-package-workflow.md`: the seam end to end, the nightly
+  check pattern, and where mcptools fits (interactive analysis) versus
+  where it does not (system of record, freshness).
+
+## [3.1.0] - 2026-07-06
+
+The journal seam and dual-register answers, from first live use of the
+v2.3/v3.0 stack: the journal becomes the daily surface of the ingest
+pipeline, and query answers become readable by anyone.
+
+### Added
+
+- Journal seam (`openspec/specs/ingest.md` REQ-090..095, issues #83/#84/#85):
+  every ingest run appends one bullet per source to a single daily
+  `Ingested` block on today's journal page, with links to the touched wiki
+  pages and an empty child bullet reserved for the user's own notes;
+  append-only inside the journal (REQ-094), visible at the checkpoint
+  (REQ-092), riding the run's atomic commit (REQ-095).
+- Wiki-to-journal back-link (schema REQ-585c, ingest REQ-093, issue #84):
+  optional `journal::` property on ingested pages, refreshed like
+  `updated::` to the most recent ingest day's journal page; together with
+  the journal bullet it forms the bidirectional wiki-journal link pair.
+- Dual-register query answers (`openspec/specs/query.md` REQ-435..437,
+  issues #82/#88): every /wiki-query answer carries the precise register
+  first, then a plain-language version under `In plain terms`; same facts,
+  same warnings, no new claims; source and plane attribution appear once,
+  shared by both registers.
+- Config key `journals_dir` (config REQ-629, default `journals`, issue #86):
+  names the journal directory per tool flavor; recognized by page
+  enumeration (`wikilib.py`), namespace classification (`lint.py` rule 14),
+  and `check_config.py`.
+
+### Changed
+
+- Ingest REQ-060 now names the journal seam as the single sanctioned
+  machine write path into journals (append-only); the voice journal summary
+  (REQ-082) writes through the same discipline instead of carving its own
+  exception (issue #85).
+
 ## [3.0.0] - 2026-07-06
 
 The personal pipeline: a SQLite machine plane beside the markdown vault,

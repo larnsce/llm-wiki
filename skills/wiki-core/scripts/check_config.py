@@ -34,10 +34,12 @@ REQUIRED_KEYS = ("tool", "wiki_path", "pages_dir", "namespaces")
 
 PIPELINE_KEYS = ("raw_dir", "ingested_dir", "source_types", "default_source_type")
 
-# Optional human-namespace keys (REQ-625) and their defaults.
+# Optional human-namespace keys (REQ-625) and their defaults; journals_dir
+# (REQ-629) shares their shape rules.
 HUMAN_NAMESPACE_KEYS = (
     ("para_dir", wikilib.DEFAULT_PARA_DIR),
     ("notes_dir", wikilib.DEFAULT_NOTES_DIR),
+    ("journals_dir", wikilib.DEFAULT_JOURNALS_DIR),
 )
 
 KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
@@ -46,8 +48,11 @@ KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
     "para_dir",
     "notes_dir",
     "glossary_dir",
+    "journals_dir",
     "archive_db",
     "index_db",
+    "data_packages",
+    "data_snapshots_keep",
 }
 
 PIPELINE_SNIPPET = """raw_dir: raw
@@ -149,28 +154,51 @@ def check(config, config_path, skip_path_checks=False):
     for key, default in HUMAN_NAMESPACE_KEYS:
         if key not in config:
             continue
+        # journals_dir is relative to wiki_path (REQ-629); para/notes are
+        # relative to the pages directory (REQ-625).
+        req = "REQ-629" if key == "journals_dir" else "REQ-625"
+        base = "wiki_path" if key == "journals_dir" else "the pages directory"
         value = config.get(key)
         if not isinstance(value, str) or not value:
             warnings.append(
                 "'%s' is present but empty; the default '%s' applies "
-                "(REQ-625)." % (key, default)
+                "(%s)." % (key, default, req)
             )
             continue
         if value.startswith(("/", "~")) or os.path.isabs(value):
             criticals.append(
-                "'%s' must be a path relative to the pages directory, "
-                "got '%s' (REQ-625)." % (key, value)
+                "'%s' must be a path relative to %s, "
+                "got '%s' (%s)." % (key, base, value, req)
             )
         elif ".." in value.replace("\\", "/").split("/"):
             criticals.append(
                 "'%s' must not contain path traversal ('..'), got '%s' "
-                "(REQ-625)." % (key, value)
+                "(%s)." % (key, value, req)
             )
         if value != value.lower():
             warnings.append(
                 "'%s' should be lowercase (structural naming, "
                 "specs/schema.md REQ-580). Consider '%s'."
                 % (key, value.lower())
+            )
+
+    # Data-package seam keys (REQ-660/661): shape-only checks.
+    if "data_packages" in config:
+        slugs = config.get("data_packages")
+        if not isinstance(slugs, list) or not all(
+                isinstance(s, str) and s.count("/") == 1 and
+                all(part for part in s.split("/")) for s in slugs):
+            criticals.append(
+                "'data_packages' must be a list of GitHub slugs "
+                "('owner/repo') (REQ-660)."
+            )
+    if "data_snapshots_keep" in config:
+        keep = config.get("data_snapshots_keep")
+        # The flat parser yields strings; accept a positive digit string.
+        if not (isinstance(keep, str) and keep.isdigit() and int(keep) >= 1):
+            criticals.append(
+                "'data_snapshots_keep' must be a positive integer, got "
+                "'%s' (REQ-661)." % keep
             )
 
     unknown = sorted(set(config) - KNOWN_KEYS)

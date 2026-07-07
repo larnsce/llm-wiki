@@ -91,7 +91,8 @@ REQUIRED_PROPS = {
 # outside the allowed list.
 ENUMS = {
     "entity-type": (
-        {"person", "client", "tool", "service", "technology"}, "REQ-511"),
+        {"person", "client", "tool", "service", "technology", "dataset"},
+        "REQ-511"),
     "domain": ({"tech", "business", "content", "ops"}, "REQ-531"),
     "confidence": ({"high", "medium", "low", "stale"}, "REQ-530"),
     "severity": ({"critical", "important", "nice-to-know"}, "REQ-540"),
@@ -306,6 +307,10 @@ class Linter:
         # wiki-only rules.
         self.glossary_prefix = (config.get("glossary_dir")
                                 or wikilib.DEFAULT_GLOSSARY_DIR).strip("/")
+        # Journal directory (config.md REQ-629): human-owned daily notes,
+        # recognized as in-contract by rule 14.
+        self.journals_prefix = (config.get("journals_dir")
+                                or wikilib.DEFAULT_JOURNALS_DIR).strip("/")
 
     # -- infrastructure ----------------------------------------------------
 
@@ -324,7 +329,7 @@ class Linter:
             ("para", self.para_prefix.lower()),
             ("notes", self.notes_prefix.lower()),
             ("glossary", self.glossary_prefix.lower()),
-            ("journals", "journals"),
+            ("journals", self.journals_prefix.lower()),
         )
         for namespace, prefix in prefixes:
             if prefix and (lower == prefix or lower.startswith(prefix + "/")):

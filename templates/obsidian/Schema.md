@@ -38,7 +38,7 @@ Required YAML frontmatter:
 
 ```yaml
 type: entity
-entity-type: person | client | tool | service | technology
+entity-type: person | client | tool | service | technology | dataset
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 status: active | inactive | archived
