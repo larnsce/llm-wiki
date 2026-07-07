@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-07-07
+
+Data enters the vault: R data packages as versioned, self-describing
+sources, and a plugin-free Zotero literature sync. Both follow the same
+pattern: an external system of record, an idempotent sync script,
+machine-managed regions beside untouchable human notes, and a version
+stamp.
+
+### Added
+
+- Data-package seam (`openspec/specs/ingest.md` REQ-100..106, config
+  REQ-660/661, schema REQ-585d, issues #92..#95): registered R data
+  packages (`data_packages` config key) sync into versioned
+  `ingested/data/<pkg>-<version>/` snapshots (CSVs materialized from
+  `data/*.rda` and copied from `inst/extdata`, per-dataset docs
+  extracted from the Rd documentation) and `wiki/data/<pkg>/<dataset>`
+  pages with machine-managed description and data-dictionary sections;
+  old snapshots stay citable after version updates; retention keeps the
+  last `data_snapshots_keep` snapshots and never deletes a referenced
+  one; `--check` compares GitHub DESCRIPTION versions for staleness
+  (detection automated, writes always confirmed).
+- `scripts/data_pkg_sync.R` (base R + tools, no package dependencies)
+  and the `/data-sync` command (issue #93); `entity-type:: dataset`
+  added to the schema enum on all canon surfaces.
+- Query data reads (`openspec/specs/query.md` REQ-470..472, issue #94):
+  dataset questions route via the data dictionary; row-level answers
+  compute read-only on snapshot CSVs with version-pinned attribution; a
+  live R session (mcptools) is explicitly not a query source (live
+  plane parked by maintainer decision).
+- Plugin-free Zotero literature sync (issue #90): `scripts/lit_sync.py`
+  against Zotero's local HTTP API plus the `/lit-sync` command replace
+  the abandoned logseq-zoterolocal-plugin; idempotent managed
+  properties, incremental annotation sync via `zotero-last-sync::`,
+  unpinned citekeys skipped with a warning; `docs/zotero-setup.md`
+  rewritten (verified against Zotero 9 conventions, end-to-end run
+  tracked in #28).
+- `docs/data-package-workflow.md`: the seam end to end, the nightly
+  check pattern, and where mcptools fits (interactive analysis) versus
+  where it does not (system of record, freshness).
+
 ## [3.1.0] - 2026-07-06
 
 The journal seam and dual-register answers, from first live use of the
