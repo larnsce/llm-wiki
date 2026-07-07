@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.1] - 2026-07-07
+
+### Fixed
+
+- `data_pkg_sync.R` no-arg run (issue #98, found in live vault use): the
+  R config parser kept the empty-string placeholder from the
+  `data_packages:` opening line and appended list items after it, so the
+  sync tried to download slug `""` first and stopped. The first list
+  item now replaces the placeholder, mirroring
+  `wikilib.parse_config_text`. Also: `--check` no longer leaks the HTTP
+  warning for unreachable packages.
+
 ## [3.4.0] - 2026-07-07
 
 Second live-use feedback round: person names as first-class links, and
