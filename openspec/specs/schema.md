@@ -23,7 +23,7 @@ lint (validation).
 
 - REQ-510: Entity pages MUST have ALL of these properties:
   - `type` = `entity`
-  - `entity-type` = one of: `person`, `client`, `tool`, `service`, `technology`
+  - `entity-type` = one of: `person`, `client`, `tool`, `service`, `technology`, `dataset`
   - `created` = date (YYYY-MM-DD)
   - `updated` = date (YYYY-MM-DD)
   - `status` = one of: `active`, `inactive`, `archived`
@@ -204,6 +204,12 @@ lint (validation).
   requires it; ingest never backfills it outside a run that touches the
   page. Together with the daily Ingested block (specs/ingest.md REQ-090)
   this forms the bidirectional wiki-journal link pair.
+- REQ-585d (dataset provenance, data-package seam): A dataset page
+  (`entity-type:: dataset`, specs/ingest.md REQ-101) MAY carry the
+  OPTIONAL managed properties `package::`, `version::`, `license::`,
+  `url::`, and `data-last-sync::`, maintained by `data_pkg_sync.R` and
+  refreshed on every sync (like `updated::`). Lint recognizes them and
+  never requires them.
 - REQ-586: An ingested page SHALL carry a `reliability::` property, one of
   `high | medium | low`, rating the QUALITY of its sources. Hand-written pages
   (no `source-file::`) omit it. Reliability is assessed per CLAIM and rolled up

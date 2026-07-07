@@ -96,6 +96,15 @@ All downstream behavior depends on this file being valid.
   `para_dir`/`notes_dir` (REQ-625). The journal namespace stays
   human-owned; the journal seam's daily Ingested block is the single
   sanctioned machine write into it.
+- REQ-660: The config MAY contain the key `data_packages`: an array of
+  GitHub slugs (`owner/repo`) naming registered R data packages consumed
+  by the data-package seam (specs/ingest.md REQ-100..106,
+  `scripts/data_pkg_sync.R`). When absent, the seam is inert.
+- REQ-661: The config MAY contain the key `data_snapshots_keep` (default
+  `3`): how many versioned snapshots per package the retention pass keeps
+  under `ingested/data/`. A snapshot referenced by any page's `cite::` or
+  `source-file::` is NEVER deleted regardless of this value (ingest
+  REQ-105). Must be a positive integer.
 
 ### Validation Rules
 

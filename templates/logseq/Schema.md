@@ -18,7 +18,7 @@ type:: schema
 	- Pages WITHOUT the current schema-spec-version are treated as pre-2.0.0 by lint (grandfather mode): findings on them are reported one severity tier lower, except credential leaks, which always stay critical. `lint.py --strict` disables the floor.
 	- ### Entity (Person, Client, Tool, Service, Technology)
 		- type:: entity
-		- entity-type:: person | client | tool | service | technology
+		- entity-type:: person | client | tool | service | technology | dataset
 		- created:: YYYY-MM-DD
 		- updated:: YYYY-MM-DD
 		- status:: active | inactive | archived

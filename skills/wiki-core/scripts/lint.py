@@ -91,7 +91,8 @@ REQUIRED_PROPS = {
 # outside the allowed list.
 ENUMS = {
     "entity-type": (
-        {"person", "client", "tool", "service", "technology"}, "REQ-511"),
+        {"person", "client", "tool", "service", "technology", "dataset"},
+        "REQ-511"),
     "domain": ({"tech", "business", "content", "ops"}, "REQ-531"),
     "confidence": ({"high", "medium", "low", "stale"}, "REQ-530"),
     "severity": ({"critical", "important", "nice-to-know"}, "REQ-540"),

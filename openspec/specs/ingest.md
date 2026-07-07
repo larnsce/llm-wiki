@@ -248,6 +248,58 @@ the config key `journals_dir` (specs/config.md REQ-629).
   as the page edits and the file move (REQ-075). A quality-gate failure
   that blocks a source also drops that source's journal bullet.
 
+### Data-Package Seam
+
+An R data package is a self-describing, versioned dataset bundle:
+DESCRIPTION (name, version, license, URL), `data/*.rda` (canonical data
+objects), `inst/extdata/*.csv` (portable copies), `man/*.Rd` (the data
+documentation: description, per-variable dictionary, source). The seam
+ingests the WHOLE bundle, not just the CSVs, and keeps the vault current
+when the package updates on GitHub. Registered packages come from the
+config key `data_packages` (specs/config.md REQ-660); the seam runs
+through `scripts/data_pkg_sync.R` and the `/data-sync` command. When the
+key is absent the seam is inert.
+
+- REQ-100 (versioned snapshot): A sync SHALL write one snapshot directory
+  per package version, `ingested/data/<pkg>-<version>/`, containing: the
+  package's data frames materialized to CSV (from `data/*.rda`) and any
+  `inst/extdata` CSVs; one extracted markdown doc per dataset (title,
+  description, variable dictionary, source, pulled from the Rd
+  documentation); and a provenance record (package, version, GitHub slug,
+  license, sync date). Snapshot paths are cite targets exactly like any
+  other `ingested/` path.
+- REQ-101 (dataset pages): Each dataset SHALL get a page
+  `wiki/data/<pkg>/<dataset>` (`type:: entity`,
+  `entity-type:: dataset`) carrying the managed properties `package::`,
+  `version::`, `license::`, `url::`, `source-file::` (the snapshot
+  paths), and `data-last-sync::` (the synced package version), plus the
+  standard required entity properties. A `wiki/data` hub routes the
+  packages; a package page routes its datasets.
+- REQ-102 (managed sections): The dataset page's `## description` and
+  `## data dictionary` sections are MACHINE-MANAGED: regenerated from the
+  Rd documentation on every sync. This is the single sanctioned
+  regeneration path on these pages (the dataset-page counterpart of the
+  journal seam's REQ-094 carve-out); everything else on the page is
+  append-only and the human's own sections are NEVER touched.
+- REQ-103 (version updates): A new package version SHALL produce a NEW
+  snapshot directory; existing `cite::`/`source-file::` references to
+  older snapshots remain valid (claims stay pinned to the version they
+  were made against). The sync SHALL surface the package's NEWS changes
+  between the vault version and the new version at the checkpoint.
+- REQ-104 (checkpoint): A sync with writes SHALL run through the REQ-025
+  checkpoint discipline (dry-run plan shown, user confirms before
+  writes). Update DETECTION is automated; update WRITES are always
+  human-confirmed.
+- REQ-105 (retention): The seam SHALL keep the last N snapshots per
+  package (`data_snapshots_keep`, config REQ-661, default 3) and MUST NOT
+  delete a snapshot that any page references via `cite::` or
+  `source-file::`, regardless of N.
+- REQ-106 (staleness check): `data_pkg_sync.R --check` SHALL compare each
+  registered package's GitHub DESCRIPTION `Version:` against the newest
+  local snapshot and report stale packages. The check is surfaced through
+  `/wiki-maintain` status and MAY be run on a schedule; it never writes
+  to the vault.
+
 ### Voice Sources
 
 This extends Phases 1-5 for sources that are unprocessed `voice_notes` rows in
@@ -526,6 +578,23 @@ AND the content remains only in the transcript (archive.db)
 AND the checkpoint states why the row was withheld
 ```
 
+### Scenario 19: Data-package version update keeps old claims citable
+
+```
+GIVEN data_packages lists larnsce/sanitationdata and the vault holds
+    ingested/data/sanitationdata-1.1.0/ with dataset pages stamped
+    data-last-sync:: 1.1.0
+AND a wiki page cites ingested/data/sanitationdata-1.1.0/toilets.csv
+WHEN data_pkg_sync.R --check reports 1.2.0 on GitHub
+AND the user runs /data-sync (dry-run reviewed, NEWS diff shown, confirmed)
+THEN a NEW snapshot ingested/data/sanitationdata-1.2.0/ is written
+AND the dataset pages' managed properties and description/data dictionary
+    sections regenerate; the user's own note blocks are untouched (REQ-102)
+AND the citing wiki page still points at the 1.1.0 path, which still exists
+AND with data_snapshots_keep: 3 the oldest unreferenced snapshot beyond
+    three is deleted; the cited 1.1.0 snapshot is NEVER deleted (REQ-105)
+```
+
 ---
 
 ## Acceptance Criteria
@@ -553,6 +622,11 @@ AND the checkpoint states why the row was withheld
 - [ ] Every touched page carries journal:: linking today's journal page
       (REQ-093)
 - [ ] The journal edit rides the run's atomic commit (REQ-095)
+- [ ] Data-package sync writes a versioned snapshot; old snapshots stay
+      citable; managed sections regenerate while human sections survive
+      (REQ-100..103)
+- [ ] Snapshot retention never deletes a referenced snapshot (REQ-105)
+- [ ] --check detects staleness without writing (REQ-106)
 - [ ] Voice sources always run the checkpoint; --auto never applies to them (v3.0)
 - [ ] Voice wiki writes are per-row opt-in; people rows are confirmed
       individually with the full sentence shown

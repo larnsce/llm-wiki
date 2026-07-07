@@ -51,6 +51,8 @@ KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
     "journals_dir",
     "archive_db",
     "index_db",
+    "data_packages",
+    "data_snapshots_keep",
 }
 
 PIPELINE_SNIPPET = """raw_dir: raw
@@ -178,6 +180,25 @@ def check(config, config_path, skip_path_checks=False):
                 "'%s' should be lowercase (structural naming, "
                 "specs/schema.md REQ-580). Consider '%s'."
                 % (key, value.lower())
+            )
+
+    # Data-package seam keys (REQ-660/661): shape-only checks.
+    if "data_packages" in config:
+        slugs = config.get("data_packages")
+        if not isinstance(slugs, list) or not all(
+                isinstance(s, str) and s.count("/") == 1 and
+                all(part for part in s.split("/")) for s in slugs):
+            criticals.append(
+                "'data_packages' must be a list of GitHub slugs "
+                "('owner/repo') (REQ-660)."
+            )
+    if "data_snapshots_keep" in config:
+        keep = config.get("data_snapshots_keep")
+        # The flat parser yields strings; accept a positive digit string.
+        if not (isinstance(keep, str) and keep.isdigit() and int(keep) >= 1):
+            criticals.append(
+                "'data_snapshots_keep' must be a positive integer, got "
+                "'%s' (REQ-661)." % keep
             )
 
     unknown = sorted(set(config) - KNOWN_KEYS)

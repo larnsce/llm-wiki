@@ -147,6 +147,28 @@ inert and query behaves exactly as REQ-440..444.
   Access-Logged per REQ-450, with the matched reason recording the index
   route (e.g. `fts: <term>` or `meetings: <range>`).
 
+### Data Reads (data-package seam)
+
+Extends Phases 0-2 when dataset pages exist (specs/ingest.md
+REQ-100..106). Without them, every requirement below is inert.
+
+- REQ-470 (routing): Questions about a dataset's contents (aggregates,
+  lookups, "which rows...") SHALL route via the `wiki/data` hub and the
+  dataset pages' `## data dictionary` sections; the dictionary is the
+  routing key that picks the dataset and columns without opening any CSV.
+- REQ-471 (snapshot compute): Row-level answers SHALL be computed from
+  the snapshot CSVs at the dataset page's `source-file::` paths,
+  READ-ONLY, using python3 stdlib (csv/sqlite3). The answer SHALL
+  attribute the computation with the file, package version, and row
+  count, e.g. `computed from ingested/data/sanitationdata-1.2.0/
+  toilets.csv (1,234 rows)`. Dual-register output (REQ-435..437) applies
+  to computed answers like any other.
+- REQ-472 (no live-session sourcing): A live R session (e.g. via an
+  mcptools MCP server) is NOT a query source: content answers come from
+  snapshots so they stay reproducible from the vault alone and pinned to
+  the version the page records. (A spec'd live plane is parked by
+  maintainer decision, 2026-07-07.)
+
 ---
 
 ## Scenarios
@@ -340,6 +362,21 @@ AND SHALL NOT open index.db at all
 AND the answer reads "Sources: [[wiki/tech/docker]]" with no index attribution
 ```
 
+### Scenario 17: Aggregate question computed from a snapshot CSV
+
+```
+GIVEN wiki/data/sanitationdata/toilets exists with a data dictionary and
+    source-file:: ingested/data/sanitationdata-1.2.0/toilets.csv
+WHEN the user runs /wiki-query "what share of facilities are improved?"
+THEN Phase 0 routes via the wiki/data hub and the dictionary picks the
+    dataset and column (REQ-470)
+AND the answer is computed read-only from the snapshot CSV (REQ-471)
+AND both registers carry it, attributed once: "Sources:
+    [[wiki/data/sanitationdata/toilets]]; computed from
+    ingested/data/sanitationdata-1.2.0/toilets.csv (1,234 rows)"
+AND no live R session is consulted (REQ-472)
+```
+
 ---
 
 ## Acceptance Criteria
@@ -371,6 +408,9 @@ AND the answer reads "Sources: [[wiki/tech/docker]]" with no index attribution
       stale answer
 - [ ] (two-plane) Every answer names its plane; index hits become page reads
       before content is quoted
+- [ ] (data) Dataset questions route via the data dictionary; row-level
+      answers compute read-only on snapshot CSVs with version-pinned
+      attribution; no live R session is consulted
 
 ---
 
