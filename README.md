@@ -119,6 +119,7 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Migration from v1 (command)](docs/migration-v2.md) - Single command to skill suite
 - [Migration from v1 (corpus)](docs/migration.md) - Grandfather mode and the converter
 - [Testing](docs/testing.md) - Harness, golden transcripts, manual protocol
+- [Source Routes](docs/source-routes.md) - Every source kind, its capture mechanism, pipeline entry, and trust/model-tier defaults; includes the manual AI-transcript protocol
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`
