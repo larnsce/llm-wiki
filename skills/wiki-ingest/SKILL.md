@@ -72,6 +72,19 @@ provenance, and ensure structural integrity.
   `llm-wiki.yml` ([config](../wiki-core/references/config.md))
 - No argument -> scan `raw_dir` and process every file there oldest first
   (drain the queue) (REQ-070)
+- Queue triage delegation (REQ-076): when the queue holds MORE THAN ONE
+  file and the `wiki-triage` agent is installed (setup REQ-807), dispatch
+  ONE triage subagent for the whole queue: hand it the queue file paths,
+  the hub-index routing lines, and the Schema page list. It returns per
+  file the proposed slug, inferred type, priority, and a complexity flag
+  (queue-decidable triggers only: length, dense type, same topic elsewhere
+  in queue or hub index, hub/Schema blast radius, its own low confidence).
+  Use its slugs and types for the steps below; route flagged items'
+  Phase 1-2 analysis to the `wiki-synthesize` agent when installed.
+  Wiki-state judgments (supersedes, conflicts) stay at the checkpoint,
+  which reads the wiki. No agent installed -> classify inline exactly as
+  before; single-source runs are unchanged. Record which agents were
+  dispatched for the Phase 5 run log
 - A path/URL argument -> that single source. A local file outside `raw_dir` is
   copied into `raw_dir` first so the lifecycle is consistent (REQ-070)
 - Slugify filenames at intake (REQ-070a): when a file entering processing
@@ -165,6 +178,10 @@ The checkpoint table, one row per source:
   pipeline) each create/update entry carries its planned cite targets (the
   `ingested/` paths, with locators where known) so the row shows what the
   claims will cite (REQ-033b)
+- When a triage pass ran (REQ-076), the table gains a `Complexity` column:
+  the flag with its one-line reason, and whether the row's analysis was
+  produced by `wiki-synthesize`. Flags are advisory routing, not verdicts;
+  the human overrides them like any other cell
 - Reliability: the Phase 1 rating with its one-line rationale (omit this column
   when the source pipeline is not configured)
 - Contradictions: count plus one line each, or "none"
@@ -394,10 +411,13 @@ blocking failure (REQ-026).
 - `--auto` runs: include the FULL checkpoint plan table (the same table the
   checkpoint would have shown) in the report, one row per source with
   reliability rationale and contradictions (REQ-026)
-- Run log entry: append
-  `## [YYYY-MM-DD] ingest | <filename or n sources> -> <n> pages | reliability <level> | mode <interactive|auto>`
-  to the Dashboard page. This extends the legacy ingest log entry with the
-  `mode` field; it feeds the success signal below
+- Run log entry (REQ-053): append
+  `## [YYYY-MM-DD] ingest | <filename or n sources> -> <n> pages | reliability <level> | mode <interactive|auto> | agents <names|none>`
+  to the Dashboard page. `agents` lists the agent definitions actually
+  DISPATCHED this run (e.g. `wiki-triage, wiki-synthesize`), or `none`;
+  it is an observable dispatch record, never a self-reported model id
+  (issue #108). This extends the legacy ingest log entry; it feeds the
+  success signal below and the /wiki-maintain agent-mix summary
 
 ## Success signal: track the --auto share
 

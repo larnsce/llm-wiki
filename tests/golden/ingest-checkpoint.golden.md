@@ -13,6 +13,12 @@ Recorded 2026-07-04 against wiki-ingest SKILL.md at schema-spec-version
 them; the cite targets below are the expected shape, paired with the
 SKILL.md version that introduces them.
 
+model: not recorded at pinning (pre-#108). The model-attributed
+reference recording is `tests/golden/fable-baseline/ingest-checkpoint.fable-baseline.md`
+(claude-fable-5, 2026-07-08); model comparisons diff against THAT file
+under the rubric in `tests/golden/README.md`, never by re-baselining
+this one on a cheaper model.
+
 A diff against this file after a prompt or model change is a re-review
 signal, not automatically a failure. See `tests/golden/README.md`.
 

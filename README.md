@@ -39,7 +39,7 @@ cd llm-wiki
 ./setup.sh
 ```
 
-`setup.sh` copies (or, with `--symlink`, links) the skills into `~/.claude/skills/` (or `<project>/.claude/skills/` with `--project`), optionally scaffolds a wiki via `init_wiki.py` (`--init --tool logseq --wiki-path ~/notes`, with `--with-para-notes` and `--with-glossary` for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run `./setup.sh --help` for all options.
+`setup.sh` copies (or, with `--symlink`, links) the skills into `~/.claude/skills/` (or `<project>/.claude/skills/` with `--project`) and the `agents/` subagent definitions into `~/.claude/agents/` (model-tier routing, see [docs/model-tiering.md](docs/model-tiering.md); skills fall back to generic subagents without them), optionally scaffolds a wiki via `init_wiki.py` (`--init --tool logseq --wiki-path ~/notes`, with `--with-para-notes` and `--with-glossary` for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run `./setup.sh --help` for all options.
 
 Requirements: bash, python3, git. No npm, no pip.
 
@@ -120,6 +120,7 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Migration from v1 (corpus)](docs/migration.md) - Grandfather mode and the converter
 - [Testing](docs/testing.md) - Harness, golden transcripts, manual protocol
 - [Source Routes](docs/source-routes.md) - Every source kind, its capture mechanism, pipeline entry, and trust/model-tier defaults; includes the manual AI-transcript protocol
+- [Model Tiering](docs/model-tiering.md) - Route wiki work by task value: tier map, the four agents, escalation triggers, run-log observability, review checklist
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`

@@ -25,6 +25,12 @@ n/a`), no index.db (`index n/a`), interactive mode, run date 2026-07-06.
 Pinned 2026-07-06 for the v3.0 voice skill (issue #57) against
 wiki-ingest-voice SKILL.md at schema-spec-version 2.0.0.
 
+model: not recorded at pinning (pre-#108). The model-attributed
+reference recording is `tests/golden/fable-baseline/ingest-voice.fable-baseline.md`
+(claude-fable-5, 2026-07-08); model comparisons diff against THAT file
+under the rubric in `tests/golden/README.md`, never by re-baselining
+this one on a cheaper model.
+
 A diff against this file after a prompt or model change is a re-review
 signal, not automatically a failure. See `tests/golden/README.md`.
 

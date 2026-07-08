@@ -16,6 +16,19 @@ Yes. llm-wiki assumes you are using [Claude Code](https://claude.ai/code), which
 
 Claude Code itself is the only dependency. There is no additional cost for llm-wiki beyond your existing Claude plan.
 
+## What are the agents/ files, and do I need them?
+
+Optional subagent definitions that `setup.sh` installs to
+`~/.claude/agents/`. They pin cheap models to mechanical work
+(queue triage on haiku, audit verification on sonnet) and stronger
+models to judgment work (audit reconciliation and dense-source
+synthesis on opus), so a default sonnet session escalates per-task
+instead of running everything on one tier. Nothing depends on them:
+every skill that names an agent falls back to a generic subagent when
+the definition is absent, and shipped skills carry no `model:` keys, so
+skipping the agents means unchanged cost behavior. Details and the tier
+map: `docs/model-tiering.md`.
+
 ## Why two layers (L1 and L2)? Isn't one enough?
 
 If everything lives in one place, you face a dilemma: either the LLM loads the entire wiki into every session (blowing up the context window) or it queries the wiki per question (too slow for simple rules like "always use ISO 8601 dates").

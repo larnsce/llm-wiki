@@ -78,7 +78,11 @@ confirmation.
 ## Phase 2 - Verification (parallel subagents; REQ-922/923)
 
 - Group the map by SOURCE: one verification subagent per cited source,
-  dispatched IN PARALLEL (REQ-922).
+  dispatched IN PARALLEL (REQ-922). Dispatch each to the
+  `wiki-audit-verify` agent when it is installed (setup REQ-807; it pins
+  the verification model tier); absent, use a generic subagent with the
+  same prompt and isolation rules. Record which agents were dispatched
+  for the fix-mode log entry.
 - Isolation is the point: each subagent receives ONLY its own claim text(s)
   and its own source (an `ingested/` path is read from disk; a `url:` ref is
   fetched), never the page, the other claims, the other sources, or the other
@@ -92,6 +96,10 @@ confirmation.
 
 ## Phase 3 - Reconciliation (trust layer; REQ-924)
 
+- Dispatch the reconciliation judgment to the `wiki-audit-judge` agent
+  when it is installed (REQ-924, setup REQ-807: independence of
+  corroboration, `reliability::` deltas, Pending Review resolutions);
+  absent, reconcile in the session. Either way the rules are:
 - Reconcile the verdicts with `reliability::` per schema REQ-586/588 (rubric
   summary in [trust](../wiki-core/references/trust.md)):
   - All cited claims `supported` with independent corroboration (citations.md
@@ -128,8 +136,9 @@ confirmation.
   - Update `reliability::` per the Phase 3 reconciliation and set `updated::`
     to today.
   - Append the log entry
-    `## [YYYY-MM-DD] audit | <page> | <n> verified, <n> flagged` to the
-    Dashboard page.
+    `## [YYYY-MM-DD] audit | <page> | <n> verified, <n> flagged | agents <names|none>`
+    to the Dashboard page (the `agents` field mirrors ingest REQ-053:
+    definitions actually dispatched, never a self-reported model id).
   - Git commit the changes (commit discipline in
     [architecture](../wiki-core/references/architecture.md)).
 - Claim-text corrections are out of scope even in fix mode: revising a wrong

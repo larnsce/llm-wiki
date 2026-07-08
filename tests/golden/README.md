@@ -54,6 +54,11 @@ frozen.
   not be recorded as a finding, and an author-recurrence trigger
   (Chen's second source, ingest REQ-024a).
 
+- `triage.golden.md`: the expected `wiki-triage` classification for the
+  three fixture sources dropped into one queue (ingest REQ-076, issue
+  #108): must-flag / must-not-flag rows for the queue-decidable
+  complexity triggers. No new source fixture; it reuses the three above.
+
 ## Model baselines (`fable-baseline/`)
 
 `fable-baseline/` holds frozen reference checkpoints recorded on

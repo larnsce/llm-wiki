@@ -15,6 +15,12 @@ wiki-ingest SKILL.md at schema-spec-version 2.0.0. The plan below is the
 expected shape the next recorded run must show, paired with the SKILL.md
 version that ships the seam.
 
+model: not recorded at pinning (pre-#108). The model-attributed
+reference recording is `tests/golden/fable-baseline/promotion-seam.fable-baseline.md`
+(claude-fable-5, 2026-07-08); model comparisons diff against THAT file
+under the rubric in `tests/golden/README.md`, never by re-baselining
+this one on a cheaper model.
+
 A diff against this file after a prompt or model change is a re-review
 signal, not automatically a failure. See `tests/golden/README.md`.
 
