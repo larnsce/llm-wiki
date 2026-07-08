@@ -269,6 +269,7 @@ LINT_DEFECTS=(
   "archived-in-live-index:REQ-197"
   "empty-page:REQ-171"
   "credential-leak:REQ-163"
+  "credential-base64:REQ-163"
 )
 
 for tool in logseq obsidian; do
@@ -321,6 +322,80 @@ for tool in logseq obsidian; do
     "lint($tool): --strict keeps the finding a warning" \
     REQ-132 warning false
 done
+
+# ---------------------------------------------------------------------------
+# lint rule 6 regression (#104, REQ-160): a 40+ char lowercase namespace path
+# is link syntax, not a credential candidate, both inside [[...]] and as
+# plain routing-line text. lint REQ-241a (#105): the Logseq built-in contents
+# page is a system page and draws no findings.
+# ---------------------------------------------------------------------------
+for tool in logseq obsidian; do
+  wiki="$WORK/$tool-linkpath"
+  make_wiki "$wiki" "$tool"
+  if [[ "$tool" == logseq ]]; then
+    cat >"$wiki/pages/wiki___tech___washopenresearch___uncnewsletter.md" <<'EOF'
+- type:: knowledge
+- domain:: tech
+- created:: 2026-07-01
+- updated:: 2026-07-01
+- confidence:: medium
+- schema-spec-version:: 2.0.0
+- ## Notes
+	- plain-text path mention: wiki/tech/washopenresearch/uncnewsletter
+	- [[wiki/tech]]
+EOF
+    python3 - "$wiki/pages/wiki___tech.md" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path).read()
+line = ("\t\t- [[wiki/tech/washopenresearch/uncnewsletter]] -- "
+        "UNC newsletter dataset notes #data\n")
+text = text.replace("\t- ### Index\n", "\t- ### Index\n" + line, 1)
+open(path, "w").write(text)
+PY
+  else
+    mkdir -p "$wiki/wiki/tech/washopenresearch"
+    cat >"$wiki/wiki/tech/washopenresearch/uncnewsletter.md" <<'EOF'
+---
+type: knowledge
+domain: tech
+created: 2026-07-01
+updated: 2026-07-01
+confidence: medium
+schema-spec-version: 2.0.0
+---
+
+## Notes
+
+plain-text path mention: wiki/tech/washopenresearch/uncnewsletter
+
+[[wiki/tech]]
+EOF
+    python3 - "$wiki/wiki/tech/_index.md" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path).read()
+line = ("- [[wiki/tech/washopenresearch/uncnewsletter]] -- "
+        "UNC newsletter dataset notes #data\n")
+text = text.replace("### Index\n", "### Index\n\n" + line, 1)
+open(path, "w").write(text)
+PY
+  fi
+  run py lint.py --config "$wiki/llm-wiki.yml" --json
+  assert_exit 0 "lint($tool): green with 40-char namespace path in link and plain text (#104)"
+  assert_report "lint($tool): no REQ-163 finding on the namespace path (#104)" \
+    'not any(f["id"] == "REQ-163" for f in r["findings"])'
+done
+
+wiki="$WORK/logseq-contents"
+make_wiki "$wiki" logseq
+printf -- '- [[wiki/tech]]\n- [[wiki/projects]]\n' >"$wiki/pages/contents.md"
+run py lint.py --config "$wiki/llm-wiki.yml" --json
+assert_exit 0 "lint(logseq): green with built-in contents page (#105)"
+assert_report "lint(logseq): contents page draws no findings (REQ-241a)" \
+  'all(f["page"] != "contents" for f in r["findings"])'
+run py lint.py --config "$wiki/llm-wiki.yml" --json --strict
+assert_exit 0 "lint(logseq): contents page green under --strict (#105)"
 
 # ---------------------------------------------------------------------------
 # lint rules 13/14: naming hygiene (REQ-230/231) + namespace hygiene
@@ -561,12 +636,13 @@ mkdir -p "$CANON/openspec/specs" "$CANON/skills/wiki-core/references" \
   "$CANON/skills/wiki-core/scripts" "$CANON/templates/logseq" \
   "$CANON/templates/obsidian"
 cp "$REPO_ROOT/openspec/specs/lint.md" "$REPO_ROOT/openspec/specs/schema.md" \
-  "$REPO_ROOT/openspec/specs/citations.md" "$CANON/openspec/specs/"
+  "$REPO_ROOT/openspec/specs/citations.md" \
+  "$REPO_ROOT/openspec/specs/namespaces.md" "$CANON/openspec/specs/"
 cp "$REPO_ROOT/skills/wiki-core/references/trust.md" \
   "$CANON/skills/wiki-core/references/"
 cp "$REPO_ROOT/templates/logseq/Schema.md" "$CANON/templates/logseq/"
 cp "$REPO_ROOT/templates/obsidian/Schema.md" "$CANON/templates/obsidian/"
-cp "$SCRIPT_DIR/lint.py" "$SCRIPT_DIR/check_canon.py" \
+cp "$SCRIPT_DIR/lint.py" "$SCRIPT_DIR/check_canon.py" "$SCRIPT_DIR/wikilib.py" \
   "$CANON/skills/wiki-core/scripts/"
 python3 - "$CANON/skills/wiki-core/scripts/lint.py" <<'PY'
 import sys
@@ -579,6 +655,24 @@ PY
 
 run python3 "$CANON/skills/wiki-core/scripts/check_canon.py"
 assert_exit 2 "check_canon: red on a mutated schema-spec-version surface"
+
+# Installed-copy conditions (#106): the skill bundle ships no openspec/ or
+# templates/, so the script must fail fast with exit 3 (not phantom drift),
+# and --repo must point it back at a real checkout from anywhere.
+INSTALLED="$WORK/installed/skills/wiki-core/scripts"
+mkdir -p "$INSTALLED" "$WORK/somewhere-else"
+cp "$SCRIPT_DIR/check_canon.py" "$INSTALLED/"
+run bash -c "cd '$WORK/somewhere-else' && python3 '$INSTALLED/check_canon.py'"
+assert_exit 3 "check_canon: exit 3 outside a checkout (not phantom drift, #106)"
+if grep -q "not in an llm-wiki checkout" "$OUT"; then
+  report PASS "check_canon: fail-fast names the fix (#106)"
+else
+  report FAIL "check_canon: fail-fast names the fix (#106)"
+fi
+run bash -c "cd '$WORK/somewhere-else' && python3 '$INSTALLED/check_canon.py' --repo '$REPO_ROOT'"
+assert_exit 0 "check_canon: --repo <checkout> works from anywhere (#106)"
+run bash -c "cd '$REPO_ROOT' && python3 '$INSTALLED/check_canon.py'"
+assert_exit 0 "check_canon: installed copy green when cwd is the checkout (#106)"
 
 # ---------------------------------------------------------------------------
 # secret_scan: clean green; planted secrets red (blocking and advisory)

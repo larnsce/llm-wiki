@@ -152,12 +152,28 @@ def segment_problems(segment, leaf):
 CREDENTIAL_PATTERNS = [
     (re.compile(r"\b(token|password|secret|api-key|api\.key)\s*::", re.I),
      "credential property pattern"),
-    (re.compile(r"(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{40,}(?![A-Za-z0-9+/])"),
-     "base64-like string (40+ chars)"),
     (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "AWS access key id"),
     (re.compile(r"\bghp_[A-Za-z0-9]{36}\b"), "GitHub token"),
     (re.compile(r"\bsk-(?:ant-)?[A-Za-z0-9-]{20,}\b"), "API secret key"),
 ]
+
+# The generic base64 pass runs separately (REQ-160, issue #104): `/` is in
+# the character class, so a 40+ char [[wiki/...]] namespace path would match.
+# Link spans are masked out first, and a candidate must show credential-shaped
+# character diversity (both cases AND a digit), which a lowercase routing path
+# fails.
+BASE64_RE = re.compile(r"(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{40,}(?![A-Za-z0-9+/])")
+
+
+def has_base64_credential(text):
+    masked = WIKI_LINK_RE.sub(" ", text)
+    for match in BASE64_RE.finditer(masked):
+        token = match.group(0)
+        if (any(c.islower() for c in token)
+                and any(c.isupper() for c in token)
+                and any(c.isdigit() for c in token)):
+            return True
+    return False
 
 WIKI_LINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 FENCE_RE = re.compile(r"^\s*(?:-\s+)?```")
@@ -355,7 +371,11 @@ class Linter:
             page["is_system"] = (
                 page["name"].lower() in SYSTEM_PAGE_NAMES
                 or props.get("access-log") == "true"
-                or page["type"] in ("schema", "dashboard"))
+                or page["type"] in ("schema", "dashboard")
+                # Logseq's built-in sidebar Contents page (REQ-241a, #105):
+                # a tool system page, never held to the wiki-only rules.
+                or (self.tool == "logseq"
+                    and page["name"].lower() == "contents"))
             page["is_archived"] = "archived" in props
             page["is_migrated"] = (
                 props.get("schema-spec-version") == SCHEMA_SPEC_VERSION)
@@ -533,12 +553,15 @@ class Linter:
     def check_credentials(self, page):
         # Scans the FULL text including frontmatter (REQ-162); severity is
         # never floored by grandfather mode.
-        for pattern, label in CREDENTIAL_PATTERNS:
-            if pattern.search(page["text"]):
-                self.add(page, "REQ-163", "credential-leak", "critical",
-                         "possible credential leak: %s" % label,
-                         fix="move the credential to L1 memory; wiki pages "
-                             "are git-tracked (no auto-fix)")
+        labels = [label for pattern, label in CREDENTIAL_PATTERNS
+                  if pattern.search(page["text"])]
+        if has_base64_credential(page["text"]):
+            labels.append("base64-like string (40+ chars)")
+        for label in labels:
+            self.add(page, "REQ-163", "credential-leak", "critical",
+                     "possible credential leak: %s" % label,
+                     fix="move the credential to L1 memory; wiki pages "
+                         "are git-tracked (no auto-fix)")
 
     def check_empty(self, page):
         if page["is_hub"]:
