@@ -207,7 +207,7 @@ These are TWO SEPARATE, independently-set axes. Neither is derived from the othe
 - **Rule 3 Missing Properties** (REQ-130): pages missing type-specific required properties, or property values outside the allowed lists
 - **Rule 4 Broken References** (REQ-140): `[[links]]` to non-existent pages
 - **Rule 5 Hub Completeness** (REQ-150): hub pages missing children in their namespace
-- **Rule 6 Credential Leak** (REQ-160): credential-shaped property patterns (token, password, secret, api-key) and long base64 runs; CRITICAL, never auto-fixed
+- **Rule 6 Credential Leak** (REQ-160): credential-shaped property patterns (token, password, secret, api-key) and long base64 runs (mixed-case with digits; [[...]] link paths excluded); CRITICAL, never auto-fixed
 - **Rule 7 Empty Pages** (REQ-170): pages with only properties, no content
 - **Rule 8 Cross-Ref Minimum** (REQ-180): pages with fewer than 1 outgoing `[[link]]`
 - **Rule 9 L1/L2 Duplicates** (REQ-190): same info in Memory AND Wiki

@@ -156,6 +156,17 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-051: The system SHALL list any warnings (low page-touch count, L1 candidates
   found, skipped items) and their reasons.
 - REQ-052: The system SHOULD recommend a git commit after structural changes.
+- REQ-053 (run log): The system SHALL append a run-log entry to the Dashboard
+  page:
+  `## [YYYY-MM-DD] ingest | <filename or n sources> -> <n> pages | reliability <level> | mode <interactive|auto> | agents <names|none>`.
+  The `agents` field records which installed agent definitions
+  (specs/setup.md REQ-807) were actually DISPATCHED during the run
+  (comma-separated names, e.g. `wiki-triage, wiki-synthesize`), or `none`.
+  It is an observable dispatch record, NEVER a self-reported model id: the
+  executing model cannot introspect its own id, and a silent fallback
+  (agents not installed, allowlist, inherit) would log the plan instead of
+  the execution (issue #108). The field is additive; legacy entries without
+  it stay valid.
 
 ### Cross-Cutting
 
@@ -213,6 +224,21 @@ or assign `source-file::`.
   each processed source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
   MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
   and committed as ONE atomic commit.
+- REQ-076 (Phase 0, queue triage delegation): When draining a MULTI-file queue
+  AND the `wiki-triage` agent definition is installed (specs/setup.md
+  REQ-807), the system SHOULD delegate per-file classification to it: the
+  proposed intake slug (REQ-070a), the inferred type (REQ-071), and a
+  COMPLEXITY FLAG with a one-line reason. The caller SHALL hand the agent the
+  hub-index routing lines and the Schema page list as context; the flag
+  SHALL rest only on QUEUE-DECIDABLE triggers (source length, source type,
+  another queue item or `ingested/` source on the same topic, the topic
+  mapping to a hub or Schema page itself, or the agent's own low
+  confidence). Wiki-state judgments (supersedes existing content, conflicts
+  with existing claims) stay at the checkpoint, which reads the wiki
+  (issue #108 premortem). Flagged items SHOULD route their Phase 1-2
+  analysis to the `wiki-synthesize` agent when installed. Single-source
+  runs are unchanged, and a missing agent definition degrades to inline
+  classification; the triage pass never writes.
 
 ### Journal Seam
 

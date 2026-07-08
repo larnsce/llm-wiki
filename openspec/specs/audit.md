@@ -27,7 +27,10 @@ actually say this". Read-only by default.
 
 - REQ-922: The system SHALL dispatch ONE verification subagent per cited source, in
   parallel. Each subagent sees ONLY its own claim(s) and source; verdicts from one
-  source MUST NOT leak into another's judgment.
+  source MUST NOT leak into another's judgment. When the `wiki-audit-verify`
+  agent definition is installed (specs/setup.md REQ-807), dispatch SHOULD use
+  it (it pins the verification model tier, issue #108); a missing definition
+  degrades to a generic subagent with the same prompt and isolation rules.
 - REQ-923: Each subagent SHALL resolve its source (an `ingested/` path is read from
   disk; a `url:` ref is fetched) and judge ONLY whether the source supports the
   specific claim(s) citing it: verdict is one of `supported | partial | unsupported`,
@@ -40,7 +43,11 @@ actually say this". Read-only by default.
   REQ-586/588: all cited claims `supported` with independent corroboration MAY raise
   claim ratings (and thus the page minimum); any `unsupported`, `source-missing`, or
   UNCITED claim caps the page at `medium` (`low` when central claims fail) and MUST
-  appear under `## Pending Review`.
+  appear under `## Pending Review`. When the `wiki-audit-judge` agent
+  definition is installed (specs/setup.md REQ-807), the reconciliation
+  judgment (corroboration independence, `reliability::` deltas, Pending
+  Review resolutions) SHOULD be dispatched to it; a missing definition
+  degrades to reconciling in the session (issue #108).
 
 ### Phase 4: Report
 
@@ -70,7 +77,10 @@ actually say this". Read-only by default.
   to uncited claims (ref left for the user to fill), move unsupported/uncited claims
   under `## Pending Review` (NEVER silently delete prose), update `reliability::` and
   `updated::`, append a log entry
-  (`## [YYYY-MM-DD] audit | <page> | <n> verified, <n> flagged`), and git commit.
+  (`## [YYYY-MM-DD] audit | <page> | <n> verified, <n> flagged | agents <names|none>`),
+  and git commit. The `agents` field mirrors specs/ingest.md REQ-053: the
+  agent definitions actually dispatched this run, or `none`; additive,
+  never a self-reported model id.
 
 ---
 

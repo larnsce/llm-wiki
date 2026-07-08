@@ -82,6 +82,18 @@ not automatically a failure: wording drift is fine, but changed page
 touches, a changed reliability rating, or dropped Pending Review claims
 mean the change needs a second look before it ships.
 
+Model attribution (issue #108): each golden header carries a `model:`
+line recording what the file was validated on, and
+`tests/golden/fable-baseline/` holds the frozen reference checkpoints
+recorded on `claude-fable-5` (2026-07-08). Model comparisons diff a
+candidate model's run against the Fable baseline under the scoring
+rubric in `tests/golden/README.md`. Never regenerate a golden or a
+baseline ON the cheaper model being evaluated: that re-baselines the
+regression net to that model's own calibration, and the test can then
+only confirm the model agrees with itself. A generous-direction
+`reliability::` diff means the TASK escalates a tier, not that the
+baseline updates.
+
 Regeneration steps are in `tests/golden/README.md`.
 
 ## 3. Manual LLM-in-the-loop protocol (literature pipeline)

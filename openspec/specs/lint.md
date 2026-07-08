@@ -87,7 +87,13 @@ certain issues when run with the `--fix` flag. There are 15 lint rules.
 
 - REQ-160: The system SHALL scan all wiki page content for credential patterns:
   `token::`, `password::`, `secret::`, `api-key::`, `api.key::`, and base64
-  strings matching `[A-Za-z0-9+/]{40,}`.
+  strings matching `[A-Za-z0-9+/]{40,}`. A base64 candidate SHALL count only
+  when it shows credential-shaped character diversity (both letter cases AND
+  at least one digit), and text inside `[[...]]` link spans SHALL be excluded
+  before the base64 pass: a long lowercase namespace path (for example a
+  routing line's `wiki/data/<pkg>/<dataset>` target) is link syntax, not a
+  credential candidate (issue #104). The named property patterns and the
+  specific key shapes (AWS, GitHub, `sk-`) keep scanning the full text.
 - REQ-161: Pattern matching SHALL be case-insensitive.
 - REQ-162: In Obsidian mode, the system SHALL also scan YAML frontmatter for
   credential patterns.
@@ -186,6 +192,13 @@ certain issues when run with the `--fix` flag. There are 15 lint rules.
   Dashboard, Access-Log, Contents, hub pages (`type:: hub`), and query pages
   (`type:: query` or `#+BEGIN_QUERY` content), per specs/namespaces.md
   REQ-962/977.
+- REQ-241a: In logseq mode, the built-in `contents` page (`pages/contents.md`,
+  the sidebar Contents) SHALL additionally be treated as a SYSTEM page: exempt
+  from the wiki-only rules (orphan REQ-110, required properties REQ-132,
+  provenance, empty page REQ-171, cross-reference minimum REQ-180,
+  canonical-url), the same treatment as Schema, Dashboard, and the Access-Log.
+  Adding wiki properties or forced links to a Logseq system page is wrong
+  (issue #105).
 - REQ-242: Pages under `para_dir` and `notes_dir` are IN-contract for this
   rule and EXEMPT from all wiki-only rules (specs/namespaces.md REQ-961/966):
   the system SHALL NOT run any other rule against them (rule 13 reports its

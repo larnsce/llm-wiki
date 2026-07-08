@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2026-07-08
+
+Model tiering (issue #108, premortem-revised) plus the source-routes
+decision record (issue #107 Part 1) and three live-vault bug fixes.
+
+### Added
+
+- Model tiering (issue #108): a repo-level `agents/` directory with four
+  subagent definitions carrying the model routing in their frontmatter
+  (`wiki-triage` haiku, `wiki-audit-verify` sonnet, `wiki-audit-judge`
+  opus, `wiki-synthesize` opus); `setup.sh` installs them to
+  `~/.claude/agents/` (setup REQ-807, honoring `--project` and
+  `--symlink`). Shipped SKILL.md files stay model-neutral; skills name
+  the agents and degrade gracefully to generic subagents. Two-pass
+  ingest for queue drains (ingest REQ-076): triage classifies with
+  QUEUE-DECIDABLE complexity triggers only (wiki-state judgments stay at
+  the checkpoint), flagged items route to `wiki-synthesize`. Audit
+  names the verify/judge agents in its dispatch (audit REQ-922/924).
+  Operating manual: `docs/model-tiering.md` (tier map, escalation
+  triggers, session discipline, vault CLAUDE.md template, two-week
+  review with kill criteria, due date 2026-07-21).
+- Run-log observability (ingest REQ-053, audit REQ-926): ingest and
+  audit run-log entries gain an additive `agents <names|none>` field
+  recording the agent definitions actually DISPATCHED (never a
+  self-reported model id); `/wiki-maintain status` reports the agent
+  mix over the last 10 runs.
+- Golden layer for model comparison: frozen Fable 5 baseline
+  checkpoints in `tests/golden/fable-baseline/` (the three golden
+  fixtures plus a new dense-paper fixture packing the false-corroboration,
+  scoped-contradiction, and conjecture traps), a written scoring rubric
+  in `tests/golden/README.md` (a divergence fails iff it changes a
+  `reliability::` value, gets Pending Review wrong, or accepts false
+  corroboration), `model:` attribution lines in the golden headers, and
+  a `wiki-triage` must-flag/must-not-flag golden
+  (`tests/golden/triage.golden.md`). Never regenerate a baseline on the
+  model being evaluated.
+- `docs/source-routes.md` (issue #107 Part 1): the durable source-route
+  decision table (capture mechanism, pipeline entry, source type,
+  reliability default, model tier per source kind), the funnel rule and
+  the routes that deliberately do not exist, and the manual
+  AI-transcript protocol with its five-hand-ingests gate (due date
+  2026-07-22).
+
+### Fixed
+
+- lint REQ-160/163 false-positive critical (issue #104, found in live
+  vault use): the base64-like credential pattern matched 40+ char
+  `[[wiki/...]]` namespace paths (`/` is in the character class), and
+  criticals bypass the grandfather floor, marking healthy vaults
+  critical on every run. The base64 pass now masks `[[...]]` link spans
+  and requires credential-shaped character diversity (both cases and a
+  digit); the named property patterns and specific key shapes still
+  scan the full text. New true-positive and false-positive harness
+  fixtures in both tool modes.
+- lint REQ-241a (issue #105): Logseq's built-in `contents` page drew
+  orphan, missing-`type::`, and cross-ref findings on every run. In
+  logseq mode it now counts as a system page (same treatment as Schema,
+  Dashboard, Access-Log).
+- `check_canon.py` outside the checkout (issue #106): the installed
+  skill copy reported every canon surface as phantom drift. The script
+  now resolves the checkout via `--repo <path>`, its own location, or
+  the cwd, and fails fast with a clear message and exit 3 (setup
+  condition) instead of exit 2 (content drift) when no checkout or
+  surfaces are found; the wiki-lint skill documents the split. Also
+  fixed the harness's mutated-copy test, which passed for the wrong
+  reason (missing surfaces, not the planted mutation).
+
 ## [3.4.1] - 2026-07-07
 
 ### Fixed

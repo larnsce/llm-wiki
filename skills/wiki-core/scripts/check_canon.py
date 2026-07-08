@@ -65,16 +65,27 @@ Comparisons performed:
 A surface that fails to parse (marker or pattern missing) is itself a
 failure: silent skips would defeat the check.
 
+The surfaces live in the llm-wiki CHECKOUT, not in the installed skill
+bundle (issue #106): running the installed copy from a vault would resolve
+every surface relative to ~/.claude and report phantom "missing surface"
+drift. The root is therefore resolved in this order: --repo <path> if
+given, the script's own location (works inside the checkout), then the
+current working directory. A root only qualifies when it actually holds
+openspec/specs/ and templates/; when none does, the script fails fast with
+exit 3, clearly distinguishable from real content drift (exit 2).
+
 Stdlib only. Exit codes: 0 = aligned, 2 = disagreement or unparseable
-surface.
+surface, 3 = not in an llm-wiki checkout (or surfaces missing on disk).
 """
 
+import argparse
 import os
 import re
 import sys
 
 EXIT_OK = 0
 EXIT_MISMATCH = 2
+EXIT_NO_REPO = 3
 
 KNOWN_ENUM_PROPS = ("type", "entity-type", "status", "domain", "confidence",
                     "severity", "source", "reliability")
@@ -108,10 +119,31 @@ NS_GREP_EXCLUDE = ("docs/premortem-report", "docs/roadmap-",
 SEGMENT_TOKEN_RE = re.compile(r"^[a-z0-9-]+")
 
 
-def repo_root():
+def is_checkout(root):
+    """A directory qualifies as the llm-wiki checkout when it holds the
+    canon-surface directories the installed skill bundle does not ship."""
+    return (os.path.isdir(os.path.join(root, "openspec", "specs"))
+            and os.path.isdir(os.path.join(root, "templates")))
+
+
+def resolve_root(repo_arg):
     here = os.path.dirname(os.path.abspath(__file__))
     # scripts/ -> wiki-core/ -> skills/ -> repo root
-    return os.path.dirname(os.path.dirname(os.path.dirname(here)))
+    script_root = os.path.dirname(os.path.dirname(os.path.dirname(here)))
+    if repo_arg:
+        candidates = [os.path.abspath(os.path.expanduser(repo_arg))]
+    else:
+        candidates = [script_root, os.getcwd()]
+    for candidate in candidates:
+        if is_checkout(candidate):
+            return candidate
+    print("check_canon: not in an llm-wiki checkout "
+          "(no openspec/specs/ under %s)."
+          % " or ".join(candidates))
+    print("The canon surfaces live in the llm-wiki repository, not in the "
+          "installed skill bundle. Run from the llm-wiki repo root, or "
+          "pass --repo <path-to-checkout>.")
+    return None
 
 
 def read(path):
@@ -246,7 +278,18 @@ def fmt(value):
 
 
 def main():
-    root = repo_root()
+    parser = argparse.ArgumentParser(
+        description="Mechanical spec-consistency check across the canon "
+                    "surfaces of an llm-wiki checkout.")
+    parser.add_argument(
+        "--repo", metavar="PATH",
+        help="path to the llm-wiki checkout (default: the script's own "
+             "checkout, else the current working directory)")
+    args = parser.parse_args()
+
+    root = resolve_root(args.repo)
+    if root is None:
+        return EXIT_NO_REPO
     paths = {
         "openspec/specs/lint.md": None,
         "openspec/specs/schema.md": None,
@@ -259,15 +302,21 @@ def main():
         "skills/wiki-core/scripts/wikilib.py": None,
     }
     canon = Canon()
+    missing = []
     for rel in paths:
         path = os.path.join(root, rel)
         if not os.path.isfile(path):
-            canon.error("missing surface: %s" % rel)
+            missing.append(rel)
         else:
             paths[rel] = read(path)
-    if canon.errors:
-        report(canon)
-        return EXIT_MISMATCH
+    if missing:
+        # Surfaces absent on disk are an incomplete checkout, not content
+        # drift (issue #106): report them under their own exit code.
+        print("check_canon: %d surface(s) missing under %s (incomplete "
+              "checkout, not content drift)\n" % (len(missing), root))
+        for rel in missing:
+            print("  MISSING: %s" % rel)
+        return EXIT_NO_REPO
 
     lint_md = paths["openspec/specs/lint.md"]
     schema_md = paths["openspec/specs/schema.md"]

@@ -36,6 +36,54 @@ frozen.
   individual confirmation for the row naming a person, the
   sensitive-content refusal, the TODO hand-over, and the dead-man status
   line (storage REQ-1140).
+- `source/chen-okafor-2026-index-maintenance.md`: pinned DENSE fixture
+  source, a FAKE peer-reviewed follow-up paper to the miller-chen
+  fixture (issue #108). Unlike the other sources it is ingested into a
+  NON-empty vault: scaffold as usual, apply the miller-chen expanded
+  plan from `ingest-checkpoint.golden.md` verbatim (create
+  `wiki/tech/two-stage-retrieval` with its four Pending Review claims,
+  add the hub routing line, move the source to
+  `ingested/papers/miller-chen-2025-two-stage-retrieval.md`, set
+  `author:: Miller, A., Chen, B.`), then drop this fixture into `raw/`
+  and run `/wiki-ingest`. It packs the judgment calls the model
+  comparison needs to observe: a same-team replication that must NOT
+  count as independent corroboration (schema REQ-586; the shared
+  codebase is declared in its Limitations), a scoped contradiction of
+  the 90-day staleness claim, a conditional partial contradiction of
+  the 18% link-loss claim, a discussion-section conjecture that must
+  not be recorded as a finding, and an author-recurrence trigger
+  (Chen's second source, ingest REQ-024a).
+
+- `triage.golden.md`: the expected `wiki-triage` classification for the
+  three fixture sources dropped into one queue (ingest REQ-076, issue
+  #108): must-flag / must-not-flag rows for the queue-decidable
+  complexity triggers. No new source fixture; it reuses the three above.
+
+## Model baselines (`fable-baseline/`)
+
+`fable-baseline/` holds frozen reference checkpoints recorded on
+`claude-fable-5` (2026-07-08), one per fixture source above. They are
+the comparison instrument for the model-tiering trial (issue #108): run
+the same fixture on a candidate model, diff its checkpoint against the
+Fable baseline, and score with the rubric below. Never regenerate these
+baselines on a cheaper model; that would re-baseline the net to the
+cheaper model's own calibration and the test could then only confirm
+that the model agrees with itself. A generous-direction `reliability::`
+diff means the task escalates to a stronger model, not that the
+baseline updates.
+
+## Scoring rubric (written before the first baseline run)
+
+A divergence between a candidate model's checkpoint and the paired
+baseline is a FAILURE if and only if it (a) changes a `reliability::`
+value (page or claim level, either direction), (b) misses a `## Pending
+Review` section or claim that the baseline requires (or resolves one
+the baseline keeps open), or (c) accepts corroboration the baseline
+rejects as non-independent (same team, same codebase, same speaker) or
+records a conjecture as a finding. Everything else, including page
+naming, table wording, claim ordering, section layout, and which
+namespace hub carries the routing line, is cosmetic: note it, do not
+fail it.
 
 ## When to re-run
 

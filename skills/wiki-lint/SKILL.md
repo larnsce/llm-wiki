@@ -48,9 +48,15 @@ confirmation or a report-only mandate.
 - Run `python3 skills/wiki-core/scripts/check_canon.py` (spec-consistency:
   lint-rule count, property enums, reliability-aggregation rule, and
   schema-spec-version must agree across specs, references, and both
-  template Schema pages). A non-zero exit here means the CANON drifted;
-  report it separately from page findings, since fixing it means editing
-  templates or references, not wiki pages.
+  template Schema pages). The canon surfaces live in the llm-wiki CHECKOUT,
+  not in the installed skill bundle: run it from the llm-wiki repo root, or
+  pass `--repo <path-to-checkout>` when working from a vault. Exit 2 means
+  the CANON drifted; report it separately from page findings, since fixing
+  it means editing templates or references, not wiki pages. Exit 3 means
+  the script could not find a checkout (or surfaces are missing on disk):
+  that is a setup condition, not drift; relay its message instead of
+  reporting mismatches. When no checkout exists on the machine, skip this
+  step and say so.
 - Grandfather mode is the default: findings on pages without the current
   `schema-spec-version::` are floored at info/warning (credential leaks
   excepted; they stay critical). Mention in the report when findings were
