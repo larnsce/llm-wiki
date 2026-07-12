@@ -1,6 +1,6 @@
 ---
 name: wiki-ingest-voice
-description: Consume unprocessed voice_notes rows from archive.db and route each transcript to a 2-4 line summary on today's journal page with [[links]] and the provenance id. Wiki page updates are offered per row at the checkpoint with the full sentence shown; people rows always need individual confirmation; assessments of people are never promoted. Interactive only, no --auto. Personal-tier skill, installed via setup.sh --with-personal.
+description: Drain the voice inbox and process voice notes. First transcribes any audio waiting in inbox_dir into archive.db by invoking the standalone insert script (skipped when the nightly watcher already did it), then consumes unprocessed voice_notes rows and routes each transcript to a 2-4 line summary on today's journal page with [[links]] and the provenance id. Wiki page updates are offered per row at the checkpoint with the full sentence shown; people rows always need individual confirmation; assessments of people are never promoted. Interactive only, no --auto. Personal-tier skill, installed via setup.sh --with-personal.
 ---
 
 # wiki-ingest-voice
@@ -78,6 +78,35 @@ private by default.
   itself as `<wiki_path>/voice-inbox/`).
 - If the archive_db file does not exist, the voice queue is empty (not an
   error): report the pipeline status line and stop.
+
+### Phase 0.5 - Drain the inbox (transcribe new audio)
+
+The nightly watcher (`docs/voice-pipeline.md` section 6) is optional; when it
+is disabled, this skill is the only thing that moves airdropped audio into
+archive.db. So before reading the queue, transcribe any audio waiting in
+`inbox_dir` by invoking the standalone insert script (the deterministic leg
+stays in the script; the skill only calls it, so the transcription/synthesis
+split of REQ-080 holds):
+
+- For each `*.m4a`, `*.wav`, `*.mp3` in `inbox_dir` (skip if the directory is
+  absent or empty - a normal run), oldest first, run:
+
+  ```
+  python3 "$HOME/bin/voice_note_insert.py" "<inbox_dir>/<file>"
+  ```
+
+  The script is idempotent and transcribe-before-move: on success it inserts
+  one `voice_notes` row (`processed = 0`) and moves the audio to cold storage
+  (`~/archive/voice-audio/`); a re-run over an already-moved file inserts no
+  duplicate.
+- If a file fails to transcribe, report it, LEAVE it in the inbox for a later
+  run (mirroring the watcher, `docs/voice-pipeline.md` section 6), and
+  continue with the remaining files. One bad recording never blocks the
+  others or the synthesis of already-stored rows.
+- Report a one-line drain summary (e.g. `drained inbox: 2 transcribed, 1 left
+  for retry`) before the queue read. If nothing was in the inbox, say so and
+  continue - the queue may still hold rows from a prior run.
+
 - Read the unprocessed queue, oldest first (REQ-080; python3 stdlib only,
   REQ-1104):
 
@@ -111,7 +140,8 @@ private by default.
 
 ## Phase 1 - Per-note analysis (from the stored transcript)
 
-Transcription is outside this workflow (deterministic and re-runnable); start
+Transcription itself is deterministic and re-runnable, done by the standalone
+insert script in Phase 0.5, not by the model; synthesis here always starts
 from the stored transcript (REQ-080). Per note:
 
 - Draft the 2-4 line journal summary: what was said, in your words, with
