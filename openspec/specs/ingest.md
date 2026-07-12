@@ -392,6 +392,72 @@ voice source exists.
   human edits themself). The system SHALL NOT write to `para/` or `notes/`
   (specs/namespaces.md REQ-966); voice sources do not change the scope rule.
 
+### Voice Conversation Sessions
+
+This extends the Voice Sources section for `/wiki-chat-voice` (issue #117):
+a conversational session over STORED voice notes - browse the archive, talk
+about selected notes in the session, and close with one ingest. Where Voice
+Sources (REQ-080..087) drains the unprocessed queue note by note, this
+section covers REVISITING notes (processed or not) as conversation material.
+The Voice Sources rules apply unchanged wherever this section is silent.
+STAGING: this section takes effect with the wiki-chat-voice skill
+(issue #117).
+
+- REQ-1200 (browse is read-only): The session SHALL open with a picker over
+  `voice_notes` rows - processed AND unprocessed, marked which is which -
+  read via python3's stdlib sqlite3 (storage REQ-1104) in read-only mode,
+  newest first, bounded by default (last ~20 rows, paginated on request) and
+  filterable by date (`--since`), transcript substring (`--grep`, SQL LIKE),
+  and `--unprocessed`. Each picker row carries: id, recorded date, duration,
+  a one-line description, and 3-5 keywords. Descriptions and keywords are
+  generated AT RUN TIME for the rows shown, and only those; they MUST NOT be
+  persisted anywhere: `voice_notes` is frozen at six columns (storage
+  REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db
+  admits nothing without a markdown source (REQ-1132). Digest generation
+  SHOULD dispatch to the haiku-tier triage agent when installed (setup
+  REQ-807) and degrades to inline generation without it.
+- REQ-1201 (interactive only): A conversation session is interactive by
+  nature; there is NO `--auto` path (mirroring REQ-081). When `--auto` is
+  passed the system SHALL state that and continue interactively.
+- REQ-1202 (the conversation writes nothing): Between note selection and the
+  closing checkpoint the system MUST NOT write: no journal edits, no page
+  edits, no `processed` flips, no archive.db mutation of any kind. Candidate
+  insights (journal lines, wiki claims, TODOs, contradictions with existing
+  pages) are tracked in-session only. The conversation ends only on the
+  user's explicit signal, never on the system's initiative.
+- REQ-1203 (one closing checkpoint): On the end signal the system SHALL run
+  ONE consolidated checkpoint (REQ-025 discipline) presenting: the journal
+  synthesis (the default destination, REQ-082 discipline; the block opens
+  with the pipeline status line per storage REQ-1140), each wiki offer with
+  the full sentence(s) (REQ-083), retained sensitive items (REQ-085, listed
+  by category only), the TODO hand-over (REQ-087), and the processed-flip
+  offers (REQ-1205). All writes happen after this checkpoint or not at all.
+- REQ-1204 (the conversation is not a source): Every claim promoted from the
+  session SHALL cite the underlying voice note id(s),
+  `archive.db:voice_notes/<id>` (the REQ-086 shape). The conversation itself
+  is NEVER a cite target and adds no evidence: reliability stays
+  capture-backed `low` (schema REQ-586b) no matter how thoroughly the claim
+  was discussed, and one memo cannot corroborate another by the same speaker
+  (schema REQ-586 independence). A conclusion not grounded in at least one
+  specific note is journal-only; it MUST NOT be promoted to a wiki page.
+- REQ-1205 (processed-flip is per-note opt-in, post-commit): For each
+  UNPROCESSED note whose content the closing journal synthesis substantively
+  covers, the checkpoint SHALL offer to mark it processed - suggested yes,
+  individually declinable - so the queue drain (REQ-080/082) does not write
+  a duplicate journal summary later. Flips happen only AFTER the run's
+  atomic commit succeeds, reusing the REQ-080 lifecycle. Notes merely listed
+  or partially discussed, and already-processed notes, are never touched.
+- REQ-1206 (people and sensitive-content rules bind at write time): REQ-084
+  (individual confirmation for rows naming people) and REQ-085 (assessments
+  of people are never promoted, regardless of confirmation) apply to the
+  closing checkpoint exactly as to voice ingest. Discussing people DURING
+  the conversation is unrestricted - the session is private; the rules gate
+  what leaves the checkpoint, not what is talked about.
+- REQ-1207 (context budget): At selection time the system SHALL sum the
+  selected transcripts' word counts and, above a threshold (default 15000
+  words), push back: offer to narrow the selection or split into more than
+  one session rather than degrade synthesis quality by loading everything.
+
 ---
 
 ## Scenarios
@@ -630,6 +696,33 @@ AND with data_snapshots_keep: 3 the oldest unreferenced snapshot beyond
     three is deleted; the cited 1.1.0 snapshot is NEVER deleted (REQ-105)
 ```
 
+### Scenario 20: Chat-voice browse and conversation write nothing
+
+```
+GIVEN archive.db holds voice_notes rows 1 (processed) and 2 (unprocessed)
+WHEN the user runs /wiki-chat-voice
+THEN a picker lists both rows newest first, marked processed/unprocessed,
+    each with a runtime one-line description and 3-5 keywords
+AND the browse persists nothing (archive.db bytes are unchanged)
+AND after the user selects both and converses at length, no journal, page,
+    or archive.db write happens before the closing checkpoint is confirmed
+```
+
+### Scenario 21: Chat-voice closing ingest cites notes, offers the flip
+
+```
+GIVEN the conversation covered rows 1 and 2 and surfaced one wiki-worthy
+    claim grounded in row 2, plus one idea born purely in the discussion
+WHEN the user says "wrap up"
+THEN one checkpoint presents: the journal synthesis opening with the
+    pipeline status line, the claim offered with
+    cite:: archive.db:voice_notes/2 at reliability:: low, and a
+    processed-flip offer for row 2 only (row 1 is already processed)
+AND the discussion-born idea appears in the journal synthesis only; it is
+    not offered as a wiki claim (REQ-1204)
+AND row 2 is flipped only after the atomic commit succeeds
+```
+
 ---
 
 ## Acceptance Criteria
@@ -668,6 +761,14 @@ AND with data_snapshots_keep: 3 the oldest unreferenced snapshot beyond
 - [ ] Assessments of people are never promoted out of the checkpoint (v3.0)
 - [ ] Voice provenance uses archive.db:voice_notes/<id> and is capture-backed
       (schema REQ-586b, audit REQ-927)
+- [ ] Chat-voice browse is read-only; runtime digests are never persisted
+      (REQ-1200)
+- [ ] The conversation phase writes nothing; every write goes through the
+      single closing checkpoint (REQ-1202/1203)
+- [ ] Promoted claims cite voice note ids only; the conversation is never a
+      cite target and never raises reliability (REQ-1204)
+- [ ] Processed flips are per-note opt-in and happen only post-commit
+      (REQ-1205)
 
 ---
 

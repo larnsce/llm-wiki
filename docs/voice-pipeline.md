@@ -623,12 +623,47 @@ Fixes, in the same order: re-enable the automation and re-run it once
 and re-grant file access when prompted; rebuild whisper.cpp (section 3.1,
 the model file survives a rebuild).
 
+## 10. Talking to your notes: /wiki-chat-voice
+
+Once memos accumulate in archive.db, draining the queue is not the only
+thing worth doing with them. `/wiki-chat-voice` (issue #117, installed with
+the same `--with-personal` flag) is a conversation with the recordings:
+
+1. **Browse.** A picker over `voice_notes` - processed and unprocessed rows,
+   newest first, with a runtime one-line description and keywords per row
+   (`--since`, `--grep`, `--unprocessed` to filter). The browse is
+   mechanically read-only (the connection is opened `mode=ro`), and the
+   digests are never cached anywhere: the schema is frozen (storage
+   REQ-1111) and there is deliberately no derived-digest table.
+2. **Converse.** Pick notes ("1 and 2", or "the two about the seminar") and
+   just talk: what did I say, how do these connect, does this contradict a
+   wiki page. Nothing is written during the conversation - no journal, no
+   pages, no processed flips (ingest REQ-1202). End it explicitly ("wrap
+   up").
+3. **Close.** One checkpoint, then one atomic ingest: a journal synthesis by
+   default (opening with the pipeline status line), per-claim wiki offers
+   that cite the underlying note ids - the conversation itself is never a
+   cite target and never raises reliability (REQ-1204; two memos by the
+   same speaker do not corroborate each other either) - and a per-note
+   offer to mark covered unprocessed notes processed, so tomorrow's
+   `/wiki-ingest-voice` drain does not journal them twice (REQ-1205).
+   Declining a flip leaves the note for the normal drain.
+
+The people rules carry over unchanged: you can discuss anyone freely in the
+session, but rows naming a person are confirmed individually and
+assessments of people never leave the checkpoint, confirmed or not
+(REQ-084/085/1206).
+
+Spec: `openspec/specs/ingest.md`, Voice Conversation Sessions,
+REQ-1200..1207. Golden transcript: `tests/golden/chat-voice.golden.md`.
+
 ## Related
 
 - [`openspec/specs/storage.md`](../openspec/specs/storage.md): the two-plane
   contract, `voice_notes` schema, durability and dead-man REQs (normative)
 - [`openspec/specs/ingest.md`](../openspec/specs/ingest.md): Voice Sources,
-  REQ-080..087 (the synthesis contract this pipeline feeds)
+  REQ-080..087, and Voice Conversation Sessions, REQ-1200..1207 (the
+  synthesis contracts this pipeline feeds)
 - [`prompts/llm-wiki-setup-plan.md`](../prompts/llm-wiki-setup-plan.md): the
   adoption plan and phases this guide serves
 - [`docs/roadmap-glossary-personal-pipeline.md`](roadmap-glossary-personal-pipeline.md):

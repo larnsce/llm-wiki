@@ -58,6 +58,17 @@ frozen.
   three fixture sources dropped into one queue (ingest REQ-076, issue
   #108): must-flag / must-not-flag rows for the queue-decidable
   complexity triggers. No new source fixture; it reuses the three above.
+- `source/voice-note-2-transcript.txt`: pinned fixture transcript, a FAKE
+  post-seminar memo written for this suite; it enters as `voice_notes`
+  row id 2 (row 1 is the existing voice fixture, marked processed).
+- `chat-voice.golden.md`: the expected `/wiki-chat-voice` picker and
+  closing checkpoint for a SCRIPTED mini-conversation over both voice
+  fixtures (issue #117, ingest REQ-1200..1207): the read-only picker with
+  runtime digests, no writes during the conversation, note-id-only
+  provenance (the conversation is never a cite target), the same-speaker
+  non-corroboration keeping `reliability:: low`, and the processed-flip
+  offer for the unprocessed row only. The user turns are fixed in the
+  golden header so the close stays comparable.
 
 ## Model baselines (`fable-baseline/`)
 
@@ -113,6 +124,12 @@ Re-run the golden check after any change to:
    archive.db with the insert snippet recorded in the golden file, add
    `archive_db: /tmp/golden-archive.db` to the scratch vault's
    `llm-wiki.yml`, and run `/wiki-ingest-voice` instead of `/wiki-ingest`.
+
+   For `chat-voice.golden.md`, same scratch-archive.db pattern (its own
+   two-row insert snippet is in the golden header), plus apply
+   `ingest-voice.golden.md` wiki offer 1 to the vault first, then run
+   `/wiki-chat-voice` and play the scripted user turns from the golden
+   header verbatim.
 
 2. In a Claude Code session pointed at that vault, run `/wiki-ingest` in
    interactive mode and stop at the batch checkpoint (Phase 1-2 only; do
