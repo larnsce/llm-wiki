@@ -1,6 +1,6 @@
 ---
 name: wiki-audit-judge
-description: Final reconciliation judgment for /wiki-audit (audit REQ-924): corroboration independence, reliability:: deltas, Pending Review resolutions. The escalation tier for trust decisions; read-only.
+description: "Final reconciliation judgment for /wiki-audit (audit REQ-924): corroboration independence, reliability:: deltas, Pending Review resolutions. The escalation tier for trust decisions; read-only."
 tools: Read, Grep, Glob
 model: opus
 ---

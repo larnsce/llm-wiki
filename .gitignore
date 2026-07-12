@@ -6,3 +6,9 @@
 .vscode/
 .Rproj.user/
 __pycache__/
+
+# Documentation website (generated; see docs/website.md)
+/_site/
+/.quarto/
+/index.md
+/reference/

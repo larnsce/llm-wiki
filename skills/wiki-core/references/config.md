@@ -48,6 +48,13 @@ Optional (REQ-620..625):
   namespaces recognized by the scope rule and namespace-hygiene (REQ-625,
   openspec/specs/namespaces.md REQ-980). Absent keys keep the defaults; the
   namespaces are still recognized.
+- Voice pipeline (personal tier, REQ-626; see docs/voice-pipeline.md):
+  `archive_db` (default `~/archive/archive.db`), the source-of-truth store for
+  `voice_notes`; `inbox_dir` (default `~/voice-inbox/`), where airdropped audio
+  lands before processing. A vault may relocate `inbox_dir` into itself (e.g.
+  `<wiki_path>/voice-inbox/`, gitignored so audio is never committed). Absent
+  keys keep the defaults; the wiki-ingest-voice skill degrades to an empty
+  queue when `archive_db` does not exist.
 
 ## Validation
 
