@@ -72,7 +72,10 @@ private by default.
 ## Phase 0 - Queue and pipeline status
 
 - Read `llm-wiki.yml` ([config](../wiki-core/references/config.md)): `tool`,
-  `wiki_path`, `pages_dir`, and `archive_db` (default `~/archive/archive.db`).
+  `wiki_path`, `pages_dir`, `archive_db` (default `~/archive/archive.db`), and
+  `inbox_dir` (the voice inbox; default `~/voice-inbox/` per
+  `docs/voice-pipeline.md`, but a vault may relocate it, e.g. into the vault
+  itself as `<wiki_path>/voice-inbox/`).
 - If the archive_db file does not exist, the voice queue is empty (not an
   error): report the pipeline status line and stop.
 - Read the unprocessed queue, oldest first (REQ-080; python3 stdlib only,
@@ -91,9 +94,9 @@ private by default.
   ```
 
 - Gather the dead-man status inputs (storage REQ-1140):
-  - newest file age in the voice inbox (`~/voice-inbox/` per
-    `docs/voice-pipeline.md`; report `inbox n/a` when the directory is
-    absent),
+  - newest file age in the voice inbox (`inbox_dir` from config, default
+    `~/voice-inbox/` per `docs/voice-pipeline.md`; report `inbox n/a` when the
+    directory is absent),
   - the unprocessed row count from the query above,
   - the age of the last index rebuild (the index.db file's mtime, storage
     REQ-1131; the path is the `index_db` config key, default
