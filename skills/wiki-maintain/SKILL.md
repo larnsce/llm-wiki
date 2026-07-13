@@ -9,7 +9,10 @@ Maintain the wiki's cache hygiene. Two modes:
 
 - **status** (default, read-only): metrics and health overview including the
   hot/cold cache profile. Runs when the skill is invoked without arguments or with
-  `status`. It modifies NO files.
+  `status`. It modifies NO vault files. The single exception is an OPT-IN
+  index.db rebuild (Phase 2d, storage REQ-1142): on an explicit yes it may
+  rewrite the derived, gitignored `index.db` (never a vault page); detection is
+  read-only and a rebuild never happens without confirmation.
 - **prune** (write action): LRU-Demote; evict cold pages from the live hub index.
   Runs only when explicitly requested (`prune`, optionally `--months N`, default
   6 months).
@@ -74,6 +77,26 @@ configured, ingest REQ-106):
   recommend `/data-sync`, never sync from here. Skip silently when the
   config key is absent or Rscript is unavailable (note the degradation
   in the report)
+
+Phase 2d - index.db freshness (storage REQ-1140a/1142):
+
+- `index.db` is rebuilt lazily at query time (storage REQ-1133), so a stale
+  or missing index here is EXPECTED when no index-plane query has run, not a
+  defect. Run
+  `python3 skills/wiki-core/scripts/rebuild_index.py --config <llm-wiki.yml> --stale-check`
+  and report the freshness state:
+  - missing (`index n/a`): informational - "builds on the first index-plane
+    query"; do not flag as a problem;
+  - fresh (stamp matches): report the rebuild age from the index.db mtime;
+  - stale (exit 1): report how far the index lags, then OFFER to rebuild:
+    "index.db is stale (vault moved since last rebuild). Rebuild now? [y/N]".
+- This is the ONE place status may propose a write. Detection is read-only;
+  the rebuild happens only on an explicit yes and runs
+  `rebuild_index.py --config <llm-wiki.yml>` (no flag). A no leaves the index
+  untouched - the next index-plane query rebuilds it lazily (REQ-1133).
+  Status modifies no vault files regardless; a confirmed rebuild only writes
+  the derived `index.db`, never a page. Skip silently when no `index_db` path
+  is configured or the script is unavailable (note the degradation).
 
 Phase 3 - Activity:
 

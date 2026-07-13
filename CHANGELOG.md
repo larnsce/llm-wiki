@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Voice transcription: whisper.cpp decoder repetition loops (issue #120).
+  `voice_note_insert.py` now passes `--max-context 0` plus temperature
+  fallback to `whisper-cli`, stopping decoded text from being carried across
+  windows (which feeds the loop). The originally proposed `--no-context`
+  blanked transcripts to zero words on this build because it also voids the
+  `--prompt` context, so `--max-context 0` is used instead; verified on the
+  known-bad recordings (x8/x11 sentence repeats dropped to x1). Existing
+  archive.db rows are unchanged (storage REQ-1110); the fix is at production
+  time only.
+
+### Changed
+
+- index.db freshness reporting (issue #115). The dead-man status line now
+  reads a missing or never-built index (`index n/a`) as INFORMATIONAL rather
+  than a warning: `index.db` is rebuilt lazily at query time by design
+  (storage REQ-1133), so its freshness follows index-plane query traffic, not
+  edit activity (new storage REQ-1140a). To close the freshness loop for a
+  maintainer who never runs index-plane queries, `wiki-maintain status`
+  (Phase 2d) and `wiki-ingest-voice` now OFFER to rebuild a stale/missing
+  index with explicit confirmation - never automatically, so the read-only
+  status path introduces no silent write and no background rebuild (new
+  storage REQ-1142). `docs/voice-pipeline.md` section 7.1 documents what keeps
+  the index fresh and how to read the `index rebuilt` age.
+
 ## [3.6.0] - 2026-07-13
 
 The documentation site goes live (issue #111) and the wiki-chat-voice

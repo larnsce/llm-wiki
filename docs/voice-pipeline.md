@@ -563,6 +563,25 @@ fi
 Read it the way storage.md scenario 5 does: an old newest-file age with
 nothing unprocessed means capture has stalled upstream, on the phone side.
 
+**What keeps `index.db` fresh, and how to read the `index rebuilt` field.**
+The index is rebuilt lazily, at query time only: `/wiki-query` rebuilds it (or
+warns) when a question routes to the index plane (storage REQ-1133). Nothing
+rebuilds it on a timer or a git hook, by design. So its freshness tracks how
+often you ask routed questions, not how often you edit pages. Two consequences
+for the status line, both expected rather than defects (storage REQ-1140a):
+
+- `index n/a` means no `index.db` exists yet - a fresh setup, or a vault where
+  no index-plane query has run. It builds on the first such query. This is
+  informational, not a warning.
+- A large `index rebuilt Nh ago` age just means no routed query has run in that
+  span. It is a prompt to rebuild if you want to, not a failure.
+
+If you never run index-plane queries and want a fresh index anyway, two skills
+will OFFER to rebuild when they notice a stale or missing index (never
+automatically, storage REQ-1142): `wiki-maintain status` (Phase 2d) and
+`wiki-ingest-voice` (after its run). You can also rebuild by hand at any time:
+`python3 skills/wiki-core/scripts/rebuild_index.py --config <path>/llm-wiki.yml`.
+
 ### 7.2 The weekly canary memo
 
 Per storage REQ-1141: once a week, speak one test memo on the phone
