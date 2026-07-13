@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.0] - 2026-07-13
+
+The documentation site goes live (issue #111) and the wiki-chat-voice
+skill (issue #117) ships in the same release.
+
+### Added
+
+- Documentation site (issue #111): a Quarto documentation site
+  (pkgdown-style), published from `main` to GitHub Pages at
+  https://larnsce.github.io/llm-wiki/ . The site renders the README as
+  the homepage, four populated reference indexes, full-text search, and
+  the CHANGELOG as News. Site config shipped on `dev` in commit
+  11825b9; this release takes it live. The reference index is
+  pre-render-generated, so new skills (including `wiki-chat-voice`) are
+  picked up automatically.
+- `wiki-chat-voice` (issue #117): a personal-tier conversational skill
+  over recorded voice notes, the revisiting sibling of
+  `wiki-ingest-voice`. Browse archive.db read-only (`mode=ro`
+  connection; runtime one-line descriptions and keywords generated on
+  the haiku tier for the rows shown, never persisted - the schema stays
+  frozen per storage REQ-1111), pick notes, converse freely in-session
+  (nothing is written during the conversation), then close with ONE
+  consolidated checkpoint and atomic ingest: journal synthesis by
+  default (opening with the dead-man status line), per-claim wiki
+  offers citing the underlying note ids - the conversation is never a
+  cite target, adds no evidence, and same-speaker memos never
+  corroborate each other (`reliability::` stays `low`, schema
+  REQ-586b) - and per-note opt-in processed flips (post-commit) for
+  covered unprocessed notes so the queue drain does not journal them
+  twice. People rules bind at write time exactly as in voice ingest
+  (REQ-084/085). Spec: ingest.md Voice Conversation Sessions
+  REQ-1200..1207 (the range proposed in issue #117, REQ-110..117, was
+  already taken by specs/lint.md; REQ ids are unique across the spec
+  canon). Ships with: setup.sh personal-tier install (setup REQ-803
+  updated), harness assertions (read-only browse, tier install), a new
+  frozen fixture memo plus `tests/golden/chat-voice.golden.md`
+  (scripted-session golden pinning the picker, the no-write
+  conversation, note-id-only provenance, same-speaker
+  non-corroboration, and the flip offer), a `docs/voice-pipeline.md`
+  section, a `docs/source-routes.md` route row, and the README skill
+  row. No config or storage schema changes: the skill reuses
+  `archive_db` (config REQ-626).
+
 ## [3.5.0] - 2026-07-08
 
 Model tiering (issue #108, premortem-revised) plus the source-routes

@@ -57,9 +57,9 @@ Options:
                        (index + seed domain page; see
                        docs/glossary-workflow.md)
   --with-personal      also install the personal-tier skills
-                       (wiki-ingest-voice); skipped by default because they
-                       depend on maintainer-run infrastructure (archive.db,
-                       docs/voice-pipeline.md)
+                       (wiki-ingest-voice, wiki-chat-voice); skipped by
+                       default because they depend on maintainer-run
+                       infrastructure (archive.db, docs/voice-pipeline.md)
   --git-init           run git init plus a best-effort initial commit in the
                        scaffolded wiki (also offered interactively)
   --pointer            write ~/.config/llm-wiki/config.yml (needs a wiki path)
@@ -180,7 +180,7 @@ mkdir -p "$SKILLS_DEST"
 
 # Personal-tier skills are installed only with --with-personal
 # (openspec/specs/setup.md REQ-803).
-PERSONAL_SKILLS="wiki-ingest-voice"
+PERSONAL_SKILLS="wiki-ingest-voice wiki-chat-voice"
 
 is_personal_skill() {
     local name="$1" p

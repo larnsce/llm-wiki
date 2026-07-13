@@ -134,8 +134,8 @@ skills for Claude Code. It requires only bash, python3, and git.
   install: config location is resolved at runtime by discovery
   (specs/config.md REQ-652).
 - REQ-803 (personal tier is opt-in): The default install SHALL SKIP the
-  personal-tier skills (`skills/wiki-ingest-voice`); they are installed only
-  when `--with-personal` is passed. The personal tier depends on
+  personal-tier skills (`skills/wiki-ingest-voice`, `skills/wiki-chat-voice`);
+  they are installed only when `--with-personal` is passed. The personal tier depends on
   maintainer-run infrastructure (archive.db, `docs/voice-pipeline.md`) that
   the generic tool does not assume; the public tool and the personal system
   share a repo but not a default surface.

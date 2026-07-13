@@ -20,6 +20,7 @@ installed tooling.
 | News, blog articles | same clipping funnel | `raw/<file>` | `articles` | rubric: `medium` or `low` | sonnet |
 | R data packages | `data_packages:` in `llm-wiki.yml`, then `/data-sync` (`docs/data-package-workflow.md`) | none: managed dataset pages plus `ingested/data/` snapshots | `data` | managed by `data_pkg_sync.R` (dataset provenance, schema REQ-585d) | haiku for sync runs; sonnet when annotating |
 | Own voice memos | voice pipeline into archive.db (`docs/voice-pipeline.md`), then `/wiki-ingest-voice` | `archive.db:voice_notes/<id>` | capture, not a source | `low`, capture-backed (schema REQ-586b) | sonnet |
+| Voice memos, revisited in conversation | `/wiki-chat-voice` (issue #117): browse archive.db read-only, converse in-session, one closing ingest | `archive.db:voice_notes/<id>`; the conversation is never a cite target (ingest REQ-1204) | capture, not a source | `low`, capture-backed; discussion adds no evidence | session model for the conversation; haiku for picker digests |
 | Promoted personal notes | copy the note to `raw/note-<name>.md` (promotion seam, `docs/para-notes-workflow.md`) | `raw/note-*.md` | `notes` | `medium`, personal synthesis (schema REQ-586) | sonnet |
 | Own published outputs (blog, papers, talks) | none: stub, do not ingest | none | none | n/a | haiku (stubbing is mechanical) |
 | Book and e-reader highlights (Kindle, KOReader, Readwise) | import the export into Zotero, then the normal paper route | via Zotero | `papers` | per rubric | sonnet |
