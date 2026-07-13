@@ -1,0 +1,14 @@
+Okay, quick one after the seminar. The retrieval demo actually ran fine
+this time, rebuilding the hub index first did the trick, so, note to
+self, that ordering thing is real and it should go in the chapter
+itself, not just the slide notes. What did not work was the cache
+metaphor. I said cache hierarchy and half the room looked blank. Maybe
+try the library card catalog thing next time, you don't read every
+book, you read the catalog cards and then fetch the three books you
+actually need, that's basically stage one and stage two right there.
+Might be worth writing that down properly somewhere. Also Jana sent her
+comments on the retrieval chapter this morning, mostly small stuff she
+says, I haven't read them yet, so, todo, read Jana's comments before
+Thursday. And I still have not downloaded the whisper model, the
+university wifi keeps dropping the download, just do it at home. Okay,
+that's it, end of memo.

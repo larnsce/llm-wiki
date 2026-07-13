@@ -869,6 +869,8 @@ run test -d "$WORK/tier-default/.claude/skills/wiki-ingest"
 assert_exit 0 "setup: default install includes wiki-ingest"
 run test -d "$WORK/tier-default/.claude/skills/wiki-ingest-voice"
 assert_exit 1 "setup: default install SKIPS wiki-ingest-voice (REQ-803)"
+run test -d "$WORK/tier-default/.claude/skills/wiki-chat-voice"
+assert_exit 1 "setup: default install SKIPS wiki-chat-voice (REQ-803)"
 
 # Agent definitions (REQ-807): installed by default, all four, with model
 # frontmatter intact; --symlink links instead of copying.
@@ -887,6 +889,77 @@ run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-personal" --with-personal
 assert_exit 0 "setup: --with-personal install runs clean"
 run test -d "$WORK/tier-personal/.claude/skills/wiki-ingest-voice"
 assert_exit 0 "setup: --with-personal installs wiki-ingest-voice (REQ-803)"
+run test -d "$WORK/tier-personal/.claude/skills/wiki-chat-voice"
+assert_exit 0 "setup: --with-personal installs wiki-chat-voice (REQ-803)"
+
+# ---------------------------------------------------------------------------
+# chat-voice browse (ingest REQ-1200): the picker read lists processed and
+# unprocessed rows newest first and is mechanically read-only against
+# archive.db (mode=ro URI; the db bytes are unchanged by browsing).
+# ---------------------------------------------------------------------------
+CHATDB="$WORK/chat-archive.db"
+python3 - "$CHATDB" <<'PY'
+import sys, sqlite3
+db = sqlite3.connect(sys.argv[1])
+db.execute("""CREATE TABLE voice_notes (
+    id INTEGER PRIMARY KEY, recorded_at TEXT, duration REAL,
+    transcript TEXT, audio_path TEXT, processed INTEGER DEFAULT 0)""")
+db.execute("INSERT INTO voice_notes VALUES (1, '2026-07-05T18:40:00+02:00', "
+           "62.0, 'older memo already drained by the queue ingest', "
+           "'/tmp/a.m4a', 1)")
+db.execute("INSERT INTO voice_notes VALUES (2, '2026-07-06T17:05:00+02:00', "
+           "88.0, 'newer memo still waiting in the queue', "
+           "'/tmp/b.m4a', 0)")
+db.commit()
+PY
+hash_db() {
+  python3 -c 'import hashlib, sys
+print(hashlib.sha256(open(sys.argv[1], "rb").read()).hexdigest())' "$1"
+}
+CHATDB_BEFORE="$(hash_db "$CHATDB")"
+
+# The browse snippet from skills/wiki-chat-voice/SKILL.md Phase 0, verbatim.
+run python3 - "$CHATDB" <<'PY'
+import sys, sqlite3
+db = sqlite3.connect("file:%s?mode=ro" % sys.argv[1], uri=True)
+rows = db.execute(
+    "SELECT id, recorded_at, duration, processed, transcript "
+    "FROM voice_notes ORDER BY id DESC LIMIT 20").fetchall()
+for id_, rec, dur, proc, t in rows:
+    words = t.split()
+    print("%s | %s | %.0fs | %s | %d words | %s..." % (
+        id_, rec[:16], dur,
+        "processed" if proc else "UNPROCESSED",
+        len(words), " ".join(words[:12])))
+PY
+assert_exit 0 "chat-voice: browse query runs clean (REQ-1200)"
+if head -1 "$OUT" | grep -q '^2 | 2026-07-06' \
+  && head -1 "$OUT" | grep -q 'UNPROCESSED' \
+  && sed -n 2p "$OUT" | grep -q '^1 | 2026-07-05' \
+  && sed -n 2p "$OUT" | grep -q '| processed |'; then
+  report PASS "chat-voice: picker lists newest first with processed marks (REQ-1200)"
+else
+  report FAIL "chat-voice: picker lists newest first with processed marks (REQ-1200)"
+fi
+if [[ "$(hash_db "$CHATDB")" == "$CHATDB_BEFORE" ]]; then
+  report PASS "chat-voice: browse left archive.db bytes unchanged (REQ-1200)"
+else
+  report FAIL "chat-voice: browse left archive.db bytes unchanged (REQ-1200)"
+fi
+
+# A write through the read-only connection must fail: the mode=ro URI is
+# the mechanical guarantee behind REQ-1200/1202.
+run python3 - "$CHATDB" <<'PY'
+import sys, sqlite3
+db = sqlite3.connect("file:%s?mode=ro" % sys.argv[1], uri=True)
+try:
+    db.execute("UPDATE voice_notes SET processed = 1 WHERE id = 2")
+    db.commit()
+except sqlite3.OperationalError:
+    sys.exit(1)
+sys.exit(0)
+PY
+assert_exit 1 "chat-voice: read-only connection refuses a write (REQ-1200)"
 
 ARCHWIKI="$WORK/arch-wiki"
 make_wiki "$ARCHWIKI" logseq
