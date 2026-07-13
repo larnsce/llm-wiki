@@ -12,3 +12,6 @@ __pycache__/
 /.quarto/
 /index.md
 /reference/
+
+**/*.quarto_ipynb
+llm-wiki.Rproj
