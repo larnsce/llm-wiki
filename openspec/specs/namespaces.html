@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>namespaces – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-namespaces---wiki-para-notes-glossary-contract-scope" id="toc-spec-namespaces---wiki-para-notes-glossary-contract-scope" class="nav-link active" data-scroll-target="#spec-namespaces---wiki-para-notes-glossary-contract-scope">Spec: Namespaces - wiki/ | para/ | notes/ | glossary/ Contract &amp; Scope</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#the-namespace-contract" id="toc-the-namespace-contract" class="nav-link" data-scroll-target="#the-namespace-contract">The Namespace Contract</a></li>
+  <li><a href="#scope-rule-binds-every-wiki-workflow" id="toc-scope-rule-binds-every-wiki-workflow" class="nav-link" data-scroll-target="#scope-rule-binds-every-wiki-workflow">Scope Rule (binds every wiki workflow)</a></li>
+  <li><a href="#the-promotion-seam-the-only-path-in" id="toc-the-promotion-seam-the-only-path-in" class="nav-link" data-scroll-target="#the-promotion-seam-the-only-path-in">The Promotion Seam (the only path in)</a></li>
+  <li><a href="#note-type-vocabulary-recognized-not-authored" id="toc-note-type-vocabulary-recognized-not-authored" class="nav-link" data-scroll-target="#note-type-vocabulary-recognized-not-authored">Note-Type Vocabulary (recognized, not authored)</a></li>
+  <li><a href="#query-page-tiering-decision" id="toc-query-page-tiering-decision" class="nav-link" data-scroll-target="#query-page-tiering-decision">Query-Page Tiering (decision)</a></li>
+  <li><a href="#configuration" id="toc-configuration" class="nav-link" data-scroll-target="#configuration">Configuration</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-ingest-never-writes-a-human-namespace" id="toc-scenario-1-ingest-never-writes-a-human-namespace" class="nav-link" data-scroll-target="#scenario-1-ingest-never-writes-a-human-namespace">Scenario 1: ingest never writes a human namespace</a></li>
+  <li><a href="#scenario-2-lint-exempts-human-namespaces" id="toc-scenario-2-lint-exempts-human-namespaces" class="nav-link" data-scroll-target="#scenario-2-lint-exempts-human-namespaces">Scenario 2: lint exempts human namespaces</a></li>
+  <li><a href="#scenario-3-promotion-enters-through-raw-with-provenance" id="toc-scenario-3-promotion-enters-through-raw-with-provenance" class="nav-link" data-scroll-target="#scenario-3-promotion-enters-through-raw-with-provenance">Scenario 3: promotion enters through raw/ with provenance</a></li>
+  <li><a href="#scenario-4-higher-reliability-when-externally-cited" id="toc-scenario-4-higher-reliability-when-externally-cited" class="nav-link" data-scroll-target="#scenario-4-higher-reliability-when-externally-cited">Scenario 4: higher reliability when externally cited</a></li>
+  <li><a href="#scenario-5-query-may-read-a-note-for-context-without-writing-it" id="toc-scenario-5-query-may-read-a-note-for-context-without-writing-it" class="nav-link" data-scroll-target="#scenario-5-query-may-read-a-note-for-context-without-writing-it">Scenario 5: query may read a note for context without writing it</a></li>
+  <li><a href="#scenario-6-literature-citekey-is-a-valid-name" id="toc-scenario-6-literature-citekey-is-a-valid-name" class="nav-link" data-scroll-target="#scenario-6-literature-citekey-is-a-valid-name">Scenario 6: literature citekey is a valid name</a></li>
+  <li><a href="#scenario-7-stray-page-outside-the-namespace-contract" id="toc-scenario-7-stray-page-outside-the-namespace-contract" class="nav-link" data-scroll-target="#scenario-7-stray-page-outside-the-namespace-contract">Scenario 7: stray page outside the namespace contract</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/namespaces.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-namespaces---wiki-para-notes-glossary-contract-scope" class="level1">
+<h1>Spec: Namespaces - wiki/ | para/ | notes/ | glossary/ Contract &amp; Scope</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The graph holds four top-level namespaces with different ownership and different obligations. <code>wiki/</code> is machine-written and source-backed: the full schema, provenance, citation, reliability, lint, and audit conventions apply to it. <code>para/</code> (PARA task/project layer) and <code>notes/</code> (Zettelkasten layer) are human-authored and EXEMPT from the wiki conventions - the wiki toolchain never creates, edits, lints, or audits them. <code>glossary/</code> (v2.3) is human-DECIDED, tool-READABLE, and structure-LINTED: the tool never invents or edits a terminology decision, may scaffold and structure-check the pages, and loads domain pages as drafting context (ownership model in <code>specs/glossary.md</code>). The only path from <code>para/</code> or <code>notes/</code> into <code>wiki/</code> is the explicit promotion seam: content is copied into <code>raw/</code> and enters through the normal ingest pipeline, receiving provenance like any other source.</p>
+<p>This spec defines the namespace contract, the scope rule that binds every wiki workflow, the promotion seam, the note-type vocabulary the tool recognizes but does not author, and the query-page tiering decision for the human layers.</p>
+<blockquote class="blockquote">
+<p>Spec version: introduced for v2.2; REQ-960 amended for v2.3 (the <code>glossary/</code> namespace, <code>specs/glossary.md</code>, in the same PR as the check_canon namespace surface per the premortem). This spec uses the globally unique REQ-960..981 range (the merged draft used IDs in the 600s, which collided with <code>specs/config.md</code> and <code>specs/prune.md</code>). Naming rules live in <code>specs/schema.md</code> (Namespace Conventions); mechanical enforcement lives in <code>specs/lint.md</code> (naming-hygiene, namespace-hygiene).</p>
+</blockquote>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="the-namespace-contract" class="level3">
+<h3 class="anchored" data-anchor-id="the-namespace-contract">The Namespace Contract</h3>
+<ul>
+<li>REQ-960: The graph SHALL define exactly four content namespaces at the top level:
+<ul>
+<li><code>wiki/</code> - machine-written, source-backed knowledge. The full schema (<code>specs/schema.md</code>), provenance/trust, citations, lint, and audit conventions apply.</li>
+<li><code>para/</code> - human-owned tasks and projects (PARA). EXEMPT from all wiki conventions.</li>
+<li><code>notes/</code> - human-written thinking (Zettelkasten). EXEMPT from all wiki conventions. Never machine-generated.</li>
+<li><code>glossary/</code> - human-DECIDED terminology (v2.3, <code>specs/glossary.md</code>): the tool never invents, edits, or deletes a decision; it MAY scaffold pages, write rows the human confirmed at a checkpoint, read domain pages as drafting context, and lint STRUCTURE only (lint rule 15). Exempt from the wiki-only conventions (source-file, reliability, citations, routing lines).</li>
+</ul></li>
+<li>REQ-961: <code>para/</code> and <code>notes/</code> pages SHALL NOT be required to carry <code>source-file::</code>, <code>reliability::</code>, <code>confidence::</code>, citations, routing lines, or any other wiki-only property. Their absence on a <code>para/</code>/<code>notes/</code> page SHALL NOT be flagged by lint.</li>
+<li>REQ-962: Journals and a small set of deliberate root pages (Schema, hub pages, query pages, Dashboard, Access-Log) are recognized structural pages outside the three content namespaces and SHALL NOT be treated as stray by namespace-hygiene checks.</li>
+</ul>
+</section>
+<section id="scope-rule-binds-every-wiki-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="scope-rule-binds-every-wiki-workflow">Scope Rule (binds every wiki workflow)</h3>
+<ul>
+<li>REQ-965: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any future verb) SHALL operate ONLY on pages whose name starts with <code>wiki/</code>.</li>
+<li>REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under <code>para/</code> or <code>notes/</code>. These namespaces are human-authored.</li>
+<li>REQ-967: A wiki workflow MAY READ <code>para/</code> and <code>notes/</code> pages when the user asks for context (e.g.&nbsp;a query that references a linked note), but SHALL NOT write to them as a side effect.</li>
+<li>REQ-968: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by every skill; it SHALL NOT be restated divergently per skill (enforced by <code>check_canon.py</code>).</li>
+</ul>
+</section>
+<section id="the-promotion-seam-the-only-path-in" class="level3">
+<h3 class="anchored" data-anchor-id="the-promotion-seam-the-only-path-in">The Promotion Seam (the only path in)</h3>
+<ul>
+<li>REQ-970: The ONLY sanctioned path from <code>para/</code> or <code>notes/</code> into <code>wiki/</code> is via <code>raw/</code>: the human copies the durable content into a source file (<code>raw/para-&lt;project&gt;.md</code> or <code>raw/note-&lt;name&gt;.md</code>) and runs the normal ingest pipeline (<code>specs/ingest.md</code>). The wiki SHALL NOT silently absorb para/notes content by any other route.</li>
+<li>REQ-971: A page ingested from a <code>para/</code>/<code>notes/</code>-derived source is personal synthesis: it SHALL receive the default rating given by the reliability rubric’s personal-synthesis case (<code>specs/schema.md</code> REQ-586), UNLESS it carries external citations that justify a higher rating under that rubric. The rubric is the single normative statement of the default value; this requirement only binds the seam to it.</li>
+<li>REQ-972: A promoted source SHALL follow the standard <code>raw/</code> → <code>ingested/&lt;type&gt;/</code> lifecycle and atomic move+commit (REQ-589). The provenance seam is identical to any other source; being personal in origin does not exempt it from provenance.</li>
+<li>REQ-973: When a <code>notes/literature/@&lt;citekey&gt;</code> page and a <code>wiki/</code> page both derive from the same archived source, the note’s <code>source-file::</code> SHOULD point at the SAME <code>ingested/&lt;type&gt;/&lt;file&gt;</code> path the wiki page cites - one archived source, two readings. (Full claim-level auditability of this seam depends on block-native citations, <code>specs/citations.md</code>.)</li>
+</ul>
+</section>
+<section id="note-type-vocabulary-recognized-not-authored" class="level3">
+<h3 class="anchored" data-anchor-id="note-type-vocabulary-recognized-not-authored">Note-Type Vocabulary (recognized, not authored)</h3>
+<ul>
+<li>REQ-975: The tool SHALL recognize the <code>notes/</code> type vocabulary carried as a <code>type::</code> property: <code>fleeting | literature | permanent</code>. These types are informational to the tool (they scope the human’s own queries); the tool does not create or mutate them.</li>
+<li>REQ-976: Lint SHALL treat a <code>notes/literature/@&lt;citekey&gt;</code> leaf segment (a proper-noun citekey) as a valid name under the naming rules (proper-noun-leaf exemption, <code>specs/schema.md</code>), NOT as a structural-name violation.</li>
+</ul>
+</section>
+<section id="query-page-tiering-decision" class="level3">
+<h3 class="anchored" data-anchor-id="query-page-tiering-decision">Query-Page Tiering (decision)</h3>
+<ul>
+<li>REQ-977: The vault-side query pages documented for the human layers (<code>para/live-list</code>, <code>notes/fleeting-inbox</code>; see <code>docs/para-notes-workflow.md</code>) are Logseq tier-1: the documented <code>#+BEGIN_QUERY</code> pages are the supported form. The Dataview equivalent on Obsidian is EXPERIMENTAL and NOT maintained by this project. These query pages are human-created; the tool does not scaffold, edit, or lint them (they are recognized structural pages per REQ-962).</li>
+</ul>
+</section>
+<section id="configuration" class="level3">
+<h3 class="anchored" data-anchor-id="configuration">Configuration</h3>
+<ul>
+<li>REQ-980: The scope rule and namespace-hygiene SHALL resolve the human namespaces from the optional <code>para_dir</code> and <code>notes_dir</code> keys defined in <code>specs/config.md</code> (REQ-625). Absent keys default as defined there (<code>para/</code> and <code>notes/</code> relative to the pages directory). The glossary namespace resolves from the optional <code>glossary_dir</code> key (<code>specs/config.md</code> REQ-628, default <code>glossary</code>) the same way.</li>
+<li>REQ-981: <code>para/</code> and <code>notes/</code> are candidate members of <code>sensitive_source_types</code> (<code>specs/config.md</code>); when a promoted source is of a sensitive type, the pre-archive secret gate (<code>specs/ingest.md</code>) applies before any commit into <code>ingested/</code>.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-ingest-never-writes-a-human-namespace" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-ingest-never-writes-a-human-namespace">Scenario 1: ingest never writes a human namespace</h3>
+<pre><code>GIVEN a vault with pages under wiki/, para/, and notes/
+WHEN /wiki-ingest drains the raw/ queue
+THEN it SHALL create/update pages only under wiki/
+AND it SHALL NOT create, edit, or move any page under para/ or notes/</code></pre>
+</section>
+<section id="scenario-2-lint-exempts-human-namespaces" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-lint-exempts-human-namespaces">Scenario 2: lint exempts human namespaces</h3>
+<pre><code>GIVEN a para/projects/blog-relaunch page with no source-file::, no reliability::, and no routing line
+WHEN /wiki-lint runs
+THEN it SHALL NOT flag any of those as missing
+AND it SHALL NOT report the page as an orphan or unroutable</code></pre>
+</section>
+<section id="scenario-3-promotion-enters-through-raw-with-provenance" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-promotion-enters-through-raw-with-provenance">Scenario 3: promotion enters through raw/ with provenance</h3>
+<pre><code>GIVEN the human copies a permanent note into raw/note-tidy-data-principle.md
+WHEN /wiki-ingest processes it
+THEN a wiki/ page is created carrying source-file:: ingested/notes/note-tidy-data-principle.md
+AND reliability:: medium (personal synthesis)
+AND the source file is moved to ingested/ in the same atomic commit</code></pre>
+</section>
+<section id="scenario-4-higher-reliability-when-externally-cited" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-higher-reliability-when-externally-cited">Scenario 4: higher reliability when externally cited</h3>
+<pre><code>GIVEN a promoted note whose claims cite two independent peer-reviewed sources also in ingested/
+WHEN /wiki-ingest processes it
+THEN reliability:: MAY be raised above medium per the rubric (not fixed at medium)</code></pre>
+</section>
+<section id="scenario-5-query-may-read-a-note-for-context-without-writing-it" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-query-may-read-a-note-for-context-without-writing-it">Scenario 5: query may read a note for context without writing it</h3>
+<pre><code>GIVEN a query that references [[notes/permanent/regression-to-the-mean]]
+WHEN /wiki-query answers it
+THEN it MAY read the note for context
+AND it SHALL NOT modify the note or add a routing line for it</code></pre>
+</section>
+<section id="scenario-6-literature-citekey-is-a-valid-name" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-literature-citekey-is-a-valid-name">Scenario 6: literature citekey is a valid name</h3>
+<pre><code>GIVEN a page named notes/literature/@Forte2022
+WHEN /wiki-lint runs the naming-hygiene check
+THEN the @Forte2022 leaf SHALL be accepted (proper-noun exemption)
+AND SHALL NOT be flagged for the capital letter or the @ character</code></pre>
+</section>
+<section id="scenario-7-stray-page-outside-the-namespace-contract" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-stray-page-outside-the-namespace-contract">Scenario 7: stray page outside the namespace contract</h3>
+<pre><code>GIVEN a page "Scratchpad" that is not under wiki/, para/, notes/, glossary/, journals, or a deliberate root page
+WHEN /wiki-lint runs the namespace-hygiene check
+THEN it SHALL flag the page as outside the namespace contract (info/warning)</code></pre>
+<hr>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">The four namespaces and their obligations are defined with no overlap</label></li>
+<li><label><input type="checkbox">The scope rule binds every wiki workflow and is stated once (check_canon-enforceable)</label></li>
+<li><label><input type="checkbox">The promotion seam is the only sanctioned path in, with provenance and a medium default</label></li>
+<li><label><input type="checkbox">para/ and notes/ pages are exempt from wiki-only lint rules</label></li>
+<li><label><input type="checkbox">The notes type vocabulary is recognized without being authored by the tool</label></li>
+<li><label><input type="checkbox">The literature citekey naming exemption is specified</label></li>
+<li><label><input type="checkbox">The Obsidian query-page tiering decision is recorded (Logseq tier-1, Dataview experimental)</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li>specs/schema.md - naming rules (lowercase structural names, proper-noun-leaf exemption), reliability rubric incl.&nbsp;the “personal synthesis = medium” case (REQ-586)</li>
+<li>specs/lint.md - naming-hygiene and namespace-hygiene rules that enforce this contract</li>
+<li>specs/ingest.md - the promotion seam runs on the standard ingest pipeline + pre-archive secret gate</li>
+<li>specs/config.md - <code>para_dir</code>, <code>notes_dir</code> (REQ-625), <code>glossary_dir</code> (REQ-628), <code>sensitive_source_types</code> (REQ-624)</li>
+<li>specs/glossary.md - the glossary ownership model, table canon, and staging contract</li>
+<li>specs/citations.md (v2.1) - full claim-level auditability of the “one source, two readings” seam</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/namespaces.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

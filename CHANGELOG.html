@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>changelog – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./CHANGELOG.html" aria-current="page"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#changelog" id="toc-changelog" class="nav-link active" data-scroll-target="#changelog">Changelog</a>
+  <ul class="collapse">
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[3.6.0] - 2026-07-13</a>
+  <ul class="collapse">
+  <li><a href="#added" id="toc-added" class="nav-link" data-scroll-target="#added">Added</a></li>
+  </ul></li>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[3.5.0] - 2026-07-08</a>
+  <ul class="collapse">
+  <li><a href="#added-1" id="toc-added-1" class="nav-link" data-scroll-target="#added-1">Added</a></li>
+  <li><a href="#fixed" id="toc-fixed" class="nav-link" data-scroll-target="#fixed">Fixed</a></li>
+  </ul></li>
+  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">[3.4.1] - 2026-07-07</a>
+  <ul class="collapse">
+  <li><a href="#fixed-1" id="toc-fixed-1" class="nav-link" data-scroll-target="#fixed-1">Fixed</a></li>
+  </ul></li>
+  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">[3.4.0] - 2026-07-07</a>
+  <ul class="collapse">
+  <li><a href="#added-2" id="toc-added-2" class="nav-link" data-scroll-target="#added-2">Added</a></li>
+  <li><a href="#changed" id="toc-changed" class="nav-link" data-scroll-target="#changed">Changed</a></li>
+  </ul></li>
+  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">[3.3.0] - 2026-07-07</a>
+  <ul class="collapse">
+  <li><a href="#added-3" id="toc-added-3" class="nav-link" data-scroll-target="#added-3">Added</a></li>
+  </ul></li>
+  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">[3.2.0] - 2026-07-07</a>
+  <ul class="collapse">
+  <li><a href="#added-4" id="toc-added-4" class="nav-link" data-scroll-target="#added-4">Added</a></li>
+  </ul></li>
+  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6">[3.1.0] - 2026-07-06</a>
+  <ul class="collapse">
+  <li><a href="#added-5" id="toc-added-5" class="nav-link" data-scroll-target="#added-5">Added</a></li>
+  <li><a href="#changed-1" id="toc-changed-1" class="nav-link" data-scroll-target="#changed-1">Changed</a></li>
+  </ul></li>
+  <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">[3.0.0] - 2026-07-06</a>
+  <ul class="collapse">
+  <li><a href="#added-6" id="toc-added-6" class="nav-link" data-scroll-target="#added-6">Added</a></li>
+  <li><a href="#fixed-2" id="toc-fixed-2" class="nav-link" data-scroll-target="#fixed-2">Fixed</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">[2.3.0] - 2026-07-06</a>
+  <ul class="collapse">
+  <li><a href="#added-7" id="toc-added-7" class="nav-link" data-scroll-target="#added-7">Added</a></li>
+  </ul></li>
+  <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">[2.2.0] - 2026-07-04</a>
+  <ul class="collapse">
+  <li><a href="#added-8" id="toc-added-8" class="nav-link" data-scroll-target="#added-8">Added</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-10" id="toc-section-10" class="nav-link" data-scroll-target="#section-10">[2.1.0] - 2026-07-04</a>
+  <ul class="collapse">
+  <li><a href="#added-9" id="toc-added-9" class="nav-link" data-scroll-target="#added-9">Added</a></li>
+  </ul></li>
+  <li><a href="#section-11" id="toc-section-11" class="nav-link" data-scroll-target="#section-11">[2.0.0] - 2026-07-04</a>
+  <ul class="collapse">
+  <li><a href="#added-10" id="toc-added-10" class="nav-link" data-scroll-target="#added-10">Added</a></li>
+  <li><a href="#removed" id="toc-removed" class="nav-link" data-scroll-target="#removed">Removed</a></li>
+  <li><a href="#deferred-to-v2.1" id="toc-deferred-to-v2.1" class="nav-link" data-scroll-target="#deferred-to-v2.1">Deferred to v2.1</a></li>
+  </ul></li>
+  <li><a href="#section-12" id="toc-section-12" class="nav-link" data-scroll-target="#section-12">[1.5.0] - 2026-06-25</a>
+  <ul class="collapse">
+  <li><a href="#added-11" id="toc-added-11" class="nav-link" data-scroll-target="#added-11">Added</a></li>
+  <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-13" id="toc-section-13" class="nav-link" data-scroll-target="#section-13">[1.4.0] - 2026-06-25</a>
+  <ul class="collapse">
+  <li><a href="#added-12" id="toc-added-12" class="nav-link" data-scroll-target="#added-12">Added</a></li>
+  <li><a href="#changed-2" id="toc-changed-2" class="nav-link" data-scroll-target="#changed-2">Changed</a></li>
+  <li><a href="#notes-3" id="toc-notes-3" class="nav-link" data-scroll-target="#notes-3">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-14" id="toc-section-14" class="nav-link" data-scroll-target="#section-14">[1.3.0] - 2026-06-08</a>
+  <ul class="collapse">
+  <li><a href="#added-13" id="toc-added-13" class="nav-link" data-scroll-target="#added-13">Added</a></li>
+  <li><a href="#changed-3" id="toc-changed-3" class="nav-link" data-scroll-target="#changed-3">Changed</a></li>
+  <li><a href="#notes-4" id="toc-notes-4" class="nav-link" data-scroll-target="#notes-4">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">1.2.0 - 2026-06-07</a>
+  <ul class="collapse">
+  <li><a href="#added-14" id="toc-added-14" class="nav-link" data-scroll-target="#added-14">Added</a></li>
+  <li><a href="#changed-4" id="toc-changed-4" class="nav-link" data-scroll-target="#changed-4">Changed</a></li>
+  <li><a href="#notes-5" id="toc-notes-5" class="nav-link" data-scroll-target="#notes-5">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-16" id="toc-section-16" class="nav-link" data-scroll-target="#section-16">1.1.1 - 2026-04-18</a>
+  <ul class="collapse">
+  <li><a href="#added-15" id="toc-added-15" class="nav-link" data-scroll-target="#added-15">Added</a></li>
+  <li><a href="#notes-6" id="toc-notes-6" class="nav-link" data-scroll-target="#notes-6">Notes</a></li>
+  </ul></li>
+  <li><a href="#section-17" id="toc-section-17" class="nav-link" data-scroll-target="#section-17">1.1.0 - 2026-04-10</a>
+  <ul class="collapse">
+  <li><a href="#added-16" id="toc-added-16" class="nav-link" data-scroll-target="#added-16">Added</a></li>
+  <li><a href="#fixed-3" id="toc-fixed-3" class="nav-link" data-scroll-target="#fixed-3">Fixed</a></li>
+  </ul></li>
+  <li><a href="#section-18" id="toc-section-18" class="nav-link" data-scroll-target="#section-18">1.0.0 - 2026-04-07</a>
+  <ul class="collapse">
+  <li><a href="#added-17" id="toc-added-17" class="nav-link" data-scroll-target="#added-17">Added</a></li>
+  <li><a href="#security" id="toc-security" class="nav-link" data-scroll-target="#security">Security</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/CHANGELOG.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="changelog" class="level1">
+<h1>Changelog</h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>Format based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>. This project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section">[3.6.0] - 2026-07-13</h2>
+<p>The documentation site goes live (issue #111) and the wiki-chat-voice skill (issue #117) ships in the same release.</p>
+<section id="added" class="level3">
+<h3 class="anchored" data-anchor-id="added">Added</h3>
+<ul>
+<li>Documentation site (issue #111): a Quarto documentation site (pkgdown-style), published from <code>main</code> to GitHub Pages at https://larnsce.github.io/llm-wiki/ . The site renders the README as the homepage, four populated reference indexes, full-text search, and the CHANGELOG as News. Site config shipped on <code>dev</code> in commit 11825b9; this release takes it live. The reference index is pre-render-generated, so new skills (including <code>wiki-chat-voice</code>) are picked up automatically.</li>
+<li><code>wiki-chat-voice</code> (issue #117): a personal-tier conversational skill over recorded voice notes, the revisiting sibling of <code>wiki-ingest-voice</code>. Browse archive.db read-only (<code>mode=ro</code> connection; runtime one-line descriptions and keywords generated on the haiku tier for the rows shown, never persisted - the schema stays frozen per storage REQ-1111), pick notes, converse freely in-session (nothing is written during the conversation), then close with ONE consolidated checkpoint and atomic ingest: journal synthesis by default (opening with the dead-man status line), per-claim wiki offers citing the underlying note ids - the conversation is never a cite target, adds no evidence, and same-speaker memos never corroborate each other (<code>reliability::</code> stays <code>low</code>, schema REQ-586b) - and per-note opt-in processed flips (post-commit) for covered unprocessed notes so the queue drain does not journal them twice. People rules bind at write time exactly as in voice ingest (REQ-084/085). Spec: ingest.md Voice Conversation Sessions REQ-1200..1207 (the range proposed in issue #117, REQ-110..117, was already taken by specs/lint.md; REQ ids are unique across the spec canon). Ships with: setup.sh personal-tier install (setup REQ-803 updated), harness assertions (read-only browse, tier install), a new frozen fixture memo plus <code>tests/golden/chat-voice.golden.md</code> (scripted-session golden pinning the picker, the no-write conversation, note-id-only provenance, same-speaker non-corroboration, and the flip offer), a <code>docs/voice-pipeline.md</code> section, a <code>docs/source-routes.md</code> route row, and the README skill row. No config or storage schema changes: the skill reuses <code>archive_db</code> (config REQ-626).</li>
+</ul>
+</section>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1">[3.5.0] - 2026-07-08</h2>
+<p>Model tiering (issue #108, premortem-revised) plus the source-routes decision record (issue #107 Part 1) and three live-vault bug fixes.</p>
+<section id="added-1" class="level3">
+<h3 class="anchored" data-anchor-id="added-1">Added</h3>
+<ul>
+<li>Model tiering (issue #108): a repo-level <code>agents/</code> directory with four subagent definitions carrying the model routing in their frontmatter (<code>wiki-triage</code> haiku, <code>wiki-audit-verify</code> sonnet, <code>wiki-audit-judge</code> opus, <code>wiki-synthesize</code> opus); <code>setup.sh</code> installs them to <code>~/.claude/agents/</code> (setup REQ-807, honoring <code>--project</code> and <code>--symlink</code>). Shipped SKILL.md files stay model-neutral; skills name the agents and degrade gracefully to generic subagents. Two-pass ingest for queue drains (ingest REQ-076): triage classifies with QUEUE-DECIDABLE complexity triggers only (wiki-state judgments stay at the checkpoint), flagged items route to <code>wiki-synthesize</code>. Audit names the verify/judge agents in its dispatch (audit REQ-922/924). Operating manual: <code>docs/model-tiering.md</code> (tier map, escalation triggers, session discipline, vault CLAUDE.md template, two-week review with kill criteria, due date 2026-07-21).</li>
+<li>Run-log observability (ingest REQ-053, audit REQ-926): ingest and audit run-log entries gain an additive <code>agents &lt;names|none&gt;</code> field recording the agent definitions actually DISPATCHED (never a self-reported model id); <code>/wiki-maintain status</code> reports the agent mix over the last 10 runs.</li>
+<li>Golden layer for model comparison: frozen Fable 5 baseline checkpoints in <code>tests/golden/fable-baseline/</code> (the three golden fixtures plus a new dense-paper fixture packing the false-corroboration, scoped-contradiction, and conjecture traps), a written scoring rubric in <code>tests/golden/README.md</code> (a divergence fails iff it changes a <code>reliability::</code> value, gets Pending Review wrong, or accepts false corroboration), <code>model:</code> attribution lines in the golden headers, and a <code>wiki-triage</code> must-flag/must-not-flag golden (<code>tests/golden/triage.golden.md</code>). Never regenerate a baseline on the model being evaluated.</li>
+<li><code>docs/source-routes.md</code> (issue #107 Part 1): the durable source-route decision table (capture mechanism, pipeline entry, source type, reliability default, model tier per source kind), the funnel rule and the routes that deliberately do not exist, and the manual AI-transcript protocol with its five-hand-ingests gate (due date 2026-07-22).</li>
+</ul>
+</section>
+<section id="fixed" class="level3">
+<h3 class="anchored" data-anchor-id="fixed">Fixed</h3>
+<ul>
+<li>lint REQ-160/163 false-positive critical (issue #104, found in live vault use): the base64-like credential pattern matched 40+ char <code>[[wiki/...]]</code> namespace paths (<code>/</code> is in the character class), and criticals bypass the grandfather floor, marking healthy vaults critical on every run. The base64 pass now masks <code>[[...]]</code> link spans and requires credential-shaped character diversity (both cases and a digit); the named property patterns and specific key shapes still scan the full text. New true-positive and false-positive harness fixtures in both tool modes.</li>
+<li>lint REQ-241a (issue #105): Logseq’s built-in <code>contents</code> page drew orphan, missing-<code>type::</code>, and cross-ref findings on every run. In logseq mode it now counts as a system page (same treatment as Schema, Dashboard, Access-Log).</li>
+<li><code>check_canon.py</code> outside the checkout (issue #106): the installed skill copy reported every canon surface as phantom drift. The script now resolves the checkout via <code>--repo &lt;path&gt;</code>, its own location, or the cwd, and fails fast with a clear message and exit 3 (setup condition) instead of exit 2 (content drift) when no checkout or surfaces are found; the wiki-lint skill documents the split. Also fixed the harness’s mutated-copy test, which passed for the wrong reason (missing surfaces, not the planted mutation).</li>
+</ul>
+</section>
+</section>
+<section id="section-2" class="level2">
+<h2 class="anchored" data-anchor-id="section-2">[3.4.1] - 2026-07-07</h2>
+<section id="fixed-1" class="level3">
+<h3 class="anchored" data-anchor-id="fixed-1">Fixed</h3>
+<ul>
+<li><code>data_pkg_sync.R</code> no-arg run (issue #98, found in live vault use): the R config parser kept the empty-string placeholder from the <code>data_packages:</code> opening line and appended list items after it, so the sync tried to download slug <code>""</code> first and stopped. The first list item now replaces the placeholder, mirroring <code>wikilib.parse_config_text</code>. Also: <code>--check</code> no longer leaks the HTTP warning for unreachable packages.</li>
+</ul>
+</section>
+</section>
+<section id="section-3" class="level2">
+<h2 class="anchored" data-anchor-id="section-3">[3.4.0] - 2026-07-07</h2>
+<p>Second live-use feedback round: person names as first-class links, and the human note sections named after their Zettelkasten note type.</p>
+<section id="added-2" class="level3">
+<h3 class="anchored" data-anchor-id="added-2">Added</h3>
+<ul>
+<li>Person names are always linked (ingest REQ-036a, lint REQ-141a, issue #99): names written into content (page claims, journal Ingested bullets) become <code>[[wiki/people/&lt;First&gt; &lt;Last&gt;]]</code> links, normalized to First-name Surname order; <code>author::</code> stays plain text. Lint rule 4 reports a link whose person page does not exist yet as info-level “pending person page” instead of a broken-reference warning, and <code>--fix</code> never stubs those targets (person pages are born through ingest at the second-source threshold, REQ-024a).</li>
+</ul>
+</section>
+<section id="changed" class="level3">
+<h3 class="anchored" data-anchor-id="changed">Changed</h3>
+<ul>
+<li>Dataset pages seed <code>## fleeting</code> instead of <code>## my notes</code> (issue #100); literature pages seed <code>## literature</code> instead of <code>## my reading</code> (issue #101). The names state the Zettelkasten note type; the user adds <code>#fleeting</code>/<code>#literature</code> tags by hand and the tooling never writes a tag. Pages created before the rename keep their old headings; both are equally machine-exempt, no migration.</li>
+</ul>
+</section>
+</section>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">[3.3.0] - 2026-07-07</h2>
+<section id="added-3" class="level3">
+<h3 class="anchored" data-anchor-id="added-3">Added</h3>
+<ul>
+<li>setup.sh installs the repo’s slash commands (setup REQ-804, issue #96): <code>.claude/commands/*.md</code> (<code>/lit-sync</code>, <code>/data-sync</code>) are copied into <code>~/.claude/commands/</code> (or the <code>--project</code> equivalent) with relative <code>scripts/</code> and <code>docs/</code> references rewritten to the checkout’s absolute paths, so the commands work from any directory, not only inside the llm-wiki checkout. Always a copy, even in <code>--symlink</code> mode; the only sanctioned install-time patching, applied to the installed copy only.</li>
+</ul>
+</section>
+</section>
+<section id="section-5" class="level2">
+<h2 class="anchored" data-anchor-id="section-5">[3.2.0] - 2026-07-07</h2>
+<p>Data enters the vault: R data packages as versioned, self-describing sources, and a plugin-free Zotero literature sync. Both follow the same pattern: an external system of record, an idempotent sync script, machine-managed regions beside untouchable human notes, and a version stamp.</p>
+<section id="added-4" class="level3">
+<h3 class="anchored" data-anchor-id="added-4">Added</h3>
+<ul>
+<li>Data-package seam (<code>openspec/specs/ingest.md</code> REQ-100..106, config REQ-660/661, schema REQ-585d, issues #92..#95): registered R data packages (<code>data_packages</code> config key) sync into versioned <code>ingested/data/&lt;pkg&gt;-&lt;version&gt;/</code> snapshots (CSVs materialized from <code>data/*.rda</code> and copied from <code>inst/extdata</code>, per-dataset docs extracted from the Rd documentation) and <code>wiki/data/&lt;pkg&gt;/&lt;dataset&gt;</code> pages with machine-managed description and data-dictionary sections; old snapshots stay citable after version updates; retention keeps the last <code>data_snapshots_keep</code> snapshots and never deletes a referenced one; <code>--check</code> compares GitHub DESCRIPTION versions for staleness (detection automated, writes always confirmed).</li>
+<li><code>scripts/data_pkg_sync.R</code> (base R + tools, no package dependencies) and the <code>/data-sync</code> command (issue #93); <code>entity-type:: dataset</code> added to the schema enum on all canon surfaces.</li>
+<li>Query data reads (<code>openspec/specs/query.md</code> REQ-470..472, issue #94): dataset questions route via the data dictionary; row-level answers compute read-only on snapshot CSVs with version-pinned attribution; a live R session (mcptools) is explicitly not a query source (live plane parked by maintainer decision).</li>
+<li>Plugin-free Zotero literature sync (issue #90): <code>scripts/lit_sync.py</code> against Zotero’s local HTTP API plus the <code>/lit-sync</code> command replace the abandoned logseq-zoterolocal-plugin; idempotent managed properties, incremental annotation sync via <code>zotero-last-sync::</code>, unpinned citekeys skipped with a warning; <code>docs/zotero-setup.md</code> rewritten (verified against Zotero 9 conventions, end-to-end run tracked in #28).</li>
+<li><code>docs/data-package-workflow.md</code>: the seam end to end, the nightly check pattern, and where mcptools fits (interactive analysis) versus where it does not (system of record, freshness).</li>
+</ul>
+</section>
+</section>
+<section id="section-6" class="level2">
+<h2 class="anchored" data-anchor-id="section-6">[3.1.0] - 2026-07-06</h2>
+<p>The journal seam and dual-register answers, from first live use of the v2.3/v3.0 stack: the journal becomes the daily surface of the ingest pipeline, and query answers become readable by anyone.</p>
+<section id="added-5" class="level3">
+<h3 class="anchored" data-anchor-id="added-5">Added</h3>
+<ul>
+<li>Journal seam (<code>openspec/specs/ingest.md</code> REQ-090..095, issues #83/#84/#85): every ingest run appends one bullet per source to a single daily <code>Ingested</code> block on today’s journal page, with links to the touched wiki pages and an empty child bullet reserved for the user’s own notes; append-only inside the journal (REQ-094), visible at the checkpoint (REQ-092), riding the run’s atomic commit (REQ-095).</li>
+<li>Wiki-to-journal back-link (schema REQ-585c, ingest REQ-093, issue #84): optional <code>journal::</code> property on ingested pages, refreshed like <code>updated::</code> to the most recent ingest day’s journal page; together with the journal bullet it forms the bidirectional wiki-journal link pair.</li>
+<li>Dual-register query answers (<code>openspec/specs/query.md</code> REQ-435..437, issues #82/#88): every /wiki-query answer carries the precise register first, then a plain-language version under <code>In plain terms</code>; same facts, same warnings, no new claims; source and plane attribution appear once, shared by both registers.</li>
+<li>Config key <code>journals_dir</code> (config REQ-629, default <code>journals</code>, issue #86): names the journal directory per tool flavor; recognized by page enumeration (<code>wikilib.py</code>), namespace classification (<code>lint.py</code> rule 14), and <code>check_config.py</code>.</li>
+</ul>
+</section>
+<section id="changed-1" class="level3">
+<h3 class="anchored" data-anchor-id="changed-1">Changed</h3>
+<ul>
+<li>Ingest REQ-060 now names the journal seam as the single sanctioned machine write path into journals (append-only); the voice journal summary (REQ-082) writes through the same discipline instead of carving its own exception (issue #85).</li>
+</ul>
+</section>
+</section>
+<section id="section-7" class="level2">
+<h2 class="anchored" data-anchor-id="section-7">[3.0.0] - 2026-07-06</h2>
+<p>The personal pipeline: a SQLite machine plane beside the markdown vault, voice capture as an ingest source, and two-plane query routing. Completes the v3.0 milestone (issue #61) under the 2026-07-05 gate waiver (all adoption-pacing gates dropped except the archive.db backup-before-first-note rule and the voice per-row confirmation rules, which are implemented as standing requirements, not gates).</p>
+<section id="added-6" class="level3">
+<h3 class="anchored" data-anchor-id="added-6">Added</h3>
+<ul>
+<li>Storage-plane contract (<code>openspec/specs/storage.md</code>, REQ-1100..1141, issue #55): markdown is what a human writes, SQLite is what a machine accumulates; <code>archive.db</code> (raw capture, irreplaceable, REQ-1120..1122 durability) and <code>index.db</code> (derived, disposable, frozen three-table schema) are never merged and never enter git; voice provenance shape <code>archive.db:voice_notes/&lt;id&gt;</code> with capture-backed <code>reliability:: low</code> (schema REQ-586b) and the <code>capture-backed</code> audit verdict (audit REQ-927); the dead-man pipeline status line (REQ-1140/1141).</li>
+<li>Voice pipeline guide (<code>docs/voice-pipeline.md</code>, issue #56): whisper.cpp, phone sync, archive.db DDL and insert script, nightly watcher, canary memo, the Phase 0 exit test; adoption-ordered with durability first.</li>
+<li><code>wiki-ingest-voice</code> skill (issue #57): drains unprocessed <code>voice_notes</code> rows; journal-default (REQ-082), wiki writes per-row opt-in with the full sentence shown (REQ-083), individual confirmation for anything naming a person (REQ-084), assessments of people never promoted (REQ-085), TODOs human-placed (REQ-087), rows marked processed only after the atomic commit (REQ-080), no <code>--auto</code> path (REQ-081). Ships behind <code>setup.sh --with-personal</code> (setup REQ-803); golden transcript pinned (<code>tests/golden/ingest-voice.golden.md</code>).</li>
+<li><code>rebuild_index.py</code> (issue #58): vault to index.db, concrete frozen schema written into storage REQ-1130 (people, meetings, page_properties, page_text FTS5, rebuild_stamp); deterministic content-hash stamp so two rebuilds from the same vault state produce byte-identical dumps (REQ-1131, harness-asserted); <code>--stale-check</code>; REQ-1103 placement guard; no hooks (REQ-1133).</li>
+<li>Two-plane query routing (<code>query.md</code> REQ-460..464, issue #59): aggregate, temporal, and full-text questions route to index.db SQL (SELECT-only, stdlib sqlite3); staleness checked before every index read; every answer names its plane; index hits become page reads before content is quoted.</li>
+<li>Archive layer guide (<code>docs/archive-layer.md</code>, issue #60): Google Takeout into archive.db (mbox, ics, vcf), tested stdlib importer snippets, lazy alias resolution, backup discipline; never-index.db rule (REQ-1132).</li>
+<li>Author provenance (issues #73/#74, from live vault use): optional <code>author::</code> on ingested pages (schema REQ-585a; extraction REQ-011a, emission REQ-033c) and born-cited <code>wiki/people/</code> pages for recurring authors (ingest REQ-024a).</li>
+<li>Config keys: <code>archive_db</code> (REQ-626), <code>index_db</code> (REQ-627).</li>
+<li>Capture refs are valid cite targets: <code>check_citations.py</code> accepts <code>archive.db:voice_notes/&lt;id&gt;</code> in the source-file union (ingest REQ-086).</li>
+</ul>
+</section>
+<section id="fixed-2" class="level3">
+<h3 class="anchored" data-anchor-id="fixed-2">Fixed</h3>
+<ul>
+<li>Live-vault feedback round (issues #66..#70, PR #71): ingest names the exact <code>## Cross-References</code> heading and the checker tolerates <code>Related</code>/<code>See also</code>; <code>secret_scan.py</code> exempts ad/search tracking params only in URL query context; ingest Phase 0 slugifies source filenames at intake (REQ-070a); <code>init_wiki.py</code> writes <code>:hidden ["raw" "ingested"]</code> into <code>logseq/config.edn</code> (setup REQ-787); Logseq page properties are written unbulleted (schema REQ-590/591), matching what the app writes.</li>
+<li>Zotero guide verify-once (issue #28, partial): plugin pinned at v3.5.5, known-good stamped 2026-07-06, MD-graph annotation-sync caveat recorded.</li>
+</ul>
+</section>
+<section id="notes" class="level3">
+<h3 class="anchored" data-anchor-id="notes">Notes</h3>
+<ul>
+<li>The section 8 exit test in <code>docs/voice-pipeline.md</code> remains the recommended first run of the voice loop; the archive.db off-machine copy must exist before the first real voice note (REQ-1120, unwaived).</li>
+<li>Harness at 149 assertions (was 108 at v2.2.0); <code>check_canon.py</code> gains the namespace-contract surface.</li>
+</ul>
+</section>
+</section>
+<section id="section-8" class="level2">
+<h2 class="anchored" data-anchor-id="section-8">[2.3.0] - 2026-07-06</h2>
+<p>The glossary layer: hand-run first (G-0), tooling under the same waiver. Completes the v2.3 milestone.</p>
+<section id="added-7" class="level3">
+<h3 class="anchored" data-anchor-id="added-7">Added</h3>
+<ul>
+<li>Hand-run glossary (G-0, issue #53): domain and term page templates for both modes plus <code>docs/glossary-workflow.md</code> (capture with <code>#glossary-todo</code>, weekly curation, promote selectively, pull-only import, staging never as drafting context).</li>
+<li>Glossary tooling (issue #54): <code>openspec/specs/glossary.md</code> (REQ-1000..1014, human-DECIDED / tool-READABLE / structure-LINTED); namespaces REQ-960 amended to exactly four content namespaces WITH the check_canon namespace surface and the repo-wide stale-phrase grep gate in the same PR (premortem revision 8); lint rule 15 (REQ-250..253: table shape, rule enum, staging hygiene; structure only, no auto-fix); <code>init_wiki.py --with-glossary</code> and the <code>glossary_dir</code> config key (REQ-628); the <code>wiki-glossary</code> skill (curate / promote / import / context modes, every write checkpoint-confirmed).</li>
+</ul>
+</section>
+</section>
+<section id="section-9" class="level2">
+<h2 class="anchored" data-anchor-id="section-9">[2.2.0] - 2026-07-04</h2>
+<p>The human layer: PARA tasks (<code>para/</code>) and Zettelkasten notes (<code>notes/</code>) in the same graph as the machine-written <code>wiki/</code>, with a hard namespace contract and one sanctioned promotion path. Completes the v2.2 milestone (issue #30).</p>
+<section id="added-8" class="level3">
+<h3 class="anchored" data-anchor-id="added-8">Added</h3>
+<ul>
+<li>Namespaces contract + naming canon (<code>openspec/specs/namespaces.md</code>, issue #22): REQs renumbered into the globally unique 960..981 range; <code>schema.md</code> REQ-580 flipped from Title Case to lowercase-hyphenated structural names with the proper-noun-leaf exemption (REQ-580a/580b, namespaces REQ-976) and the corpus rename pass (REQ-580c); the personal-synthesis reliability rubric case (REQ-586); <code>para_dir</code> / <code>notes_dir</code> config keys (config REQ-625).</li>
+<li>Lint rules 13 (naming hygiene: structural segments mechanical, leaf proper-noun judgment stays in the wiki-lint skill) and 14 (namespace hygiene: strays outside the contract flagged; <code>para/</code> and <code>notes/</code> exempt from every wiki-only rule) (issue #23).</li>
+<li>Promotion seams in wiki-ingest (namespaces REQ-970..973, issue #24): <code>raw/para-&lt;project&gt;.md</code> / <code>raw/note-&lt;name&gt;.md</code> sources default to <code>reliability:: medium</code> (personal synthesis, schema REQ-586) and run the unchanged lifecycle with atomic move+commit, secret gate, and <code>cite::</code> emission; the literature variant (REQ-973) is a report reminder, never a write into <code>notes/</code>. New golden pairing pins the promoted-note checkpoint (<code>tests/golden/promotion-seam.golden.md</code>, issue #26).</li>
+<li>Opt-in para/notes scaffold: <code>init_wiki.py --with-para-notes</code> (or <code>setup.sh --init --with-para-notes</code>) seeds the human layer; without the flag the output is unchanged (issue #29).</li>
+<li><code>migrate_wiki.py --lowercase</code> converter pass (issue #25): <code>Wiki/</code> to <code>wiki/</code> renames via git mv, link and hub rewrites, plus Roam task-marker conversion (<code>{[[TODO]]}</code> to <code>TODO</code> and variants); dry-run by default, idempotent, driven interactively by <code>/wiki-migrate</code>.</li>
+<li>Harness at 108 assertions (both tool modes), including migration and naming/namespace-hygiene coverage.</li>
+</ul>
+</section>
+<section id="notes-1" class="level3">
+<h3 class="anchored" data-anchor-id="notes-1">Notes</h3>
+<ul>
+<li>The maintainer-verification items on #27 (Logseq Datalog query validation, archive-procedure confirmation) and #28 (Zotero plugin verify-once, end-to-end loop run) remain open past this release.</li>
+<li>The “real-vault lowercase migration executed” release-gate item (issue #30) is moot: the maintainer starts from a fresh empty graph, so there is no pre-v2.2 corpus to migrate.</li>
+</ul>
+</section>
+</section>
+<section id="section-10" class="level2">
+<h2 class="anchored" data-anchor-id="section-10">[2.1.0] - 2026-07-04</h2>
+<p>Claim-level citations and the two skills that consume them. Completes the re-authored Patch 2 (issue #8) in its block-native form.</p>
+<section id="added-9" class="level3">
+<h3 class="anchored" data-anchor-id="added-9">Added</h3>
+<ul>
+<li><code>cite::</code> block-property citation convention (<code>openspec/specs/citations.md</code>, REQ-900..905): wiki-ingest emits <code>cite::</code> on every non-common-knowledge claim block; page-level <code>source-file::</code> is the union of the page’s <code>ingested/</code> cite targets; born-cited pages per REQ-033b. Planned cite targets appear in the ingest checkpoint plan table.</li>
+<li><code>check_citations.py</code>: cite coverage stats (advisory), cite-target resolution, the source-file union invariant, and orphaned-cite detection (mechanical); wired into the ingest quality gate.</li>
+<li><code>wiki-audit</code> skill: claim-to-source verification via one isolated subagent per cited source, verdict rubric (supported / partial / unsupported / source-missing), reconciliation with <code>reliability::</code> and Pending Review; read-only by default, <code>--fix</code> writes only after confirmation.</li>
+<li><code>wiki-update</code> skill: diff-first, source-required revision path; factual changes without a source are refused; superseded claims stay legible (marked, never silently deleted).</li>
+<li>Schema templates gained the Claim Citations section; citation fixtures and 12 new harness assertions (74 total).</li>
+</ul>
+</section>
+</section>
+<section id="section-11" class="level2">
+<h2 class="anchored" data-anchor-id="section-11">[2.0.0] - 2026-07-04</h2>
+<p>The multi-skill suite. The single <code>/wiki</code> command (<code>wiki.md</code>) is removed and its workflows are re-homed across eight skills backed by a spec canon, shared scripts, and a mechanical test harness. BREAKING: the v1 command file is no longer shipped or supported; see <code>docs/migration-v2.md</code>.</p>
+<p>Tagged 2026-07-04 with the real-vault gate waived by maintainer decision; running <code>migrate_wiki.py</code> dry-run plus <code>wiki-lint</code> against the real vault remains the recommended first post-release step (issue #21 gate, <code>docs/migration.md</code>).</p>
+<section id="added-10" class="level3">
+<h3 class="anchored" data-anchor-id="added-10">Added</h3>
+<ul>
+<li><strong>Skill suite</strong> (<code>skills/</code>): <code>wiki-setup</code>, <code>wiki-ingest</code>, <code>wiki-query</code>, <code>wiki-lint</code>, <code>wiki-maintain</code> (status + prune), <code>wiki-migrate</code>, plus <code>wiki-audit</code> and <code>wiki-update</code> as stubs (implementation in v2.1, issue #18). Shared conventions and scripts live in <code>skills/wiki-core/</code>.</li>
+<li><strong>Core scripts</strong> (stdlib-only, both tool modes): <code>init_wiki.py</code> (scaffolding), <code>lint.py</code> (mechanical lint layer with a grandfather severity floor), <code>check_canon.py</code> (spec-consistency across specs, references, and templates), <code>secret_scan.py</code> (pre-archive secret gate), <code>migrate_wiki.py</code> (v1-to-v2 corpus converter), <code>find_config.py</code>/<code>check_config.py</code> (config discovery and validation).</li>
+<li><strong>Interactive ingest</strong>: one consolidated checkpoint before any write (ingest.md REQ-025); <code>--auto</code> opts out for queue draining (REQ-026); <code>--import</code> replaces the v1 import verb.</li>
+<li><strong>Pre-archive secret gate</strong>: source bytes are scanned before any file moves into the git-tracked <code>ingested/</code> tree (REQ-045); <code>sensitive_source_types</code> keeps configured types out of git history entirely (REQ-046).</li>
+<li><strong>Two-layer lint</strong>: mechanical rules via scripts (report-only), judgment rules agent-side; 12 rules including canonical-url link rot; fixes are proposed per finding and applied only after user confirmation.</li>
+<li><strong>Corpus migration</strong>: grandfather lint mode plus the one-time converter and the <code>wiki-migrate</code> skill (<code>docs/migration.md</code>).</li>
+<li><strong>Test harness</strong>: <code>test_pipeline.sh</code> (62 assertions, fixtures generated at runtime for both tool modes), golden transcripts, <code>docs/testing.md</code>.</li>
+<li><strong>Docs</strong>: <code>docs/migration-v2.md</code> (v1 command to skill suite) and <code>docs/design-vs-karpathy.md</code> (two-way review against the original gist).</li>
+</ul>
+</section>
+<section id="removed" class="level3">
+<h3 class="anchored" data-anchor-id="removed">Removed</h3>
+<ul>
+<li><strong><code>wiki.md</code></strong> (the v1 single command). Every workflow it provided has a skill home; an installed legacy copy keeps working but is unsupported, and <code>wiki-setup</code> offers its removal (setup.md REQ-806).</li>
+<li><strong>The provenance sentinel comments</strong> that marked fork-overlay regions in the templates and workflow text. The fork seam they protected is gone; the Schema-page upgrade now keys on section headings and <code>schema-spec-version::</code>.</li>
+</ul>
+</section>
+<section id="deferred-to-v2.1" class="level3">
+<h3 class="anchored" data-anchor-id="deferred-to-v2.1">Deferred to v2.1</h3>
+<ul>
+<li>Block-native citations (<code>cite::</code>, issue #17) including born-cited pages (ingest REQ-033b).</li>
+<li><code>wiki-audit</code> and <code>wiki-update</code> implementations (issue #18); both ship as stub SKILL.md files in 2.0.0.</li>
+</ul>
+</section>
+</section>
+<section id="section-12" class="level2">
+<h2 class="anchored" data-anchor-id="section-12">[1.5.0] - 2026-06-25</h2>
+<p>Fork feature (larnsce). A literature-research workflow guide and an optional Semantic-Scholar enrichment for the provenance pipeline added in 1.4.0. This is mostly documentation: how to combine Connected Papers, Semantic Scholar, Elicit, and Zotero with the wiki command so discovery stays fast and only read papers cross into the wiki. The only tool change is an optional <code>s2-metrics::</code> property, and it rides inside the existing provenance regions (sentinel comments, removed in 2.0.0), so the fork seam did not widen.</p>
+<section id="added-11" class="level3">
+<h3 class="anchored" data-anchor-id="added-11">Added</h3>
+<ul>
+<li><strong><code>docs/literature-research.md</code></strong> - the four-tool pipeline (each tool does one stage, Claude Code orchestrates), the funnel rule (“discovery feeds Zotero, Zotero feeds ingest, only read papers cross the line”), a wiki query (now <code>/wiki-query</code>) before discovery, the Semantic Scholar MCP setup, and the convention for ingesting an Elicit synthesis as a <code>knowledge</code> page (a usage habit stated at ingest time, not a new command). Linked from the README Documentation list.</li>
+<li><strong>Optional <code>s2-metrics::</code> property.</strong> When a Semantic Scholar MCP is configured, ingest (now <code>/wiki-ingest</code>) can record a source’s raw bibliometric figures (citations, influential citations, venue, type, year) verbatim on the page for audit. Documented in both Schema templates and specified in <code>openspec/specs/schema.md</code> (REQ-586a) and <code>ingest.md</code> (REQ-073a).</li>
+</ul>
+</section>
+<section id="notes-2" class="level3">
+<h3 class="anchored" data-anchor-id="notes-2">Notes</h3>
+<ul>
+<li><code>s2-metrics::</code> is ADVISORY. It informs the qualitative <code>reliability::</code> judgment but never sets it by formula. The enrichment is OPTIONAL: with no Semantic Scholar MCP present, ingest skips it and judges reliability from the source alone. Absence of the MCP never blocks ingest.</li>
+<li>Deliberately NOT adopted from the source conversation: the citation-count reliability thresholds (<code>influential &gt;= 5 OR cites &gt;= 100 -&gt; high</code>). Citation count measures influence and age, not correctness or currency; hard thresholds bake in field bias and would weaken the axis. The qualitative rubric from 1.4.0 stays the decision; <code>confidence::</code> covers currency.</li>
+<li>Deliberately deferred: a <code>/wiki synthesize</code> verb for Elicit review outputs. The Elicit ingest is a usage convention for now; formalize the verb only if it proves repetitive.</li>
+<li>MCP wiring (<code>claude mcp add ...</code>) is user/session config, documented in the guide; the tool does not run it.</li>
+</ul>
+</section>
+</section>
+<section id="section-13" class="level2">
+<h2 class="anchored" data-anchor-id="section-13">[1.4.0] - 2026-06-25</h2>
+<p>Fork feature (larnsce). A source-provenance pipeline and a trust layer, ported as ideas from vanillaflava/llm-wiki-skills, adapted to Logseq and this tool’s v1 wiki command. The goal is reproducibility: every synthesised claim traces back to a specific archived source, and weakly-supported pages are visibly flagged until corroborated. Implemented as additive provenance regions (sentinel comments, removed in 2.0.0) so the fork stayed rebaseable against upstream; the base <code>## Workflow: ingest (Default)</code> was left verbatim and only overlaid.</p>
+<section id="added-12" class="level3">
+<h3 class="anchored" data-anchor-id="added-12">Added</h3>
+<ul>
+<li><strong>raw/ -&gt; ingested/ source pipeline.</strong> Drop a source in <code>raw/</code>, ingest synthesises it into wiki pages, then the source file is MOVED into <code>ingested/&lt;type&gt;/</code>. The move is the provenance record (in <code>raw/</code> = pending, in <code>ingested/</code> = processed) and rides the same atomic git commit as the page edits. <code>setup.sh</code> scaffolds the folders and writes <code>raw_dir</code>/<code>ingested_dir</code>/<code>source_types</code>/<code>default_source_type</code> to <code>llm-wiki.yml</code>.</li>
+<li><strong>Page-level provenance.</strong> Ingested pages gain <code>source-file::</code> (plain path into <code>ingested/</code>, distinct from the existing <code>source::</code> which records the ingest METHOD).</li>
+<li><strong>Trust layer.</strong> A <code>reliability:: high | medium | low</code> rating (source quality; lowest of multiple sources) and a <code>## Pending Review</code> section that flags the specific claims on a single-source, non-high page until a corroborating source is ingested.</li>
+<li><strong><code>## Workflow: ingest — provenance extension</code></strong> in <code>wiki.md</code>: an overlay (Phase 0 queue intake, Phase 3 stamping, Phase 5 atomic archive-move) that adds to, never replaces, the base ingest workflow.</li>
+</ul>
+</section>
+<section id="changed-2" class="level3">
+<h3 class="anchored" data-anchor-id="changed-2">Changed</h3>
+<ul>
+<li><code>templates/logseq/Schema.md</code> and <code>templates/obsidian/Schema.md</code> — new Provenance, Reliability Rubric, Trust Axes, Pending Review, and Source Lifecycle sections.</li>
+<li><code>openspec/specs/schema.md</code> — REQ-585..589 (provenance properties, reliability, confidence/reliability separation, Pending Review, source lifecycle).</li>
+<li><code>openspec/specs/ingest.md</code> — REQ-070..075 (source-pipeline overlay on the ingest phases).</li>
+<li><code>setup.sh</code> <code>.gitignore</code> heredocs — a commented (non-active) PDF-ignore stanza, with a note on <code>git lfs track "*.pdf"</code> for a versioned-binaries reproducibility setup.</li>
+</ul>
+</section>
+<section id="notes-3" class="level3">
+<h3 class="anchored" data-anchor-id="notes-3">Notes</h3>
+<ul>
+<li><code>confidence::</code> (currency/verification) and <code>reliability::</code> (source quality) are kept as two SEPARATE axes and are never cross-derived. A page can be <code>confidence:: high</code> yet <code>reliability:: low</code>, or the reverse.</li>
+<li><code>raw/</code> and <code>ingested/</code> live beside <code>pages/</code>, so Logseq and Obsidian do not render sources as wiki pages. Existing pages are untouched until they are re-ingested.</li>
+<li>Deliberately NOT included (deferred): claim-level <code>[^key]</code> footnotes, <code>/wiki audit</code>, <code>/wiki update</code>. The footnote idiom fights Logseq’s block model; revisit if a public-facing per-repo wiki needs claim-level auditability, re-authored Logseq-block-native.</li>
+</ul>
+</section>
+</section>
+<section id="section-14" class="level2">
+<h2 class="anchored" data-anchor-id="section-14">[1.3.0] - 2026-06-08</h2>
+<p>Routing transparency. The Access-Log already recorded which pages a query pulled; now it records <em>why</em> each was picked. Loading becomes auditable — not just what loaded, but the index description or grep term that selected it. Inspired by a reader pointing out that knowing <em>when and why</em> context loads is half the problem.</p>
+<section id="added-13" class="level3">
+<h3 class="anchored" data-anchor-id="added-13">Added</h3>
+<ul>
+<li><strong>Routing reason in the Access-Log</strong> — every <code>query</code> log line now carries a <code>matched: "&lt;reason&gt;"</code> field: the matched hub <code>### Index</code> routing description / #tag on index routing, or the grep term on the L3 fallback (<code>&lt;date&gt; -- [[page]] -- query -- matched: "..."</code>). Shows not just WHICH page loaded but WHY it was selected for the question.</li>
+<li><code>status</code> cache profile now breaks down the most frequent <code>matched:</code> reasons per hot page, surfacing mis-routing: a page always hit via the same grep term instead of its index line signals a weak or missing routing description in its hub <code>### Index</code>.</li>
+</ul>
+</section>
+<section id="changed-3" class="level3">
+<h3 class="anchored" data-anchor-id="changed-3">Changed</h3>
+<ul>
+<li><code>openspec/specs/query.md</code> — REQ-450 line format extended; new REQ-450b defines the <code>matched:</code> reason semantics (&lt;= 60 chars, quoted, parsing-safe).</li>
+</ul>
+</section>
+<section id="notes-4" class="level3">
+<h3 class="anchored" data-anchor-id="notes-4">Notes</h3>
+<ul>
+<li>Backward compatible: legacy Access-Log lines without <code>matched:</code> stay valid (the field is additive). prune/status parse date + <code>[[page]]</code> from fixed positions (split on <code>--</code>), so the suffix never affects LRU aggregation.</li>
+</ul>
+</section>
+</section>
+<section id="section-15" class="level2">
+<h2 class="anchored" data-anchor-id="section-15"><a href="https://github.com/MehmetGoekce/llm-wiki/compare/v1.1.1...v1.2.0">1.2.0</a> - 2026-06-07</h2>
+<p>Two retrieval-scaling mechanisms, the CPU-cache analogy carried through to the index and eviction layers. As a wiki grows past a few dozen pages, grep-over-everything gets imprecise; these keep retrieval sharp.</p>
+<section id="added-14" class="level3">
+<h3 class="anchored" data-anchor-id="added-14">Added</h3>
+<ul>
+<li><strong>Hub-Index-Routing</strong> — two-stage <code>query</code>. Each hub page carries an <code>### Index</code> of routing lines (<code>[[page]] -- description #tags</code>); query reads the cheap index first, picks the 3 best pages by description, then reads only those. Full-text grep becomes the L3 fallback. <code>ingest</code> maintains the routing line for every page (the wiki’s page table).</li>
+<li><strong>LRU-Demote</strong> - a new prune verb, <code>[--months N]</code> (now <code>/wiki-maintain prune</code>). <code>query</code> appends every full-page read to an append-only <code>Wiki/Reference/Access-Log</code>; <code>prune</code> evicts pages with no access in N months (default 6) from the live index into the hub <code>### Archive</code>, marked <code>archived::</code>. Eviction never deletes, renames, or moves a file — incoming <code>[[links]]</code> stay valid and the page is still greppable (L3). Re-promotion is automatic on re-hit.</li>
+<li><code>openspec/specs/prune.md</code> — new spec (EARS requirements + BDD scenarios)</li>
+<li>Lint rules 10 (Index Drift) and 11 (Archived-in-Live-Index), both auto-fixable; <code>lint --fix</code> now backfills missing routing lines into hub indexes</li>
+<li><code>status</code> now reports a hot/cold cache profile (most-queried pages, demote-ready cold pages)</li>
+<li>Access-Log page templates for Logseq and Obsidian; <code>setup.sh</code> scaffolds the Access-Log page</li>
+</ul>
+</section>
+<section id="changed-4" class="level3">
+<h3 class="anchored" data-anchor-id="changed-4">Changed</h3>
+<ul>
+<li>Hub page templates (Logseq + Obsidian) now include <code>### Index</code> and <code>### Archive</code> sections</li>
+<li><code>docs/schema-reference.md</code> — Hub example updated; new “Hub-Index-Routing &amp; LRU-Demote” section</li>
+<li>Specs updated: <code>query.md</code> (Phase 0 routing + Phase 1b access logging), <code>ingest.md</code> (routing-line maintenance), <code>lint.md</code> (11 rules), <code>schema.md</code> (hub index, <code>archived::</code> marker, Access-Log page)</li>
+</ul>
+</section>
+<section id="notes-5" class="level3">
+<h3 class="anchored" data-anchor-id="notes-5">Notes</h3>
+<ul>
+<li>Backward compatible. Existing wikis keep working; run lint with <code>--fix</code> (now <code>/wiki-lint</code>) once to backfill routing lines into hubs that predate this release.</li>
+<li><code>archived::</code> is the canonical demote marker and is valid on any page type. <code>status:: archived</code> is set additionally only where the type’s status enum allows it (Entity).</li>
+</ul>
+</section>
+</section>
+<section id="section-16" class="level2">
+<h2 class="anchored" data-anchor-id="section-16"><a href="https://github.com/MehmetGoekce/llm-wiki/compare/v1.1.0...v1.1.1">1.1.1</a> - 2026-04-18</h2>
+<section id="added-15" class="level3">
+<h3 class="anchored" data-anchor-id="added-15">Added</h3>
+<ul>
+<li>README badge row — license, release, stars, top language, last commit</li>
+<li><code>docs/faq.md</code> — 10 questions first-time users actually ask (paid plan, L1/L2 rationale, tool choice, credential safety, wiki growth thresholds)</li>
+<li><code>docs/troubleshooting.md</code> — setup, wiki-app integration, Claude Code integration, and wiki-growth issues with symptom → cause → fix format</li>
+<li>README “Documentation” section linking all five docs pages</li>
+</ul>
+</section>
+<section id="notes-6" class="level3">
+<h3 class="anchored" data-anchor-id="notes-6">Notes</h3>
+<ul>
+<li>Documentation-only release. No code, schema, or command changes.</li>
+<li>Focus: adoption friction. The v1.1.0 feedback pointed at missing onboarding docs, not missing features.</li>
+</ul>
+</section>
+</section>
+<section id="section-17" class="level2">
+<h2 class="anchored" data-anchor-id="section-17"><a href="https://github.com/MehmetGoekce/llm-wiki/compare/v1.0.0...v1.1.0">1.1.0</a> - 2026-04-10</h2>
+<section id="added-16" class="level3">
+<h3 class="anchored" data-anchor-id="added-16">Added</h3>
+<ul>
+<li>7 OpenSpec specifications with 162 EARS requirements and 66 BDD scenarios
+<ul>
+<li><code>ingest.md</code> — 5-phase source processing pipeline</li>
+<li><code>query.md</code> — Search, synthesis, write-back, source attribution</li>
+<li><code>lint.md</code> — 9 health checks with auto-fix rules</li>
+<li><code>schema.md</code> — Page types, property validation, format rules</li>
+<li><code>config.md</code> — Configuration loading and error handling</li>
+<li><code>setup.md</code> — Interactive installer specification</li>
+<li><code>l1-l2-routing.md</code> — L1/L2 boundary decision logic</li>
+</ul></li>
+<li>GitHub issue templates (bug report, feature request)</li>
+<li>Pull request template with dual-tool testing checklist</li>
+<li>SECURITY.md with responsible disclosure process</li>
+<li><code>.gitignore</code> for editor and OS files</li>
+<li>CHANGELOG.md</li>
+</ul>
+</section>
+<section id="fixed-3" class="level3">
+<h3 class="anchored" data-anchor-id="fixed-3">Fixed</h3>
+<ul>
+<li><code>setup.sh</code>: Add prerequisite checks for python3 and git</li>
+<li><code>setup.sh</code>: Add <code>set -eo pipefail</code> for stricter error handling</li>
+<li><code>setup.sh</code>: Validate namespace names (letters, numbers, hyphens only)</li>
+<li><code>setup.sh</code>: Skip existing wiki pages instead of silently overwriting</li>
+<li><code>setup.sh</code>: Prompt before overwriting existing <code>llm-wiki.yml</code></li>
+</ul>
+</section>
+</section>
+<section id="section-18" class="level2">
+<h2 class="anchored" data-anchor-id="section-18"><a href="https://github.com/MehmetGoekce/llm-wiki/releases/tag/v1.0.0">1.0.0</a> - 2026-04-07</h2>
+<p>First stable release.</p>
+<section id="added-17" class="level3">
+<h3 class="anchored" data-anchor-id="added-17">Added</h3>
+<ul>
+<li>The ingest verb (now <code>/wiki-ingest</code>) - 5-phase source processing pipeline (URL, file, text)</li>
+<li>The query verb (now <code>/wiki-query</code>) - search, synthesis, and source attribution</li>
+<li>The lint verb (now <code>/wiki-lint</code>) - 9 automated health checks with <code>--fix</code> auto-repair</li>
+<li>The status verb (now <code>/wiki-maintain</code>) - wiki metrics and health dashboard</li>
+<li><code>setup.sh</code> — Interactive installer for Logseq and Obsidian</li>
+<li>L1/L2 dual-layer cache architecture (CPU cache metaphor)</li>
+<li>Templates for both Logseq (outliner) and Obsidian (flat markdown)</li>
+<li>Schema with 5 page types: Entity, Project, Knowledge, Feedback, Hub</li>
+<li><code>config.example.yml</code> for reference configuration</li>
+</ul>
+</section>
+<section id="security" class="level3">
+<h3 class="anchored" data-anchor-id="security">Security</h3>
+<ul>
+<li>Credential leak detection (lint rule 6) scans for tokens, passwords, secrets</li>
+<li>L1/L2 security boundary: credentials stay in L1 (git-excluded), wiki is git-tracked</li>
+</ul>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/CHANGELOG.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

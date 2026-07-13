@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>troubleshooting – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link active" data-scroll-target="#troubleshooting">Troubleshooting</a>
+  <ul class="collapse">
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a>
+  <ul class="collapse">
+  <li><a href="#setup.sh-python3-command-not-found" id="toc-setup.sh-python3-command-not-found" class="nav-link" data-scroll-target="#setup.sh-python3-command-not-found"><code>setup.sh: python3: command not found</code></a></li>
+  <li><a href="#setup.sh-git-command-not-found" id="toc-setup.sh-git-command-not-found" class="nav-link" data-scroll-target="#setup.sh-git-command-not-found"><code>setup.sh: git: command not found</code></a></li>
+  <li><a href="#setup.sh-fails-during-template-rendering" id="toc-setup.sh-fails-during-template-rendering" class="nav-link" data-scroll-target="#setup.sh-fails-during-template-rendering"><code>setup.sh</code> fails during template rendering</a></li>
+  <li><a href="#the-script-exits-at-which-note-taking-tool-do-you-use" id="toc-the-script-exits-at-which-note-taking-tool-do-you-use" class="nav-link" data-scroll-target="#the-script-exits-at-which-note-taking-tool-do-you-use">The script exits at “Which note-taking tool do you use?”</a></li>
+  </ul></li>
+  <li><a href="#wiki-app-integration" id="toc-wiki-app-integration" class="nav-link" data-scroll-target="#wiki-app-integration">Wiki App Integration</a>
+  <ul class="collapse">
+  <li><a href="#new-pages-dont-appear-in-the-logseq-graph" id="toc-new-pages-dont-appear-in-the-logseq-graph" class="nav-link" data-scroll-target="#new-pages-dont-appear-in-the-logseq-graph">New pages don’t appear in the Logseq graph</a></li>
+  <li><a href="#obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties" id="toc-obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties" class="nav-link" data-scroll-target="#obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties">Obsidian shows YAML frontmatter as a code block instead of Properties</a></li>
+  <li><a href="#cross-references-wikitechstrapi-arent-clickable" id="toc-cross-references-wikitechstrapi-arent-clickable" class="nav-link" data-scroll-target="#cross-references-wikitechstrapi-arent-clickable">Cross-references <code>[[wiki/tech/Strapi]]</code> aren’t clickable</a></li>
+  </ul></li>
+  <li><a href="#claude-code-integration" id="toc-claude-code-integration" class="nav-link" data-scroll-target="#claude-code-integration">Claude Code Integration</a>
+  <ul class="collapse">
+  <li><a href="#the-wiki-skills-arent-available-or-cant-find-the-wiki" id="toc-the-wiki-skills-arent-available-or-cant-find-the-wiki" class="nav-link" data-scroll-target="#the-wiki-skills-arent-available-or-cant-find-the-wiki">The wiki skills aren’t available or can’t find the wiki</a></li>
+  <li><a href="#wiki-ingest-runs-forever-or-times-out" id="toc-wiki-ingest-runs-forever-or-times-out" class="nav-link" data-scroll-target="#wiki-ingest-runs-forever-or-times-out"><code>/wiki-ingest</code> runs forever or times out</a></li>
+  <li><a href="#wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials" id="toc-wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials" class="nav-link" data-scroll-target="#wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials"><code>/wiki-ingest</code> blocks with a credential-leak warning but the content has no credentials</a></li>
+  </ul></li>
+  <li><a href="#wiki-growth" id="toc-wiki-growth" class="nav-link" data-scroll-target="#wiki-growth">Wiki Growth</a>
+  <ul class="collapse">
+  <li><a href="#the-wiki-has-grown-past-200-pages-and-feels-unmanageable" id="toc-the-wiki-has-grown-past-200-pages-and-feels-unmanageable" class="nav-link" data-scroll-target="#the-wiki-has-grown-past-200-pages-and-feels-unmanageable">The wiki has grown past 200 pages and feels unmanageable</a></li>
+  <li><a href="#wiki-lint-keeps-flagging-the-same-orphan-pages" id="toc-wiki-lint-keeps-flagging-the-same-orphan-pages" class="nav-link" data-scroll-target="#wiki-lint-keeps-flagging-the-same-orphan-pages"><code>/wiki-lint</code> keeps flagging the same orphan pages</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/troubleshooting.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="troubleshooting" class="level1">
+<h1>Troubleshooting</h1>
+<p>Common issues and fixes. If your problem is not listed here, open a <a href="https://github.com/MehmetGoekce/llm-wiki/issues/new/choose">GitHub issue</a>.</p>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<section id="setup.sh-python3-command-not-found" class="level3">
+<h3 class="anchored" data-anchor-id="setup.sh-python3-command-not-found"><code>setup.sh: python3: command not found</code></h3>
+<p><strong>Cause:</strong> Python 3 is not installed or not in your <code>PATH</code>. The setup script uses Python 3 to render page templates.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li><strong>macOS:</strong> <code>brew install python3</code></li>
+<li><strong>Ubuntu/Debian:</strong> <code>sudo apt install python3</code></li>
+<li><strong>Fedora:</strong> <code>sudo dnf install python3</code></li>
+<li><strong>Windows:</strong> Install from <a href="https://www.python.org/downloads/">python.org</a> and check “Add python.exe to PATH” during install.</li>
+</ul>
+<p>Verify with <code>python3 --version</code>. The script requires Python 3.6 or newer (any version from the last ~8 years works).</p>
+</section>
+<section id="setup.sh-git-command-not-found" class="level3">
+<h3 class="anchored" data-anchor-id="setup.sh-git-command-not-found"><code>setup.sh: git: command not found</code></h3>
+<p><strong>Cause:</strong> Git is not installed. Needed for the optional <code>git init</code> step and to clone the repo in the first place.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li><strong>macOS:</strong> Comes with Xcode Command Line Tools - run <code>xcode-select --install</code>.</li>
+<li><strong>Ubuntu/Debian:</strong> <code>sudo apt install git</code></li>
+<li><strong>Fedora:</strong> <code>sudo dnf install git</code></li>
+<li><strong>Windows:</strong> Install <a href="https://git-scm.com/download/win">Git for Windows</a>.</li>
+</ul>
+</section>
+<section id="setup.sh-fails-during-template-rendering" class="level3">
+<h3 class="anchored" data-anchor-id="setup.sh-fails-during-template-rendering"><code>setup.sh</code> fails during template rendering</h3>
+<p><strong>Cause:</strong> Usually one of three things:</p>
+<ol type="1">
+<li>The destination directory is not writable.</li>
+<li>The template directory is missing (corrupted clone or wrong working directory).</li>
+<li>A pre-existing file blocks template output.</li>
+</ol>
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Confirm you ran <code>./setup.sh</code> from inside the cloned <code>llm-wiki</code> directory, not from elsewhere.</li>
+<li>Check the path you entered is writable: <code>touch ~/Documents/Logseq/test.txt &amp;&amp; rm ~/Documents/Logseq/test.txt</code>.</li>
+<li>If pre-existing pages block the render, setup will skip them. Delete the skipped pages manually if you want them regenerated.</li>
+<li>Re-clone the repo if <code>templates/</code> looks empty or partial.</li>
+</ul>
+</section>
+<section id="the-script-exits-at-which-note-taking-tool-do-you-use" class="level3">
+<h3 class="anchored" data-anchor-id="the-script-exits-at-which-note-taking-tool-do-you-use">The script exits at “Which note-taking tool do you use?”</h3>
+<p><strong>Cause:</strong> Something other than <code>1</code> or <code>2</code> was entered. The script exits immediately on invalid input rather than re-prompting.</p>
+<p><strong>Fix:</strong> Re-run <code>./setup.sh</code> and enter exactly <code>1</code> (Logseq) or <code>2</code> (Obsidian). If you prefer non-interactive runs (e.g., CI or testing):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="at">-e</span> <span class="st">"1\n~/test-wiki\ny\n\nskip\ny\nskip"</span> <span class="kw">|</span> <span class="ex">./setup.sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>See <code>CONTRIBUTING.md</code> for the full stdin sequence.</p>
+</section>
+</section>
+<section id="wiki-app-integration" class="level2">
+<h2 class="anchored" data-anchor-id="wiki-app-integration">Wiki App Integration</h2>
+<section id="new-pages-dont-appear-in-the-logseq-graph" class="level3">
+<h3 class="anchored" data-anchor-id="new-pages-dont-appear-in-the-logseq-graph">New pages don’t appear in the Logseq graph</h3>
+<p><strong>Cause:</strong> Logseq watches the <code>pages/</code> directory but only re-indexes under specific conditions. New files created while Logseq is running may not show up until you reload.</p>
+<p><strong>Fix:</strong></p>
+<ol type="1">
+<li>In Logseq: <code>File → Reindex</code> (or <code>Cmd/Ctrl + Shift + R</code>).</li>
+<li>Confirm the file path is correct. Logseq pages live in <code>&lt;graph-root&gt;/pages/</code> and must use the <code>wiki___&lt;namespace&gt;___&lt;page&gt;.md</code> triple-underscore naming.</li>
+<li>Check <code>journals/</code> is not accidentally being used - journals have a different format and will not render as regular wiki pages.</li>
+</ol>
+</section>
+<section id="obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties" class="level3">
+<h3 class="anchored" data-anchor-id="obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties">Obsidian shows YAML frontmatter as a code block instead of Properties</h3>
+<p><strong>Cause:</strong> Older Obsidian versions (before 1.4, released mid-2023) do not support the Properties feature. The frontmatter still works, but renders as literal text.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Update Obsidian to the latest version.</li>
+<li>In Settings → Editor, ensure “Properties in document” is enabled.</li>
+<li>If you deliberately disable Properties, the wiki still works - the LLM reads the YAML, and nothing breaks. The display is just uglier.</li>
+</ul>
+</section>
+<section id="cross-references-wikitechstrapi-arent-clickable" class="level3">
+<h3 class="anchored" data-anchor-id="cross-references-wikitechstrapi-arent-clickable">Cross-references <code>[[wiki/tech/Strapi]]</code> aren’t clickable</h3>
+<p><strong>Cause:</strong> Wrong file-naming convention for the tool.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li><strong>Logseq</strong> expects triple-underscore flat files: <code>wiki___tech___Strapi.md</code>. <code>[[wiki/tech/Strapi]]</code> resolves because Logseq treats <code>/</code> and <code>___</code> as equivalent path separators.</li>
+<li><strong>Obsidian</strong> expects directory hierarchy: <code>wiki/tech/Strapi.md</code>. The file literally lives inside <code>wiki/tech/</code>.</li>
+</ul>
+<p>If you mix conventions (e.g., triple-underscore files inside an Obsidian vault), links break. Check that <code>setup.sh</code> configured the correct tool - run it again and pick the tool matching your current vault.</p>
+</section>
+</section>
+<section id="claude-code-integration" class="level2">
+<h2 class="anchored" data-anchor-id="claude-code-integration">Claude Code Integration</h2>
+<section id="the-wiki-skills-arent-available-or-cant-find-the-wiki" class="level3">
+<h3 class="anchored" data-anchor-id="the-wiki-skills-arent-available-or-cant-find-the-wiki">The wiki skills aren’t available or can’t find the wiki</h3>
+<p><strong>Cause:</strong> Either the skill suite is not installed into <code>.claude/skills/</code>, or config discovery cannot locate your <code>llm-wiki.yml</code>. Since v2 there is no config-path placeholder to patch into the skill files; the skills discover the config at runtime.</p>
+<p><strong>Fix:</strong></p>
+<ol type="1">
+<li><p>Confirm the skills are installed: <code>.claude/skills/wiki-core/</code>, <code>wiki-setup/</code>, <code>wiki-ingest/</code>, etc. exist in your project (or globally in <code>~/.claude/skills/</code>). If missing, run <code>./setup.sh</code> from the cloned <code>llm-wiki</code> directory; it copies or symlinks the suite.</p></li>
+<li><p>Check config discovery. The skills locate <code>llm-wiki.yml</code> in this order (first hit wins):</p>
+<ul>
+<li>the path in the <code>LLM_WIKI_CONFIG</code> environment variable, if set;</li>
+<li>walking up from the current working directory to <code>$HOME</code> (inclusive);</li>
+<li>the global pointer file <code>~/.config/llm-wiki/config.yml</code>, whose <code>wiki_path</code> names the wiki root containing the real <code>llm-wiki.yml</code>.</li>
+</ul></li>
+<li><p>Test it directly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> skills/wiki-core/scripts/find_config.py <span class="at">--json</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Exit 0 prints the resolved path and which discovery method matched; exit 2 means nothing was found (or <code>LLM_WIKI_CONFIG</code> points at a missing file).</p></li>
+<li><p>If discovery fails, run the <code>wiki-setup</code> skill: it scaffolds a fresh wiki when none exists and offers to write the global pointer file so the skills work from any directory.</p></li>
+</ol>
+<p>Restart Claude Code after installing skills so they are picked up.</p>
+</section>
+<section id="wiki-ingest-runs-forever-or-times-out" class="level3">
+<h3 class="anchored" data-anchor-id="wiki-ingest-runs-forever-or-times-out"><code>/wiki-ingest</code> runs forever or times out</h3>
+<p><strong>Cause:</strong> Source is too large, or the wiki has grown past the batch limit and Claude is trying to load too many pages at once.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Split large sources. A 10,000-word document should be ingested in 2-3 passes, not one.</li>
+<li>The ingest pipeline has a 3-page batch limit - if your wiki has hundreds of pages and many are relevant to the source, processing takes proportionally longer.</li>
+<li>If Claude Code hits a context limit mid-ingest, it will stop and report. Re-run the same ingest - Claude’s append-only discipline prevents duplicates.</li>
+</ul>
+</section>
+<section id="wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials" class="level3">
+<h3 class="anchored" data-anchor-id="wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials"><code>/wiki-ingest</code> blocks with a credential-leak warning but the content has no credentials</h3>
+<p><strong>Cause:</strong> False positive from lint rule #6. The credential-leak regex includes base64-like patterns (<code>[A-Za-z0-9+/]{40,}</code>), which also match innocent long strings - long URLs, hashes, or technical identifiers.</p>
+<p><strong>Fix:</strong></p>
+<ol type="1">
+<li>Review the flagged content. If it is a genuine credential, move it to L1 (memory) and strip it from the source before re-ingesting.</li>
+<li>If it is a false positive (e.g., a commit SHA or a long URL), you have two options:
+<ul>
+<li>Edit the source to break the pattern (e.g., add a space or truncate).</li>
+<li>Temporarily disable the base64 pattern in <code>llm-wiki.yml</code> → <code>lint.credential_patterns</code>. Re-enable it after the ingest.</li>
+</ul></li>
+</ol>
+<p>Never commit around the lint by force. The false positive rate is low, and genuine credential leaks have serious consequences.</p>
+</section>
+</section>
+<section id="wiki-growth" class="level2">
+<h2 class="anchored" data-anchor-id="wiki-growth">Wiki Growth</h2>
+<section id="the-wiki-has-grown-past-200-pages-and-feels-unmanageable" class="level3">
+<h3 class="anchored" data-anchor-id="the-wiki-has-grown-past-200-pages-and-feels-unmanageable">The wiki has grown past 200 pages and feels unmanageable</h3>
+<p><strong>Cause:</strong> Natural friction at scale. Past ~200 pages, flat namespaces get noisy, hub pages grow long, and the mental model of “what is where” breaks down. Retrieval also gets imprecise if it relies on grep-over-everything.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li><strong>Two-stage routing handles retrieval precision automatically.</strong> Since v1.2.0, <code>/wiki-query</code> reads the hub <code>### Index</code> routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line’s description terse and distinctive - that is what keeps routing sharp as the wiki grows.</li>
+<li><strong>Run <code>/wiki-maintain prune</code> periodically (default every 6 months).</strong> It evicts cold pages - no read in N months - from the live hub index into <code>### Archive</code>, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.</li>
+<li><strong>Split namespaces.</strong> If <code>wiki/tech/</code> has 50+ pages, consider splitting into <code>wiki/tech/infrastructure/</code>, <code>wiki/tech/languages/</code>, etc. Namespaces can go 3 levels deep.</li>
+<li><strong>Run <code>/wiki-lint --fix</code>.</strong> Beyond stale detection (90+ days), it now also fixes index drift - backfilling missing routing lines and tidying archived pages left in the live index.</li>
+<li><strong>Audit L1/L2.</strong> If you find yourself querying the same L2 page every session, promote the essential part to L1.</li>
+</ul>
+<p>The wiki scales, but like any knowledge system, it requires periodic gardening - now mostly automated by <code>/wiki-maintain prune</code> and <code>/wiki-lint --fix</code>.</p>
+</section>
+<section id="wiki-lint-keeps-flagging-the-same-orphan-pages" class="level3">
+<h3 class="anchored" data-anchor-id="wiki-lint-keeps-flagging-the-same-orphan-pages"><code>/wiki-lint</code> keeps flagging the same orphan pages</h3>
+<p><strong>Cause:</strong> Pages that have no incoming links are flagged as orphans. If the same pages appear every run, they are genuinely unlinked.</p>
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Add the page to the appropriate hub page (e.g., <code>wiki/tech</code> hub should list all <code>wiki/tech/*</code> pages).</li>
+<li>Add cross-references from related pages - if <code>wiki/projects/X</code> mentions <code>wiki/tech/Y</code>, make sure it uses <code>[[wiki/tech/Y]]</code> syntax.</li>
+<li>Run <code>/wiki-lint --fix</code> - it auto-adds missing hub entries where obvious.</li>
+</ul>
+<p>If a page is genuinely isolated and cannot be linked from anywhere, it may be a sign the page is misplaced (wrong namespace) or should be deleted.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/troubleshooting.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

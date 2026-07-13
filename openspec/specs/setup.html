@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>setup – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-setup.sh---interactive-installer" id="toc-spec-setup.sh---interactive-installer" class="nav-link active" data-scroll-target="#spec-setup.sh---interactive-installer">Spec: setup.sh - Interactive Installer</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#step-1-tool-selection" id="toc-step-1-tool-selection" class="nav-link" data-scroll-target="#step-1-tool-selection">Step 1: Tool Selection</a></li>
+  <li><a href="#step-2-wiki-path" id="toc-step-2-wiki-path" class="nav-link" data-scroll-target="#step-2-wiki-path">Step 2: Wiki Path</a></li>
+  <li><a href="#step-3-pages-directory" id="toc-step-3-pages-directory" class="nav-link" data-scroll-target="#step-3-pages-directory">Step 3: Pages Directory</a></li>
+  <li><a href="#step-4-namespaces" id="toc-step-4-namespaces" class="nav-link" data-scroll-target="#step-4-namespaces">Step 4: Namespaces</a></li>
+  <li><a href="#step-5-memory-path" id="toc-step-5-memory-path" class="nav-link" data-scroll-target="#step-5-memory-path">Step 5: Memory Path</a></li>
+  <li><a href="#step-6-git-init" id="toc-step-6-git-init" class="nav-link" data-scroll-target="#step-6-git-init">Step 6: Git Init</a></li>
+  <li><a href="#step-7-template-validation" id="toc-step-7-template-validation" class="nav-link" data-scroll-target="#step-7-template-validation">Step 7: Template Validation</a></li>
+  <li><a href="#step-8-page-creation-python-template-rendering" id="toc-step-8-page-creation-python-template-rendering" class="nav-link" data-scroll-target="#step-8-page-creation-python-template-rendering">Step 8: Page Creation (Python Template Rendering)</a></li>
+  <li><a href="#step-9-config-file-generation" id="toc-step-9-config-file-generation" class="nav-link" data-scroll-target="#step-9-config-file-generation">Step 9: Config File Generation</a></li>
+  <li><a href="#step-10-skill-installation" id="toc-step-10-skill-installation" class="nav-link" data-scroll-target="#step-10-skill-installation">Step 10: Skill Installation</a></li>
+  <li><a href="#step-11-initial-git-commit" id="toc-step-11-initial-git-commit" class="nav-link" data-scroll-target="#step-11-initial-git-commit">Step 11: Initial Git Commit</a></li>
+  <li><a href="#final-summary" id="toc-final-summary" class="nav-link" data-scroll-target="#final-summary">Final Summary</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-happy-path---logseq-new-directory-defaults" id="toc-scenario-1-happy-path---logseq-new-directory-defaults" class="nav-link" data-scroll-target="#scenario-1-happy-path---logseq-new-directory-defaults">Scenario 1: Happy path - Logseq, new directory, defaults</a></li>
+  <li><a href="#scenario-2-happy-path---obsidian-existing-vault" id="toc-scenario-2-happy-path---obsidian-existing-vault" class="nav-link" data-scroll-target="#scenario-2-happy-path---obsidian-existing-vault">Scenario 2: Happy path - Obsidian, existing vault</a></li>
+  <li><a href="#scenario-3-directory-does-not-exist---user-declines-creation" id="toc-scenario-3-directory-does-not-exist---user-declines-creation" class="nav-link" data-scroll-target="#scenario-3-directory-does-not-exist---user-declines-creation">Scenario 3: Directory does not exist - user declines creation</a></li>
+  <li><a href="#scenario-4-invalid-tool-selection" id="toc-scenario-4-invalid-tool-selection" class="nav-link" data-scroll-target="#scenario-4-invalid-tool-selection">Scenario 4: Invalid tool selection</a></li>
+  <li><a href="#scenario-5-python3-not-available" id="toc-scenario-5-python3-not-available" class="nav-link" data-scroll-target="#scenario-5-python3-not-available">Scenario 5: python3 not available</a></li>
+  <li><a href="#scenario-6-template-directory-missing" id="toc-scenario-6-template-directory-missing" class="nav-link" data-scroll-target="#scenario-6-template-directory-missing">Scenario 6: Template directory missing</a></li>
+  <li><a href="#scenario-7-skill-installation-skipped" id="toc-scenario-7-skill-installation-skipped" class="nav-link" data-scroll-target="#scenario-7-skill-installation-skipped">Scenario 7: Skill installation skipped</a></li>
+  <li><a href="#scenario-8-custom-namespaces" id="toc-scenario-8-custom-namespaces" class="nav-link" data-scroll-target="#scenario-8-custom-namespaces">Scenario 8: Custom namespaces</a></li>
+  <li><a href="#scenario-9-git-init-skipped" id="toc-scenario-9-git-init-skipped" class="nav-link" data-scroll-target="#scenario-9-git-init-skipped">Scenario 9: Git init skipped</a></li>
+  <li><a href="#scenario-10-existing-pages-not-overwritten" id="toc-scenario-10-existing-pages-not-overwritten" class="nav-link" data-scroll-target="#scenario-10-existing-pages-not-overwritten">Scenario 10: Existing pages not overwritten</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/setup.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-setup.sh---interactive-installer" class="level1">
+<h1>Spec: setup.sh - Interactive Installer</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The setup script is the entry point for new users. It guides them through an interactive 11-step process to configure their wiki, create initial pages (Schema, Dashboard, Hub pages), generate the config file, and optionally install the wiki skills for Claude Code. It requires only bash, python3, and git.</p>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<ul>
+<li>REQ-700: The system MUST require bash (any version supporting <code>read -p</code>).</li>
+<li>REQ-701: The system MUST require python3. If python3 is not available, the system SHALL display an error and exit.</li>
+<li>REQ-702: The system MUST require git for the optional git init step. If git is not available, git-related steps SHALL be skipped with a warning.</li>
+<li>REQ-703: The system MUST NOT require any package manager (npm, pip, etc.) or any installed libraries beyond the standard library.</li>
+</ul>
+</section>
+<section id="step-1-tool-selection" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-tool-selection">Step 1: Tool Selection</h3>
+<ul>
+<li>REQ-710: The system SHALL prompt the user to choose between Logseq (1) and Obsidian (2).</li>
+<li>REQ-711: If the user enters a value other than 1 or 2, the system SHALL display an error and exit.</li>
+<li>REQ-712: The tool choice determines ALL downstream behavior: file naming, property syntax, directory structure, template selection.</li>
+</ul>
+</section>
+<section id="step-2-wiki-path" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-wiki-path">Step 2: Wiki Path</h3>
+<ul>
+<li>REQ-720: The system SHALL prompt for the wiki/vault root path with a tool-specific default (<code>~/Documents/Logseq</code> or <code>~/Documents/ObsidianVault</code>).</li>
+<li>REQ-721: The system SHALL expand <code>~</code> to <code>$HOME</code> in the provided path.</li>
+<li>REQ-722: If the path does not exist, the system SHALL ask “Create it? [y/n]”. On “y”: create with <code>mkdir -p</code>. On “n”: exit with error.</li>
+</ul>
+</section>
+<section id="step-3-pages-directory" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-pages-directory">Step 3: Pages Directory</h3>
+<ul>
+<li>REQ-730: For Logseq, <code>pages_dir</code> SHALL be set to <code>pages</code>. For Obsidian, <code>pages_dir</code> SHALL be set to empty string.</li>
+<li>REQ-731: If the pages directory does not exist, the system SHALL create it with <code>mkdir -p</code>.</li>
+</ul>
+</section>
+<section id="step-4-namespaces" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-namespaces">Step 4: Namespaces</h3>
+<ul>
+<li>REQ-740: The system SHALL offer a default namespace list: Business, Tech, Content, Projects, People, Learning, Reference.</li>
+<li>REQ-741: The user MAY enter a custom space-separated list or press Enter to accept defaults.</li>
+<li>REQ-742: Namespace names SHOULD be single words following the structural naming rules in specs/schema.md (REQ-580..581: lowercase, hyphenated). The system does not validate this (user responsibility). The scaffolded defaults flip from Title Case to lowercase with the migration converter (issue #25); pre-migration corpora are covered by the grandfather floor.</li>
+</ul>
+</section>
+<section id="step-5-memory-path" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-memory-path">Step 5: Memory Path</h3>
+<ul>
+<li>REQ-750: The system SHALL prompt for the Claude Code memory directory path.</li>
+<li>REQ-751: The user MAY skip this step. If skipped, <code>memory_path</code> is empty in the generated config.</li>
+<li>REQ-752: The system SHALL expand <code>~</code> to <code>$HOME</code> in the provided path.</li>
+<li>REQ-753: The system does NOT validate that the memory path exists (it may be created later by Claude Code).</li>
+</ul>
+</section>
+<section id="step-6-git-init" class="level3">
+<h3 class="anchored" data-anchor-id="step-6-git-init">Step 6: Git Init</h3>
+<ul>
+<li>REQ-760: If the wiki directory does not have a <code>.git</code> directory, the system SHALL ask “Initialize git? [y/n]”.</li>
+<li>REQ-761: On “y”: run <code>git init</code>, create tool-specific <code>.gitignore</code>.</li>
+<li>REQ-762: Logseq <code>.gitignore</code> SHALL include: <code>logseq/bak/</code>, <code>logseq/.recycle/</code>, <code>.DS_Store</code>, <code>.logseq/</code>.</li>
+<li>REQ-763: Obsidian <code>.gitignore</code> SHALL include: <code>.obsidian/workspace.json</code>, <code>.obsidian/workspace-mobile.json</code>, <code>.DS_Store</code>, <code>.trash/</code>.</li>
+<li>REQ-764: On “n”: skip git initialization entirely.</li>
+<li>REQ-765: If <code>.git</code> already exists, skip this step silently.</li>
+</ul>
+</section>
+<section id="step-7-template-validation" class="level3">
+<h3 class="anchored" data-anchor-id="step-7-template-validation">Step 7: Template Validation</h3>
+<ul>
+<li>REQ-770: The system SHALL locate the template directory at <code>$SCRIPT_DIR/templates/$TOOL/</code>.</li>
+<li>REQ-771: If the template directory does not exist, the system SHALL display an error and exit.</li>
+</ul>
+</section>
+<section id="step-8-page-creation-python-template-rendering" class="level3">
+<h3 class="anchored" data-anchor-id="step-8-page-creation-python-template-rendering">Step 8: Page Creation (Python Template Rendering)</h3>
+<ul>
+<li>REQ-780: The system SHALL use python3 to render templates with variable substitution.</li>
+<li>REQ-781: Template variables: <code>{DATE}</code> (today, YYYY-MM-DD), <code>{NAMESPACES}</code> (comma-separated list), <code>{NAMESPACE}</code> (single name), <code>{NAMESPACE_LINKS}</code> (formatted link list).</li>
+<li>REQ-782: The system SHALL create these pages:
+<ul>
+<li>Schema page (from <code>Schema.md</code> template)</li>
+<li>Dashboard page (from <code>Dashboard.md</code> template)</li>
+<li>One Hub page per namespace (from <code>Hub.md</code> template)</li>
+</ul></li>
+<li>REQ-783: For Logseq: all pages created flat in <code>pages/</code> directory with triple-underscore naming (<code>Wiki___Schema.md</code>, <code>Wiki___Tech.md</code>, etc.).</li>
+<li>REQ-784: For Obsidian: Schema and Dashboard in <code>Wiki/</code> directory. Hub pages in <code>Wiki/&lt;Namespace&gt;/_index.md</code> with directory creation.</li>
+<li>REQ-785: The system SHALL create parent directories as needed (<code>mkdir -p</code>).</li>
+<li>REQ-786: The system SHALL NOT overwrite existing pages. If a page already exists, the system SHOULD skip it with a warning.</li>
+<li>REQ-787 (Logseq index exclusion): In Logseq mode the system SHALL ensure <code>logseq/config.edn</code> lists the source directories (<code>raw</code>, <code>ingested</code>) in <code>:hidden</code>: create a minimal config.edn when none exists, else merge the missing entries into the existing <code>:hidden</code> vector (never overwrite the file). Rationale: Logseq indexes every markdown file in the graph folder recursively; living beside <code>pages/</code> keeps sources out of the pages directory, but only <code>:hidden</code> keeps them out of the index, where archived sources render as graph pages and their TOC anchor links parse as <code>#hashtags</code>. Editing config.edn requires a graph re-index to take effect; the system SHALL say so when it changes an existing file. Obsidian has the equivalent manual setting (Files and links -&gt; Excluded files); the system does not automate it.</li>
+</ul>
+</section>
+<section id="step-9-config-file-generation" class="level3">
+<h3 class="anchored" data-anchor-id="step-9-config-file-generation">Step 9: Config File Generation</h3>
+<ul>
+<li>REQ-790: The system SHALL create <code>llm-wiki.yml</code> in the wiki root directory.</li>
+<li>REQ-791: The config SHALL include all required keys: tool, wiki_path, pages_dir, namespaces. And memory_path if provided.</li>
+<li>REQ-792: The config SHALL include a header comment with generation date.</li>
+</ul>
+</section>
+<section id="step-10-skill-installation" class="level3">
+<h3 class="anchored" data-anchor-id="step-10-skill-installation">Step 10: Skill Installation</h3>
+<ul>
+<li>REQ-800: The system SHALL ask if the user wants to install the wiki skill suite for Claude Code.</li>
+<li>REQ-801: The user MAY choose a project install (<code>&lt;project&gt;/.claude/skills/</code>), a user install (<code>~/.claude/skills/</code>), or “skip” to decline.</li>
+<li>REQ-802: If installing: copy (or symlink) each <code>skills/wiki-*</code> directory into the chosen skills directory, creating it if needed. No file is patched during install: config location is resolved at runtime by discovery (specs/config.md REQ-652).</li>
+<li>REQ-803 (personal tier is opt-in): The default install SHALL SKIP the personal-tier skills (<code>skills/wiki-ingest-voice</code>, <code>skills/wiki-chat-voice</code>); they are installed only when <code>--with-personal</code> is passed. The personal tier depends on maintainer-run infrastructure (archive.db, <code>docs/voice-pipeline.md</code>) that the generic tool does not assume; the public tool and the personal system share a repo but not a default surface.</li>
+<li>REQ-804 (command installation): The install SHALL copy each repo <code>.claude/commands/*.md</code> slash command into the matching commands directory (<code>~/.claude/commands/</code> for a user install, <code>&lt;project&gt;/.claude/commands/</code> for a project install), rewriting relative <code>scripts/</code> and <code>docs/</code> references to absolute paths under the checkout at install time, so commands like <code>/lit-sync</code> and <code>/data-sync</code> work from any directory. Commands are ALWAYS copied, even in symlink mode: the path substitution is per-install. This is the single exception to the REQ-802 no-patching rule, and it patches only the installed copy, never the repo.</li>
+<li>REQ-805: The system SHALL offer to write the global pointer file <code>~/.config/llm-wiki/config.yml</code> (specs/config.md REQ-653) so the skills work from any project directory.</li>
+<li>REQ-806: The system SHALL detect a legacy v1 install (<code>.claude/commands/wiki.md</code>) and offer to remove it, explaining that the file keeps working but is unsupported.</li>
+<li>REQ-807 (agent installation): The install SHALL copy (or symlink, in symlink mode) each repo <code>agents/*.md</code> subagent definition into the matching agents directory (<code>~/.claude/agents/</code> for a user install, <code>&lt;project&gt;/.claude/agents/</code> for a project install), replacing existing files of the same name. The agent definitions carry the model-tier routing (frontmatter <code>model:</code>, issue #108); shipped SKILL.md files stay model-neutral, so a user who never installs the agents gets unchanged cost behavior, and skills that name an agent degrade gracefully to a generic subagent when the definition is absent.</li>
+</ul>
+</section>
+<section id="step-11-initial-git-commit" class="level3">
+<h3 class="anchored" data-anchor-id="step-11-initial-git-commit">Step 11: Initial Git Commit</h3>
+<ul>
+<li>REQ-810: If git was initialized (Step 6) or <code>.git</code> already existed, the system SHALL create an initial commit with all created files.</li>
+<li>REQ-811: The commit message SHALL include: tool name, namespace count, and a link to the GitHub repository.</li>
+<li>REQ-812: Git errors during commit SHALL be suppressed (the commit is best-effort, not critical).</li>
+</ul>
+</section>
+<section id="final-summary" class="level3">
+<h3 class="anchored" data-anchor-id="final-summary">Final Summary</h3>
+<ul>
+<li>REQ-820: The system SHALL display a summary showing: wiki path, config file path, and 3 suggested next steps.</li>
+<li>REQ-821: The next steps SHALL include: open wiki in tool, try first ingest, run status command.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-happy-path---logseq-new-directory-defaults" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-happy-path---logseq-new-directory-defaults">Scenario 1: Happy path - Logseq, new directory, defaults</h3>
+<pre><code>GIVEN python3 and git are available
+WHEN the user runs ./setup.sh and:
+    - Selects "1" (Logseq)
+    - Enters "~/Documents/TestWiki" (does not exist)
+    - Confirms "y" to create directory
+    - Presses Enter for default namespaces
+    - Enters "~/.claude/projects/test/memory/" for memory path
+    - Confirms "y" for git init
+    - Enters "~/myproject" for skill installation
+THEN the system SHALL:
+    - Create ~/Documents/TestWiki/pages/
+    - Create 9 pages: Schema, Dashboard, 7 hub pages (one per default namespace)
+    - Create llm-wiki.yml with all settings
+    - Initialize git with .gitignore
+    - Copy the skills/wiki-* directories to ~/myproject/.claude/skills/ (no patching)
+    - Create initial git commit
+    - Display summary with next steps</code></pre>
+</section>
+<section id="scenario-2-happy-path---obsidian-existing-vault" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-happy-path---obsidian-existing-vault">Scenario 2: Happy path - Obsidian, existing vault</h3>
+<pre><code>GIVEN ~/Documents/ObsidianVault/ already exists with .obsidian/ directory
+WHEN the user runs ./setup.sh and:
+    - Selects "2" (Obsidian)
+    - Enters "~/Documents/ObsidianVault"
+    - Presses Enter for default namespaces
+    - Skips memory path
+    - git already initialized (.git exists)
+    - Skips skill installation
+THEN the system SHALL:
+    - Create Wiki/ directory inside the vault
+    - Create Schema.md and Dashboard.md in Wiki/
+    - Create 7 namespace directories with _index.md hub pages
+    - Create llm-wiki.yml (no memory_path)
+    - Skip git init (already exists)
+    - Create git commit with new files
+    - Display summary</code></pre>
+</section>
+<section id="scenario-3-directory-does-not-exist---user-declines-creation" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-directory-does-not-exist---user-declines-creation">Scenario 3: Directory does not exist - user declines creation</h3>
+<pre><code>GIVEN the user enters wiki path "/nonexistent/path"
+AND the path does not exist
+WHEN the system asks "Create it? [y/n]"
+AND the user enters "n"
+THEN the system SHALL display an error message
+AND exit with code 1
+AND no files SHALL be created anywhere</code></pre>
+</section>
+<section id="scenario-4-invalid-tool-selection" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-invalid-tool-selection">Scenario 4: Invalid tool selection</h3>
+<pre><code>WHEN the user enters "3" for tool selection
+THEN the system SHALL display: "Invalid choice"
+AND exit with code 1</code></pre>
+</section>
+<section id="scenario-5-python3-not-available" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-python3-not-available">Scenario 5: python3 not available</h3>
+<pre><code>GIVEN python3 is not installed or not in PATH
+WHEN setup.sh reaches the template rendering step
+THEN the system SHALL fail with a python3-related error
+AND no wiki pages SHALL be created</code></pre>
+</section>
+<section id="scenario-6-template-directory-missing" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-template-directory-missing">Scenario 6: Template directory missing</h3>
+<pre><code>GIVEN the templates/logseq/ directory does not exist
+    (e.g., setup.sh run from wrong location)
+WHEN setup.sh reaches template validation
+THEN the system SHALL display an error about missing templates
+AND exit with code 1</code></pre>
+</section>
+<section id="scenario-7-skill-installation-skipped" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-skill-installation-skipped">Scenario 7: Skill installation skipped</h3>
+<pre><code>WHEN the user enters "skip" for the skill installation prompt
+THEN the system SHALL NOT copy any skill directory anywhere
+AND SHALL NOT modify any files outside the wiki directory
+AND SHALL continue to the git commit step</code></pre>
+</section>
+<section id="scenario-8-custom-namespaces" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-8-custom-namespaces">Scenario 8: Custom namespaces</h3>
+<pre><code>WHEN the user enters "Engineering Sales Support" for namespaces
+THEN the system SHALL create 3 hub pages:
+    - Wiki___Engineering.md (Logseq) or Wiki/Engineering/_index.md (Obsidian)
+    - Wiki___Sales.md or Wiki/Sales/_index.md
+    - Wiki___Support.md or Wiki/Support/_index.md
+AND the Schema page SHALL list these 3 namespaces
+AND llm-wiki.yml SHALL contain these 3 namespaces</code></pre>
+</section>
+<section id="scenario-9-git-init-skipped" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-9-git-init-skipped">Scenario 9: Git init skipped</h3>
+<pre><code>GIVEN the wiki directory has no .git/
+WHEN the system asks "Initialize git? [y/n]"
+AND the user enters "n"
+THEN no .git directory SHALL be created
+AND no .gitignore SHALL be created
+AND the final commit step SHALL be skipped</code></pre>
+</section>
+<section id="scenario-10-existing-pages-not-overwritten" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-10-existing-pages-not-overwritten">Scenario 10: Existing pages not overwritten</h3>
+<pre><code>GIVEN ~/Documents/Logseq/pages/Wiki___Schema.md already exists
+    from a previous setup run
+WHEN setup.sh runs template rendering
+THEN the existing Schema page SHOULD NOT be overwritten
+AND the system SHOULD display: "Wiki___Schema.md already exists, skipping"</code></pre>
+<hr>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Only requires bash, python3, git (no package managers, no libraries)</label></li>
+<li><label><input type="checkbox">Tool selection (1/2) determines all downstream behavior</label></li>
+<li><label><input type="checkbox">Tilde expansion works in all path inputs</label></li>
+<li><label><input type="checkbox">Missing directories created with user confirmation</label></li>
+<li><label><input type="checkbox">Default namespaces offered, custom list accepted</label></li>
+<li><label><input type="checkbox">Template rendering creates Schema, Dashboard, and all Hub pages</label></li>
+<li><label><input type="checkbox">Logseq: flat files with triple-underscore naming</label></li>
+<li><label><input type="checkbox">Obsidian: directory hierarchy with _index.md hub files</label></li>
+<li><label><input type="checkbox">Config file generated with all required keys</label></li>
+<li><label><input type="checkbox">Skill installation optional, sed platform-aware</label></li>
+<li><label><input type="checkbox">Git init optional, tool-specific .gitignore</label></li>
+<li><label><input type="checkbox">Existing pages not silently overwritten</label></li>
+<li><label><input type="checkbox">Clear error messages for all failure modes</label></li>
+<li><label><input type="checkbox">Final summary with actionable next steps</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li>Templates must exist: <code>templates/logseq/{Schema,Hub,Dashboard}.md</code> and <code>templates/obsidian/{Schema,Hub,Dashboard}.md</code></li>
+<li>specs/config.md defines the format of the generated <code>llm-wiki.yml</code></li>
+<li>specs/schema.md defines what the generated Schema page contains</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/setup.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

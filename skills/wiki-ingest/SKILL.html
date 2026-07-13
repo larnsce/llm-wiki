@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Process a source (URL, file path, inline text, or the raw/ queue when the source pipeline is configured) and distribute extracted knowledge across wiki pages with provenance. Interactive by default with one consolidated batch checkpoint before any write; –auto skips the checkpoint for queue draining; –import pulls existing notes into wiki format without a file move. This is the primary write path into the wiki.">
+
+<title>skill – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#wiki-ingest" id="toc-wiki-ingest" class="nav-link active" data-scroll-target="#wiki-ingest">wiki-ingest</a>
+  <ul class="collapse">
+  <li><a href="#modes" id="toc-modes" class="nav-link" data-scroll-target="#modes">Modes</a></li>
+  <li><a href="#phase-1---source-analysis-per-source" id="toc-phase-1---source-analysis-per-source" class="nav-link" data-scroll-target="#phase-1---source-analysis-per-source">Phase 1 - Source Analysis (per source)</a></li>
+  <li><a href="#phase-2---wiki-scan-and-plan-per-source-analysis-before-any-generation" id="toc-phase-2---wiki-scan-and-plan-per-source-analysis-before-any-generation" class="nav-link" data-scroll-target="#phase-2---wiki-scan-and-plan-per-source-analysis-before-any-generation">Phase 2 - Wiki Scan and Plan (per source; analysis BEFORE any generation)</a></li>
+  <li><a href="#checkpoint---batch-review-mandatory-before-any-write-skipped-only-by-auto" id="toc-checkpoint---batch-review-mandatory-before-any-write-skipped-only-by-auto" class="nav-link" data-scroll-target="#checkpoint---batch-review-mandatory-before-any-write-skipped-only-by-auto">Checkpoint - Batch review (mandatory before any write; skipped only by –auto)</a></li>
+  <li><a href="#phase-3---page-operations-target-5-15-page-touches-req-037" id="toc-phase-3---page-operations-target-5-15-page-touches-req-037" class="nav-link" data-scroll-target="#phase-3---page-operations-target-5-15-page-touches-req-037">Phase 3 - Page Operations (target 5-15 page touches, REQ-037)</a></li>
+  <li><a href="#phase-4---quality-gate" id="toc-phase-4---quality-gate" class="nav-link" data-scroll-target="#phase-4---quality-gate">Phase 4 - Quality Gate</a></li>
+  <li><a href="#phase-5---archive-commit-report" id="toc-phase-5---archive-commit-report" class="nav-link" data-scroll-target="#phase-5---archive-commit-report">Phase 5 - Archive, Commit, Report</a></li>
+  <li><a href="#success-signal-track-the-auto-share" id="toc-success-signal-track-the-auto-share" class="nav-link" data-scroll-target="#success-signal-track-the-auto-share">Success signal: track the –auto share</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-ingest/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="wiki-ingest" class="level1">
+<h1>wiki-ingest</h1>
+<p>Analyze source material, plan page operations, pause at ONE consolidated checkpoint for the whole run, then write: create and update pages append-only with hub routing lines, cross-references, and provenance, and archive processed sources with an atomic move-plus-commit. Counterpart to wiki-query (read path).</p>
+<p>Spec: openspec/specs/ingest.md REQ-010..075, journal seam REQ-090..095</p>
+<p>Shared conventions (read before executing):</p>
+<ul>
+<li><a href="../../skills/wiki-core/references/config.html">config</a>: discover and read <code>llm-wiki.yml</code> FIRST (tool, wiki_path, pages_dir, namespaces; source pipeline keys <code>raw_dir</code>, <code>ingested_dir</code>, <code>source_types</code>, <code>default_source_type</code>, <code>sensitive_source_types</code>; journal seam key <code>journals_dir</code>, default <code>journals</code>, config REQ-629).</li>
+<li><a href="../../skills/wiki-core/references/architecture.html">architecture</a>: L1/L2 routing rule, credential boundary, retrieval and commit discipline, namespace scope rule.</li>
+<li><a href="../../skills/wiki-core/references/formats.html">formats</a>: tool-specific formats, required properties per page type, routing-line format, write discipline.</li>
+<li><a href="../../skills/wiki-core/references/trust.html">trust</a>: source lifecycle (raw/ -&gt; ingested/), <code>source-file::</code>, <code>reliability::</code> rubric, <code>confidence::</code> separation, Pending Review.</li>
+<li><a href="../../skills/wiki-ingest/references/secret-gate.html">secret-gate</a>: the pre-archive secret gate (<code>secret_scan.py</code>), the “ingested/ is committed history, keep it secret-free” invariant, blocking vs advisory findings, and the <code>sensitive_source_types</code> untracked flow.</li>
+<li><a href="../../skills/wiki-ingest/references/citations.html">citations</a>: block-native <code>cite::</code> emission on claim blocks (specs/citations.md REQ-900..905, ingest REQ-033b), the source-file union invariant, and the <code>check_citations.py</code> gate step.</li>
+<li><a href="../../skills/wiki-ingest/references/promotion-seam.html">promotion-seam</a>: the para/notes promotion seam (specs/namespaces.md REQ-970..973): recognizing <code>raw/para-&lt;project&gt;.md</code> / <code>raw/note-&lt;name&gt;.md</code> sources, the personal-synthesis reliability default, the literature variant, and sensitive-type handling.</li>
+</ul>
+<section id="modes" class="level2">
+<h2 class="anchored" data-anchor-id="modes">Modes</h2>
+<ul>
+<li><strong>Interactive (default):</strong> the run pauses at the batch checkpoint before any write (REQ-025).</li>
+<li><strong><code>--auto</code>:</strong> skips the checkpoint for queue draining. The plan table still goes into the Phase 5 report, and the quality gate still blocks on failures; <code>--auto</code> never bypasses a blocking gate (REQ-026). Usage is tracked as a success signal (see “Success signal” below).</li>
+<li><strong><code>--import</code>:</strong> pull notes already written in the graph (or a directory of existing markdown notes) into wiki format. Same write path and quality gate, but NO file move and NO <code>source-file::</code>; see <a href="../../skills/wiki-ingest/references/import.html">import</a>. Replaces the import verb of the legacy v1 single command.</li>
+</ul>
+<p>Steps marked “(source pipeline)” apply only when <code>llm-wiki.yml</code> configures the pipeline keys (<code>raw_dir</code>, <code>ingested_dir</code>, <code>source_types</code>, <code>default_source_type</code>). When those keys are absent, skip the marked steps and run on the argument source alone; everything else is unchanged.</p>
+<p><role> Wiki maintainer for a personal or team knowledge base. You process source material and distribute extracted knowledge across wiki pages, keep the human in the loop before anything is written, maintain cross-references and provenance, and ensure structural integrity. </role></p>
+<p><workflow> ## Phase 0 - Source Intake (source pipeline)</workflow></p>
+<ul>
+<li>Read <code>raw_dir</code>, <code>ingested_dir</code>, <code>source_types</code>, <code>default_source_type</code> from <code>llm-wiki.yml</code> (<a href="../../skills/wiki-core/references/config.html">config</a>)</li>
+<li>No argument -&gt; scan <code>raw_dir</code> and process every file there oldest first (drain the queue) (REQ-070)</li>
+<li>Queue triage delegation (REQ-076): when the queue holds MORE THAN ONE file and the <code>wiki-triage</code> agent is installed (setup REQ-807), dispatch ONE triage subagent for the whole queue: hand it the queue file paths, the hub-index routing lines, and the Schema page list. It returns per file the proposed slug, inferred type, priority, and a complexity flag (queue-decidable triggers only: length, dense type, same topic elsewhere in queue or hub index, hub/Schema blast radius, its own low confidence). Use its slugs and types for the steps below; route flagged items’ Phase 1-2 analysis to the <code>wiki-synthesize</code> agent when installed. Wiki-state judgments (supersedes, conflicts) stay at the checkpoint, which reads the wiki. No agent installed -&gt; classify inline exactly as before; single-source runs are unchanged. Record which agents were dispatched for the Phase 5 run log</li>
+<li>A path/URL argument -&gt; that single source. A local file outside <code>raw_dir</code> is copied into <code>raw_dir</code> first so the lifecycle is consistent (REQ-070)</li>
+<li>Slugify filenames at intake (REQ-070a): when a file entering processing from <code>raw_dir</code> has a name containing spaces, commas, <code>#</code>, or other non-kebab characters (web clippings arrive with page titles as filenames), RENAME it to a kebab-case slug – lowercase, hyphens, keep the extension, drop or transliterate everything else – and rename any companion asset folder the same way, BEFORE planning. <code>source-file::</code> and <code>cite::</code> refs are born valid this way: the citation checker rejects paths with whitespace, and refs are comma-separated so a comma in a filename breaks parsing. Truncate to something readable (~60 chars); on a name collision in <code>raw_dir</code> or <code>ingested/&lt;type&gt;/</code>, append <code>-2</code>, <code>-3</code>, …</li>
+<li>Infer each source’s type (one of <code>source_types</code>): paper/PDF/Zotero export -&gt; <code>papers</code>; web clip -&gt; <code>clippings</code>; news/blog -&gt; <code>articles</code>; dataset/CSV -&gt; <code>data</code>; personal note -&gt; <code>notes</code>; image/binary -&gt; <code>assets</code>. Fall back to <code>default_source_type</code>; ask only if genuinely ambiguous (REQ-071)</li>
+<li>A <code>raw/para-&lt;project&gt;.md</code> or <code>raw/note-&lt;name&gt;.md</code> filename marks a PROMOTED source: content the human copied out of the <code>para/</code> or <code>notes/</code> namespaces (the promotion seam, specs/namespaces.md REQ-970). Treat it as a normal source in the queue; it usually infers as type <code>notes</code>, and para/notes content is candidate <code>sensitive_source_types</code> material. Seam specifics in <a href="../../skills/wiki-ingest/references/promotion-seam.html">promotion-seam</a></li>
+<li>If processing fails partway, LEAVE the file in <code>raw_dir</code> (the queue is resumable). Never move a half-processed source (REQ-072)</li>
+</ul>
+</section>
+<section id="phase-1---source-analysis-per-source" class="level2">
+<h2 class="anchored" data-anchor-id="phase-1---source-analysis-per-source">Phase 1 - Source Analysis (per source)</h2>
+<ul>
+<li>Identify the source type: URL -&gt; WebFetch, file path -&gt; Read, inline text -&gt; parse directly (REQ-010)</li>
+<li>Extract entities, facts, relationships, dates, decisions (REQ-011)</li>
+<li>Extract the source’s author(s) where identifiable (REQ-011a): clip frontmatter, byline, paper author list, or S2 metadata. No author is normal; never guess one</li>
+<li>Classify into exactly one of: business, technical, content, project, learning, reference (REQ-012)</li>
+<li>L1/L2 check per the routing rule in <a href="../../skills/wiki-core/references/architecture.html">architecture</a>: quick rule or gotcha -&gt; recommend Memory; deep knowledge -&gt; wiki (REQ-013)</li>
+<li>Credentials or secrets in the source MUST NOT reach wiki pages (REQ-014); the pre-archive secret gate in Phase 4 additionally guards the source bytes</li>
+<li>(source pipeline) Assess <code>reliability::</code> for the source per the rubric in <a href="../../skills/wiki-core/references/trust.html">trust</a> (high | medium | low), with a one-line rationale for the checkpoint. A promoted para/notes source defaults to <code>medium</code> per the rubric’s personal-synthesis case (schema REQ-586), UNLESS its external citations justify higher under the rubric (namespaces REQ-971; the rubric decides, medium is not a hard floor); see <a href="../../skills/wiki-ingest/references/promotion-seam.html">promotion-seam</a></li>
+<li>(source pipeline, optional) Semantic Scholar enrichment per REQ-073a: only when an S2 MCP is configured, resolve the source and record <code>s2-metrics::</code> verbatim. Metrics inform the qualitative judgment, never determine it by formula; absence of the MCP never blocks the ingest</li>
+</ul>
+</section>
+<section id="phase-2---wiki-scan-and-plan-per-source-analysis-before-any-generation" class="level2">
+<h2 class="anchored" data-anchor-id="phase-2---wiki-scan-and-plan-per-source-analysis-before-any-generation">Phase 2 - Wiki Scan and Plan (per source; analysis BEFORE any generation)</h2>
+<ul>
+<li>Read <code>llm-wiki.yml</code> and the Schema page (REQ-020/021)</li>
+<li>Glob for existing pages matching extracted entities and topics (REQ-022); read target pages before modifying them, max 3 loaded simultaneously (REQ-023)</li>
+<li>Contradiction check BEFORE any generation: compare each extracted claim against the existing target pages and record every conflict (existing claim vs.&nbsp;source claim) for the checkpoint. Nothing is generated or written until the user has seen the contradictions</li>
+<li>(source pipeline) Corroboration check: if <code>ingested_dir</code> already holds a source on the same topic, this ingest is CORROBORATION: plan to update the existing page, raise <code>reliability::</code> if warranted (rubric in <a href="../../skills/wiki-core/references/trust.html">trust</a>), and resolve any Pending Review items it can</li>
+<li>Author recurrence (REQ-024a): if an extracted author already appears in the <code>author::</code> values (or ingested/ provenance) of existing pages, plan a <code>wiki/people/&lt;name&gt;</code> page (proper-noun leaf; type entity, entity-type person, one-line who-this-is citing the works’ <code>ingested/</code> files, links to the pages built on their work, people-hub routing line). Second source by the same person is the threshold; below it <code>author::</code> suffices, and the user can request a person page at the checkpoint</li>
+<li>Produce the page operation plan: pages to create, pages to update, cross-references to add, hub pages to update (REQ-024)</li>
+</ul>
+</section>
+<section id="checkpoint---batch-review-mandatory-before-any-write-skipped-only-by-auto" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint---batch-review-mandatory-before-any-write-skipped-only-by-auto">Checkpoint - Batch review (mandatory before any write; skipped only by –auto)</h2>
+<p>After ALL sources in the run are analyzed and planned, and BEFORE any write, present ONE consolidated checkpoint for the whole run (REQ-025). Never one prompt per source; a single-source run is the degenerate one-row case of the same table.</p>
+<p>The checkpoint table, one row per source:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 9%">
+<col style="width: 27%">
+<col style="width: 40%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Source</th>
+<th>Proposed page touches</th>
+<th>Reliability (one-line rationale)</th>
+<th>Contradictions</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<ul>
+<li>Page touches: create/update/hub counts plus the page names; (source pipeline) each create/update entry carries its planned cite targets (the <code>ingested/</code> paths, with locators where known) so the row shows what the claims will cite (REQ-033b)</li>
+<li>When a triage pass ran (REQ-076), the table gains a <code>Complexity</code> column: the flag with its one-line reason, and whether the row’s analysis was produced by <code>wiki-synthesize</code>. Flags are advisory routing, not verdicts; the human overrides them like any other cell</li>
+<li>Reliability: the Phase 1 rating with its one-line rationale (omit this column when the source pipeline is not configured)</li>
+<li>Contradictions: count plus one line each, or “none”</li>
+<li>(source pipeline) Below the table, ONE summary line for the journal seam (REQ-092): the journal page that will receive the daily Ingested block and the number of bullets to append, e.g. <code>Journal: journals/2026_07_06 &lt;- 3 bullets in the Ingested block</code></li>
+</ul>
+<p>Then ask, verbatim from REQ-025: “What should I emphasize, skip, or route to L1 Memory?”</p>
+<p>Interaction rules:</p>
+<ul>
+<li>Any row is expandable on request (“expand 3”, “show the plan for smith-2024”): print that source’s full page-operation plan, extracted claims with their planned cite targets, and contradiction details</li>
+<li>Any row is overridable (“skip 2”, “rate 4 low”, “route the PM2 gotcha to L1”, “emphasize the method, skip the pricing”): apply the guidance to the plan</li>
+<li>Only after the user responds does Phase 3 write. Apply the user’s guidance to the plan first (REQ-025); never proceed on silence</li>
+</ul>
+</section>
+<section id="phase-3---page-operations-target-5-15-page-touches-req-037" class="level2">
+<h2 class="anchored" data-anchor-id="phase-3---page-operations-target-5-15-page-touches-req-037">Phase 3 - Page Operations (target 5-15 page touches, REQ-037)</h2>
+<ul>
+<li>Create new pages with ALL required properties for their declared type per the Schema (REQ-030), in the correct tool format and file naming (<a href="../../skills/wiki-core/references/formats.html">formats</a>, REQ-031/038). Stamp every NEW page with <code>schema-spec-version:: 2.0.0</code> (Logseq) or <code>schema-spec-version: "2.0.0"</code> in the YAML frontmatter (Obsidian) so it is not grandfathered by lint; existing pages keep whatever they have (the stamp is written on creation, never backfilled by ingest). Namespace depth max 3 (REQ-039): on overflow, merge the content into the parent page and note it in the report</li>
+<li>Update existing pages append-only: NEVER overwrite existing content blocks (REQ-032). Use <code>[[wiki/...]]</code> link syntax for entities that have their own pages (REQ-036)</li>
+<li>Person names in anything you write (page claims, journal Ingested bullets) are ALWAYS links: <code>[[wiki/people/&lt;First&gt; &lt;Last&gt;]]</code>, First-name Surname order, normalized from “Last, First” sources (REQ-036a). Write the link even when the person page does not exist yet (it is born at the second-source threshold, REQ-024a; lint treats the interim link as pending, not broken). <code>author::</code> stays plain text</li>
+<li>Hub routing line, REQUIRED for every created or updated page: set or refresh the line in the namespace hub’s <code>### Index</code> in the routing-line format from <a href="../../skills/wiki-core/references/formats.html">formats</a> (REQ-033/033a). The description is the routing key consumed by query Phase 0</li>
+<li>Add cross-references between all affected pages, written under a <code>## Cross-References</code> section (this EXACT heading, schema REQ-573: the citation checker exempts it from claim coverage; synonyms like Related or See also get counted as uncited claims). Every touched page needs at least 1 outgoing wiki link (REQ-034)</li>
+<li>Set <code>updated::</code> (or the YAML <code>updated</code> field) to today on every modified page (REQ-035); ISO 8601 dates throughout (REQ-061)</li>
+<li>(source pipeline) Set or refresh <code>journal::</code> on every created or updated page to today’s journal page link, tool-native format (journal seam REQ-093, schema REQ-585c). Refresh mirrors <code>updated::</code>: it is metadata, and the append-only rule for content blocks is untouched. Resolve the journal page name from existing files in <code>journals_dir</code> when any exist, else the tool default (Logseq <code>journals/YYYY_MM_DD.md</code> with the graph’s date-format reference; Obsidian <code>&lt;journals_dir&gt;/YYYY-MM-DD.md</code>) (REQ-091)</li>
+<li>Set <code>author::</code> on created ingested pages when Phase 1 identified author(s); on corroborating updates append missing names (union, deduplicated) (REQ-033c, schema REQ-585a). Never backfill outside an ingest touching the page</li>
+<li>(source pipeline) On every created or updated ingested page: set <code>source-file::</code> to the path the source WILL live at (<code>ingested/&lt;type&gt;/&lt;filename&gt;</code>; append comma-separated when corroborating) and <code>reliability::</code> per REQ-073 (claim-level corroboration and page-minimum roll-up: schema REQ-586, summarized in <a href="../../skills/wiki-core/references/trust.html">trust</a>). Do NOT touch <code>confidence::</code>; it is a separate axis (schema REQ-587)</li>
+<li>(source pipeline) Pending Review per REQ-074: a page resting on a SINGLE source with <code>reliability::</code> not <code>high</code> gets a <code>## Pending Review</code> section listing the specific claims needing corroboration. A corroborating ingest re-checks each flagged claim, removes resolved ones, deletes the section when all resolve, and raises <code>reliability::</code></li>
+<li>(source pipeline) <code>cite::</code> on every non-common-knowledge factual claim block written (REQ-033b, specs/citations.md REQ-900..905): Logseq block property (<code>cite:: &lt;refs&gt;</code> on the line under the claim), Obsidian indented child bullet (<code>- cite:: &lt;refs&gt;</code>). Refs are comma-separated, each an <code>ingested/</code> path with an optional <code>#locator</code> or <code>url:&lt;https://...&gt;</code>; plain text, never a <code>[[link]]</code> (REQ-905). Common knowledge and clearly-marked synthesis are exempt; when unsure, cite (REQ-902). Keep the page-level <code>source-file::</code> equal to the union of the page’s ingested/ cite targets, paths only, locators stripped, deduplicated (REQ-904): when a claim cites a new source, append its path to <code>source-file::</code> in the same edit. Pages are born cited; details in <a href="../../skills/wiki-ingest/references/citations.html">citations</a></li>
+</ul>
+</section>
+<section id="phase-4---quality-gate" class="level2">
+<h2 class="anchored" data-anchor-id="phase-4---quality-gate">Phase 4 - Quality Gate</h2>
+<p>Blocking failures (REQ-044): credential detection (REQ-042), pre-archive secret detection (REQ-045), missing required properties (REQ-040), and citation invariant failures (specs/citations.md REQ-904/901, exit 2 from <code>check_citations.py</code>). Warnings never block, and <code>--auto</code> never bypasses a blocking failure (REQ-026).</p>
+<ul>
+<li><p>All new pages have ALL required properties for their type? (REQ-040)</p></li>
+<li><p>Every touched page has at least 1 outgoing <code>[[wiki/...]]</code> cross-reference? (REQ-041)</p></li>
+<li><p>Every new or updated active page has a routing line in its hub <code>### Index</code>? A missing line is a warning: the page is unroutable until <code>lint --fix</code> backfills it (REQ-041a)</p></li>
+<li><p>Scan all created/updated content for credential patterns (<code>token::</code>, <code>password::</code>, <code>secret::</code>, <code>api-key::</code>, base64 strings of 40+ chars); any match BLOCKS the ingest with a warning (REQ-042)</p></li>
+<li><p>Page touch count: warn below 5 or above 20; never blocks (REQ-043/044)</p></li>
+<li><p>(source pipeline) Every ingested page has <code>source-file::</code> and <code>reliability::</code>? Every single-source non-high page carries <code>## Pending Review</code>? (REQ-073/074)</p></li>
+<li><p>(source pipeline) Citation gate (REQ-033b, specs/citations.md): run</p>
+<pre><code>python3 skills/wiki-core/scripts/check_citations.py --config &lt;llm-wiki.yml&gt;</code></pre>
+<p>after the page writes, BEFORE the archive move (cite targets pending in <code>raw_dir</code> count as resolved). Handle the exit code:</p>
+<ul>
+<li><strong>Exit 2 (blocking):</strong> source-file union mismatch (REQ-904) or a cite target resolving to no file (REQ-901). Do NOT archive, do NOT commit; fix the pages and re-run the gate, exactly like the other blocking gate failures</li>
+<li><strong>Exit 1 (advisory):</strong> coverage gaps (uncited claim blocks, REQ-902) or ref-shape warnings. Present them; the exemption call is judgment, so they never block. In <code>--auto</code> mode carry them into the report</li>
+<li><strong>Exit 0 (clean):</strong> proceed. See <a href="../../skills/wiki-ingest/references/citations.html">citations</a> for the convention and staging</li>
+</ul></li>
+<li><p>(source pipeline) Pre-archive secret gate (REQ-045/046): BEFORE any source file is moved into git-tracked <code>ingested/</code>, run</p>
+<pre><code>python3 skills/wiki-core/scripts/secret_scan.py &lt;source-file&gt;</code></pre>
+<p>on each source file. The script scans the raw source BYTES (text pass plus a strings-style pass over binary formats) against a source-byte-tuned pattern set; see <a href="../../skills/wiki-ingest/references/secret-gate.html">secret-gate</a> for the invariant and the blocking-vs-advisory model. Handle the exit code:</p>
+<ul>
+<li><strong>Exit 2 (blocking: credentials, key material, tokens):</strong> do NOT archive, do NOT commit. The file stays in <code>raw_dir</code>; relay the script’s finding locations and remediation message. Redaction (or an explicit <code>--allow-secret</code> override from the user) is required before re-ingest (REQ-045)</li>
+<li><strong>Exit 1 (advisory: email addresses, national-ID shapes, other PII):</strong> present the findings and require explicit confirmation before archiving (interactive mode). In <code>--auto</code> mode advisory findings BLOCK (the file stays in <code>raw_dir</code>) unless the source’s type is in <code>sensitive_source_types</code>, whose untracked flow below keeps the bytes out of git anyway</li>
+<li><strong>Exit 0 (clean):</strong> proceed. A clean scan is an assist, not a certification; the script prints this disclaimer itself</li>
+</ul></li>
+<li><p>(source pipeline) Sensitive source types (REQ-046): sources whose type is listed in <code>sensitive_source_types</code> are ALWAYS scanned, and their bytes stay out of git regardless of the result: the file moves to <code>ingested/&lt;type&gt;/</code> UNTRACKED. Ensure the vault <code>.gitignore</code> covers <code>ingested/&lt;type&gt;/</code> (add the entry if missing; commit the <code>.gitignore</code> change, never the source bytes), then verify BEFORE the move:</p>
+<pre><code>python3 skills/wiki-core/scripts/secret_scan.py \
+  --gitignore-check &lt;vault-root&gt; ingested/&lt;type&gt;/&lt;filename&gt;</code></pre>
+<p>Exit 0 means the path is ignored and the move is safe; exit 2 means the path would enter git history (not ignored, or already tracked), so do not move the file until that is fixed. <code>source-file::</code> still records the path; the provenance stays valid locally while the bytes stay out of history. Rationale for both bullets: <code>ingested/</code> is committed git history, so exposure there is sticky</p></li>
+</ul>
+</section>
+<section id="phase-5---archive-commit-report" class="level2">
+<h2 class="anchored" data-anchor-id="phase-5---archive-commit-report">Phase 5 - Archive, Commit, Report</h2>
+<ul>
+<li><p>(source pipeline) Journal seam, daily Ingested block (REQ-090/091/094): after the quality gate passes, append to TODAY’s journal page a block headed <code>Ingested</code>: one bullet per processed source with the source title, its type, and <code>[[wiki/...]]</code> links to every page it created or updated, plus one EMPTY child bullet under each entry, reserved for the user’s own notes. One block per day: when the page already has an <code>Ingested</code> block from an earlier run today, append bullets to it; never create a second block. Create the journal page when it does not exist (REQ-091). NEVER modify existing journal content: earlier bullets, the user’s notes under them, or anything else on the page (REQ-094). Logseq shape:</p>
+<pre><code>- Ingested
+  - &lt;source-title&gt; (&lt;type&gt;) -&gt; [[wiki/ns/page]], [[wiki/ns/other]]
+    -</code></pre>
+<p>Obsidian: the same structure as nested list items under an <code>## Ingested</code> heading. A source blocked by the quality gate gets no bullet (REQ-095)</p></li>
+<li><p>(source pipeline) Only after the quality gate passes: MOVE each processed source from <code>raw_dir</code> to <code>ingested_dir/&lt;type&gt;/&lt;filename&gt;</code>. The new location MUST match what <code>source-file::</code> records (REQ-075). Use plain <code>mv</code> followed by <code>git add</code> of BOTH paths (the vanished <code>raw_dir</code> path and the new <code>ingested/</code> path); do NOT use <code>git mv</code>, which fails on a source that entered <code>raw_dir</code> after the last commit (untracked). Alternatively, <code>git add</code> the raw file first and then <code>git mv</code>; either way the move and the page edits land in the same commit</p></li>
+<li><p>(source pipeline) Stage the page edits, the journal edit (REQ-095), AND the file move together and commit as ONE atomic commit: <code>wiki: ingest &lt;filename&gt; (&lt;n&gt; pages, reliability &lt;level&gt;)</code> (REQ-075; the atomicity invariant is stated in <a href="../../skills/wiki-core/references/trust.html">trust</a>). A quality-gate failure on one source blocks only that source: it stays in <code>raw_dir</code>, the rest of the queue proceeds</p></li>
+<li><p>(source pipeline) Sensitive-typed sources (REQ-046): the file move still happens, but the moved file is NEVER staged; the atomic commit contains the page edits (plus the <code>.gitignore</code> addition, if one was needed). Verify with <code>git status</code> that the moved file shows as ignored, not untracked, before committing</p></li>
+<li><p>Without the source pipeline: recommend a git commit after the structural changes (REQ-052)</p></li>
+<li><p>Report summary: pages created (with types), pages updated, cross-references added, hub pages updated (REQ-050); the journal page that received the Ingested bullets (REQ-092); all warnings (page-touch count, L1 candidates found, skipped items) with their reasons (REQ-051); Pending Review flags raised or resolved</p></li>
+<li><p>(source pipeline) Literature-note reminder (namespaces REQ-973): when a processed source is recognizably a literature note (filename <code>raw/note-@&lt;citekey&gt;.md</code>, or metadata with <code>citekey::</code> or <code>type:: literature</code>), remind the user in the report to point the <code>notes/literature/@&lt;citekey&gt;</code> page’s <code>source-file::</code> at the SAME <code>ingested/</code> path the wiki pages cite (one archived source, two readings). A reminder only: NEVER write into <code>notes/</code> (scope rule, REQ-966); details in <a href="../../skills/wiki-ingest/references/promotion-seam.html">promotion-seam</a></p></li>
+<li><p><code>--auto</code> runs: include the FULL checkpoint plan table (the same table the checkpoint would have shown) in the report, one row per source with reliability rationale and contradictions (REQ-026)</p></li>
+<li><p>Run log entry (REQ-053): append <code>## [YYYY-MM-DD] ingest | &lt;filename or n sources&gt; -&gt; &lt;n&gt; pages | reliability &lt;level&gt; | mode &lt;interactive|auto&gt; | agents &lt;names|none&gt;</code> to the Dashboard page. <code>agents</code> lists the agent definitions actually DISPATCHED this run (e.g.&nbsp;<code>wiki-triage, wiki-synthesize</code>), or <code>none</code>; it is an observable dispatch record, never a self-reported model id (issue #108). This extends the legacy ingest log entry; it feeds the success signal below and the /wiki-maintain agent-mix summary</p></li>
+</ul>
+</section>
+<section id="success-signal-track-the-auto-share" class="level2">
+<h2 class="anchored" data-anchor-id="success-signal-track-the-auto-share">Success signal: track the –auto share</h2>
+<ul>
+<li>Every run log entry records <code>mode &lt;interactive|auto&gt;</code> (Phase 5). Compute the <code>--auto</code> share over the recent run log entries (last 10). A sustained share above 50% is a signal that the batch checkpoint is being routed around and the checkpoint design (not the user) needs revisiting; flag this in the report when the threshold is crossed</li>
+<li>This is recorded in the Phase 5 run log entries on the Dashboard page, NOT in the Access-Log. Reason: the Access-Log format is a per-page-read LRU record, parsed positionally by prune and status (<a href="../../skills/wiki-core/references/formats.html">formats</a>, schema REQ-569); it has no run-level entry type, and adding one would pollute its parsing. The ingest run log entry is the existing run-level record, so the <code>mode</code> field lives there </li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-ingest/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

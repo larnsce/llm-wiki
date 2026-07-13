@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>schema-reference – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#schema-reference" id="toc-schema-reference" class="nav-link active" data-scroll-target="#schema-reference">Schema Reference</a>
+  <ul class="collapse">
+  <li><a href="#schema-location" id="toc-schema-location" class="nav-link" data-scroll-target="#schema-location">Schema Location</a></li>
+  <li><a href="#page-types" id="toc-page-types" class="nav-link" data-scroll-target="#page-types">Page Types</a>
+  <ul class="collapse">
+  <li><a href="#entity" id="toc-entity" class="nav-link" data-scroll-target="#entity">1. Entity</a></li>
+  <li><a href="#project" id="toc-project" class="nav-link" data-scroll-target="#project">2. Project</a></li>
+  <li><a href="#knowledge" id="toc-knowledge" class="nav-link" data-scroll-target="#knowledge">3. Knowledge</a></li>
+  <li><a href="#feedback" id="toc-feedback" class="nav-link" data-scroll-target="#feedback">4. Feedback</a></li>
+  <li><a href="#hub" id="toc-hub" class="nav-link" data-scroll-target="#hub">5. Hub</a></li>
+  </ul></li>
+  <li><a href="#namespace-conventions" id="toc-namespace-conventions" class="nav-link" data-scroll-target="#namespace-conventions">Namespace Conventions</a>
+  <ul class="collapse">
+  <li><a href="#top-level-namespaces" id="toc-top-level-namespaces" class="nav-link" data-scroll-target="#top-level-namespaces">Top-Level Namespaces</a></li>
+  <li><a href="#naming-rules" id="toc-naming-rules" class="nav-link" data-scroll-target="#naming-rules">Naming Rules</a></li>
+  <li><a href="#file-names-on-disk" id="toc-file-names-on-disk" class="nav-link" data-scroll-target="#file-names-on-disk">File Names on Disk</a></li>
+  </ul></li>
+  <li><a href="#cross-reference-rules" id="toc-cross-reference-rules" class="nav-link" data-scroll-target="#cross-reference-rules">Cross-Reference Rules</a>
+  <ul class="collapse">
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a></li>
+  <li><a href="#link-syntax" id="toc-link-syntax" class="nav-link" data-scroll-target="#link-syntax">Link Syntax</a></li>
+  <li><a href="#cross-reference-section" id="toc-cross-reference-section" class="nav-link" data-scroll-target="#cross-reference-section">Cross-Reference Section</a></li>
+  </ul></li>
+  <li><a href="#lint-rules" id="toc-lint-rules" class="nav-link" data-scroll-target="#lint-rules">Lint Rules</a>
+  <ul class="collapse">
+  <li><a href="#orphan-detection" id="toc-orphan-detection" class="nav-link" data-scroll-target="#orphan-detection">1. Orphan Detection</a></li>
+  <li><a href="#stale-detection" id="toc-stale-detection" class="nav-link" data-scroll-target="#stale-detection">2. Stale Detection</a></li>
+  <li><a href="#missing-properties" id="toc-missing-properties" class="nav-link" data-scroll-target="#missing-properties">3. Missing Properties</a></li>
+  <li><a href="#broken-references" id="toc-broken-references" class="nav-link" data-scroll-target="#broken-references">4. Broken References</a></li>
+  <li><a href="#hub-completeness" id="toc-hub-completeness" class="nav-link" data-scroll-target="#hub-completeness">5. Hub Completeness</a></li>
+  <li><a href="#credential-leak" id="toc-credential-leak" class="nav-link" data-scroll-target="#credential-leak">6. Credential Leak</a></li>
+  <li><a href="#empty-pages" id="toc-empty-pages" class="nav-link" data-scroll-target="#empty-pages">7. Empty Pages</a></li>
+  <li><a href="#cross-reference-minimum" id="toc-cross-reference-minimum" class="nav-link" data-scroll-target="#cross-reference-minimum">8. Cross-Reference Minimum</a></li>
+  <li><a href="#l1l2-duplicates" id="toc-l1l2-duplicates" class="nav-link" data-scroll-target="#l1l2-duplicates">9. L1/L2 Duplicates</a></li>
+  </ul></li>
+  <li><a href="#l1l2-boundary-rules" id="toc-l1l2-boundary-rules" class="nav-link" data-scroll-target="#l1l2-boundary-rules">L1/L2 Boundary Rules</a>
+  <ul class="collapse">
+  <li><a href="#l1-claude-code-memory-auto-loaded" id="toc-l1-claude-code-memory-auto-loaded" class="nav-link" data-scroll-target="#l1-claude-code-memory-auto-loaded">L1 (Claude Code Memory) – Auto-loaded</a></li>
+  <li><a href="#l2-wiki-on-demand" id="toc-l2-wiki-on-demand" class="nav-link" data-scroll-target="#l2-wiki-on-demand">L2 (Wiki) – On-demand</a></li>
+  <li><a href="#the-routing-test" id="toc-the-routing-test" class="nav-link" data-scroll-target="#the-routing-test">The Routing Test</a></li>
+  </ul></li>
+  <li><a href="#content-format-rules" id="toc-content-format-rules" class="nav-link" data-scroll-target="#content-format-rules">Content Format Rules</a>
+  <ul class="collapse">
+  <li><a href="#logseq-format" id="toc-logseq-format" class="nav-link" data-scroll-target="#logseq-format">Logseq Format</a></li>
+  <li><a href="#obsidian-format" id="toc-obsidian-format" class="nav-link" data-scroll-target="#obsidian-format">Obsidian Format</a></li>
+  <li><a href="#key-differences" id="toc-key-differences" class="nav-link" data-scroll-target="#key-differences">Key Differences</a></li>
+  <li><a href="#universal-rules-both-formats" id="toc-universal-rules-both-formats" class="nav-link" data-scroll-target="#universal-rules-both-formats">Universal Rules (Both Formats)</a></li>
+  </ul></li>
+  <li><a href="#hub-index-routing-lru-demote" id="toc-hub-index-routing-lru-demote" class="nav-link" data-scroll-target="#hub-index-routing-lru-demote">Hub-Index-Routing &amp; LRU-Demote</a>
+  <ul class="collapse">
+  <li><a href="#hub-index-routing-two-stage-query" id="toc-hub-index-routing-two-stage-query" class="nav-link" data-scroll-target="#hub-index-routing-two-stage-query">Hub-Index-Routing (two-stage query)</a></li>
+  <li><a href="#lru-demote-wiki-maintain-prune-default-6-months" id="toc-lru-demote-wiki-maintain-prune-default-6-months" class="nav-link" data-scroll-target="#lru-demote-wiki-maintain-prune-default-6-months">LRU-Demote (<code>/wiki-maintain prune</code>, default 6 months)</a></li>
+  <li><a href="#access-log-page" id="toc-access-log-page" class="nav-link" data-scroll-target="#access-log-page">Access-Log page</a></li>
+  <li><a href="#related-lint-rules" id="toc-related-lint-rules" class="nav-link" data-scroll-target="#related-lint-rules">Related lint rules</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/schema-reference.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="schema-reference" class="level1">
+<h1>Schema Reference</h1>
+<p>The schema is the single most important file in the system. It is the contract between you and the LLM that governs how every wiki page gets created and maintained.</p>
+<p>Without a schema, the LLM creates inconsistent pages. One page might use <code>status: active</code>, another <code>state:: running</code>, a third has no status field at all. With a schema, every page follows the same contract, and automated quality checks become possible. It is the difference between a wiki and a pile of notes.</p>
+<section id="schema-location" class="level2">
+<h2 class="anchored" data-anchor-id="schema-location">Schema Location</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Wiki App</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Logseq</td>
+<td><code>wiki___schema.md</code> (in your pages directory)</td>
+</tr>
+<tr class="even">
+<td>Obsidian</td>
+<td><code>wiki/schema.md</code> (in your vault)</td>
+</tr>
+</tbody>
+</table>
+<p>The wiki skills read this file before every operation.</p>
+</section>
+<section id="page-types" class="level2">
+<h2 class="anchored" data-anchor-id="page-types">Page Types</h2>
+<p>The schema defines five page types. Every wiki page must declare exactly one type via the <code>type::</code> property.</p>
+<section id="entity" class="level3">
+<h3 class="anchored" data-anchor-id="entity">1. Entity</h3>
+<p>Represents a person, client, tool, service, or technology. Anything that has identity and persistence.</p>
+<p><strong>Required Properties:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 25%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>type::</code></td>
+<td><code>entity</code></td>
+<td>Page type identifier</td>
+</tr>
+<tr class="even">
+<td><code>entity-type::</code></td>
+<td><code>person</code> | <code>client</code> | <code>tool</code> | <code>service</code> | <code>technology</code></td>
+<td>What kind of entity</td>
+</tr>
+<tr class="odd">
+<td><code>created::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the page was created</td>
+</tr>
+<tr class="even">
+<td><code>updated::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>Last modification date</td>
+</tr>
+<tr class="odd">
+<td><code>status::</code></td>
+<td><code>active</code> | <code>inactive</code> | <code>archived</code></td>
+<td>Current state</td>
+</tr>
+<tr class="even">
+<td><code>source::</code></td>
+<td><code>memory-migration</code> | <code>ingest</code> | <code>manual</code></td>
+<td>How the page was created</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example (Logseq format):</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>type:: entity</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>entity-type:: tool</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>created:: 2026-03-15</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>updated:: 2026-04-07</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>status:: active</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>source:: ingest</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## Strapi</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Headless CMS used for blog and content management.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Version: 5.39.0</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Deployment</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Runs on VPS port 1338</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Build locally, upload dist/ to server</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Cross-References</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/Next-js</span><span class="co">]</span>] -- Frontend consumer</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/reference/workflows</span><span class="co">]</span>] -- Publishing workflow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Example (Obsidian format):</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">type:</span><span class="co"> entity</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="an">entity-type:</span><span class="co"> tool</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="an">created:</span><span class="co"> 2026-03-15</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="an">updated:</span><span class="co"> 2026-04-07</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="an">status:</span><span class="co"> active</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="an">source:</span><span class="co"> ingest</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Strapi</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>Headless CMS used for blog and content management.</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>Version: 5.39.0</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">### Deployment</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runs on VPS port 1338</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Build locally, upload dist/ to server</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cross-References</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>[<span class="co">[</span><span class="ot">wiki/tech/Next-js</span><span class="co">]</span>] -- Frontend consumer</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>[<span class="co">[</span><span class="ot">wiki/reference/workflows</span><span class="co">]</span>] -- Publishing workflow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="project" class="level3">
+<h3 class="anchored" data-anchor-id="project">2. Project</h3>
+<p>Tracks a project with timeline, status, and outcomes.</p>
+<p><strong>Required Properties:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 25%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>type::</code></td>
+<td><code>project</code></td>
+<td>Page type identifier</td>
+</tr>
+<tr class="even">
+<td><code>status::</code></td>
+<td><code>active</code> | <code>completed</code> | <code>on-hold</code> | <code>cancelled</code></td>
+<td>Project state</td>
+</tr>
+<tr class="odd">
+<td><code>created::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the page was created</td>
+</tr>
+<tr class="even">
+<td><code>updated::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>Last modification date</td>
+</tr>
+<tr class="odd">
+<td><code>started::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the project began</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional Properties:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 25%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>completed::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the project finished (if applicable)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example (Logseq format):</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>type:: project</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>status:: active</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>created:: 2026-03-01</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>updated:: 2026-04-07</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>started:: 2026-02-15</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## Blog Series</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Technical blog series on distributed systems.</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Parts</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Part 1: Introduction (published 2026-03-01)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Part 2: Architecture (published 2026-03-15)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Part 3: Implementation (drafting)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Metrics</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span><span class="pp">|</span> Part <span class="pp">|</span> Views <span class="pp">|</span> Published <span class="pp">|</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      <span class="pp">|------|-------|-----------|</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="pp">|</span> Part 1 <span class="pp">|</span> 1,200 <span class="pp">|</span> 2026-03-01 <span class="pp">|</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>      <span class="pp">|</span> Part 2 <span class="pp">|</span> 890 <span class="pp">|</span> 2026-03-15 <span class="pp">|</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Cross-References</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/content/blog</span><span class="co">]</span>] -- Publishing channel</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/content/newsletter</span><span class="co">]</span>] -- Promotion</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="knowledge" class="level3">
+<h3 class="anchored" data-anchor-id="knowledge">3. Knowledge</h3>
+<p>Stores synthesized knowledge on a topic. The most common page type.</p>
+<p><strong>Required Properties:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 25%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>type::</code></td>
+<td><code>knowledge</code></td>
+<td>Page type identifier</td>
+</tr>
+<tr class="even">
+<td><code>domain::</code></td>
+<td><code>tech</code> | <code>business</code> | <code>content</code> | <code>ops</code></td>
+<td>Knowledge domain</td>
+</tr>
+<tr class="odd">
+<td><code>created::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the page was created</td>
+</tr>
+<tr class="even">
+<td><code>updated::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>Last modification date</td>
+</tr>
+<tr class="odd">
+<td><code>confidence::</code></td>
+<td><code>high</code> | <code>medium</code> | <code>low</code> | <code>stale</code></td>
+<td>How reliable the content is</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Confidence levels explained:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 37%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Level</th>
+<th>Meaning</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>high</code></td>
+<td>Verified, up-to-date, reliable</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td><code>medium</code></td>
+<td>Probably correct, not recently verified</td>
+<td>Verify on next ingest</td>
+</tr>
+<tr class="odd">
+<td><code>low</code></td>
+<td>Uncertain, incomplete, or based on limited sources</td>
+<td>Flag for review</td>
+</tr>
+<tr class="even">
+<td><code>stale</code></td>
+<td>Was high/medium but <code>updated::</code> is 90+ days old</td>
+<td>Re-verify or downgrade</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example (Logseq format):</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>type:: knowledge</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>domain:: tech</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>confidence:: high</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>created:: 2026-02-01</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>updated:: 2026-04-07</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## Deployment Pipeline</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>CI/CD workflow for production deployments.</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Pre-deploy Checklist</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>1. Ensure clean git state (no uncommitted changes)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>2. Run test suite</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>3. Check server RAM (stop non-essential services if needed)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Known Gotchas</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>PM2 reload does not work for npm-started processes</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Environment variables baked in at build time, not runtime</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Cross-References</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/PM2</span><span class="co">]</span>] -- Process manager</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/Nginx</span><span class="co">]</span>] -- Reverse proxy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="feedback" class="level3">
+<h3 class="anchored" data-anchor-id="feedback">4. Feedback</h3>
+<p>Captures lessons learned, gotchas, and operational rules. Often promoted to L1 if critical enough.</p>
+<p><strong>Required Properties:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 25%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>type::</code></td>
+<td><code>feedback</code></td>
+<td>Page type identifier</td>
+</tr>
+<tr class="even">
+<td><code>severity::</code></td>
+<td><code>critical</code> | <code>important</code> | <code>nice-to-know</code></td>
+<td>How serious the lesson is</td>
+</tr>
+<tr class="odd">
+<td><code>created::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the feedback was captured</td>
+</tr>
+<tr class="even">
+<td><code>verified::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the lesson was last confirmed</td>
+</tr>
+<tr class="odd">
+<td><code>applies-to::</code></td>
+<td>Page references</td>
+<td>Which systems/pages this affects</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Severity guidelines:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 29%">
+<col style="width: 48%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Level</th>
+<th>Meaning</th>
+<th>L1 Candidate?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>critical</code></td>
+<td>Causes data loss, downtime, or security issues</td>
+<td>Almost always yes</td>
+</tr>
+<tr class="even">
+<td><code>important</code></td>
+<td>Causes significant wasted time or incorrect output</td>
+<td>Sometimes</td>
+</tr>
+<tr class="odd">
+<td><code>nice-to-know</code></td>
+<td>Minor inconvenience if forgotten</td>
+<td>Rarely</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example (Logseq format):</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>type:: feedback</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>severity:: critical</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>created:: 2026-03-10</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>verified:: 2026-04-01</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>applies-to:: [<span class="co">[</span><span class="ot">wiki/tech/PM2</span><span class="co">]</span>], [<span class="co">[</span><span class="ot">wiki/tech/deployment</span><span class="co">]</span>]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## PM2 Reload Gotcha</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span><span class="in">`pm2 reload`</span> does NOT work for processes started with</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="in">`pm2 start npm --name X -- start`</span>.</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Must use <span class="in">`pm2 delete + pm2 start`</span> instead.</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Context</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Discovered during production deploy on 2026-03-10.</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Process appeared to reload but was serving stale code.</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Cross-References</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/PM2</span><span class="co">]</span>] -- Process manager details</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/deployment</span><span class="co">]</span>] -- Full deploy workflow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="hub" class="level3">
+<h3 class="anchored" data-anchor-id="hub">5. Hub</h3>
+<p>A namespace index page that lists all child pages within its namespace. Hub pages are structural – they organize the wiki rather than holding knowledge.</p>
+<p><strong>Required Properties:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>type::</code></td>
+<td><code>hub</code></td>
+<td>Page type identifier</td>
+</tr>
+<tr class="even">
+<td><code>namespace::</code></td>
+<td>Namespace path</td>
+<td>The namespace this hub indexes</td>
+</tr>
+</tbody>
+</table>
+<p>A hub carries an <code>### Index</code> block: one <strong>routing line</strong> per child page, formatted <code>[[link]] -- description #tags</code>. This is the wiki’s “page table” - <code>/wiki-query</code> reads the index first (cheap) and only then opens the 1-3 pages whose description matches. Cold pages demoted by <code>/wiki-maintain prune</code> move to the <code>### Archive</code> block (see <a href="#hub-index-routing--lru-demote">Hub-Index-Routing &amp; LRU-Demote</a>).</p>
+<p><strong>Example (Logseq format):</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>type:: hub</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>namespace:: wiki/tech</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## Tech</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Index</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/Strapi</span><span class="co">]</span>] -- Headless CMS, ports, deploy + migration gotchas #strapi #deploy</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/Next-js</span><span class="co">]</span>] -- Frontend framework, SSR/ISR config #nextjs</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/PM2</span><span class="co">]</span>] -- Process manager, cwd/reload bug #pm2 #deploy</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/Nginx</span><span class="co">]</span>] -- Reverse proxy, TLS, upstream ports #nginx</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Archive</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/tech/legacy-foo</span><span class="co">]</span>] -- (demoted 2026-06-07) old Foo stack, replaced by Bar #archived</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Related Hubs</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/projects</span><span class="co">]</span>] -- Project-specific tech decisions</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/reference</span><span class="co">]</span>] -- Workflow documentation</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="namespace-conventions" class="level2">
+<h2 class="anchored" data-anchor-id="namespace-conventions">Namespace Conventions</h2>
+<section id="top-level-namespaces" class="level3">
+<h3 class="anchored" data-anchor-id="top-level-namespaces">Top-Level Namespaces</h3>
+<p>The default schema defines 8 top-level namespaces. Customize these to match your domain.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 23%">
+<col style="width: 48%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Namespace</th>
+<th>Purpose</th>
+<th>Typical Page Types</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>wiki/business</code></td>
+<td>Clients, services, business strategy</td>
+<td>Entity, Knowledge</td>
+</tr>
+<tr class="even">
+<td><code>wiki/tech</code></td>
+<td>Tools, frameworks, infrastructure</td>
+<td>Entity, Knowledge, Feedback</td>
+</tr>
+<tr class="odd">
+<td><code>wiki/content</code></td>
+<td>Blog, newsletter, social media</td>
+<td>Knowledge, Project</td>
+</tr>
+<tr class="even">
+<td><code>wiki/projects</code></td>
+<td>Active and completed projects</td>
+<td>Project</td>
+</tr>
+<tr class="odd">
+<td><code>wiki/people</code></td>
+<td>People you work with</td>
+<td>Entity</td>
+</tr>
+<tr class="even">
+<td><code>wiki/learning</code></td>
+<td>Courses, books, research</td>
+<td>Knowledge</td>
+</tr>
+<tr class="odd">
+<td><code>wiki/reference</code></td>
+<td>Workflows, templates, checklists</td>
+<td>Knowledge</td>
+</tr>
+<tr class="even">
+<td><code>wiki/careers</code></td>
+<td>Job applications, opportunities</td>
+<td>Project</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="naming-rules" class="level3">
+<h3 class="anchored" data-anchor-id="naming-rules">Naming Rules</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Lowercase structural segments</td>
+<td><code>wiki/tech</code>, not <code>Wiki/Tech</code></td>
+</tr>
+<tr class="even">
+<td>Hyphen (U+002D) for multi-word</td>
+<td><code>wiki/projects/blog-series</code> (not <code>blog_series</code>, <code>blog series</code>, or an en/em dash)</td>
+</tr>
+<tr class="odd">
+<td>Proper-noun leaves keep natural casing</td>
+<td><code>wiki/tools/Claude Code</code>, <code>notes/literature/@Forte2022</code></td>
+</tr>
+<tr class="even">
+<td>Max depth: 3 levels</td>
+<td><code>wiki/business/clients/Acme</code> is the deepest allowed</td>
+</tr>
+<tr class="odd">
+<td>Hub at each level</td>
+<td><code>wiki/tech</code> is the hub for all <code>wiki/tech/*</code> pages</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>Wiki/</code> → <code>wiki/</code> corpus rename runs through the migration converter (<code>migrate_wiki.py --lowercase</code>, REQ-580c), not by hand; pre-migration corpora that still use Title Case names are covered by the lint grandfather floor.</p>
+</section>
+<section id="file-names-on-disk" class="level3">
+<h3 class="anchored" data-anchor-id="file-names-on-disk">File Names on Disk</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Wiki App</th>
+<th>Convention</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Logseq</td>
+<td>Triple-underscore separator</td>
+<td><code>wiki___tech___Strapi.md</code></td>
+</tr>
+<tr class="even">
+<td>Obsidian</td>
+<td>Directory structure</td>
+<td><code>wiki/tech/Strapi.md</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cross-reference-rules" class="level2">
+<h2 class="anchored" data-anchor-id="cross-reference-rules">Cross-Reference Rules</h2>
+<p>Cross-references are what make a wiki a wiki, not just a folder of notes.</p>
+<section id="requirements" class="level3">
+<h3 class="anchored" data-anchor-id="requirements">Requirements</h3>
+<ol type="1">
+<li><strong>Every page must have at least 1 outgoing link.</strong> A page with zero <code>[[wiki/...]]</code> links is isolated and will be flagged by lint.</li>
+<li><strong>Hub pages must list ALL child pages.</strong> If <code>wiki/tech/Strapi</code> exists, it must appear in the <code>wiki/tech</code> hub page.</li>
+<li><strong>Mention an entity with a page? Link to it.</strong> If you reference Strapi in a deployment page, use <code>[[wiki/tech/Strapi]]</code>, not just “Strapi”.</li>
+<li><strong>Backlinks are automatic</strong> in both Logseq and Obsidian. You only need to create links in one direction.</li>
+</ol>
+</section>
+<section id="link-syntax" class="level3">
+<h3 class="anchored" data-anchor-id="link-syntax">Link Syntax</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 29%">
+<col style="width: 48%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Syntax</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wiki internal</td>
+<td><code>[[wiki/tech/Strapi]]</code></td>
+<td>Referencing another wiki page</td>
+</tr>
+<tr class="even">
+<td>Tag</td>
+<td><code>#strapi</code></td>
+<td>Lightweight categorization</td>
+</tr>
+<tr class="odd">
+<td>External</td>
+<td><code>[Strapi Docs](https://docs.strapi.io)</code></td>
+<td>URLs outside the wiki</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="cross-reference-section" class="level3">
+<h3 class="anchored" data-anchor-id="cross-reference-section">Cross-Reference Section</h3>
+<p>Every non-hub page should end with a <code>### Cross-References</code> section listing its most important links. This makes the page’s relationships explicit and scannable.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>### Cross-References</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>[<span class="co">[</span><span class="ot">wiki/tech/Strapi</span><span class="co">]</span>] -- CMS backend</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>[<span class="co">[</span><span class="ot">wiki/tech/Next-js</span><span class="co">]</span>] -- Frontend framework</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>[<span class="co">[</span><span class="ot">wiki/reference/workflows</span><span class="co">]</span>] -- Publishing process</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="lint-rules" class="level2">
+<h2 class="anchored" data-anchor-id="lint-rules">Lint Rules</h2>
+<p>The <code>/wiki-lint</code> command checks these rules automatically. Run with <code>--fix</code> to auto-repair where possible.</p>
+<section id="orphan-detection" class="level3">
+<h3 class="anchored" data-anchor-id="orphan-detection">1. Orphan Detection</h3>
+<p><strong>What:</strong> Pages with 0 incoming <code>[[links]]</code> from other pages.</p>
+<p><strong>Why:</strong> An orphan page is invisible – nobody will find it by browsing the wiki. It suggests the page is either misplaced, miscategorized, or missing from its hub.</p>
+<p><strong>Exception:</strong> Hub pages are exempt. They are entry points by definition.</p>
+<p><strong>Auto-fix:</strong> Add the orphan to its namespace’s hub page.</p>
+</section>
+<section id="stale-detection" class="level3">
+<h3 class="anchored" data-anchor-id="stale-detection">2. Stale Detection</h3>
+<p><strong>What:</strong> Pages where <code>updated::</code> is older than 90 days AND <code>confidence::</code> is still <code>high</code>.</p>
+<p><strong>Why:</strong> Knowledge decays. A page marked “high confidence” but untouched for 3 months is probably overdue for review. The confidence level should be downgraded to <code>stale</code> to signal that it needs verification.</p>
+<p><strong>Auto-fix:</strong> Downgrade <code>confidence::</code> from <code>high</code> to <code>stale</code>.</p>
+</section>
+<section id="missing-properties" class="level3">
+<h3 class="anchored" data-anchor-id="missing-properties">3. Missing Properties</h3>
+<p><strong>What:</strong> Pages that lack one or more required properties for their declared <code>type::</code>.</p>
+<p><strong>Why:</strong> Missing properties break consistency. A <code>project</code> page without <code>status::</code> cannot be filtered by status. A <code>knowledge</code> page without <code>confidence::</code> cannot be assessed for reliability.</p>
+<p><strong>Auto-fix:</strong> None – requires human judgment to fill in correct values. Lint reports the missing properties.</p>
+</section>
+<section id="broken-references" class="level3">
+<h3 class="anchored" data-anchor-id="broken-references">4. Broken References</h3>
+<p><strong>What:</strong> <code>[[wiki/...]]</code> links that point to pages that do not exist.</p>
+<p><strong>Why:</strong> Broken links are false promises. They suggest knowledge exists when it does not. They also indicate that a page was deleted or renamed without updating references.</p>
+<p><strong>Auto-fix:</strong> Create stub pages for broken links with the appropriate type and a “To be filled via /wiki-ingest” placeholder.</p>
+</section>
+<section id="hub-completeness" class="level3">
+<h3 class="anchored" data-anchor-id="hub-completeness">5. Hub Completeness</h3>
+<p><strong>What:</strong> Hub pages that are missing child pages from their namespace.</p>
+<p><strong>Why:</strong> Hubs are the navigational backbone. If a page exists in <code>wiki/tech/</code> but is not listed in the <code>wiki/tech</code> hub, it is effectively hidden from browsing.</p>
+<p><strong>Auto-fix:</strong> Add missing children to the hub page.</p>
+</section>
+<section id="credential-leak" class="level3">
+<h3 class="anchored" data-anchor-id="credential-leak">6. Credential Leak</h3>
+<p><strong>What:</strong> Wiki pages containing patterns that look like credentials: <code>token::</code>, <code>password::</code>, <code>secret::</code>, <code>api-key::</code>, or long base64 strings.</p>
+<p><strong>Why:</strong> Wiki pages are typically git-tracked. Credentials in git history are a security incident. They belong in L1 memory, which is git-excluded.</p>
+<p><strong>Auto-fix:</strong> None – credentials must be manually moved to L1. Lint flags the page and pattern.</p>
+<p><strong>Severity:</strong> Always <code>critical</code>.</p>
+</section>
+<section id="empty-pages" class="level3">
+<h3 class="anchored" data-anchor-id="empty-pages">7. Empty Pages</h3>
+<p><strong>What:</strong> Pages that have properties but no actual content below the properties.</p>
+<p><strong>Why:</strong> A page with only <code>type:: knowledge</code> and <code>domain:: tech</code> has no value. It was probably created as a stub and forgotten.</p>
+<p><strong>Auto-fix:</strong> None – but lint flags them as candidates for either filling via ingest or deletion.</p>
+</section>
+<section id="cross-reference-minimum" class="level3">
+<h3 class="anchored" data-anchor-id="cross-reference-minimum">8. Cross-Reference Minimum</h3>
+<p><strong>What:</strong> Pages with fewer than 1 outgoing <code>[[wiki/...]]</code> link.</p>
+<p><strong>Why:</strong> An isolated page is a disconnected thought. The power of a wiki comes from connections. Even a stub page should link to its namespace hub.</p>
+<p><strong>Auto-fix:</strong> Add a link to the namespace hub page.</p>
+</section>
+<section id="l1l2-duplicates" class="level3">
+<h3 class="anchored" data-anchor-id="l1l2-duplicates">9. L1/L2 Duplicates</h3>
+<p><strong>What:</strong> Information that appears in both L1 memory files and L2 wiki pages.</p>
+<p><strong>Why:</strong> Duplicates mean one copy will eventually go stale, leading to contradictory knowledge. The LLM might get one version from L1 and a different version from L2.</p>
+<p><strong>Auto-fix:</strong> None – requires human decision on which location is authoritative. Lint reports the overlap.</p>
+</section>
+</section>
+<section id="l1l2-boundary-rules" class="level2">
+<h2 class="anchored" data-anchor-id="l1l2-boundary-rules">L1/L2 Boundary Rules</h2>
+<p>The schema explicitly defines what belongs where:</p>
+<section id="l1-claude-code-memory-auto-loaded" class="level3">
+<h3 class="anchored" data-anchor-id="l1-claude-code-memory-auto-loaded">L1 (Claude Code Memory) – Auto-loaded</h3>
+<ul>
+<li>Operational rules and gotchas (things that prevent mistakes)</li>
+<li>User identity and preferences (name, address, communication style)</li>
+<li>Credentials and secrets (API tokens, passwords)</li>
+<li>Tool-specific quirks that apply every session</li>
+</ul>
+</section>
+<section id="l2-wiki-on-demand" class="level3">
+<h3 class="anchored" data-anchor-id="l2-wiki-on-demand">L2 (Wiki) – On-demand</h3>
+<ul>
+<li>Project details and timelines</li>
+<li>Workflow documentation</li>
+<li>Research and learning notes</li>
+<li>Business intelligence and strategy</li>
+<li>Historical decisions and rationale</li>
+</ul>
+</section>
+<section id="the-routing-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-routing-test">The Routing Test</h3>
+<p>Ask: <strong>“If the LLM does not know this right now, what happens?”</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 53%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Answer</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Data loss, security issue, or production incident</td>
+<td><strong>L1</strong> (critical)</td>
+</tr>
+<tr class="even">
+<td>Embarrassing output (wrong name, wrong address)</td>
+<td><strong>L1</strong> (important)</td>
+</tr>
+<tr class="odd">
+<td>Incorrect but easily correctable answer</td>
+<td><strong>L2</strong></td>
+</tr>
+<tr class="even">
+<td>Missing context, needs to ask a follow-up</td>
+<td><strong>L2</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="content-format-rules" class="level2">
+<h2 class="anchored" data-anchor-id="content-format-rules">Content Format Rules</h2>
+<section id="logseq-format" class="level3">
+<h3 class="anchored" data-anchor-id="logseq-format">Logseq Format</h3>
+<pre><code>- Every BODY line is a block, prefixed with "- "
+- Indentation creates hierarchy (2-space or tab)
+  - Like this child block
+- Properties use inline syntax: property:: value
+- Page properties: unbulleted lines at the top, then one blank line
+- Headings go inside blocks: - ## Section Name
+- Code blocks use fenced syntax inside blocks:
+  - ```bash
+    echo "hello"
+    ```
+- Tables work inside blocks:
+  - | Column 1 | Column 2 |
+    |----------|----------|
+    | Value 1  | Value 2  |</code></pre>
+</section>
+<section id="obsidian-format" class="level3">
+<h3 class="anchored" data-anchor-id="obsidian-format">Obsidian Format</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">type:</span><span class="co"> knowledge</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">domain:</span><span class="co"> tech</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="an">confidence:</span><span class="co"> high</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="an">created:</span><span class="co"> 2026-03-15</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="an">updated:</span><span class="co"> 2026-04-07</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Section Name</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>Regular markdown paragraphs.</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bullet points as needed</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No "- " prefix requirement on every line</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">### Subsection</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>Code blocks, tables, and all standard markdown features work as expected.</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Column 1 <span class="pp">|</span> Column 2 <span class="pp">|</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------|----------|</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Value 1  <span class="pp">|</span> Value 2  <span class="pp">|</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="key-differences" class="level3">
+<h3 class="anchored" data-anchor-id="key-differences">Key Differences</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 29%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Logseq</th>
+<th>Obsidian</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Properties</td>
+<td><code>property:: value</code> (inline)</td>
+<td>YAML frontmatter</td>
+</tr>
+<tr class="even">
+<td>Every line prefixed</td>
+<td>Yes (<code>-</code>)</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Headings</td>
+<td>Inside blocks (<code>- ## Heading</code>)</td>
+<td>Standard markdown (<code>## Heading</code>)</td>
+</tr>
+<tr class="even">
+<td>Hierarchy</td>
+<td>Indentation-based</td>
+<td>Heading-based</td>
+</tr>
+<tr class="odd">
+<td>Tables</td>
+<td>Inside block context</td>
+<td>Standard markdown</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="universal-rules-both-formats" class="level3">
+<h3 class="anchored" data-anchor-id="universal-rules-both-formats">Universal Rules (Both Formats)</h3>
+<ul>
+<li>Dates: ISO 8601 (<code>YYYY-MM-DD</code>)</li>
+<li>Links: <code>[[wiki/&lt;namespace&gt;/&lt;page&gt;]]</code> syntax</li>
+<li>External links: <code>[Text](URL)</code> syntax</li>
+<li>Tags: <code>#tag</code> for lightweight categorization</li>
+<li>No credentials in wiki content (ever)</li>
+<li>Append only – never overwrite existing content during ingest</li>
+</ul>
+</section>
+</section>
+<section id="hub-index-routing-lru-demote" class="level2">
+<h2 class="anchored" data-anchor-id="hub-index-routing-lru-demote">Hub-Index-Routing &amp; LRU-Demote</h2>
+<p>L1 (Claude Memory) has an index - the auto-loaded <code>MEMORY.md</code> pointer list. L2 (the wiki) had none. As the wiki grows, a grep-over-every-page retrieval gets imprecise and expensive. These two mechanisms keep L2 precise while it scales - the CPU-cache analogy, carried through to the index and eviction layers.</p>
+<section id="hub-index-routing-two-stage-query" class="level3">
+<h3 class="anchored" data-anchor-id="hub-index-routing-two-stage-query">Hub-Index-Routing (two-stage query)</h3>
+<p>Each hub page carries an <code>### Index</code> block: one routing line per active child page, formatted <code>[[wiki/&lt;ns&gt;/&lt;page&gt;]] -- &lt;one-sentence description, &lt;=120 chars&gt; #tag #tag</code>.</p>
+<ul>
+<li><strong>Stage 1</strong> - <code>/wiki-query</code> reads only the hub <code>### Index</code> blocks of the candidate namespaces and picks the 3 (max 5) most relevant pages by description. This is the wiki’s <em>page table / TLB</em>.</li>
+<li><strong>Stage 2</strong> - it then reads only those full pages. Grep-over-everything is just the <strong>L3 fallback</strong> when routing finds nothing.</li>
+<li><code>/wiki-ingest</code> maintains the routing line for every page it creates or updates (required, else the page is unroutable). The description is the routing key: terse, distinctive, no filler.</li>
+</ul>
+</section>
+<section id="lru-demote-wiki-maintain-prune-default-6-months" class="level3">
+<h3 class="anchored" data-anchor-id="lru-demote-wiki-maintain-prune-default-6-months">LRU-Demote (<code>/wiki-maintain prune</code>, default 6 months)</h3>
+<ul>
+<li><code>/wiki-query</code> appends every full-page hit to the <strong>Access-Log</strong> page (append-only, non-structural, no per-query commit).</li>
+<li><code>/wiki-maintain prune</code> computes the last access per page (never logged -&gt; <code>created::</code> proxy). Cold = no access in N months.</li>
+<li>Demote = <strong>eviction from the index, not deletion or rename</strong>: the routing line moves from <code>### Index</code> to <code>### Archive</code>, and the page is marked <code>archived:: &lt;date&gt;</code> (the canonical demote marker, valid on any type; entity pages also get <code>status:: archived</code>). The file stays in place, <code>[[links]]</code> stay intact, and it is still greppable as L3.</li>
+<li>Exempt: hub pages, Schema, Dashboard, the Access-Log, and <code>status:: active</code> projects.</li>
+<li>Re-promote: if an L3 grep hits an archived page again, its routing line returns to <code>### Index</code> and the archived properties are removed.</li>
+<li><strong>Critical:</strong> the wiki tool links by page name, so a file rename/move would break every incoming <code>[[link]]</code>. Never move a demoted page - only evict it from the index.</li>
+</ul>
+</section>
+<section id="access-log-page" class="level3">
+<h3 class="anchored" data-anchor-id="access-log-page">Access-Log page</h3>
+<p><code>wiki/reference/access-log</code> (<code>access-log:: true</code>, <code>type:: reference</code>) holds an append-only <code>## Log</code> block. It is exempt from the orphan, stale, and demote lint rules and is machine-appended - do not hand-edit it. Each line carries a <code>matched:</code> routing reason (<code>... -- query -- matched: "&lt;reason&gt;"</code>) - the index description or grep term that selected the page - so the log records not just WHICH page loaded but WHY (routing transparency, surfaced by <code>/wiki-maintain</code>). Legacy lines without <code>matched:</code> remain valid; the suffix does not affect prune/status parsing.</p>
+</section>
+<section id="related-lint-rules" class="level3">
+<h3 class="anchored" data-anchor-id="related-lint-rules">Related lint rules</h3>
+<ul>
+<li><strong>Index Drift</strong> - a routing line with no matching page (orphaned), or an active page with no routing line in its namespace hub (unroutable). <code>lint --fix</code> removes orphans and backfills missing lines.</li>
+<li><strong>Archived-in-Live-Index</strong> - an archived page (<code>archived::</code> set) still in <code>### Index</code> instead of <code>### Archive</code> (an unclean prune). <code>lint --fix</code> moves it.</li>
+</ul>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/schema-reference.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

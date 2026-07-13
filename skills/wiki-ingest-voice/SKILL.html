@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Drain the voice inbox and process voice notes. First transcribes any audio waiting in inbox_dir into archive.db by invoking the standalone insert script (skipped when the nightly watcher already did it), then consumes unprocessed voice_notes rows and routes each transcript to a 2-4 line summary on today’s journal page with [[links]] and the provenance id. Wiki page updates are offered per row at the checkpoint with the full sentence shown; people rows always need individual confirmation; assessments of people are never promoted. Interactive only, no –auto. Personal-tier skill, installed via setup.sh –with-personal.">
+
+<title>skill – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#wiki-ingest-voice" id="toc-wiki-ingest-voice" class="nav-link active" data-scroll-target="#wiki-ingest-voice">wiki-ingest-voice</a>
+  <ul class="collapse">
+  <li><a href="#standing-rules-never-overridden-in-any-mode-by-any-confirmation" id="toc-standing-rules-never-overridden-in-any-mode-by-any-confirmation" class="nav-link" data-scroll-target="#standing-rules-never-overridden-in-any-mode-by-any-confirmation">Standing rules (never overridden, in any mode, by any confirmation)</a>
+  <ul class="collapse">
+  <li><a href="#phase-0.5---drain-the-inbox-transcribe-new-audio" id="toc-phase-0.5---drain-the-inbox-transcribe-new-audio" class="nav-link" data-scroll-target="#phase-0.5---drain-the-inbox-transcribe-new-audio">Phase 0.5 - Drain the inbox (transcribe new audio)</a></li>
+  </ul></li>
+  <li><a href="#phase-1---per-note-analysis-from-the-stored-transcript" id="toc-phase-1---per-note-analysis-from-the-stored-transcript" class="nav-link" data-scroll-target="#phase-1---per-note-analysis-from-the-stored-transcript">Phase 1 - Per-note analysis (from the stored transcript)</a></li>
+  <li><a href="#checkpoint---always-run-one-consolidated-pause-req-025081" id="toc-checkpoint---always-run-one-consolidated-pause-req-025081" class="nav-link" data-scroll-target="#checkpoint---always-run-one-consolidated-pause-req-025081">Checkpoint - always run, one consolidated pause (REQ-025/081)</a></li>
+  <li><a href="#phase-3---writes" id="toc-phase-3---writes" class="nav-link" data-scroll-target="#phase-3---writes">Phase 3 - Writes</a></li>
+  <li><a href="#phase-4---quality-gate" id="toc-phase-4---quality-gate" class="nav-link" data-scroll-target="#phase-4---quality-gate">Phase 4 - Quality gate</a></li>
+  <li><a href="#phase-5---commit-mark-processed-report" id="toc-phase-5---commit-mark-processed-report" class="nav-link" data-scroll-target="#phase-5---commit-mark-processed-report">Phase 5 - Commit, mark processed, report</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-ingest-voice/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="wiki-ingest-voice" class="level1">
+<h1>wiki-ingest-voice</h1>
+<p>Drain the voice queue: read unprocessed <code>voice_notes</code> rows from archive.db, summarize each transcript onto today’s journal page, offer any substantive wiki page updates one row at a time, hand extracted TODOs to the human, and mark rows processed only after the writes are committed. The voice variant of wiki-ingest: the base ingest contract applies unchanged; the source is a database row instead of a <code>raw/</code> file.</p>
+<p>Spec: openspec/specs/ingest.md Voice Sources REQ-080..087 (the base contract REQ-010..075 applies except the file lifecycle); openspec/specs/storage.md REQ-1100..1141 (two-plane contract, <code>voice_notes</code> schema, dead-man status line); specs/schema.md REQ-586b (capture-backed reliability); specs/audit.md REQ-927 (capture-backed verdict).</p>
+<p>Shared conventions (read before executing):</p>
+<ul>
+<li><a href="../../skills/wiki-core/references/config.html">config</a>: discover and read <code>llm-wiki.yml</code> FIRST. Voice adds the optional <code>archive_db</code> key (config REQ-626, default <code>~/archive/archive.db</code> per <code>docs/voice-pipeline.md</code>).</li>
+<li><a href="../../skills/wiki-core/references/architecture.html">architecture</a>: L1/L2 routing rule, credential boundary, namespace scope rule.</li>
+<li><a href="../../skills/wiki-core/references/formats.html">formats</a>: tool-specific formats, required properties, routing-line format, write discipline.</li>
+<li><a href="../../skills/wiki-core/references/trust.html">trust</a>: <code>reliability::</code> rubric and roll-up; voice claims are capture-backed and default <code>low</code> (REQ-586b).</li>
+<li><a href="../../skills/wiki-ingest/references/citations.html">citations</a>: block-native <code>cite::</code> and the source-file union invariant; capture refs (<code>archive.db:voice_notes/&lt;id&gt;</code>) count as cite targets exactly like <code>ingested/</code> paths (ingest REQ-086, citations REQ-904).</li>
+</ul>
+<section id="standing-rules-never-overridden-in-any-mode-by-any-confirmation" class="level2">
+<h2 class="anchored" data-anchor-id="standing-rules-never-overridden-in-any-mode-by-any-confirmation">Standing rules (never overridden, in any mode, by any confirmation)</h2>
+<ul>
+<li><strong>Interactive only (REQ-081).</strong> There is NO <code>--auto</code> path for voice. When <code>--auto</code> is passed, state that voice sources are interactive-only and run the checkpoint anyway.</li>
+<li><strong>The journal is the default destination (REQ-082).</strong> A voice note becomes a 2-4 line summary on today’s journal page. Wiki pages are the exception, never the default.</li>
+<li><strong>Wiki writes are per-row opt-in (REQ-083).</strong> Show the full sentence(s) to be written, no truncation; write nothing to a wiki page without an explicit yes for that specific row.</li>
+<li><strong>People rows are confirmed individually (REQ-084).</strong> Any row touching a people page or naming a person never rides a batch confirmation.</li>
+<li><strong>Assessments of people are never promoted (REQ-085).</strong> Their health, family, grades, conflicts, or performance stay in the transcript (archive.db) only, REGARDLESS of confirmation. This is a standing content rule, not a pattern gate: it binds even when the user says yes.</li>
+<li><strong>The tool never writes to <code>para/</code> or <code>notes/</code> (REQ-087, namespaces REQ-966).</strong> TODOs are offered for the human to place.</li>
+<li><strong>archive.db is append-only (storage REQ-1110).</strong> The only mutation this workflow performs is flipping a row’s <code>processed</code> flag. Never edit or delete captured fields. All database access uses python3’s stdlib <code>sqlite3</code> module (REQ-1104), never an external client.</li>
+<li><strong>Kill criterion (issue #57).</strong> If two voice-sourced wiki claims are found wrong within one month, stop offering wiki updates: voice drops to journal-only until the checkpoint is redesigned.</li>
+</ul>
+<p><role> Wiki maintainer processing the owner’s own voice memos. You start from stored transcripts, keep the human in the loop before anything is written, route conservatively (journal first), and treat anything said about other people as private by default. </role></p>
+<p><workflow> ## Phase 0 - Queue and pipeline status</workflow></p>
+<ul>
+<li>Read <code>llm-wiki.yml</code> (<a href="../../skills/wiki-core/references/config.html">config</a>): <code>tool</code>, <code>wiki_path</code>, <code>pages_dir</code>, <code>archive_db</code> (default <code>~/archive/archive.db</code>), and <code>inbox_dir</code> (the voice inbox; default <code>~/voice-inbox/</code> per <code>docs/voice-pipeline.md</code>, but a vault may relocate it, e.g.&nbsp;into the vault itself as <code>&lt;wiki_path&gt;/voice-inbox/</code>).</li>
+<li>If the archive_db file does not exist, the voice queue is empty (not an error): report the pipeline status line and stop.</li>
+</ul>
+<section id="phase-0.5---drain-the-inbox-transcribe-new-audio" class="level3">
+<h3 class="anchored" data-anchor-id="phase-0.5---drain-the-inbox-transcribe-new-audio">Phase 0.5 - Drain the inbox (transcribe new audio)</h3>
+<p>The nightly watcher (<code>docs/voice-pipeline.md</code> section 6) is optional; when it is disabled, this skill is the only thing that moves airdropped audio into archive.db. So before reading the queue, transcribe any audio waiting in <code>inbox_dir</code> by invoking the standalone insert script (the deterministic leg stays in the script; the skill only calls it, so the transcription/synthesis split of REQ-080 holds):</p>
+<ul>
+<li><p>For each <code>*.m4a</code>, <code>*.wav</code>, <code>*.mp3</code> in <code>inbox_dir</code> (skip if the directory is absent or empty - a normal run), oldest first, run:</p>
+<pre><code>python3 "$HOME/bin/voice_note_insert.py" "&lt;inbox_dir&gt;/&lt;file&gt;"</code></pre>
+<p>The script is idempotent and transcribe-before-move: on success it inserts one <code>voice_notes</code> row (<code>processed = 0</code>) and moves the audio to cold storage (<code>~/archive/voice-audio/</code>); a re-run over an already-moved file inserts no duplicate.</p></li>
+<li><p>If a file fails to transcribe, report it, LEAVE it in the inbox for a later run (mirroring the watcher, <code>docs/voice-pipeline.md</code> section 6), and continue with the remaining files. One bad recording never blocks the others or the synthesis of already-stored rows.</p></li>
+<li><p>Report a one-line drain summary (e.g.&nbsp;<code>drained inbox: 2 transcribed, 1 left for retry</code>) before the queue read. If nothing was in the inbox, say so and continue - the queue may still hold rows from a prior run.</p></li>
+<li><p>Read the unprocessed queue, oldest first (REQ-080; python3 stdlib only, REQ-1104):</p>
+<pre><code>python3 - "$ARCHIVE_DB" &lt;&lt;'PY'
+import sys, sqlite3
+db = sqlite3.connect(sys.argv[1])
+for row in db.execute(
+        "SELECT id, recorded_at, duration, transcript FROM voice_notes "
+        "WHERE processed = 0 ORDER BY id"):
+    print("--- id=%s recorded_at=%s duration=%.0fs" % row[:3])
+    print(row[3])
+PY</code></pre></li>
+<li><p>Gather the dead-man status inputs (storage REQ-1140):</p>
+<ul>
+<li>newest file age in the voice inbox (<code>inbox_dir</code> from config, default <code>~/voice-inbox/</code> per <code>docs/voice-pipeline.md</code>; report <code>inbox n/a</code> when the directory is absent),</li>
+<li>the unprocessed row count from the query above,</li>
+<li>the age of the last index rebuild (the index.db file’s mtime, storage REQ-1131; the path is the <code>index_db</code> config key, default <code>~/archive/index.db</code>; report <code>index n/a</code> when no index.db exists yet).</li>
+</ul>
+<p>Format: <code>pipeline: inbox newest 2h | unprocessed 3 | index rebuilt 26h ago</code></p></li>
+<li><p>If <code>--auto</code> was passed: state that voice sources are interactive-only (REQ-081) and continue in interactive mode.</p></li>
+<li><p>An empty queue is a normal run: write nothing, print the status line (the silence tripwire is the point), and stop.</p></li>
+</ul>
+</section>
+</section>
+<section id="phase-1---per-note-analysis-from-the-stored-transcript" class="level2">
+<h2 class="anchored" data-anchor-id="phase-1---per-note-analysis-from-the-stored-transcript">Phase 1 - Per-note analysis (from the stored transcript)</h2>
+<p>Transcription itself is deterministic and re-runnable, done by the standalone insert script in Phase 0.5, not by the model; synthesis here always starts from the stored transcript (REQ-080). Per note:</p>
+<ul>
+<li>Draft the 2-4 line journal summary: what was said, in your words, with <code>[[links]]</code> to existing pages where they resolve, ending with the provenance id <code>archive.db:voice_notes/&lt;id&gt;</code> (REQ-082).</li>
+<li>Identify substantive content that belongs on a wiki page. Run the normal ingest scan for those candidates: read the Schema page, glob for existing pages, contradiction check before any generation (base contract REQ-020..024). For each candidate, record the EXACT sentence(s) that would be written and the target page.</li>
+<li>Flag every candidate that touches a people page or names a person: these are individual-confirmation rows (REQ-084).</li>
+<li>Strike from the candidate list anything that assesses a person (health, family, grades, conflicts, performance): mark it transcript-only (REQ-085). It is listed at the checkpoint as retained, never as an offer.</li>
+<li>Extract TODOs verbatim for the checkpoint hand-over (REQ-087).</li>
+<li>A voice claim is capture-backed: <code>reliability:: low</code> default (schema REQ-586b). A transcript is what was said, not a source for what is true; anything important needs a real source through normal ingest later.</li>
+</ul>
+</section>
+<section id="checkpoint---always-run-one-consolidated-pause-req-025081" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint---always-run-one-consolidated-pause-req-025081">Checkpoint - always run, one consolidated pause (REQ-025/081)</h2>
+<p>Present ONE checkpoint for the whole queue:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 2%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 19%">
+<col style="width: 21%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Note (id, recorded, length)</th>
+<th>Journal summary (full text)</th>
+<th>Wiki updates offered</th>
+<th>Retained in transcript</th>
+<th>TODOs</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<ul>
+<li><strong>Journal summaries</strong> MAY be batch-confirmed (“journal ok for all”) (REQ-082).</li>
+<li><strong>Each wiki update</strong> is its own decision: show the full sentence(s), the target page, and the cite target <code>archive.db:voice_notes/&lt;id&gt;</code>; require an explicit yes per row (REQ-083). People rows are asked one at a time even when everything else was batch-confirmed (REQ-084).</li>
+<li><strong>Retained items</strong> (REQ-085) are listed by count and category only (e.g. “1 assessment of a named person, stays in the transcript”); they are not offers and a yes does not promote them.</li>
+<li><strong>TODOs</strong> are offered as a list for the human to place: today’s journal (the skill can append them there on request, as plain journal blocks) or a <code>para/</code> page the human edits themself. The skill never writes to <code>para/</code> or <code>notes/</code> (REQ-087).</li>
+<li>Apply the user’s guidance to the plan; never proceed on silence.</li>
+</ul>
+</section>
+<section id="phase-3---writes" class="level2">
+<h2 class="anchored" data-anchor-id="phase-3---writes">Phase 3 - Writes</h2>
+<ul>
+<li><strong>Journal block</strong> on today’s journal page, opening with the pipeline status line (storage REQ-1140), then one summary block per confirmed note with its <code>[[links]]</code> and provenance id. Tool-specific journal format per <a href="../../skills/wiki-core/references/formats.html">formats</a>; append-only, never touch existing journal content.</li>
+<li><strong>Confirmed wiki updates</strong> go through the NORMAL ingest write path (base contract REQ-030..039): required properties and <code>schema-spec-version</code> stamp on new pages (<code>source:: ingest</code>, the schema enum has no voice value; the capture ref is what records the voice origin), append-only updates, hub routing line, exact <code>## Cross-References</code> heading, <code>updated::</code> refresh. Provenance per REQ-086:
+<ul>
+<li><code>cite:: archive.db:voice_notes/&lt;id&gt;</code> on each claim block written,</li>
+<li>the page’s <code>source-file::</code> includes the <code>archive.db:</code> ref exactly when a block cites it (union invariant, citations REQ-904),</li>
+<li><code>reliability:: low</code> unless a real ingested source also supports the claim (schema REQ-586b; page roll-up as usual).</li>
+</ul></li>
+<li>Declined rows stay in the journal summary or the transcript (REQ-083); nothing else is written for them.</li>
+</ul>
+</section>
+<section id="phase-4---quality-gate" class="level2">
+<h2 class="anchored" data-anchor-id="phase-4---quality-gate">Phase 4 - Quality gate</h2>
+<p>Blocking failures stop the affected write; the journal and the other notes proceed (mirroring the per-source blocking of the base contract, REQ-044).</p>
+<ul>
+<li><p>Credential patterns in any text to be written (REQ-042): a match blocks that write.</p></li>
+<li><p>Secret gate over promoted text: transcripts mention other people, so scan what leaves the checkpoint. Write the planned journal block plus each confirmed wiki text to a temp file and run</p>
+<pre><code>python3 skills/wiki-core/scripts/secret_scan.py &lt;temp-file&gt;</code></pre>
+<p>Exit 2 blocks that write until redacted; exit 1 (PII advisories, e.g. email addresses) requires explicit confirmation at the checkpoint before writing. The transcript itself is NOT scanned or redacted: it stays in archive.db untouched (REQ-1110).</p></li>
+<li><p>Citation gate: after page writes, run</p>
+<pre><code>python3 skills/wiki-core/scripts/check_citations.py --config &lt;llm-wiki.yml&gt;</code></pre>
+<p>Capture refs count as cite targets (REQ-086/904). Exit 2 (union mismatch) blocks the commit: fix the pages and re-run. Exit 1 advisories are presented, never block.</p></li>
+<li><p>Required properties on new pages (REQ-040), at least one outgoing cross-reference per touched page (REQ-041), routing line present (REQ-041a warning).</p></li>
+</ul>
+</section>
+<section id="phase-5---commit-mark-processed-report" class="level2">
+<h2 class="anchored" data-anchor-id="phase-5---commit-mark-processed-report">Phase 5 - Commit, mark processed, report</h2>
+<ul>
+<li><p>Stage the journal edit and all page edits and commit as ONE atomic commit: <code>wiki: ingest-voice &lt;n&gt; notes (ids &lt;id,...&gt;) -&gt; journal + &lt;m&gt; pages</code></p></li>
+<li><p>Mark rows processed ONLY after the commit succeeds (REQ-080):</p>
+<pre><code>python3 - "$ARCHIVE_DB" &lt;id&gt; [&lt;id&gt; ...] &lt;&lt;'PY'
+import sys, sqlite3
+db = sqlite3.connect(sys.argv[1])
+db.executemany("UPDATE voice_notes SET processed = 1 WHERE id = ?",
+               [(i,) for i in sys.argv[2:]])
+db.commit()
+PY</code></pre>
+<p>A failed or aborted run leaves its rows unprocessed; the queue is resumable and the next run picks them up (REQ-080).</p></li>
+<li><p>Report, OPENING with the dead-man status line (recomputed after the run), then: journal summaries written, wiki updates confirmed vs declined (page names), retained-in-transcript count (categories only, never the content), TODOs handed over, gate findings.</p></li>
+<li><p>Run log entry on the Dashboard page: <code>## [YYYY-MM-DD] ingest-voice | &lt;n&gt; notes -&gt; journal + &lt;m&gt; pages | mode interactive</code> (voice runs are always interactive, REQ-081; the entry keeps the mode field so the wiki-ingest success signal reads one consistent log). </p></li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-ingest-voice/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

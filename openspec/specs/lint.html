@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>lint – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-wiki-lint---automated-health-checks" id="toc-spec-wiki-lint---automated-health-checks" class="nav-link active" data-scroll-target="#spec-wiki-lint---automated-health-checks">Spec: /wiki-lint - Automated Health Checks</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#scanning" id="toc-scanning" class="nav-link" data-scroll-target="#scanning">Scanning</a></li>
+  <li><a href="#rule-1-orphan-detection" id="toc-rule-1-orphan-detection" class="nav-link" data-scroll-target="#rule-1-orphan-detection">Rule 1: Orphan Detection</a></li>
+  <li><a href="#rule-2-stale-detection" id="toc-rule-2-stale-detection" class="nav-link" data-scroll-target="#rule-2-stale-detection">Rule 2: Stale Detection</a></li>
+  <li><a href="#rule-3-missing-properties" id="toc-rule-3-missing-properties" class="nav-link" data-scroll-target="#rule-3-missing-properties">Rule 3: Missing Properties</a></li>
+  <li><a href="#rule-4-broken-references" id="toc-rule-4-broken-references" class="nav-link" data-scroll-target="#rule-4-broken-references">Rule 4: Broken References</a></li>
+  <li><a href="#rule-5-hub-completeness" id="toc-rule-5-hub-completeness" class="nav-link" data-scroll-target="#rule-5-hub-completeness">Rule 5: Hub Completeness</a></li>
+  <li><a href="#rule-6-credential-leak" id="toc-rule-6-credential-leak" class="nav-link" data-scroll-target="#rule-6-credential-leak">Rule 6: Credential Leak</a></li>
+  <li><a href="#rule-7-empty-pages" id="toc-rule-7-empty-pages" class="nav-link" data-scroll-target="#rule-7-empty-pages">Rule 7: Empty Pages</a></li>
+  <li><a href="#rule-8-cross-reference-minimum" id="toc-rule-8-cross-reference-minimum" class="nav-link" data-scroll-target="#rule-8-cross-reference-minimum">Rule 8: Cross-Reference Minimum</a></li>
+  <li><a href="#rule-9-l1l2-duplicates" id="toc-rule-9-l1l2-duplicates" class="nav-link" data-scroll-target="#rule-9-l1l2-duplicates">Rule 9: L1/L2 Duplicates</a></li>
+  <li><a href="#rule-10-index-drift" id="toc-rule-10-index-drift" class="nav-link" data-scroll-target="#rule-10-index-drift">Rule 10: Index Drift</a></li>
+  <li><a href="#rule-11-archived-in-live-index" id="toc-rule-11-archived-in-live-index" class="nav-link" data-scroll-target="#rule-11-archived-in-live-index">Rule 11: Archived-in-Live-Index</a></li>
+  <li><a href="#rule-12-external-link-rot-canonical-url" id="toc-rule-12-external-link-rot-canonical-url" class="nav-link" data-scroll-target="#rule-12-external-link-rot-canonical-url">Rule 12: External Link Rot (canonical-url)</a></li>
+  <li><a href="#rule-13-naming-hygiene-structural-names" id="toc-rule-13-naming-hygiene-structural-names" class="nav-link" data-scroll-target="#rule-13-naming-hygiene-structural-names">Rule 13: Naming Hygiene (structural names)</a></li>
+  <li><a href="#rule-14-namespace-hygiene-pages-outside-the-contract" id="toc-rule-14-namespace-hygiene-pages-outside-the-contract" class="nav-link" data-scroll-target="#rule-14-namespace-hygiene-pages-outside-the-contract">Rule 14: Namespace Hygiene (pages outside the contract)</a></li>
+  <li><a href="#rule-15-glossary-hygiene-structure-only-never-the-decisions" id="toc-rule-15-glossary-hygiene-structure-only-never-the-decisions" class="nav-link" data-scroll-target="#rule-15-glossary-hygiene-structure-only-never-the-decisions">Rule 15: Glossary Hygiene (structure only, never the decisions)</a></li>
+  <li><a href="#reporting" id="toc-reporting" class="nav-link" data-scroll-target="#reporting">Reporting</a></li>
+  <li><a href="#dashboard" id="toc-dashboard" class="nav-link" data-scroll-target="#dashboard">Dashboard</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-clean-wiki---no-issues" id="toc-scenario-1-clean-wiki---no-issues" class="nav-link" data-scroll-target="#scenario-1-clean-wiki---no-issues">Scenario 1: Clean wiki - no issues</a></li>
+  <li><a href="#scenario-2-orphan-page-detected" id="toc-scenario-2-orphan-page-detected" class="nav-link" data-scroll-target="#scenario-2-orphan-page-detected">Scenario 2: Orphan page detected</a></li>
+  <li><a href="#scenario-3-orphan-auto-fix" id="toc-scenario-3-orphan-auto-fix" class="nav-link" data-scroll-target="#scenario-3-orphan-auto-fix">Scenario 3: Orphan auto-fix</a></li>
+  <li><a href="#scenario-4-stale-page-with-high-confidence" id="toc-scenario-4-stale-page-with-high-confidence" class="nav-link" data-scroll-target="#scenario-4-stale-page-with-high-confidence">Scenario 4: Stale page with high confidence</a></li>
+  <li><a href="#scenario-5-stale-auto-fix---confidence-downgraded" id="toc-scenario-5-stale-auto-fix---confidence-downgraded" class="nav-link" data-scroll-target="#scenario-5-stale-auto-fix---confidence-downgraded">Scenario 5: Stale auto-fix - confidence downgraded</a></li>
+  <li><a href="#scenario-6-credential-leak-detected" id="toc-scenario-6-credential-leak-detected" class="nav-link" data-scroll-target="#scenario-6-credential-leak-detected">Scenario 6: Credential leak detected</a></li>
+  <li><a href="#scenario-7-broken-reference-with-auto-fix" id="toc-scenario-7-broken-reference-with-auto-fix" class="nav-link" data-scroll-target="#scenario-7-broken-reference-with-auto-fix">Scenario 7: Broken reference with auto-fix</a></li>
+  <li><a href="#scenario-8-hub-missing-child-pages" id="toc-scenario-8-hub-missing-child-pages" class="nav-link" data-scroll-target="#scenario-8-hub-missing-child-pages">Scenario 8: Hub missing child pages</a></li>
+  <li><a href="#scenario-9-empty-page-detected" id="toc-scenario-9-empty-page-detected" class="nav-link" data-scroll-target="#scenario-9-empty-page-detected">Scenario 9: Empty page detected</a></li>
+  <li><a href="#scenario-10-l1l2-duplicate-detected" id="toc-scenario-10-l1l2-duplicate-detected" class="nav-link" data-scroll-target="#scenario-10-l1l2-duplicate-detected">Scenario 10: L1/L2 duplicate detected</a></li>
+  <li><a href="#scenario-11-index-drift---unroutable-page-backfilled" id="toc-scenario-11-index-drift---unroutable-page-backfilled" class="nav-link" data-scroll-target="#scenario-11-index-drift---unroutable-page-backfilled">Scenario 11: Index drift - unroutable page backfilled</a></li>
+  <li><a href="#scenario-12-archived-page-still-in-the-live-index" id="toc-scenario-12-archived-page-still-in-the-live-index" class="nav-link" data-scroll-target="#scenario-12-archived-page-still-in-the-live-index">Scenario 12: Archived page still in the live index</a></li>
+  <li><a href="#scenario-13-stub-page-with-rotten-canonical-url" id="toc-scenario-13-stub-page-with-rotten-canonical-url" class="nav-link" data-scroll-target="#scenario-13-stub-page-with-rotten-canonical-url">Scenario 13: Stub page with rotten canonical-url</a></li>
+  <li><a href="#scenario-14-naming-hygiene---structural-vs-leaf" id="toc-scenario-14-naming-hygiene---structural-vs-leaf" class="nav-link" data-scroll-target="#scenario-14-naming-hygiene---structural-vs-leaf">Scenario 14: Naming hygiene - structural vs leaf</a></li>
+  <li><a href="#scenario-15-namespace-hygiene---stray-root-page-exempt-human-page" id="toc-scenario-15-namespace-hygiene---stray-root-page-exempt-human-page" class="nav-link" data-scroll-target="#scenario-15-namespace-hygiene---stray-root-page-exempt-human-page">Scenario 15: Namespace hygiene - stray root page, exempt human page</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/lint.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-wiki-lint---automated-health-checks" class="level1">
+<h1>Spec: /wiki-lint - Automated Health Checks</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The lint command scans all wiki pages for structural issues, data quality problems, and security concerns. It reports findings grouped by severity and can auto-fix certain issues when run with the <code>--fix</code> flag. There are 15 lint rules.</p>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="scanning" class="level3">
+<h3 class="anchored" data-anchor-id="scanning">Scanning</h3>
+<ul>
+<li>REQ-100: The system SHALL scan ALL files matching the wiki page pattern (Logseq: <code>Wiki___*.md</code>, Obsidian: <code>Wiki/**/*.md</code>).</li>
+<li>REQ-101: The system SHALL read page properties, count outgoing <code>[[Wiki/...]]</code> links, and check the <code>updated::</code> date for every scanned page.</li>
+<li>REQ-102: The system SHALL build an incoming-link graph (page -&gt; pages that reference it) to detect orphans.</li>
+<li>REQ-103: The system SHALL read <code>llm-wiki.yml</code> first to determine tool mode and paths.</li>
+</ul>
+</section>
+<section id="rule-1-orphan-detection" class="level3">
+<h3 class="anchored" data-anchor-id="rule-1-orphan-detection">Rule 1: Orphan Detection</h3>
+<ul>
+<li>REQ-110: The system SHALL flag pages with 0 incoming <code>[[Wiki/...]]</code> links from other wiki pages.</li>
+<li>REQ-111: Hub pages (type:: hub) SHALL be exempt from orphan detection.</li>
+<li>REQ-112: Auto-fix (–fix): The system SHALL add the orphan page to its namespace’s hub page.</li>
+</ul>
+</section>
+<section id="rule-2-stale-detection" class="level3">
+<h3 class="anchored" data-anchor-id="rule-2-stale-detection">Rule 2: Stale Detection</h3>
+<ul>
+<li>REQ-120: The system SHALL flag pages where <code>updated::</code> is older than 90 days AND <code>confidence::</code> is <code>high</code>.</li>
+<li>REQ-121: Pages without a <code>confidence::</code> property SHALL be exempt from stale detection (the rule only applies to knowledge-type pages).</li>
+<li>REQ-122: The 90-day threshold SHALL be calculated as: today minus the <code>updated::</code> date value.</li>
+<li>REQ-123: Auto-fix (–fix): The system SHALL downgrade <code>confidence::</code> from <code>high</code> to <code>stale</code>. The <code>updated::</code> date SHALL NOT be changed by this operation (the page content has not changed, only the confidence assessment).</li>
+</ul>
+</section>
+<section id="rule-3-missing-properties" class="level3">
+<h3 class="anchored" data-anchor-id="rule-3-missing-properties">Rule 3: Missing Properties</h3>
+<ul>
+<li>REQ-130: The system SHALL check each page against the required properties for its declared <code>type::</code> value (per Schema page).</li>
+<li>REQ-131: Required properties per type:
+<ul>
+<li>Entity: type, entity-type, created, updated, status, source</li>
+<li>Project: type, status, created, updated, started</li>
+<li>Knowledge: type, domain, created, updated, confidence</li>
+<li>Feedback: type, severity, created, verified, applies-to</li>
+<li>Hub: type, namespace</li>
+</ul></li>
+<li>REQ-132: A page with a missing required property SHALL be flagged as a warning.</li>
+<li>REQ-133: No auto-fix for missing properties (requires human judgment).</li>
+</ul>
+</section>
+<section id="rule-4-broken-references" class="level3">
+<h3 class="anchored" data-anchor-id="rule-4-broken-references">Rule 4: Broken References</h3>
+<ul>
+<li>REQ-140: The system SHALL identify all <code>[[Wiki/...]]</code> links in every page and verify that the target page exists on disk.</li>
+<li>REQ-141: A link to a non-existent page SHALL be flagged as a warning.</li>
+<li>REQ-141a (pending person pages): A link to a non-existent <code>wiki/people/</code> target SHALL be reported at INFO severity with a “pending person page” reason instead of the REQ-141 warning. Rationale: ingest writes person-name links wherever names appear (ingest REQ-036a) but creates the person page only at the second-source threshold (ingest REQ-024a), so a person link legitimately precedes its page. The <code>--fix</code> stub creation (REQ-142) SHALL NOT apply to these targets: person pages are born through ingest with their citation shape, not as knowledge stubs.</li>
+<li>REQ-142: Auto-fix (–fix): The system SHALL create a stub page for each broken reference with: type:: knowledge, domain:: tech, confidence:: low, created:: [today], updated:: [today], and a placeholder note “To be filled via /wiki-ingest”.</li>
+<li>REQ-143: Stub pages SHALL include a cross-reference back to the page that contained the broken link.</li>
+</ul>
+</section>
+<section id="rule-5-hub-completeness" class="level3">
+<h3 class="anchored" data-anchor-id="rule-5-hub-completeness">Rule 5: Hub Completeness</h3>
+<ul>
+<li>REQ-150: The system SHALL verify that every hub page lists ALL pages that exist in its namespace.</li>
+<li>REQ-151: A hub page missing a child page SHALL be flagged as a warning.</li>
+<li>REQ-152: Auto-fix (–fix): The system SHALL append the missing child page link to the hub page.</li>
+</ul>
+</section>
+<section id="rule-6-credential-leak" class="level3">
+<h3 class="anchored" data-anchor-id="rule-6-credential-leak">Rule 6: Credential Leak</h3>
+<ul>
+<li>REQ-160: The system SHALL scan all wiki page content for credential patterns: <code>token::</code>, <code>password::</code>, <code>secret::</code>, <code>api-key::</code>, <code>api.key::</code>, and base64 strings matching <code>[A-Za-z0-9+/]{40,}</code>. A base64 candidate SHALL count only when it shows credential-shaped character diversity (both letter cases AND at least one digit), and text inside <code>[[...]]</code> link spans SHALL be excluded before the base64 pass: a long lowercase namespace path (for example a routing line’s <code>wiki/data/&lt;pkg&gt;/&lt;dataset&gt;</code> target) is link syntax, not a credential candidate (issue #104). The named property patterns and the specific key shapes (AWS, GitHub, <code>sk-</code>) keep scanning the full text.</li>
+<li>REQ-161: Pattern matching SHALL be case-insensitive.</li>
+<li>REQ-162: In Obsidian mode, the system SHALL also scan YAML frontmatter for credential patterns.</li>
+<li>REQ-163: Any credential match SHALL be flagged as severity <code>critical</code>.</li>
+<li>REQ-164: No auto-fix for credential leaks (requires manual intervention to move the credential to L1 memory).</li>
+</ul>
+</section>
+<section id="rule-7-empty-pages" class="level3">
+<h3 class="anchored" data-anchor-id="rule-7-empty-pages">Rule 7: Empty Pages</h3>
+<ul>
+<li>REQ-170: The system SHALL flag pages that contain only properties and no substantive content below the properties section.</li>
+<li>REQ-171: A page with only type/date properties and no knowledge blocks SHALL be flagged as a warning.</li>
+<li>REQ-172: No auto-fix (page should be filled via /wiki-ingest or deleted).</li>
+</ul>
+</section>
+<section id="rule-8-cross-reference-minimum" class="level3">
+<h3 class="anchored" data-anchor-id="rule-8-cross-reference-minimum">Rule 8: Cross-Reference Minimum</h3>
+<ul>
+<li>REQ-180: The system SHALL flag pages with fewer than 1 outgoing <code>[[Wiki/...]]</code> link.</li>
+<li>REQ-181: Auto-fix (–fix): The system SHALL add a link to the page’s namespace hub page (e.g., a page in Wiki/Tech/ gets a link to [[Wiki/Tech]]).</li>
+</ul>
+</section>
+<section id="rule-9-l1l2-duplicates" class="level3">
+<h3 class="anchored" data-anchor-id="rule-9-l1l2-duplicates">Rule 9: L1/L2 Duplicates</h3>
+<ul>
+<li>REQ-190: The system SHALL compare wiki page content against L1 memory files (at the path specified in <code>llm-wiki.yml</code> <code>memory_path</code>).</li>
+<li>REQ-191: The system SHALL flag cases where substantially the same information exists in both L1 memory and L2 wiki.</li>
+<li>REQ-192: No auto-fix (requires human decision on which location is authoritative).</li>
+</ul>
+</section>
+<section id="rule-10-index-drift" class="level3">
+<h3 class="anchored" data-anchor-id="rule-10-index-drift">Rule 10: Index Drift</h3>
+<ul>
+<li>REQ-193: The system SHALL flag a routing line in a hub <code>### Index</code> whose target page does not exist on disk (orphaned routing line).</li>
+<li>REQ-194: The system SHALL flag an active (non-archived) page that has no routing line in its namespace hub <code>### Index</code> (unroutable - only findable via L3 grep).</li>
+<li>REQ-195: The system SHALL flag a routing line that has no description text after the <code>--</code> separator (a routing key cannot be empty).</li>
+<li>REQ-196: Auto-fix (–fix): for an unroutable page, the system SHALL backfill a routing line into the hub <code>### Index</code>, deriving the description from the page title and first content block and copying the page’s existing <code>#tags</code>. For an orphaned routing line, the system SHALL remove it.</li>
+</ul>
+</section>
+<section id="rule-11-archived-in-live-index" class="level3">
+<h3 class="anchored" data-anchor-id="rule-11-archived-in-live-index">Rule 11: Archived-in-Live-Index</h3>
+<ul>
+<li>REQ-197: The system SHALL flag a demoted page (marked <code>archived::</code>, see specs/schema.md REQ-565) whose routing line is still in the hub <code>### Index</code> instead of <code>### Archive</code> (an unclean prune).</li>
+<li>REQ-198: Auto-fix (–fix): the system SHALL move the routing line from <code>### Index</code> to <code>### Archive</code>. It MUST NOT rename or move the page file (links are by page name).</li>
+</ul>
+</section>
+<section id="rule-12-external-link-rot-canonical-url" class="level3">
+<h3 class="anchored" data-anchor-id="rule-12-external-link-rot-canonical-url">Rule 12: External Link Rot (canonical-url)</h3>
+<ul>
+<li>REQ-220: The system SHALL check every page carrying <code>canonical-url::</code> (schema REQ-584) and verify the URL still resolves. When an HTTP client is available (e.g.&nbsp;<code>curl</code>), resolution means a 2xx/3xx status; otherwise the check degrades to URL-shape validation and reports itself as degraded.</li>
+<li>REQ-221: An unreachable <code>canonical-url::</code> target SHALL be flagged as a warning (info when the check ran degraded). A page with <code>canonical-url::</code> SHALL NOT be flagged for missing <code>source-file::</code> or other ingested-page properties: it is a deliberate stub, not an ingested page missing provenance.</li>
+<li>REQ-222: No auto-fix: link rot requires human judgment (update the URL, ingest a snapshot, or archive the stub).</li>
+</ul>
+</section>
+<section id="rule-13-naming-hygiene-structural-names" class="level3">
+<h3 class="anchored" data-anchor-id="rule-13-naming-hygiene-structural-names">Rule 13: Naming Hygiene (structural names)</h3>
+<ul>
+<li>REQ-230: The system SHALL flag any page whose STRUCTURAL (non-leaf) name segments contain spaces, uppercase characters, underscores, en dashes (<code>U+2013</code>), or em dashes (<code>U+2014</code>); the only word separator inside a structural segment is the ASCII hyphen <code>U+002D</code> (specs/schema.md REQ-580/580a/581). Severity: warning on <code>wiki/</code> pages; info on <code>para/</code> and <code>notes/</code> pages, whose content is human-owned and exempt from the wiki conventions but whose namespace STRUCTURE is shared graph territory (specs/namespaces.md REQ-961).</li>
+<li>REQ-231: A LEAF segment SHALL be flagged mechanically ONLY when it violates the hyphen rule (underscore, en dash, or em dash). Uppercase characters, <code>@</code> prefixes, or spaces in a leaf MAY be a proper noun (<code>wiki/tools/Claude Code</code>, <code>notes/literature/@Forte2022</code>, specs/schema.md REQ-580b) and that judgment stays in the wiki-lint skill: it reviews naming-hygiene leaf findings and dismisses proper-noun leaves (specs/namespaces.md REQ-976).</li>
+<li>REQ-232: No auto-fix: a rename changes page identity (links are by page name) and runs through the migration converter (specs/schema.md REQ-580c) or by hand, never by lint.</li>
+</ul>
+</section>
+<section id="rule-14-namespace-hygiene-pages-outside-the-contract" class="level3">
+<h3 class="anchored" data-anchor-id="rule-14-namespace-hygiene-pages-outside-the-contract">Rule 14: Namespace Hygiene (pages outside the contract)</h3>
+<ul>
+<li>REQ-240: The system SHALL flag any page outside <code>wiki/</code>, the configured <code>para_dir</code>, <code>notes_dir</code>, and <code>glossary_dir</code> namespaces (specs/config.md REQ-625/628, specs/namespaces.md REQ-980), the configured <code>journals_dir</code> (specs/config.md REQ-629), and the recognized deliberate root pages, as a stray outside the namespace contract (specs/namespaces.md REQ-960/962). Severity: warning (the grandfather floor reports it as info on pages without the current <code>schema-spec-version::</code>).</li>
+<li>REQ-241: Recognized deliberate root pages SHALL NOT be flagged: Schema, Dashboard, Access-Log, Contents, hub pages (<code>type:: hub</code>), and query pages (<code>type:: query</code> or <code>#+BEGIN_QUERY</code> content), per specs/namespaces.md REQ-962/977.</li>
+<li>REQ-241a: In logseq mode, the built-in <code>contents</code> page (<code>pages/contents.md</code>, the sidebar Contents) SHALL additionally be treated as a SYSTEM page: exempt from the wiki-only rules (orphan REQ-110, required properties REQ-132, provenance, empty page REQ-171, cross-reference minimum REQ-180, canonical-url), the same treatment as Schema, Dashboard, and the Access-Log. Adding wiki properties or forced links to a Logseq system page is wrong (issue #105).</li>
+<li>REQ-242: Pages under <code>para_dir</code> and <code>notes_dir</code> are IN-contract for this rule and EXEMPT from all wiki-only rules (specs/namespaces.md REQ-961/966): the system SHALL NOT run any other rule against them (rule 13 reports its advisory info-level structural findings only). Pages under <code>glossary_dir</code> are IN-contract, exempt from the wiki-only rules (specs/glossary.md REQ-1002), and checked by rules 13 (advisory) and 15 (glossary structure). No auto-fix: moving a page between namespaces is a human decision; content enters <code>wiki/</code> only through the promotion seam (specs/namespaces.md REQ-970).</li>
+</ul>
+</section>
+<section id="rule-15-glossary-hygiene-structure-only-never-the-decisions" class="level3">
+<h3 class="anchored" data-anchor-id="rule-15-glossary-hygiene-structure-only-never-the-decisions">Rule 15: Glossary Hygiene (structure only, never the decisions)</h3>
+<p>Mechanical enforcement of specs/glossary.md; runs only on pages under <code>glossary_dir</code> (config REQ-628). The decisions themselves (which Rule, which DE form) are human and never judged.</p>
+<ul>
+<li>REQ-250 (table shape): In a terms table under a <code>## Terms</code> heading on a glossary page, the header SHALL be exactly <code>| EN | DE | Rule | Note |</code>; a deviating header or a data row with a different column count SHALL be flagged as a warning.</li>
+<li>REQ-251 (rule enum): A non-empty Rule cell SHALL be one of <code>keep-en | translate | context</code>; any other value is a warning. An EMPTY Rule cell is a warning on a domain page (an undecided row belongs on staging) and accepted on a <code>glossary/imported/</code> staging page (specs/glossary.md REQ-1010).</li>
+<li>REQ-252 (staging hygiene): A page under <code>glossary/imported/</code> SHALL carry <code>source::</code> (attribution) and <code>status::</code>; a missing property is a warning.</li>
+<li>REQ-253 (term pages): A term page (<code>glossary/&lt;domain&gt;/&lt;term&gt;</code>, not under <code>glossary/imported/</code>) SHALL carry <code>rule::</code> with a REQ-251 enum value; a missing or invalid value is a warning. No auto-fix anywhere in rule 15: every fix is a terminology decision, and those are human (specs/glossary.md REQ-1000).</li>
+</ul>
+</section>
+<section id="reporting" class="level3">
+<h3 class="anchored" data-anchor-id="reporting">Reporting</h3>
+<ul>
+<li>REQ-200: The system SHALL group findings by severity: critical, warning, info.</li>
+<li>REQ-201: The system SHALL output totals: total pages scanned, healthy pages, issues found (by rule and severity).</li>
+<li>REQ-202: For each finding, the system SHALL report: page name, rule violated, severity, and suggested fix.</li>
+<li>REQ-203: After auto-fix (–fix), the system SHALL output what was changed and recommend a git commit.</li>
+</ul>
+</section>
+<section id="dashboard" class="level3">
+<h3 class="anchored" data-anchor-id="dashboard">Dashboard</h3>
+<ul>
+<li>REQ-210: After lint completes, the system SHOULD update the Dashboard page (Wiki/Dashboard or Wiki___Dashboard.md) with current health metrics.</li>
+<li>REQ-211: The Dashboard SHALL include: last lint date, total pages, issues by severity, and pages needing attention.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-clean-wiki---no-issues" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-clean-wiki---no-issues">Scenario 1: Clean wiki - no issues</h3>
+<pre><code>GIVEN a wiki with 10 pages, all with required properties, cross-references,
+    and current updated:: dates
+AND all hub pages list their children
+AND no credential patterns exist in any page
+WHEN the user runs /wiki-lint
+THEN the report SHALL show: 10 pages scanned, 0 issues found
+AND no pages SHALL be modified</code></pre>
+</section>
+<section id="scenario-2-orphan-page-detected" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-orphan-page-detected">Scenario 2: Orphan page detected</h3>
+<pre><code>GIVEN a page Wiki___Tech___Redis.md exists
+AND no other wiki page contains a [[Wiki/Tech/Redis]] link
+AND Redis is NOT a hub page
+WHEN the user runs /wiki-lint
+THEN the system SHALL flag Wiki/Tech/Redis as "orphan" (warning)
+AND suggest: "Add [[Wiki/Tech/Redis]] to the Wiki/Tech hub page"</code></pre>
+</section>
+<section id="scenario-3-orphan-auto-fix" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-orphan-auto-fix">Scenario 3: Orphan auto-fix</h3>
+<pre><code>GIVEN the same orphan condition as Scenario 2
+WHEN the user runs /wiki-lint --fix
+THEN the system SHALL append [[Wiki/Tech/Redis]] to Wiki___Tech.md
+AND the report SHALL show: "Fixed: Added Wiki/Tech/Redis to hub Wiki/Tech"</code></pre>
+</section>
+<section id="scenario-4-stale-page-with-high-confidence" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-stale-page-with-high-confidence">Scenario 4: Stale page with high confidence</h3>
+<pre><code>GIVEN a page Wiki___Tech___Strapi.md with updated:: 2026-01-01
+AND the page has confidence:: high
+AND today is 2026-04-10 (100 days later, exceeds 90-day threshold)
+WHEN the user runs /wiki-lint
+THEN the system SHALL flag the page as "stale" (warning)
+AND suggest: "Confidence is 'high' but page is 100 days old. Review or downgrade."</code></pre>
+</section>
+<section id="scenario-5-stale-auto-fix---confidence-downgraded" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-stale-auto-fix---confidence-downgraded">Scenario 5: Stale auto-fix - confidence downgraded</h3>
+<pre><code>GIVEN the same stale condition as Scenario 4
+WHEN the user runs /wiki-lint --fix
+THEN the system SHALL change confidence:: from high to stale
+AND the updated:: property SHALL remain 2026-01-01 (NOT changed)
+AND the report SHALL show: "Fixed: Downgraded confidence from high to stale"</code></pre>
+</section>
+<section id="scenario-6-credential-leak-detected" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-credential-leak-detected">Scenario 6: Credential leak detected</h3>
+<pre><code>GIVEN a page Wiki___Tech___Deployment.md contains the text
+    "api-key:: sk-ant-abc123def456ghi789jkl012mno345pqr678"
+WHEN the user runs /wiki-lint
+THEN the system SHALL flag the page as "credential leak" (critical)
+AND suggest: "Move credential to L1 memory. Wiki pages are git-tracked."
+AND the finding SHALL be listed first in the report (critical severity)</code></pre>
+</section>
+<section id="scenario-7-broken-reference-with-auto-fix" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-broken-reference-with-auto-fix">Scenario 7: Broken reference with auto-fix</h3>
+<pre><code>GIVEN a page Wiki___Projects___MyProject.md contains [[Wiki/Tech/NewTool]]
+AND no file Wiki___Tech___NewTool.md exists
+WHEN the user runs /wiki-lint --fix
+THEN the system SHALL create a stub page Wiki___Tech___NewTool.md with:
+    type:: knowledge, domain:: tech, confidence:: low, created:: [today],
+    updated:: [today], and content "To be filled via /wiki-ingest"
+AND the stub SHALL contain [[Wiki/Projects/MyProject]] as a cross-reference
+AND the Wiki___Tech.md hub SHALL be updated to list the new page</code></pre>
+</section>
+<section id="scenario-8-hub-missing-child-pages" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-8-hub-missing-child-pages">Scenario 8: Hub missing child pages</h3>
+<pre><code>GIVEN Wiki___Tech.md (hub) lists: [[Wiki/Tech/Strapi]], [[Wiki/Tech/Stack]]
+AND Wiki___Tech___Deployment.md also exists in the pages directory
+WHEN the user runs /wiki-lint
+THEN the system SHALL flag Wiki/Tech hub as "incomplete" (warning)
+AND suggest: "Hub Wiki/Tech is missing child: [[Wiki/Tech/Deployment]]"</code></pre>
+</section>
+<section id="scenario-9-empty-page-detected" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-9-empty-page-detected">Scenario 9: Empty page detected</h3>
+<pre><code>GIVEN a page Wiki___Learning___Rust.md contains only:
+    type:: knowledge
+    domain:: tech
+    created:: 2026-03-15
+    updated:: 2026-03-15
+    confidence:: low
+AND no content blocks exist below the properties
+WHEN the user runs /wiki-lint
+THEN the system SHALL flag the page as "empty" (warning)
+AND suggest: "Page has properties but no content. Fill via /wiki-ingest or delete."</code></pre>
+</section>
+<section id="scenario-10-l1l2-duplicate-detected" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-10-l1l2-duplicate-detected">Scenario 10: L1/L2 duplicate detected</h3>
+<pre><code>GIVEN L1 memory file feedback_deploy_ram.md contains "Stop ClamAV before deploy"
+AND wiki page Wiki___Tech___Deployment.md also contains "Stop ClamAV before deploy"
+WHEN the user runs /wiki-lint
+THEN the system SHALL flag as "L1/L2 duplicate" (info)
+AND suggest: "Same info in L1 memory and L2 wiki. Decide which is authoritative."</code></pre>
+</section>
+<section id="scenario-11-index-drift---unroutable-page-backfilled" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-11-index-drift---unroutable-page-backfilled">Scenario 11: Index drift - unroutable page backfilled</h3>
+<pre><code>GIVEN a page Wiki___Tech___Redis.md exists and is active (not archived)
+AND the Wiki/Tech hub `### Index` has no routing line for [[Wiki/Tech/Redis]]
+WHEN the user runs /wiki-lint --fix
+THEN the system SHALL flag Wiki/Tech/Redis as "index drift: unroutable" (warning)
+AND backfill a routing line into the Wiki/Tech hub `### Index`:
+    "[[Wiki/Tech/Redis]] -- &lt;description from title + first block&gt; #&lt;existing tags&gt;"</code></pre>
+</section>
+<section id="scenario-12-archived-page-still-in-the-live-index" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-12-archived-page-still-in-the-live-index">Scenario 12: Archived page still in the live index</h3>
+<pre><code>GIVEN Wiki___Tech___Legacy-Foo.md has archived:: 2026-06-07 (and status:: archived, an entity page)
+AND its routing line still sits in the Wiki/Tech hub `### Index`
+WHEN the user runs /wiki-lint --fix
+THEN the system SHALL flag it as "archived-in-live-index" (warning)
+AND move the routing line from `### Index` to `### Archive`
+AND NOT rename or move the Legacy-Foo page file</code></pre>
+<hr>
+</section>
+<section id="scenario-13-stub-page-with-rotten-canonical-url" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-13-stub-page-with-rotten-canonical-url">Scenario 13: Stub page with rotten canonical-url</h3>
+<pre><code>GIVEN a reference page with canonical-url:: https://example.org/moved-course
+AND the URL returns HTTP 404
+WHEN /wiki-lint runs
+THEN the page is flagged: rule 12, warning, "canonical-url target unreachable"
+AND the page is NOT flagged for missing source-file::</code></pre>
+</section>
+<section id="scenario-14-naming-hygiene---structural-vs-leaf" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-14-naming-hygiene---structural-vs-leaf">Scenario 14: Naming hygiene - structural vs leaf</h3>
+<pre><code>GIVEN pages Wiki/Foo, wiki/tech/my_note, and wiki/tools/Claude Code
+WHEN /wiki-lint runs the naming-hygiene check
+THEN Wiki/Foo is flagged (REQ-230: uppercase structural segment)
+AND wiki/tech/my_note is flagged (REQ-231: underscore in the leaf)
+AND wiki/tools/Claude Code is NOT flagged mechanically (leaf casing and
+    spaces are the wiki-lint skill's proper-noun judgment, REQ-231)</code></pre>
+</section>
+<section id="scenario-15-namespace-hygiene---stray-root-page-exempt-human-page" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-15-namespace-hygiene---stray-root-page-exempt-human-page">Scenario 15: Namespace hygiene - stray root page, exempt human page</h3>
+<pre><code>GIVEN a page "Scratchpad" outside wiki/, para/, notes/, journals, and the
+    recognized root pages
+AND a page para/projects/secret-plan carrying no wiki properties
+WHEN /wiki-lint runs
+THEN Scratchpad is flagged (REQ-240, warning)
+AND para/projects/secret-plan is NOT flagged by namespace hygiene
+AND para/projects/secret-plan is NOT flagged by any wiki-only rule (REQ-242)</code></pre>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">All 15 rules execute during a lint run</label></li>
+<li><label><input type="checkbox">Findings grouped by severity: critical &gt; warning &gt; info</label></li>
+<li><label><input type="checkbox">Report includes totals (pages scanned, healthy, issues by rule)</label></li>
+<li><label><input type="checkbox">Auto-fix (–fix) only modifies rules 1, 2, 4, 5, 8, 10, 11 (the 7 auto-fixable rules)</label></li>
+<li><label><input type="checkbox">Rules 3, 6, 7, 9, 12, 13, 14 never auto-fix (require human judgment)</label></li>
+<li><label><input type="checkbox">Index Drift (rule 10) backfills unroutable pages and removes orphaned routing lines</label></li>
+<li><label><input type="checkbox">Archived-in-Live-Index (rule 11) moves routing lines but never renames/moves page files</label></li>
+<li><label><input type="checkbox">Naming Hygiene (rule 13) flags structural segments mechanically; leaf proper-noun judgment stays in the wiki-lint skill</label></li>
+<li><label><input type="checkbox">Namespace Hygiene (rule 14) flags strays, accepts the recognized root pages, and exempts para/ and notes/ from all wiki-only rules</label></li>
+<li><label><input type="checkbox">Glossary Hygiene (rule 15) checks table shape, the rule enum, and staging hygiene on glossary/ pages, and never auto-fixes a decision</label></li>
+<li><label><input type="checkbox">Credential detection is case-insensitive and scans both content and frontmatter</label></li>
+<li><label><input type="checkbox">Stale detection uses exact 90-day threshold from updated:: to today</label></li>
+<li><label><input type="checkbox">Hub completeness checks ALL child pages, not just recently created ones</label></li>
+<li><label><input type="checkbox">Works correctly in both Logseq and Obsidian page naming conventions</label></li>
+<li><label><input type="checkbox">Dashboard page updated after lint completes</label></li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/lint.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

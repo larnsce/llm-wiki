@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ingest – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-wiki-ingest---source-processing-pipeline" id="toc-spec-wiki-ingest---source-processing-pipeline" class="nav-link active" data-scroll-target="#spec-wiki-ingest---source-processing-pipeline">Spec: /wiki-ingest - Source Processing Pipeline</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#phase-1-source-analysis" id="toc-phase-1-source-analysis" class="nav-link" data-scroll-target="#phase-1-source-analysis">Phase 1: Source Analysis</a></li>
+  <li><a href="#phase-2-wiki-scan" id="toc-phase-2-wiki-scan" class="nav-link" data-scroll-target="#phase-2-wiki-scan">Phase 2: Wiki Scan</a></li>
+  <li><a href="#phase-3-page-operations" id="toc-phase-3-page-operations" class="nav-link" data-scroll-target="#phase-3-page-operations">Phase 3: Page Operations</a></li>
+  <li><a href="#phase-4-quality-gate" id="toc-phase-4-quality-gate" class="nav-link" data-scroll-target="#phase-4-quality-gate">Phase 4: Quality Gate</a></li>
+  <li><a href="#phase-5-report" id="toc-phase-5-report" class="nav-link" data-scroll-target="#phase-5-report">Phase 5: Report</a></li>
+  <li><a href="#cross-cutting" id="toc-cross-cutting" class="nav-link" data-scroll-target="#cross-cutting">Cross-Cutting</a></li>
+  <li><a href="#source-pipeline" id="toc-source-pipeline" class="nav-link" data-scroll-target="#source-pipeline">Source Pipeline</a></li>
+  <li><a href="#journal-seam" id="toc-journal-seam" class="nav-link" data-scroll-target="#journal-seam">Journal Seam</a></li>
+  <li><a href="#data-package-seam" id="toc-data-package-seam" class="nav-link" data-scroll-target="#data-package-seam">Data-Package Seam</a></li>
+  <li><a href="#voice-sources" id="toc-voice-sources" class="nav-link" data-scroll-target="#voice-sources">Voice Sources</a></li>
+  <li><a href="#voice-conversation-sessions" id="toc-voice-conversation-sessions" class="nav-link" data-scroll-target="#voice-conversation-sessions">Voice Conversation Sessions</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-ingest-a-url-source-happy-path" id="toc-scenario-1-ingest-a-url-source-happy-path" class="nav-link" data-scroll-target="#scenario-1-ingest-a-url-source-happy-path">Scenario 1: Ingest a URL source (happy path)</a></li>
+  <li><a href="#scenario-2-ingest-updates-existing-page-append-only" id="toc-scenario-2-ingest-updates-existing-page-append-only" class="nav-link" data-scroll-target="#scenario-2-ingest-updates-existing-page-append-only">Scenario 2: Ingest updates existing page (append-only)</a></li>
+  <li><a href="#scenario-3-credential-detected-in-source---ingest-blocked" id="toc-scenario-3-credential-detected-in-source---ingest-blocked" class="nav-link" data-scroll-target="#scenario-3-credential-detected-in-source---ingest-blocked">Scenario 3: Credential detected in source - ingest blocked</a></li>
+  <li><a href="#scenario-4-l1-candidate-detected---recommend-memory" id="toc-scenario-4-l1-candidate-detected---recommend-memory" class="nav-link" data-scroll-target="#scenario-4-l1-candidate-detected---recommend-memory">Scenario 4: L1 candidate detected - recommend memory</a></li>
+  <li><a href="#scenario-5-page-touch-count-below-minimum" id="toc-scenario-5-page-touch-count-below-minimum" class="nav-link" data-scroll-target="#scenario-5-page-touch-count-below-minimum">Scenario 5: Page touch count below minimum</a></li>
+  <li><a href="#scenario-6-page-touch-count-above-maximum" id="toc-scenario-6-page-touch-count-above-maximum" class="nav-link" data-scroll-target="#scenario-6-page-touch-count-above-maximum">Scenario 6: Page touch count above maximum</a></li>
+  <li><a href="#scenario-7-hub-page-missing-for-new-namespace-child" id="toc-scenario-7-hub-page-missing-for-new-namespace-child" class="nav-link" data-scroll-target="#scenario-7-hub-page-missing-for-new-namespace-child">Scenario 7: Hub page missing for new namespace child</a></li>
+  <li><a href="#scenario-8-obsidian-mode---yaml-frontmatter-format" id="toc-scenario-8-obsidian-mode---yaml-frontmatter-format" class="nav-link" data-scroll-target="#scenario-8-obsidian-mode---yaml-frontmatter-format">Scenario 8: Obsidian mode - YAML frontmatter format</a></li>
+  <li><a href="#scenario-9-max-3-pages-loaded-simultaneously" id="toc-scenario-9-max-3-pages-loaded-simultaneously" class="nav-link" data-scroll-target="#scenario-9-max-3-pages-loaded-simultaneously">Scenario 9: Max 3 pages loaded simultaneously</a></li>
+  <li><a href="#scenario-10-namespace-depth-violation" id="toc-scenario-10-namespace-depth-violation" class="nav-link" data-scroll-target="#scenario-10-namespace-depth-violation">Scenario 10: Namespace depth violation</a></li>
+  <li><a href="#scenario-11-interactive-checkpoint-default-mode" id="toc-scenario-11-interactive-checkpoint-default-mode" class="nav-link" data-scroll-target="#scenario-11-interactive-checkpoint-default-mode">Scenario 11: Interactive checkpoint (default mode)</a></li>
+  <li><a href="#scenario-12-auto-drains-the-queue-without-prompts" id="toc-scenario-12-auto-drains-the-queue-without-prompts" class="nav-link" data-scroll-target="#scenario-12-auto-drains-the-queue-without-prompts">Scenario 12: –auto drains the queue without prompts</a></li>
+  <li><a href="#scenario-13-secret-in-source-bytes-blocks-the-archive" id="toc-scenario-13-secret-in-source-bytes-blocks-the-archive" class="nav-link" data-scroll-target="#scenario-13-secret-in-source-bytes-blocks-the-archive">Scenario 13: Secret in source bytes blocks the archive</a></li>
+  <li><a href="#scenario-14-sensitive-source-type-stays-out-of-git" id="toc-scenario-14-sensitive-source-type-stays-out-of-git" class="nav-link" data-scroll-target="#scenario-14-sensitive-source-type-stays-out-of-git">Scenario 14: Sensitive source type stays out of git</a></li>
+  <li><a href="#scenario-15-daily-ingested-block-second-run-same-day" id="toc-scenario-15-daily-ingested-block-second-run-same-day" class="nav-link" data-scroll-target="#scenario-15-daily-ingested-block-second-run-same-day">Scenario 15: Daily Ingested block, second run same day</a></li>
+  <li><a href="#scenario-16-voice-note-routes-to-the-journal-by-default" id="toc-scenario-16-voice-note-routes-to-the-journal-by-default" class="nav-link" data-scroll-target="#scenario-16-voice-note-routes-to-the-journal-by-default">Scenario 16: Voice note routes to the journal by default</a></li>
+  <li><a href="#scenario-17-people-row-requires-individual-confirmation" id="toc-scenario-17-people-row-requires-individual-confirmation" class="nav-link" data-scroll-target="#scenario-17-people-row-requires-individual-confirmation">Scenario 17: People row requires individual confirmation</a></li>
+  <li><a href="#scenario-18-sensitive-assessment-is-never-promoted" id="toc-scenario-18-sensitive-assessment-is-never-promoted" class="nav-link" data-scroll-target="#scenario-18-sensitive-assessment-is-never-promoted">Scenario 18: Sensitive assessment is never promoted</a></li>
+  <li><a href="#scenario-19-data-package-version-update-keeps-old-claims-citable" id="toc-scenario-19-data-package-version-update-keeps-old-claims-citable" class="nav-link" data-scroll-target="#scenario-19-data-package-version-update-keeps-old-claims-citable">Scenario 19: Data-package version update keeps old claims citable</a></li>
+  <li><a href="#scenario-20-chat-voice-browse-and-conversation-write-nothing" id="toc-scenario-20-chat-voice-browse-and-conversation-write-nothing" class="nav-link" data-scroll-target="#scenario-20-chat-voice-browse-and-conversation-write-nothing">Scenario 20: Chat-voice browse and conversation write nothing</a></li>
+  <li><a href="#scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip" id="toc-scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip" class="nav-link" data-scroll-target="#scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip">Scenario 21: Chat-voice closing ingest cites notes, offers the flip</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/ingest.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-wiki-ingest---source-processing-pipeline" class="level1">
+<h1>Spec: /wiki-ingest - Source Processing Pipeline</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The ingest command processes external sources (URLs, files, text) and distributes extracted knowledge across wiki pages. It is the primary write path into the wiki. A single ingest run targets 5-15 page touches (creates + updates + hub updates).</p>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="phase-1-source-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1-source-analysis">Phase 1: Source Analysis</h3>
+<ul>
+<li>REQ-010: The system SHALL accept three source types: URL (fetched via WebFetch), file path (read from disk), and inline text (parsed directly).</li>
+<li>REQ-011: The system SHALL extract entities, facts, relationships, dates, and</li>
+<li>REQ-011a (author extraction, #73): The system SHALL extract the source’s author(s) where identifiable: clip frontmatter, byline, paper author list, or Semantic Scholar metadata (REQ-073a). Absence of an identifiable author is normal and never blocks; nothing is guessed. decisions from the source material.</li>
+<li>REQ-012: The system SHALL classify extracted knowledge into exactly one of six categories: business, technical, content, project, learning, reference.</li>
+<li>REQ-013: The system SHALL evaluate each extracted fact against the L1/L2 routing rule (see specs/l1-l2-routing.md) and recommend Memory for L1 candidates.</li>
+<li>REQ-014: The system SHOULD identify when a source contains credentials or secrets and MUST NOT write them to wiki pages.</li>
+</ul>
+</section>
+<section id="phase-2-wiki-scan" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-wiki-scan">Phase 2: Wiki Scan</h3>
+<ul>
+<li>REQ-020: The system SHALL read <code>llm-wiki.yml</code> before any wiki operations to determine tool mode (logseq/obsidian), paths, and namespace configuration.</li>
+<li>REQ-021: The system SHALL read the Schema page to load current conventions and property requirements.</li>
+<li>REQ-022: The system SHALL glob for existing wiki pages matching extracted entities and topics to identify update targets.</li>
+<li>REQ-023: The system SHALL read existing target pages before modifying them. Maximum 3 pages loaded simultaneously (JIT retrieval).</li>
+<li>REQ-024a (author recurrence, #74): When a source’s extracted author already appears in the <code>author::</code> values (or <code>ingested/</code> provenance) of existing pages - the SECOND source by the same person - the plan SHALL include a <code>wiki/people/&lt;name&gt;</code> page (proper-noun leaf): <code>type:: entity</code>, <code>entity-type:: person</code>, a one-line who-this-is, links to the pages built on their work, and a routing line in the people hub. The page is born cited: its who-this-is claim cites the <code>ingested/</code> files of the works themselves, so <code>source-file::</code> is their union and the citation invariants (REQ-033b, citations REQ-904) hold with no exemption. Below the threshold <code>author::</code> alone suffices; the user MAY request a person page for any author at the checkpoint, and the proposed create appears in the plan table like any other create (overridable per run).</li>
+<li>REQ-024: The system SHALL produce a page operation plan: pages to create, pages to update, cross-references to add, hub pages to update.</li>
+<li>REQ-025 (interactive checkpoint): After the page operation plan and BEFORE any write, the system SHALL pause and present: the planned page touches, the per-source <code>reliability::</code> rating with a one-line rationale, any contradictions detected against existing pages, and the question “what should I emphasize, skip, or route to L1 Memory?”. The system SHALL apply the user’s guidance to the plan and only then proceed to Phase 3. This is the default mode.</li>
+<li>REQ-026 (–auto): With the <code>--auto</code> flag the system SHALL skip the REQ-025 checkpoint (batch queue-draining). The plan and ratings SHALL still be included in the Phase 5 report, and the Quality Gate (REQ-040/042/045) still blocks on failures. <code>--auto</code> never bypasses a blocking gate.</li>
+</ul>
+</section>
+<section id="phase-3-page-operations" class="level3">
+<h3 class="anchored" data-anchor-id="phase-3-page-operations">Phase 3: Page Operations</h3>
+<ul>
+<li>REQ-030: The system SHALL create new pages with ALL required properties for the declared page type (per Schema). Missing required properties are a spec violation.</li>
+<li>REQ-031: The system SHALL use the correct format for the configured tool: Logseq (outliner with <code>-</code> body prefix, unbulleted <code>property:: value</code> page properties per specs/schema.md REQ-591) or Obsidian (flat markdown, YAML frontmatter).</li>
+<li>REQ-032: The system MUST NOT overwrite existing content blocks when updating pages. New facts SHALL be appended as new blocks below existing content.</li>
+<li>REQ-033: The system SHALL update hub pages to list any newly created child pages in their namespace.</li>
+<li>REQ-033a: For every page created or updated, the system SHALL set or refresh its routing line in the namespace hub’s <code>### Index</code> section, formatted <code>[[Wiki/NS/Page]] -- &lt;one-sentence description, &lt;=120 chars&gt; #tags</code> (see specs/schema.md and specs/query.md Phase 0). The description is the routing key consumed by two-stage query and MUST be terse and distinctive, not filler. A page without a routing line is unroutable.</li>
+<li>REQ-033c (author emission, #73): The system SHALL set <code>author::</code> on created ingested pages when Phase 1 identified author(s) (schema REQ-585a), and SHALL append missing authors (union, deduplicated) when a corroborating update touches the page. Never backfilled outside an ingest that touches the page.</li>
+<li>REQ-033b: On ingested pages, the system SHALL attach a <code>cite::</code> reference to every non-common-knowledge factual claim block it writes, per specs/citations.md (REQ-900..905). Pages are born auditable. STAGING: this requirement takes effect with the citations implementation (v2.1, #17); v2.0.0 ingest is exempt.</li>
+<li>REQ-034: The system SHALL add <code>[[Wiki/Namespace/Page]]</code> cross-references between all affected pages. Every page touched MUST have at least 1 outgoing wiki link. Navigation cross-links SHALL be written under a <code>## Cross-References</code> section with that exact heading (specs/schema.md REQ-573): the citation checker exempts it from claim coverage, while synonym headings (Related, See also) drift out of the exemption on other tooling.</li>
+<li>REQ-035: The system SHALL set the <code>updated::</code> property (or YAML <code>updated</code> field) to today’s date on every modified page.</li>
+<li>REQ-036: When a page mentions an entity that has its own wiki page, the system SHALL use <code>[[Wiki/...]]</code> link syntax instead of plain text.</li>
+<li>REQ-036a (person names are always linked, #99): When the system writes a PERSON’s name into content (page claims, the journal seam’s Ingested bullets), it SHALL write it as a <code>[[wiki/people/&lt;First&gt; &lt;Last&gt;]]</code> link, in First-name Surname order (normalize sources that deliver “Last, First”). This holds even when the person page does not exist yet: person pages are created at the second-source threshold (REQ-024a), and lint reports the interim link as info-level pending (lint REQ-141a), not broken. The <code>author::</code> property stays PLAIN text (schema REQ-585a); only prose gets links.</li>
+<li>REQ-037: The system SHOULD target 5-15 page touches per ingest. Fewer than 5 suggests insufficient cross-referencing. More than 20 suggests the ingest should be split.</li>
+<li>REQ-038: File names MUST follow tool conventions: Logseq uses triple-underscore separators (<code>Wiki___Tech___Strapi.md</code>), Obsidian uses directory hierarchy (<code>Wiki/Tech/Strapi.md</code>).</li>
+<li>REQ-039: Namespace depth MUST NOT exceed 3 levels (e.g., <code>Wiki/Business/Clients/Acme</code> is the maximum depth).</li>
+</ul>
+</section>
+<section id="phase-4-quality-gate" class="level3">
+<h3 class="anchored" data-anchor-id="phase-4-quality-gate">Phase 4: Quality Gate</h3>
+<ul>
+<li>REQ-040: The system SHALL verify that all new pages have ALL required properties for their declared type before completing the ingest.</li>
+<li>REQ-041: The system SHALL verify that every touched page has at least 1 outgoing <code>[[Wiki/...]]</code> cross-reference.</li>
+<li>REQ-041a: The system SHALL verify that every new or updated active page has a routing line in its namespace hub <code>### Index</code> (REQ-033a). A missing routing line is a warning (the page is unroutable until <code>lint --fix</code> backfills it).</li>
+<li>REQ-042: The system SHALL scan all created/updated content for credential patterns (<code>token::</code>, <code>password::</code>, <code>secret::</code>, <code>api-key::</code>, base64 strings of 40+ chars). Any match MUST block the ingest and warn the user.</li>
+<li>REQ-043: The system SHALL count page touches and emit a warning if the count is below 5 or above 20.</li>
+<li>REQ-044: The quality gate SHALL NOT block the ingest on page-touch count warnings (REQ-043). It SHALL block on credential detection (REQ-042), pre-archive secret detection (REQ-045), and missing required properties (REQ-040).</li>
+<li>REQ-045 (pre-archive secret gate): Before any source file is MOVED into the git-tracked <code>ingested/</code> tree (REQ-075), the system SHALL scan the source file’s BYTES for credential patterns (the REQ-042 pattern set, applied to the source itself, including a strings-style pass over binary formats). On a match the system MUST NOT archive or commit the file: it stays in <code>raw_dir</code> with a warning naming the match location and requiring redaction (or an explicit <code>--allow-secret</code> override) before re-ingest. Rationale: <code>ingested/</code> is committed git history; exposure there is sticky.</li>
+<li>REQ-046 (sensitive source types): When a source’s type is listed in the config key <code>sensitive_source_types</code> (specs/config.md REQ-624), the system SHALL write the wiki pages as normal but MUST keep the source file’s bytes out of git: the file is moved to <code>ingested/&lt;type&gt;/</code> but that path is gitignored (managed by the system), and <code>source-file::</code> still records it. The provenance path stays valid locally; only the bytes are excluded from history.</li>
+</ul>
+</section>
+<section id="phase-5-report" class="level3">
+<h3 class="anchored" data-anchor-id="phase-5-report">Phase 5: Report</h3>
+<ul>
+<li>REQ-050: The system SHALL output a summary listing: pages created (with types), pages updated, cross-references added, hub pages updated.</li>
+<li>REQ-051: The system SHALL list any warnings (low page-touch count, L1 candidates found, skipped items) and their reasons.</li>
+<li>REQ-052: The system SHOULD recommend a git commit after structural changes.</li>
+<li>REQ-053 (run log): The system SHALL append a run-log entry to the Dashboard page: <code>## [YYYY-MM-DD] ingest | &lt;filename or n sources&gt; -&gt; &lt;n&gt; pages | reliability &lt;level&gt; | mode &lt;interactive|auto&gt; | agents &lt;names|none&gt;</code>. The <code>agents</code> field records which installed agent definitions (specs/setup.md REQ-807) were actually DISPATCHED during the run (comma-separated names, e.g.&nbsp;<code>wiki-triage, wiki-synthesize</code>), or <code>none</code>. It is an observable dispatch record, NEVER a self-reported model id: the executing model cannot introspect its own id, and a silent fallback (agents not installed, allowlist, inherit) would log the plan instead of the execution (issue #108). The field is additive; legacy entries without it stay valid.</li>
+</ul>
+</section>
+<section id="cross-cutting" class="level3">
+<h3 class="anchored" data-anchor-id="cross-cutting">Cross-Cutting</h3>
+<ul>
+<li>REQ-060: The system MUST NOT modify any non-wiki pages (personal notes, other vault content). Journal pages admit EXACTLY ONE machine write path: the journal seam (REQ-090..095), which is append-only and never modifies existing journal content. The voice journal summary (REQ-082) writes through the same seam discipline. No other journal write is sanctioned.</li>
+<li>REQ-061: The system SHALL use ISO 8601 date format (YYYY-MM-DD) for all date properties.</li>
+<li>REQ-062: When the configured tool is Logseq, every line of wiki content MUST start with <code>-</code> (outliner block prefix). Properties MUST use <code>property:: value</code> syntax.</li>
+<li>REQ-063: When the configured tool is Obsidian, properties MUST be in YAML frontmatter. Content uses standard markdown without block prefixes.</li>
+</ul>
+</section>
+<section id="source-pipeline" class="level3">
+<h3 class="anchored" data-anchor-id="source-pipeline">Source Pipeline</h3>
+<p>This extends Phases 1-5 above. It applies when <code>llm-wiki.yml</code> configures a source pipeline (<code>raw_dir</code>, <code>ingested_dir</code>, <code>source_types</code>, <code>default_source_type</code>). It is the path for NEW external sources (e.g.&nbsp;a Zotero export). Pulling notes ALREADY written in the graph uses <code>/wiki-ingest --import</code>, which does NOT move files or assign <code>source-file::</code>.</p>
+<ul>
+<li>REQ-070 (Phase 0, queue intake): When <code>/wiki-ingest</code> is given NO argument, the system SHALL scan <code>raw_dir</code> and process every file there oldest-first (drain the queue). When given a path/URL argument, that single source is the input; a local file outside <code>raw_dir</code> SHALL be copied into <code>raw_dir</code> first so the lifecycle is consistent.</li>
+<li>REQ-070a (intake slugging): When a file entering processing from <code>raw_dir</code> has a filename containing whitespace, commas, <code>#</code>, or other non-kebab characters, the system SHALL rename it (and any companion asset folder) to a kebab-case slug BEFORE planning, so <code>source-file::</code> and <code>cite::</code> refs are born valid: the citation checker rejects refs containing whitespace (specs/citations.md REQ-901), and refs are comma-separated, so a comma in a filename breaks ref parsing.</li>
+<li>REQ-071: For each source the system SHALL infer its type (one of <code>source_types</code>), falling back to <code>default_source_type</code>, asking the user only if genuinely ambiguous.</li>
+<li>REQ-072: If processing fails partway, the system SHALL LEAVE the source in <code>raw_dir</code> (the queue is resumable) and SHALL NOT move a half-processed source.</li>
+<li>REQ-073 (Phase 3 addition): On every created/updated ingested page the system SHALL set <code>source-file::</code> (the path the source will live at, <code>ingested/&lt;type&gt;/&lt;filename&gt;</code>; append comma-separated when corroborating) and <code>reliability::</code> (per schema REQ-586: corroboration is judged per claim, the page value is the minimum across claims). These do NOT alter <code>confidence::</code> (schema REQ-587).</li>
+<li>REQ-073a (Phase 1, optional enrichment): When a Semantic Scholar MCP is configured, the system MAY resolve the source (by DOI, else title + first author + year) and record its metrics verbatim as <code>s2-metrics::</code> (per schema REQ-586a). These metrics INFORM the qualitative <code>reliability::</code> judgment but MUST NOT determine it by formula or citation-count threshold. The enrichment is OPTIONAL: when no S2 MCP is present the system SHALL skip it and judge <code>reliability::</code> from the source alone. Absence of the MCP MUST NOT block ingest.</li>
+<li>REQ-074: If a page rests on a SINGLE source and <code>reliability::</code> is not <code>high</code>, the system SHALL append a <code>## Pending Review</code> section listing the specific claims needing corroboration. If this ingest corroborates an existing flagged page, the system SHALL re-check each flagged claim, remove resolved ones, delete the section if all resolve, and raise <code>reliability::</code>.</li>
+<li>REQ-075 (Phase 5 addition): Only after the Quality Gate passes, the system SHALL MOVE each processed source from <code>raw_dir</code> to <code>ingested_dir/&lt;type&gt;/&lt;filename&gt;</code>. The new location MUST match what <code>source-file::</code> records. The page edits AND the file move SHALL be staged and committed as ONE atomic commit.</li>
+<li>REQ-076 (Phase 0, queue triage delegation): When draining a MULTI-file queue AND the <code>wiki-triage</code> agent definition is installed (specs/setup.md REQ-807), the system SHOULD delegate per-file classification to it: the proposed intake slug (REQ-070a), the inferred type (REQ-071), and a COMPLEXITY FLAG with a one-line reason. The caller SHALL hand the agent the hub-index routing lines and the Schema page list as context; the flag SHALL rest only on QUEUE-DECIDABLE triggers (source length, source type, another queue item or <code>ingested/</code> source on the same topic, the topic mapping to a hub or Schema page itself, or the agent’s own low confidence). Wiki-state judgments (supersedes existing content, conflicts with existing claims) stay at the checkpoint, which reads the wiki (issue #108 premortem). Flagged items SHOULD route their Phase 1-2 analysis to the <code>wiki-synthesize</code> agent when installed. Single-source runs are unchanged, and a missing agent definition degrades to inline classification; the triage pass never writes.</li>
+</ul>
+</section>
+<section id="journal-seam" class="level3">
+<h3 class="anchored" data-anchor-id="journal-seam">Journal Seam</h3>
+<p>The journal is the daily working surface; the wiki is the knowledge store. The seam connects them in both directions on every ingest run: the day’s journal page records what was ingested (with room for the human’s own notes), and every touched wiki page links back to the journal day. This section extends Phases 3 and 5 when the source pipeline is configured; without the pipeline the seam is inert. The journal directory resolves from the config key <code>journals_dir</code> (specs/config.md REQ-629).</p>
+<ul>
+<li>REQ-090 (daily Ingested block): After the Quality Gate passes, the system SHALL append to TODAY’s journal page a block under the heading <code>Ingested</code>: one bullet per source processed in the run, carrying the source title, its type, and <code>[[wiki/...]]</code> links to every page the source created or updated, plus one EMPTY child bullet reserved for the user’s own notes. One block per day, not per resource: when the day’s journal page already has an <code>Ingested</code> block (an earlier run today), the system SHALL append bullets to that block instead of creating a second one.</li>
+<li>REQ-091 (journal page resolution): The journal page name and file path SHALL be resolved per tool flavor: derive the naming pattern from existing files in <code>journals_dir</code> when any exist; otherwise use the tool default (Logseq <code>journals/YYYY_MM_DD.md</code> with the graph’s date-format page reference; Obsidian <code>&lt;journals_dir&gt;/YYYY-MM-DD.md</code>). When today’s journal page does not exist, the system SHALL create it with the Ingested block as its only machine-written content.</li>
+<li>REQ-092 (checkpoint visibility): The planned journal append SHALL be visible at the REQ-025 checkpoint (a summary line naming the journal page and the bullet count is sufficient), and SHALL be included in the Phase 5 report. <code>--auto</code> runs carry it into the report like the rest of the plan.</li>
+<li>REQ-093 (wiki-to-journal back-link): On every page created or updated in the run, the system SHALL set or refresh the <code>journal::</code> property to today’s journal page link, tool-native format, per schema REQ-585c. The refresh mirrors <code>updated::</code>: metadata, not content; the append-only rule for content blocks (REQ-032) is untouched.</li>
+<li>REQ-094 (append-only inside the journal): The system MUST NOT modify or delete ANY existing journal content: earlier bullets, the user’s notes under them, or anything else on the page. The seam only appends bullets to today’s Ingested block (or creates the block, or the page). Child bullets written by the user under earlier entries are never touched.</li>
+<li>REQ-095 (atomicity): The journal edit SHALL ride the same atomic commit as the page edits and the file move (REQ-075). A quality-gate failure that blocks a source also drops that source’s journal bullet.</li>
+</ul>
+</section>
+<section id="data-package-seam" class="level3">
+<h3 class="anchored" data-anchor-id="data-package-seam">Data-Package Seam</h3>
+<p>An R data package is a self-describing, versioned dataset bundle: DESCRIPTION (name, version, license, URL), <code>data/*.rda</code> (canonical data objects), <code>inst/extdata/*.csv</code> (portable copies), <code>man/*.Rd</code> (the data documentation: description, per-variable dictionary, source). The seam ingests the WHOLE bundle, not just the CSVs, and keeps the vault current when the package updates on GitHub. Registered packages come from the config key <code>data_packages</code> (specs/config.md REQ-660); the seam runs through <code>scripts/data_pkg_sync.R</code> and the <code>/data-sync</code> command. When the key is absent the seam is inert.</p>
+<ul>
+<li>REQ-100 (versioned snapshot): A sync SHALL write one snapshot directory per package version, <code>ingested/data/&lt;pkg&gt;-&lt;version&gt;/</code>, containing: the package’s data frames materialized to CSV (from <code>data/*.rda</code>) and any <code>inst/extdata</code> CSVs; one extracted markdown doc per dataset (title, description, variable dictionary, source, pulled from the Rd documentation); and a provenance record (package, version, GitHub slug, license, sync date). Snapshot paths are cite targets exactly like any other <code>ingested/</code> path.</li>
+<li>REQ-101 (dataset pages): Each dataset SHALL get a page <code>wiki/data/&lt;pkg&gt;/&lt;dataset&gt;</code> (<code>type:: entity</code>, <code>entity-type:: dataset</code>) carrying the managed properties <code>package::</code>, <code>version::</code>, <code>license::</code>, <code>url::</code>, <code>source-file::</code> (the snapshot paths), and <code>data-last-sync::</code> (the synced package version), plus the standard required entity properties. A <code>wiki/data</code> hub routes the packages; a package page routes its datasets.</li>
+<li>REQ-102 (managed sections): The dataset page’s <code>## description</code> and <code>## data dictionary</code> sections are MACHINE-MANAGED: regenerated from the Rd documentation on every sync. This is the single sanctioned regeneration path on these pages (the dataset-page counterpart of the journal seam’s REQ-094 carve-out); everything else on the page is append-only and the human’s own sections are NEVER touched.</li>
+<li>REQ-103 (version updates): A new package version SHALL produce a NEW snapshot directory; existing <code>cite::</code>/<code>source-file::</code> references to older snapshots remain valid (claims stay pinned to the version they were made against). The sync SHALL surface the package’s NEWS changes between the vault version and the new version at the checkpoint.</li>
+<li>REQ-104 (checkpoint): A sync with writes SHALL run through the REQ-025 checkpoint discipline (dry-run plan shown, user confirms before writes). Update DETECTION is automated; update WRITES are always human-confirmed.</li>
+<li>REQ-105 (retention): The seam SHALL keep the last N snapshots per package (<code>data_snapshots_keep</code>, config REQ-661, default 3) and MUST NOT delete a snapshot that any page references via <code>cite::</code> or <code>source-file::</code>, regardless of N.</li>
+<li>REQ-106 (staleness check): <code>data_pkg_sync.R --check</code> SHALL compare each registered package’s GitHub DESCRIPTION <code>Version:</code> against the newest local snapshot and report stale packages. The check is surfaced through <code>/wiki-maintain</code> status and MAY be run on a schedule; it never writes to the vault.</li>
+</ul>
+</section>
+<section id="voice-sources" class="level3">
+<h3 class="anchored" data-anchor-id="voice-sources">Voice Sources</h3>
+<p>This extends Phases 1-5 for sources that are unprocessed <code>voice_notes</code> rows in archive.db (specs/storage.md) instead of files in <code>raw_dir</code>. The base contract applies unchanged: the checkpoint (REQ-025), the quality gate (REQ-040/042/044), the secret gate over promoted text (REQ-042), and the namespace scope rule (specs/namespaces.md REQ-965..967). The file lifecycle (REQ-070/072/075) does NOT apply: the row’s <code>processed</code> flag is the lifecycle. STAGING: this section takes effect with the voice pipeline implementation (v3.0, P-3); until then no voice source exists.</p>
+<ul>
+<li>REQ-080 (source and lifecycle): A voice source is ONE unprocessed <code>voice_notes</code> row; the system starts from the stored transcript (transcription itself is outside this workflow: deterministic and re-runnable). The row SHALL be marked <code>processed</code> only after the run’s writes are committed. A failed or aborted run leaves the row unprocessed; the queue is resumable (mirroring REQ-072).</li>
+<li>REQ-081 (interactive only): Voice ingestion SHALL always run the REQ-025 checkpoint. There is NO <code>--auto</code> path for voice sources: REQ-026 does not apply to them, and when <code>--auto</code> is passed the system SHALL state that voice sources are interactive-only and run the checkpoint anyway.</li>
+<li>REQ-082 (default routing: the journal): The default destination for a voice note is a 2-4 line summary on today’s journal page with <code>[[links]]</code> and the provenance id. Journal summaries MAY be batch-confirmed at the checkpoint. The daily journal summary opens with the pipeline status line per specs/storage.md REQ-1140. The write follows the journal-seam discipline (REQ-091 page resolution, REQ-094 append-only): it never modifies existing journal content.</li>
+<li>REQ-083 (wiki writes are per-row opt-in): Any update touching a wiki page is OPT-IN per row at the checkpoint: the system SHALL show the full sentence(s) it would write (no truncation) and write nothing to a wiki page without an explicit yes for that specific row. Declined rows stay in the journal summary or the transcript.</li>
+<li>REQ-084 (people rows confirmed individually): Any row that touches a people page or that names a person SHALL require INDIVIDUAL confirmation, with the full sentence shown. Such rows MUST NOT ride a batch confirmation, regardless of batch size or how the rest of the plan is confirmed.</li>
+<li>REQ-085 (sensitive content is never promoted): Assessments of people (their health, family, grades, conflicts, or performance) SHALL NOT be promoted out of the checkpoint onto any wiki page, REGARDLESS of confirmation. They remain in the transcript (archive.db) only. This is a standing content rule, not a pattern gate: it binds the system even when no credential-style pattern matches and even when the user confirms the row.</li>
+<li>REQ-086 (provenance shape): A wiki page or claim written from a voice source SHALL carry the capture ref <code>archive.db:voice_notes/&lt;id&gt;</code>: at page level in <code>source-file::</code> (comma-separated alongside any other origins) and at block level as the <code>cite::</code> ref on the claims it supports (block-native per specs/citations.md REQ-900). For the citations union invariant (REQ-904), capture refs count as cite targets exactly like <code>ingested/</code> paths: a page’s <code>source-file::</code> includes an <code>archive.db:</code> ref precisely when a block cites it. Capture refs are capture-backed provenance: <code>reliability::</code> defaults per schema REQ-586b and audit reports such claims per audit REQ-927.</li>
+<li>REQ-087 (TODO extraction): TODOs found in the transcript SHALL be OFFERED at the checkpoint for the human to place (today’s journal, or a <code>para/</code> page the human edits themself). The system SHALL NOT write to <code>para/</code> or <code>notes/</code> (specs/namespaces.md REQ-966); voice sources do not change the scope rule.</li>
+</ul>
+</section>
+<section id="voice-conversation-sessions" class="level3">
+<h3 class="anchored" data-anchor-id="voice-conversation-sessions">Voice Conversation Sessions</h3>
+<p>This extends the Voice Sources section for <code>/wiki-chat-voice</code> (issue #117): a conversational session over STORED voice notes - browse the archive, talk about selected notes in the session, and close with one ingest. Where Voice Sources (REQ-080..087) drains the unprocessed queue note by note, this section covers REVISITING notes (processed or not) as conversation material. The Voice Sources rules apply unchanged wherever this section is silent. STAGING: this section takes effect with the wiki-chat-voice skill (issue #117).</p>
+<ul>
+<li>REQ-1200 (browse is read-only): The session SHALL open with a picker over <code>voice_notes</code> rows - processed AND unprocessed, marked which is which - read via python3’s stdlib sqlite3 (storage REQ-1104) in read-only mode, newest first, bounded by default (last ~20 rows, paginated on request) and filterable by date (<code>--since</code>), transcript substring (<code>--grep</code>, SQL LIKE), and <code>--unprocessed</code>. Each picker row carries: id, recorded date, duration, a one-line description, and 3-5 keywords. Descriptions and keywords are generated AT RUN TIME for the rows shown, and only those; they MUST NOT be persisted anywhere: <code>voice_notes</code> is frozen at six columns (storage REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db admits nothing without a markdown source (REQ-1132). Digest generation SHOULD dispatch to the haiku-tier triage agent when installed (setup REQ-807) and degrades to inline generation without it.</li>
+<li>REQ-1201 (interactive only): A conversation session is interactive by nature; there is NO <code>--auto</code> path (mirroring REQ-081). When <code>--auto</code> is passed the system SHALL state that and continue interactively.</li>
+<li>REQ-1202 (the conversation writes nothing): Between note selection and the closing checkpoint the system MUST NOT write: no journal edits, no page edits, no <code>processed</code> flips, no archive.db mutation of any kind. Candidate insights (journal lines, wiki claims, TODOs, contradictions with existing pages) are tracked in-session only. The conversation ends only on the user’s explicit signal, never on the system’s initiative.</li>
+<li>REQ-1203 (one closing checkpoint): On the end signal the system SHALL run ONE consolidated checkpoint (REQ-025 discipline) presenting: the journal synthesis (the default destination, REQ-082 discipline; the block opens with the pipeline status line per storage REQ-1140), each wiki offer with the full sentence(s) (REQ-083), retained sensitive items (REQ-085, listed by category only), the TODO hand-over (REQ-087), and the processed-flip offers (REQ-1205). All writes happen after this checkpoint or not at all.</li>
+<li>REQ-1204 (the conversation is not a source): Every claim promoted from the session SHALL cite the underlying voice note id(s), <code>archive.db:voice_notes/&lt;id&gt;</code> (the REQ-086 shape). The conversation itself is NEVER a cite target and adds no evidence: reliability stays capture-backed <code>low</code> (schema REQ-586b) no matter how thoroughly the claim was discussed, and one memo cannot corroborate another by the same speaker (schema REQ-586 independence). A conclusion not grounded in at least one specific note is journal-only; it MUST NOT be promoted to a wiki page.</li>
+<li>REQ-1205 (processed-flip is per-note opt-in, post-commit): For each UNPROCESSED note whose content the closing journal synthesis substantively covers, the checkpoint SHALL offer to mark it processed - suggested yes, individually declinable - so the queue drain (REQ-080/082) does not write a duplicate journal summary later. Flips happen only AFTER the run’s atomic commit succeeds, reusing the REQ-080 lifecycle. Notes merely listed or partially discussed, and already-processed notes, are never touched.</li>
+<li>REQ-1206 (people and sensitive-content rules bind at write time): REQ-084 (individual confirmation for rows naming people) and REQ-085 (assessments of people are never promoted, regardless of confirmation) apply to the closing checkpoint exactly as to voice ingest. Discussing people DURING the conversation is unrestricted - the session is private; the rules gate what leaves the checkpoint, not what is talked about.</li>
+<li>REQ-1207 (context budget): At selection time the system SHALL sum the selected transcripts’ word counts and, above a threshold (default 15000 words), push back: offer to narrow the selection or split into more than one session rather than degrade synthesis quality by loading everything.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-ingest-a-url-source-happy-path" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-ingest-a-url-source-happy-path">Scenario 1: Ingest a URL source (happy path)</h3>
+<pre><code>GIVEN llm-wiki.yml is configured with tool: logseq and wiki_path: /tmp/test-wiki
+AND the wiki has a Schema page and a Wiki/Tech hub page
+AND no page exists for "Redis"
+WHEN the user runs /wiki-ingest "https://redis.io/docs/about/"
+THEN the system SHALL create a new page Wiki___Tech___Redis.md
+AND the page SHALL have properties: type:: entity, entity-type:: technology,
+    created:: [today], updated:: [today], status:: active, source:: ingest
+AND the page SHALL contain extracted facts about Redis from the URL
+AND the page SHALL have at least 1 [[Wiki/Tech]] cross-reference
+AND the Wiki___Tech.md hub `### Index` SHALL gain a routing line:
+    "[[Wiki/Tech/Redis]] -- In-memory data store, cache + pub/sub #redis"
+AND the report SHALL show: 1 page created, 1 hub updated, N cross-refs added</code></pre>
+</section>
+<section id="scenario-2-ingest-updates-existing-page-append-only" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-ingest-updates-existing-page-append-only">Scenario 2: Ingest updates existing page (append-only)</h3>
+<pre><code>GIVEN a page Wiki___Tech___Strapi.md exists with content "Headless CMS for Node.js"
+AND the page has updated:: 2026-03-01
+WHEN the user runs /wiki-ingest "Strapi 5 uses documentId for PUT, not numeric id"
+THEN the system SHALL append a new block to the existing page
+AND the original content "Headless CMS for Node.js" SHALL still be present unchanged
+AND updated:: SHALL be changed to [today]
+AND the report SHALL show: 1 page updated</code></pre>
+</section>
+<section id="scenario-3-credential-detected-in-source---ingest-blocked" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-credential-detected-in-source---ingest-blocked">Scenario 3: Credential detected in source - ingest blocked</h3>
+<pre><code>GIVEN the user provides source text containing "api-key:: sk-abc123def456ghi789"
+WHEN the system reaches Phase 4 (Quality Gate)
+THEN the ingest SHALL be blocked
+AND the system SHALL warn: "Credential pattern detected. Move to L1 memory, not wiki."
+AND no wiki pages SHALL be created or modified</code></pre>
+</section>
+<section id="scenario-4-l1-candidate-detected---recommend-memory" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-l1-candidate-detected---recommend-memory">Scenario 4: L1 candidate detected - recommend memory</h3>
+<pre><code>GIVEN the user provides source text "PM2 reload does not work with npm start"
+WHEN the system evaluates L1/L2 routing in Phase 1
+THEN the system SHALL identify this as an L1 candidate (operational gotcha)
+AND the system SHALL recommend: "This looks like an L1 rule. Consider saving to
+    Memory instead of Wiki."
+AND the system SHALL still proceed with wiki ingest if the user confirms</code></pre>
+</section>
+<section id="scenario-5-page-touch-count-below-minimum" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-page-touch-count-below-minimum">Scenario 5: Page touch count below minimum</h3>
+<pre><code>GIVEN a small source with one fact about an existing page
+WHEN the ingest completes with only 2 page touches
+THEN the system SHALL emit a warning: "Only 2 page touches (target: 5-15).
+    Consider adding cross-references to related pages."
+AND the ingest SHALL complete successfully (warning, not blocking)</code></pre>
+</section>
+<section id="scenario-6-page-touch-count-above-maximum" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-page-touch-count-above-maximum">Scenario 6: Page touch count above maximum</h3>
+<pre><code>GIVEN a complex source spanning 25 different topics
+WHEN the ingest plan identifies 25 page operations
+THEN the system SHALL emit a warning: "25 page touches exceeds target (5-15).
+    Consider splitting this ingest into multiple runs."
+AND the ingest SHALL complete successfully (warning, not blocking)</code></pre>
+</section>
+<section id="scenario-7-hub-page-missing-for-new-namespace-child" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-hub-page-missing-for-new-namespace-child">Scenario 7: Hub page missing for new namespace child</h3>
+<pre><code>GIVEN a hub page Wiki___Projects.md exists
+AND no page Wiki___Projects___NewProject.md exists
+WHEN the user ingests information about "NewProject"
+THEN the system SHALL create Wiki___Projects___NewProject.md with required properties
+AND the system SHALL append [[Wiki/Projects/NewProject]] to Wiki___Projects.md</code></pre>
+</section>
+<section id="scenario-8-obsidian-mode---yaml-frontmatter-format" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-8-obsidian-mode---yaml-frontmatter-format">Scenario 8: Obsidian mode - YAML frontmatter format</h3>
+<pre><code>GIVEN llm-wiki.yml is configured with tool: obsidian and wiki_path: /tmp/test-wiki
+WHEN the user ingests a new technology "Milvus"
+THEN the system SHALL create Wiki/Tech/Milvus.md
+AND the file SHALL start with YAML frontmatter:
+    ---
+    type: entity
+    entity-type: technology
+    created: [today]
+    updated: [today]
+    status: active
+    source: ingest
+    ---
+AND the content SHALL use standard markdown without "- " block prefixes</code></pre>
+</section>
+<section id="scenario-9-max-3-pages-loaded-simultaneously" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-9-max-3-pages-loaded-simultaneously">Scenario 9: Max 3 pages loaded simultaneously</h3>
+<pre><code>GIVEN an ingest source references 8 existing wiki pages
+WHEN Phase 2 identifies all 8 as update targets
+THEN the system SHALL read at most 3 pages at a time
+AND process them in batches: read 3, update 3, read next 3, update next 2
+AND all 8 pages SHALL be correctly updated after the ingest completes</code></pre>
+</section>
+<section id="scenario-10-namespace-depth-violation" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-10-namespace-depth-violation">Scenario 10: Namespace depth violation</h3>
+<pre><code>GIVEN a source describes an entity "Contact" under Wiki/Business/Clients/Acme
+WHEN the ingest would create Wiki/Business/Clients/Acme/Contact (depth 4)
+THEN the system SHALL NOT create the 4-level page
+AND the system SHALL instead add "Contact" as a section within the
+    Wiki/Business/Clients/Acme page
+AND the report SHALL note: "Namespace depth limit (3) reached, content merged
+    into parent page"</code></pre>
+</section>
+<section id="scenario-11-interactive-checkpoint-default-mode" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-11-interactive-checkpoint-default-mode">Scenario 11: Interactive checkpoint (default mode)</h3>
+<pre><code>GIVEN a source in raw/ and no --auto flag
+WHEN ingest completes the page operation plan (Phase 2)
+THEN the system pauses BEFORE any write and presents: planned page touches,
+    the source's reliability rating with rationale, detected contradictions,
+    and asks "what should I emphasize, skip, or route to L1?"
+AND the user answers "skip the pricing details, emphasize the method"
+THEN Phase 3 writes reflect that guidance</code></pre>
+</section>
+<section id="scenario-12-auto-drains-the-queue-without-prompts" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-12-auto-drains-the-queue-without-prompts">Scenario 12: –auto drains the queue without prompts</h3>
+<pre><code>GIVEN three sources in raw/ and the --auto flag
+WHEN ingest runs
+THEN no checkpoint prompt appears and all three sources are processed oldest-first
+AND the report includes each source's plan and reliability rating
+AND a quality-gate failure on source 2 still blocks source 2 (left in raw/)</code></pre>
+</section>
+<section id="scenario-13-secret-in-source-bytes-blocks-the-archive" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-13-secret-in-source-bytes-blocks-the-archive">Scenario 13: Secret in source bytes blocks the archive</h3>
+<pre><code>GIVEN a raw source file containing an API key string
+AND the synthesized pages contain no credential
+WHEN ingest reaches the pre-archive gate (REQ-045)
+THEN the file is NOT moved into ingested/ and NOT committed
+AND the warning names the match location and asks for redaction
+AND the wiki pages written from the source are reported as pending re-ingest</code></pre>
+</section>
+<section id="scenario-14-sensitive-source-type-stays-out-of-git" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-14-sensitive-source-type-stays-out-of-git">Scenario 14: Sensitive source type stays out of git</h3>
+<pre><code>GIVEN sensitive_source_types: [notes] in llm-wiki.yml
+AND a personal note in raw/ inferred as type notes
+WHEN ingest completes
+THEN wiki pages are written and source-file:: records ingested/notes/&lt;file&gt;
+AND the moved file's path is gitignored; its bytes never enter git history</code></pre>
+</section>
+<section id="scenario-15-daily-ingested-block-second-run-same-day" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-15-daily-ingested-block-second-run-same-day">Scenario 15: Daily Ingested block, second run same day</h3>
+<pre><code>GIVEN journals_dir resolves to journals/ and today is 2026-07-06
+AND journals/2026_07_06.md already has an Ingested block from a morning run:
+    - Ingested
+      - smith-2024 (papers) -&gt; [[wiki/learning/spaced-repetition]]
+        -
+      - (user's own note written under the bullet)
+WHEN /wiki-ingest processes clip-sanitation.md touching wiki/tech/sanitation
+THEN the system SHALL append ONE bullet to the EXISTING Ingested block:
+    "clip-sanitation (clippings) -&gt; [[wiki/tech/sanitation]]" plus an empty
+    child bullet for notes
+AND SHALL NOT create a second Ingested block
+AND SHALL NOT modify the morning bullets or the user's note (REQ-094)
+AND wiki/tech/sanitation SHALL carry journal:: linking today's journal page
+    (REQ-093, schema REQ-585c)
+AND the journal edit SHALL be in the same commit as the page edits and the
+    file move (REQ-095)</code></pre>
+</section>
+<section id="scenario-16-voice-note-routes-to-the-journal-by-default" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-16-voice-note-routes-to-the-journal-by-default">Scenario 16: Voice note routes to the journal by default</h3>
+<pre><code>GIVEN an unprocessed voice_notes row with a rambling 4-minute transcript
+WHEN /wiki-ingest processes it as a voice source (a --auto flag is declined
+    with a notice; the checkpoint always runs)
+THEN the default plan is a 2-4 line summary on today's journal page with
+    [[links]] and the provenance id archive.db:voice_notes/17
+AND no wiki page is touched unless the user opts in per row
+AND the row is marked processed only after the commit</code></pre>
+</section>
+<section id="scenario-17-people-row-requires-individual-confirmation" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-17-people-row-requires-individual-confirmation">Scenario 17: People row requires individual confirmation</h3>
+<pre><code>GIVEN the checkpoint plan contains a row updating a people page
+WHEN the checkpoint presents the plan
+THEN that row is shown with the FULL sentence to be written (no truncation)
+AND it is confirmed individually - it can never ride a batch confirmation
+AND declining it leaves the sentence in the journal summary or the transcript</code></pre>
+</section>
+<section id="scenario-18-sensitive-assessment-is-never-promoted" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-18-sensitive-assessment-is-never-promoted">Scenario 18: Sensitive assessment is never promoted</h3>
+<pre><code>GIVEN a transcript sentence assessing a named student's family situation
+WHEN the user confirms that row at the checkpoint anyway
+THEN the system SHALL NOT write it to any wiki page (REQ-085 overrides
+    confirmation)
+AND the content remains only in the transcript (archive.db)
+AND the checkpoint states why the row was withheld</code></pre>
+</section>
+<section id="scenario-19-data-package-version-update-keeps-old-claims-citable" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-19-data-package-version-update-keeps-old-claims-citable">Scenario 19: Data-package version update keeps old claims citable</h3>
+<pre><code>GIVEN data_packages lists larnsce/sanitationdata and the vault holds
+    ingested/data/sanitationdata-1.1.0/ with dataset pages stamped
+    data-last-sync:: 1.1.0
+AND a wiki page cites ingested/data/sanitationdata-1.1.0/toilets.csv
+WHEN data_pkg_sync.R --check reports 1.2.0 on GitHub
+AND the user runs /data-sync (dry-run reviewed, NEWS diff shown, confirmed)
+THEN a NEW snapshot ingested/data/sanitationdata-1.2.0/ is written
+AND the dataset pages' managed properties and description/data dictionary
+    sections regenerate; the user's own note blocks are untouched (REQ-102)
+AND the citing wiki page still points at the 1.1.0 path, which still exists
+AND with data_snapshots_keep: 3 the oldest unreferenced snapshot beyond
+    three is deleted; the cited 1.1.0 snapshot is NEVER deleted (REQ-105)</code></pre>
+</section>
+<section id="scenario-20-chat-voice-browse-and-conversation-write-nothing" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-20-chat-voice-browse-and-conversation-write-nothing">Scenario 20: Chat-voice browse and conversation write nothing</h3>
+<pre><code>GIVEN archive.db holds voice_notes rows 1 (processed) and 2 (unprocessed)
+WHEN the user runs /wiki-chat-voice
+THEN a picker lists both rows newest first, marked processed/unprocessed,
+    each with a runtime one-line description and 3-5 keywords
+AND the browse persists nothing (archive.db bytes are unchanged)
+AND after the user selects both and converses at length, no journal, page,
+    or archive.db write happens before the closing checkpoint is confirmed</code></pre>
+</section>
+<section id="scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip">Scenario 21: Chat-voice closing ingest cites notes, offers the flip</h3>
+<pre><code>GIVEN the conversation covered rows 1 and 2 and surfaced one wiki-worthy
+    claim grounded in row 2, plus one idea born purely in the discussion
+WHEN the user says "wrap up"
+THEN one checkpoint presents: the journal synthesis opening with the
+    pipeline status line, the claim offered with
+    cite:: archive.db:voice_notes/2 at reliability:: low, and a
+    processed-flip offer for row 2 only (row 1 is already processed)
+AND the discussion-born idea appears in the journal synthesis only; it is
+    not offered as a wiki claim (REQ-1204)
+AND row 2 is flipped only after the atomic commit succeeds</code></pre>
+<hr>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">All 5 phases execute in order (Analysis, Scan, Operations, Quality Gate, Report)</label></li>
+<li><label><input type="checkbox">URL, file path, and inline text sources all work</label></li>
+<li><label><input type="checkbox">New pages have ALL required properties per Schema</label></li>
+<li><label><input type="checkbox">Existing pages are never overwritten - only appended to</label></li>
+<li><label><input type="checkbox">Hub pages list all child pages after ingest</label></li>
+<li><label><input type="checkbox">Every created/updated active page has a routing line in its hub <code>### Index</code></label></li>
+<li><label><input type="checkbox">Every touched page has at least 1 cross-reference</label></li>
+<li><label><input type="checkbox">Credential patterns block the ingest</label></li>
+<li><label><input type="checkbox">Source bytes are scanned pre-archive; a match leaves the file in raw/</label></li>
+<li><label><input type="checkbox">Default mode pauses at the checkpoint before any write; –auto does not</label></li>
+<li><label><input type="checkbox">Ingested claim blocks carry cite:: per specs/citations.md (v2.1, with #17)</label></li>
+<li><label><input type="checkbox">Page touch warnings are emitted but do not block</label></li>
+<li><label><input type="checkbox">Works correctly in both Logseq and Obsidian modes</label></li>
+<li><label><input type="checkbox">Max 3 pages loaded simultaneously during processing</label></li>
+<li><label><input type="checkbox">Namespace depth never exceeds 3 levels</label></li>
+<li><label><input type="checkbox">All dates use ISO 8601 format</label></li>
+<li><label><input type="checkbox">Each run appends to the day’s single Ingested journal block; a second block is never created (REQ-090)</label></li>
+<li><label><input type="checkbox">Existing journal content, including the user’s notes under earlier bullets, is never modified (REQ-094)</label></li>
+<li><label><input type="checkbox">Every touched page carries journal:: linking today’s journal page (REQ-093)</label></li>
+<li><label><input type="checkbox">The journal edit rides the run’s atomic commit (REQ-095)</label></li>
+<li><label><input type="checkbox">Data-package sync writes a versioned snapshot; old snapshots stay citable; managed sections regenerate while human sections survive (REQ-100..103)</label></li>
+<li><label><input type="checkbox">Snapshot retention never deletes a referenced snapshot (REQ-105)</label></li>
+<li><label><input type="checkbox">–check detects staleness without writing (REQ-106)</label></li>
+<li><label><input type="checkbox">Voice sources always run the checkpoint; –auto never applies to them (v3.0)</label></li>
+<li><label><input type="checkbox">Voice wiki writes are per-row opt-in; people rows are confirmed individually with the full sentence shown</label></li>
+<li><label><input type="checkbox">Assessments of people are never promoted out of the checkpoint (v3.0)</label></li>
+<li><label><input type="checkbox">Voice provenance uses archive.db:voice_notes/<id> and is capture-backed (schema REQ-586b, audit REQ-927)</id></label></li>
+<li><label><input type="checkbox">Chat-voice browse is read-only; runtime digests are never persisted (REQ-1200)</label></li>
+<li><label><input type="checkbox">The conversation phase writes nothing; every write goes through the single closing checkpoint (REQ-1202/1203)</label></li>
+<li><label><input type="checkbox">Promoted claims cite voice note ids only; the conversation is never a cite target and never raises reliability (REQ-1204)</label></li>
+<li><label><input type="checkbox">Processed flips are per-note opt-in and happen only post-commit (REQ-1205)</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li><code>llm-wiki.yml</code> must exist and be valid</li>
+<li>Schema page must exist in the wiki</li>
+<li>specs/l1-l2-routing.md defines the L1/L2 routing decision logic used in Phase 1</li>
+<li>specs/storage.md defines archive.db and the <code>voice_notes</code> table consumed by the Voice Sources section (v3.0)</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/ingest.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

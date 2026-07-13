@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>config – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-configuration---llm-wiki.yml-loading-validation" id="toc-spec-configuration---llm-wiki.yml-loading-validation" class="nav-link active" data-scroll-target="#spec-configuration---llm-wiki.yml-loading-validation">Spec: Configuration - llm-wiki.yml Loading &amp; Validation</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#config-file-location" id="toc-config-file-location" class="nav-link" data-scroll-target="#config-file-location">Config File Location</a></li>
+  <li><a href="#config-discovery" id="toc-config-discovery" class="nav-link" data-scroll-target="#config-discovery">Config Discovery</a></li>
+  <li><a href="#required-keys" id="toc-required-keys" class="nav-link" data-scroll-target="#required-keys">Required Keys</a></li>
+  <li><a href="#optional-keys" id="toc-optional-keys" class="nav-link" data-scroll-target="#optional-keys">Optional Keys</a></li>
+  <li><a href="#validation-rules" id="toc-validation-rules" class="nav-link" data-scroll-target="#validation-rules">Validation Rules</a></li>
+  <li><a href="#path-handling" id="toc-path-handling" class="nav-link" data-scroll-target="#path-handling">Path Handling</a></li>
+  <li><a href="#tool-mode-propagation" id="toc-tool-mode-propagation" class="nav-link" data-scroll-target="#tool-mode-propagation">Tool Mode Propagation</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-valid-logseq-config" id="toc-scenario-1-valid-logseq-config" class="nav-link" data-scroll-target="#scenario-1-valid-logseq-config">Scenario 1: Valid Logseq config</a></li>
+  <li><a href="#scenario-2-valid-obsidian-config" id="toc-scenario-2-valid-obsidian-config" class="nav-link" data-scroll-target="#scenario-2-valid-obsidian-config">Scenario 2: Valid Obsidian config</a></li>
+  <li><a href="#scenario-3-config-file-missing" id="toc-scenario-3-config-file-missing" class="nav-link" data-scroll-target="#scenario-3-config-file-missing">Scenario 3: Config file missing</a></li>
+  <li><a href="#scenario-4-invalid-tool-value" id="toc-scenario-4-invalid-tool-value" class="nav-link" data-scroll-target="#scenario-4-invalid-tool-value">Scenario 4: Invalid tool value</a></li>
+  <li><a href="#scenario-5-wiki-path-does-not-exist" id="toc-scenario-5-wiki-path-does-not-exist" class="nav-link" data-scroll-target="#scenario-5-wiki-path-does-not-exist">Scenario 5: Wiki path does not exist</a></li>
+  <li><a href="#scenario-6-empty-namespaces" id="toc-scenario-6-empty-namespaces" class="nav-link" data-scroll-target="#scenario-6-empty-namespaces">Scenario 6: Empty namespaces</a></li>
+  <li><a href="#scenario-7-memory-path-missing---features-degraded" id="toc-scenario-7-memory-path-missing---features-degraded" class="nav-link" data-scroll-target="#scenario-7-memory-path-missing---features-degraded">Scenario 7: Memory path missing - features degraded</a></li>
+  <li><a href="#scenario-8-tilde-expansion-in-paths" id="toc-scenario-8-tilde-expansion-in-paths" class="nav-link" data-scroll-target="#scenario-8-tilde-expansion-in-paths">Scenario 8: Tilde expansion in paths</a></li>
+  <li><a href="#scenario-9-discovery-from-a-project-directory" id="toc-scenario-9-discovery-from-a-project-directory" class="nav-link" data-scroll-target="#scenario-9-discovery-from-a-project-directory">Scenario 9: Discovery from a project directory</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/config.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-configuration---llm-wiki.yml-loading-validation" class="level1">
+<h1>Spec: Configuration - llm-wiki.yml Loading &amp; Validation</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>Every wiki skill reads <code>llm-wiki.yml</code> before doing anything else. This config file determines tool mode (Logseq vs Obsidian), file paths, and namespace structure. All downstream behavior depends on this file being valid.</p>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="config-file-location" class="level3">
+<h3 class="anchored" data-anchor-id="config-file-location">Config File Location</h3>
+<ul>
+<li>REQ-600: The config file MUST be named <code>llm-wiki.yml</code> and located in the wiki root directory (the path specified as <code>wiki_path</code> in the config itself).</li>
+<li>REQ-601: Every wiki skill (ingest, query, lint, maintain) MUST read the config file as its first operation, before any wiki page operations.</li>
+<li>REQ-602: If no config file can be discovered (REQ-652), the system SHALL display an error: “llm-wiki.yml not found. Run /wiki-setup to create one.” and abort.</li>
+</ul>
+</section>
+<section id="config-discovery" class="level3">
+<h3 class="anchored" data-anchor-id="config-discovery">Config Discovery</h3>
+<ul>
+<li>REQ-652: Commands SHALL locate <code>llm-wiki.yml</code> in this order, first hit wins:
+<ol type="1">
+<li>the path in the <code>LLM_WIKI_CONFIG</code> environment variable, if set;</li>
+<li>walking up from the current working directory to <code>$HOME</code> (inclusive);</li>
+<li>the global pointer file <code>~/.config/llm-wiki/config.yml</code>, whose <code>wiki_path</code> names the wiki root containing the real <code>llm-wiki.yml</code>.</li>
+</ol></li>
+<li>REQ-653: The global pointer file is written by /wiki-setup so that the wiki skills work from any project directory. It contains only <code>wiki_path</code>.</li>
+<li>REQ-654: When discovery fails at all three steps, the REQ-602 error applies.</li>
+</ul>
+</section>
+<section id="required-keys" class="level3">
+<h3 class="anchored" data-anchor-id="required-keys">Required Keys</h3>
+<ul>
+<li>REQ-610: The config MUST contain the key <code>tool</code> with value <code>logseq</code> or <code>obsidian</code>. No other values are allowed.</li>
+<li>REQ-611: The config MUST contain the key <code>wiki_path</code> with an absolute or tilde-expandable path to the wiki root directory.</li>
+<li>REQ-612: The config MUST contain the key <code>pages_dir</code> with a path relative to <code>wiki_path</code>. For Logseq this is typically <code>pages</code>. For Obsidian this is typically an empty string.</li>
+<li>REQ-613: The config MUST contain the key <code>namespaces</code> with a non-empty array of namespace names.</li>
+</ul>
+</section>
+<section id="optional-keys" class="level3">
+<h3 class="anchored" data-anchor-id="optional-keys">Optional Keys</h3>
+<ul>
+<li>REQ-620: The config MAY contain the key <code>memory_path</code> with a path to the L1 memory directory. If absent, L1 Memory features (query supplementation, L1/L2 duplicate detection) are disabled.</li>
+<li>REQ-623: The config MAY configure the source pipeline with the keys <code>raw_dir</code> (default <code>raw</code>), <code>ingested_dir</code> (default <code>ingested</code>), <code>source_types</code> (array; default <code>papers, clippings, articles, data, notes, assets</code>), and <code>default_source_type</code> (one of <code>source_types</code>). When these keys are absent the source pipeline (specs/ingest.md Source Pipeline section) is disabled and ingest behaves as the base workflow.</li>
+<li>REQ-624: The config MAY contain <code>sensitive_source_types</code>: an array of source types (subset of <code>source_types</code>) whose archived bytes MUST NOT enter git history (specs/ingest.md REQ-046). Typical values: <code>notes</code>, <code>data</code>. This key already covers PII in promoted <code>para/</code>/<code>notes/</code> content (specs/namespaces.md REQ-981); no additional key is needed for the human namespaces.</li>
+<li>REQ-625: The config MAY contain the keys <code>para_dir</code> (default <code>para</code>) and <code>notes_dir</code> (default <code>notes</code>): paths relative to the pages directory naming the human-owned namespaces (specs/namespaces.md). They are recognized by the namespace scope rule and the namespace-hygiene lint check; when absent, the defaults apply and the namespaces are still recognized.</li>
+<li>REQ-626: The config MAY contain the key <code>archive_db</code> (default <code>~/archive/archive.db</code>, the convention of <code>docs/voice-pipeline.md</code>): the path to the archive.db capture database consumed by the voice ingest workflow (specs/ingest.md Voice Sources; specs/storage.md). The path is expanded like <code>wiki_path</code> (tilde to <code>$HOME</code>) and is NOT required to exist: absence of the file means the voice queue is empty, not a config error. The placement invariants of specs/storage.md REQ-1103 (outside git, or gitignored) bind whatever value is configured; validation is shape-only.</li>
+<li>REQ-627: The config MAY contain the key <code>index_db</code> (default <code>~/archive/index.db</code>): the path where <code>rebuild_index.py</code> writes the derived, disposable index database (specs/storage.md REQ-1130..1133). Expanded like <code>wiki_path</code>; not required to exist (the first rebuild creates it). The REQ-1103 placement invariants bind the value: when the path resolves inside the vault’s git-tracked tree and is not gitignored, the rebuild SHALL refuse to write.</li>
+<li>REQ-628: The config MAY contain the key <code>glossary_dir</code> (default <code>glossary</code>): the path, relative to the pages directory, naming the human-decided glossary namespace (<code>specs/glossary.md</code>, <code>specs/namespaces.md</code> REQ-960/980). Recognized by namespace-hygiene (lint rule 14) and the glossary structure check (rule 15); when absent, the default applies and the namespace is still recognized. Shape rules as for <code>para_dir</code>/<code>notes_dir</code> (REQ-625).</li>
+<li>REQ-629: The config MAY contain the key <code>journals_dir</code> (default <code>journals</code>): the path, relative to <code>wiki_path</code>, naming the journal (daily notes) directory. For Logseq this is the native <code>journals/</code> directory, a sibling of <code>pages/</code>; for Obsidian it is the daily-notes folder relative to the vault root. Consumed by the journal seam (specs/ingest.md REQ-090..095), page enumeration pruning, and the namespace classification in lint. When absent, the default applies and journal pages are still recognized. Shape rules as for <code>para_dir</code>/<code>notes_dir</code> (REQ-625). The journal namespace stays human-owned; the journal seam’s daily Ingested block is the single sanctioned machine write into it.</li>
+<li>REQ-660: The config MAY contain the key <code>data_packages</code>: an array of GitHub slugs (<code>owner/repo</code>) naming registered R data packages consumed by the data-package seam (specs/ingest.md REQ-100..106, <code>scripts/data_pkg_sync.R</code>). When absent, the seam is inert.</li>
+<li>REQ-661: The config MAY contain the key <code>data_snapshots_keep</code> (default <code>3</code>): how many versioned snapshots per package the retention pass keeps under <code>ingested/data/</code>. A snapshot referenced by any page’s <code>cite::</code> or <code>source-file::</code> is NEVER deleted regardless of this value (ingest REQ-105). Must be a positive integer.</li>
+</ul>
+</section>
+<section id="validation-rules" class="level3">
+<h3 class="anchored" data-anchor-id="validation-rules">Validation Rules</h3>
+<ul>
+<li>REQ-630: If <code>tool</code> is not <code>logseq</code> or <code>obsidian</code>, the system SHALL display: “Invalid tool ‘{value}’. Must be ‘logseq’ or ‘obsidian’.” and abort.</li>
+<li>REQ-631: If <code>wiki_path</code> does not exist on disk (after tilde expansion), the system SHALL display: “Wiki path ‘{path}’ does not exist.” and abort.</li>
+<li>REQ-632: If <code>pages_dir</code> is non-empty and the resolved directory (<code>wiki_path/pages_dir</code>) does not exist, the system SHALL display a warning but continue (the directory may be created during setup).</li>
+<li>REQ-633: If <code>namespaces</code> is empty or missing, the system SHALL display: “No namespaces configured in llm-wiki.yml.” and abort.</li>
+<li>REQ-634: Namespace names SHOULD follow the structural naming rules in specs/schema.md (REQ-580..581: lowercase, hyphenated; e.g.&nbsp;<code>tech</code>, not <code>Tech</code>). A non-conforming name SHALL trigger a warning but not abort. The mechanical advisory in code flips from the old Title Case check with the lowercase migration (issue #25); pre-migration Title Case corpora warn under the grandfather floor.</li>
+</ul>
+</section>
+<section id="path-handling" class="level3">
+<h3 class="anchored" data-anchor-id="path-handling">Path Handling</h3>
+<ul>
+<li>REQ-640: The system SHALL expand <code>~</code> to <code>$HOME</code> in <code>wiki_path</code> and <code>memory_path</code> before use.</li>
+<li>REQ-641: The system SHALL resolve <code>pages_dir</code> relative to <code>wiki_path</code>: <code>full_pages_path = wiki_path + "/" + pages_dir</code>.</li>
+<li>REQ-642: For Obsidian with empty <code>pages_dir</code>, <code>full_pages_path</code> equals <code>wiki_path</code>.</li>
+</ul>
+</section>
+<section id="tool-mode-propagation" class="level3">
+<h3 class="anchored" data-anchor-id="tool-mode-propagation">Tool Mode Propagation</h3>
+<ul>
+<li>REQ-650: The <code>tool</code> value determines ALL downstream format decisions:
+<ul>
+<li>Property syntax (inline vs YAML frontmatter)</li>
+<li>File naming (triple-underscore vs directory hierarchy)</li>
+<li>Content format (outliner blocks vs flat markdown)</li>
+<li>Hub file naming (<code>Wiki___Namespace.md</code> vs <code>Wiki/Namespace/_index.md</code>)</li>
+</ul></li>
+<li>REQ-651: The tool mode MUST be consistent across ALL wiki operations in a single session. Switching tools mid-session is not supported.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-valid-logseq-config" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-valid-logseq-config">Scenario 1: Valid Logseq config</h3>
+<pre><code>GIVEN llm-wiki.yml contains:
+    tool: logseq
+    wiki_path: /home/user/Documents/Logseq
+    pages_dir: pages
+    memory_path: ~/.claude/projects/myproject/memory/
+    namespaces:
+      - Business
+      - Tech
+      - Projects
+AND /home/user/Documents/Logseq/pages/ exists on disk
+WHEN any wiki skill starts
+THEN the system SHALL load the config successfully
+AND set tool mode to Logseq (outliner format, triple-underscore files)
+AND resolve pages path to /home/user/Documents/Logseq/pages/</code></pre>
+</section>
+<section id="scenario-2-valid-obsidian-config" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-valid-obsidian-config">Scenario 2: Valid Obsidian config</h3>
+<pre><code>GIVEN llm-wiki.yml contains:
+    tool: obsidian
+    wiki_path: ~/Documents/ObsidianVault
+    pages_dir: ""
+    namespaces:
+      - Business
+      - Tech
+AND ~/Documents/ObsidianVault/ exists on disk
+WHEN any wiki skill starts
+THEN the system SHALL load the config successfully
+AND set tool mode to Obsidian (flat markdown, directory hierarchy)
+AND resolve pages path to /home/user/Documents/ObsidianVault/</code></pre>
+</section>
+<section id="scenario-3-config-file-missing" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-config-file-missing">Scenario 3: Config file missing</h3>
+<pre><code>GIVEN no llm-wiki.yml file exists in the wiki root
+WHEN the user runs /wiki-ingest "some source"
+THEN the system SHALL display: "llm-wiki.yml not found. Run setup.sh to create one."
+AND abort without modifying any files</code></pre>
+</section>
+<section id="scenario-4-invalid-tool-value" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-invalid-tool-value">Scenario 4: Invalid tool value</h3>
+<pre><code>GIVEN llm-wiki.yml contains tool: notion
+WHEN the user runs any wiki skill
+THEN the system SHALL display: "Invalid tool 'notion'. Must be 'logseq' or 'obsidian'."
+AND abort without modifying any files</code></pre>
+</section>
+<section id="scenario-5-wiki-path-does-not-exist" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-wiki-path-does-not-exist">Scenario 5: Wiki path does not exist</h3>
+<pre><code>GIVEN llm-wiki.yml contains wiki_path: /home/user/nonexistent/path
+AND that path does not exist on disk
+WHEN the user runs any wiki skill
+THEN the system SHALL display: "Wiki path '/home/user/nonexistent/path' does not exist."
+AND abort without modifying any files</code></pre>
+</section>
+<section id="scenario-6-empty-namespaces" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-empty-namespaces">Scenario 6: Empty namespaces</h3>
+<pre><code>GIVEN llm-wiki.yml contains namespaces: []
+WHEN the user runs any wiki skill
+THEN the system SHALL display: "No namespaces configured in llm-wiki.yml."
+AND abort</code></pre>
+</section>
+<section id="scenario-7-memory-path-missing---features-degraded" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-memory-path-missing---features-degraded">Scenario 7: Memory path missing - features degraded</h3>
+<pre><code>GIVEN llm-wiki.yml has no memory_path key
+WHEN the user runs /wiki-query "some question"
+THEN the system SHALL proceed without L1 Memory consultation
+AND NOT display an error (memory_path is optional)
+AND the answer SHALL be based on wiki pages only</code></pre>
+</section>
+<section id="scenario-8-tilde-expansion-in-paths" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-8-tilde-expansion-in-paths">Scenario 8: Tilde expansion in paths</h3>
+<pre><code>GIVEN llm-wiki.yml contains:
+    wiki_path: ~/Documents/MyWiki
+    memory_path: ~/.claude/projects/x/memory/
+AND the user's HOME is /home/user
+WHEN the system loads the config
+THEN wiki_path SHALL resolve to /home/user/Documents/MyWiki
+AND memory_path SHALL resolve to /home/user/.claude/projects/x/memory/</code></pre>
+<hr>
+</section>
+<section id="scenario-9-discovery-from-a-project-directory" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-9-discovery-from-a-project-directory">Scenario 9: Discovery from a project directory</h3>
+<pre><code>GIVEN the wiki lives at ~/notes with ~/notes/llm-wiki.yml
+AND ~/.config/llm-wiki/config.yml contains wiki_path: ~/notes
+AND the user runs a wiki skill from ~/projects/some-repo (no config in the walk-up)
+WHEN config discovery runs (REQ-652)
+THEN LLM_WIKI_CONFIG is unset, the walk-up finds nothing, and the pointer file
+    resolves the config at ~/notes/llm-wiki.yml</code></pre>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Config read as first operation of every wiki skill</label></li>
+<li><label><input type="checkbox">Missing config file produces clear error with setup.sh hint</label></li>
+<li><label><input type="checkbox">tool value strictly validated (logseq or obsidian only)</label></li>
+<li><label><input type="checkbox">wiki_path validated (must exist on disk)</label></li>
+<li><label><input type="checkbox">namespaces validated (must be non-empty)</label></li>
+<li><label><input type="checkbox">memory_path is optional (features degrade gracefully)</label></li>
+<li><label><input type="checkbox">Tilde expansion works in all path fields</label></li>
+<li><label><input type="checkbox">Tool mode propagates to all downstream operations</label></li>
+<li><label><input type="checkbox">Invalid config values produce clear, specific error messages</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li>setup.sh creates this config file (see specs/setup.md)</li>
+<li>All other specs (ingest, query, lint) depend on config being loaded first</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/config.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

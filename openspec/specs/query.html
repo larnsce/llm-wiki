@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>query – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-wiki-query---knowledge-retrieval-synthesis" id="toc-spec-wiki-query---knowledge-retrieval-synthesis" class="nav-link active" data-scroll-target="#spec-wiki-query---knowledge-retrieval-synthesis">Spec: /wiki-query - Knowledge Retrieval &amp; Synthesis</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#phase-0-routing-stage-1-cheap-index-read" id="toc-phase-0-routing-stage-1-cheap-index-read" class="nav-link" data-scroll-target="#phase-0-routing-stage-1-cheap-index-read">Phase 0: Routing (Stage 1 — cheap index read)</a></li>
+  <li><a href="#phase-1-targeted-read-stage-2-only-the-chosen-pages" id="toc-phase-1-targeted-read-stage-2-only-the-chosen-pages" class="nav-link" data-scroll-target="#phase-1-targeted-read-stage-2-only-the-chosen-pages">Phase 1: Targeted Read (Stage 2 — only the chosen pages)</a></li>
+  <li><a href="#phase-1b-access-logging-lru-signal" id="toc-phase-1b-access-logging-lru-signal" class="nav-link" data-scroll-target="#phase-1b-access-logging-lru-signal">Phase 1b: Access Logging (LRU signal)</a></li>
+  <li><a href="#phase-2-synthesize" id="toc-phase-2-synthesize" class="nav-link" data-scroll-target="#phase-2-synthesize">Phase 2: Synthesize</a></li>
+  <li><a href="#phase-3-optional-write-back" id="toc-phase-3-optional-write-back" class="nav-link" data-scroll-target="#phase-3-optional-write-back">Phase 3: Optional Write-Back</a></li>
+  <li><a href="#phase-4-output" id="toc-phase-4-output" class="nav-link" data-scroll-target="#phase-4-output">Phase 4: Output</a></li>
+  <li><a href="#two-plane-routing-v3.0-p-5" id="toc-two-plane-routing-v3.0-p-5" class="nav-link" data-scroll-target="#two-plane-routing-v3.0-p-5">Two-Plane Routing (v3.0 P-5)</a></li>
+  <li><a href="#data-reads-data-package-seam" id="toc-data-reads-data-package-seam" class="nav-link" data-scroll-target="#data-reads-data-package-seam">Data Reads (data-package seam)</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-simple-question-single-page-match" id="toc-scenario-1-simple-question-single-page-match" class="nav-link" data-scroll-target="#scenario-1-simple-question-single-page-match">Scenario 1: Simple question — single page match</a></li>
+  <li><a href="#scenario-2-complex-question-multi-page-synthesis" id="toc-scenario-2-complex-question-multi-page-synthesis" class="nav-link" data-scroll-target="#scenario-2-complex-question-multi-page-synthesis">Scenario 2: Complex question — multi-page synthesis</a></li>
+  <li><a href="#scenario-3-no-results-wiki-gap-detected" id="toc-scenario-3-no-results-wiki-gap-detected" class="nav-link" data-scroll-target="#scenario-3-no-results-wiki-gap-detected">Scenario 3: No results — wiki gap detected</a></li>
+  <li><a href="#scenario-4-stale-source-flagged" id="toc-scenario-4-stale-source-flagged" class="nav-link" data-scroll-target="#scenario-4-stale-source-flagged">Scenario 4: Stale source flagged</a></li>
+  <li><a href="#scenario-5-low-confidence-source-flagged" id="toc-scenario-5-low-confidence-source-flagged" class="nav-link" data-scroll-target="#scenario-5-low-confidence-source-flagged">Scenario 5: Low-confidence source flagged</a></li>
+  <li><a href="#scenario-6-write-back-offered-and-accepted" id="toc-scenario-6-write-back-offered-and-accepted" class="nav-link" data-scroll-target="#scenario-6-write-back-offered-and-accepted">Scenario 6: Write-back offered and accepted</a></li>
+  <li><a href="#scenario-7-write-back-offered-and-declined" id="toc-scenario-7-write-back-offered-and-declined" class="nav-link" data-scroll-target="#scenario-7-write-back-offered-and-declined">Scenario 7: Write-back offered and declined</a></li>
+  <li><a href="#scenario-8-l1-memory-supplements-wiki-answer" id="toc-scenario-8-l1-memory-supplements-wiki-answer" class="nav-link" data-scroll-target="#scenario-8-l1-memory-supplements-wiki-answer">Scenario 8: L1 Memory supplements wiki answer</a></li>
+  <li><a href="#scenario-9-contradicting-sources" id="toc-scenario-9-contradicting-sources" class="nav-link" data-scroll-target="#scenario-9-contradicting-sources">Scenario 9: Contradicting sources</a></li>
+  <li><a href="#scenario-10-batching-when-many-pages-match" id="toc-scenario-10-batching-when-many-pages-match" class="nav-link" data-scroll-target="#scenario-10-batching-when-many-pages-match">Scenario 10: Batching when many pages match</a></li>
+  <li><a href="#scenario-11-two-stage-routing-via-hub-index" id="toc-scenario-11-two-stage-routing-via-hub-index" class="nav-link" data-scroll-target="#scenario-11-two-stage-routing-via-hub-index">Scenario 11: Two-stage routing via hub index</a></li>
+  <li><a href="#scenario-12-l3-fallback-when-routing-finds-nothing" id="toc-scenario-12-l3-fallback-when-routing-finds-nothing" class="nav-link" data-scroll-target="#scenario-12-l3-fallback-when-routing-finds-nothing">Scenario 12: L3 fallback when routing finds nothing</a></li>
+  <li><a href="#scenario-13-re-promote-an-evicted-page-on-re-hit" id="toc-scenario-13-re-promote-an-evicted-page-on-re-hit" class="nav-link" data-scroll-target="#scenario-13-re-promote-an-evicted-page-on-re-hit">Scenario 13: Re-promote an evicted page on re-hit</a></li>
+  <li><a href="#scenario-14-two-plane-routing-with-a-stale-index-v3.0-p-5" id="toc-scenario-14-two-plane-routing-with-a-stale-index-v3.0-p-5" class="nav-link" data-scroll-target="#scenario-14-two-plane-routing-with-a-stale-index-v3.0-p-5">Scenario 14: Two-plane routing with a stale index (v3.0 P-5)</a></li>
+  <li><a href="#scenario-15-dual-register-answer-with-a-stale-source-warning" id="toc-scenario-15-dual-register-answer-with-a-stale-source-warning" class="nav-link" data-scroll-target="#scenario-15-dual-register-answer-with-a-stale-source-warning">Scenario 15: Dual-register answer with a stale-source warning</a></li>
+  <li><a href="#scenario-16-entity-question-ignores-the-index-plane" id="toc-scenario-16-entity-question-ignores-the-index-plane" class="nav-link" data-scroll-target="#scenario-16-entity-question-ignores-the-index-plane">Scenario 16: Entity question ignores the index plane</a></li>
+  <li><a href="#scenario-17-aggregate-question-computed-from-a-snapshot-csv" id="toc-scenario-17-aggregate-question-computed-from-a-snapshot-csv" class="nav-link" data-scroll-target="#scenario-17-aggregate-question-computed-from-a-snapshot-csv">Scenario 17: Aggregate question computed from a snapshot CSV</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/query.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-wiki-query---knowledge-retrieval-synthesis" class="level1">
+<h1>Spec: /wiki-query - Knowledge Retrieval &amp; Synthesis</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The query command searches the wiki for information relevant to a user’s question, synthesizes an answer from multiple sources, and optionally creates new pages to fill knowledge gaps. It is the primary read path — the counterpart to ingest (write path).</p>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="phase-0-routing-stage-1-cheap-index-read" class="level3">
+<h3 class="anchored" data-anchor-id="phase-0-routing-stage-1-cheap-index-read">Phase 0: Routing (Stage 1 — cheap index read)</h3>
+<ul>
+<li>REQ-440: The system SHALL read <code>llm-wiki.yml</code> first to determine tool mode, wiki path, and memory path.</li>
+<li>REQ-441: The system SHALL parse the user’s question to identify candidate namespaces and entity names.</li>
+<li>REQ-442: The system SHALL read ONLY the hub page of each candidate namespace — NOT every full page in that namespace — to obtain its <code>### Index</code> routing lines.</li>
+<li>REQ-443: The system SHALL match the routing lines (<code>[[link]] -- description #tags</code>) in the hub <code>### Index</code> against the question and select the 3 most relevant child pages (maximum 5). This two-stage routing is the default retrieval path.</li>
+<li>REQ-444: The system SHALL treat full-text grep over all wiki pages as an L3 FALLBACK, used only when routing yields nothing usable (namespace unclear, hub index missing or empty, or no routing line matches) — NOT as the default path.</li>
+</ul>
+</section>
+<section id="phase-1-targeted-read-stage-2-only-the-chosen-pages" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1-targeted-read-stage-2-only-the-chosen-pages">Phase 1: Targeted Read (Stage 2 — only the chosen pages)</h3>
+<ul>
+<li>REQ-400: The system SHALL read ONLY the pages selected in Phase 0 (or, on the L3 fallback, the top 3-5 grep matches).</li>
+<li>REQ-404: The system SHALL load at most 3 pages simultaneously (JIT retrieval). If more than 3 are relevant, read in batches.</li>
+<li>REQ-405: The system SHOULD also read L1 Memory files when the question touches topics that may have operational rules or gotchas stored there.</li>
+</ul>
+</section>
+<section id="phase-1b-access-logging-lru-signal" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1b-access-logging-lru-signal">Phase 1b: Access Logging (LRU signal)</h3>
+<ul>
+<li>REQ-450: For each page READ IN FULL (Phase 1, not the Phase 0 hub-index reads), the system SHALL append one line to the Access-Log page (<code>Wiki/Reference/Access-Log</code>): <code>&lt;ISO-date&gt; -- [[Wiki/NS/Page]] -- query -- matched: "&lt;reason&gt;"</code>.</li>
+<li>REQ-450b: The <code>matched:</code> reason SHALL record WHY the page was selected (routing transparency): the matched hub <code>### Index</code> routing description / #tag on index routing, or the grep term on the L3 fallback. It SHALL be &lt;= 60 characters, quoted. Legacy lines without a <code>matched:</code> field SHALL remain valid (the field is additive, optional-backward), and the <code>matched:</code> suffix SHALL NOT affect prune/status parsing (split on <code>--</code>).</li>
+<li>REQ-451: The Access-Log append SHALL be non-structural — the system MUST NOT create a git commit per query. The append rides along with the next prune/lint/ingest commit.</li>
+<li>REQ-452: If the L3 fallback reads a page marked <code>archived::</code> (a re-hit on an evicted page), the system SHOULD offer to re-promote it: move its routing line from the hub <code>### Archive</code> back into <code>### Index</code> and remove the archived properties.</li>
+</ul>
+</section>
+<section id="phase-2-synthesize" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-synthesize">Phase 2: Synthesize</h3>
+<ul>
+<li>REQ-410: The system SHALL combine information from multiple wiki pages into a coherent answer, not just dump raw page content.</li>
+<li>REQ-411: The system SHALL check the <code>confidence::</code> property of each source page and weight high-confidence sources over low-confidence ones.</li>
+<li>REQ-412: The system SHALL check the <code>updated::</code> date of each source page and flag sources older than 90 days as potentially stale.</li>
+<li>REQ-413: The system SHALL note when sources contradict each other and present both perspectives rather than silently choosing one.</li>
+<li>REQ-414: The system MUST NOT fabricate information that is not present in the wiki or L1 memory. If the wiki does not contain an answer, say so.</li>
+</ul>
+</section>
+<section id="phase-3-optional-write-back" class="level3">
+<h3 class="anchored" data-anchor-id="phase-3-optional-write-back">Phase 3: Optional Write-Back</h3>
+<ul>
+<li>REQ-420: If the query reveals a knowledge gap (question has no answer in the wiki), the system SHOULD offer to create a new page.</li>
+<li>REQ-421: If the synthesis produces a useful summary that does not exist as a wiki page, the system SHOULD offer to save it as a new page.</li>
+<li>REQ-422: The system MUST NOT write any pages without explicit user confirmation. Write-back is always opt-in, never automatic.</li>
+<li>REQ-423: Write-back operations SHALL follow the same rules as ingest Phase 3 (required properties, append-only, cross-references, hub updates).</li>
+</ul>
+</section>
+<section id="phase-4-output" class="level3">
+<h3 class="anchored" data-anchor-id="phase-4-output">Phase 4: Output</h3>
+<ul>
+<li>REQ-430: The system SHALL include source attribution in every answer, listing the wiki pages used: “Sources: [[Wiki/Tech/Strapi]], [[Wiki/Reference/Workflows]]”</li>
+<li>REQ-431: The system SHALL explicitly flag stale sources (updated:: &gt; 90 days) with a warning: “Note: [[Wiki/Tech/X]] was last updated [date] and may be outdated.”</li>
+<li>REQ-432: The system SHALL explicitly flag low-confidence sources with a warning: “Note: [[Wiki/Learning/Y]] has confidence:: low — verify before acting on this.”</li>
+<li>REQ-433: The system SHOULD suggest related pages that the user might want to explore further, even if they were not directly used in the answer.</li>
+<li>REQ-434: If no relevant pages are found, the system SHALL clearly state: “No information found in the wiki for this topic.” and offer to create a page via write-back (REQ-420).</li>
+<li>REQ-435 (dual register): Every answer SHALL be delivered in two registers, in fixed order: first the PRECISE register (the REQ-410..414 synthesis, technical vocabulary intact), then the PLAIN register under the marker heading <code>In plain terms</code>. Both are always present, including the no-results case (REQ-434), where the plain register restates that the wiki has no answer.</li>
+<li>REQ-436 (plain-register discipline): The plain register SHALL restate the SAME facts and caveats as the precise register in language a non-specialist can follow: no unexplained jargon (an unavoidable technical term is explained in the sentence that uses it), and NO new claims (REQ-414 binds both registers). Staleness (REQ-431), low-confidence (REQ-432), and contradiction (REQ-413) warnings SHALL appear in BOTH registers, phrased appropriately for each; the plain register never drops a warning.</li>
+<li>REQ-437 (shared attribution): Source attribution (REQ-430) and plane attribution (REQ-463) SHALL appear ONCE per answer, after both registers, shared by them; they are not duplicated per register.</li>
+</ul>
+</section>
+<section id="two-plane-routing-v3.0-p-5" class="level3">
+<h3 class="anchored" data-anchor-id="two-plane-routing-v3.0-p-5">Two-Plane Routing (v3.0 P-5)</h3>
+<p>Extends Phase 0 when the storage plane (specs/storage.md) is configured: an <code>index_db</code> key in the config (config REQ-627) and an index.db built by <code>rebuild_index.py</code>. Without the key or the file, every requirement below is inert and query behaves exactly as REQ-440..444.</p>
+<ul>
+<li>REQ-460 (routing decision): Entity and topic questions (“what do we know about X”, “how do I Y”) SHALL route to the markdown plane: hub routing per REQ-440..444, unchanged, the default. Aggregate questions (counts or lists across many pages), temporal questions (date-range lookups over journals and meetings), and needle-in-haystack full-text questions (“which page mentions X”) SHALL route to index.db SQL. Routing is a judgment made from the question’s shape; when in doubt, the markdown plane wins.</li>
+<li>REQ-461 (staleness before every index read, storage REQ-1133): before answering from index.db, the system SHALL run <code>rebuild_index.py --stale-check</code>. On exit 1 it SHALL either rebuild (<code>rebuild_index.py</code>) and then answer, or answer from the stale index WITH an explicit staleness warning in the output. It SHALL NOT answer from a stale index silently. No hook rebuilds the index; this query-time check is the only trigger.</li>
+<li>REQ-462 (SQL reads only, frozen schema): index.db access SHALL use python3’s stdlib <code>sqlite3</code> and SHALL be SELECT-only against the REQ-1130 schema. The three starting shapes: people lookup (<code>SELECT page, name, aliases FROM people WHERE ...</code>), meetings by date range (<code>SELECT page, date, text FROM meetings WHERE date BETWEEN ...</code>), and full-text (<code>SELECT page FROM page_text WHERE page_text MATCH ...</code>). The query workflow never writes to index.db (writes happen only through <code>rebuild_index.py</code>).</li>
+<li>REQ-463 (plane attribution): Every answer SHALL state which plane answered: pages, index.db, or both (e.g.&nbsp;<code>Sources: [[wiki/tech/docker]]; index.db (meetings, 12 rows)</code>). An honest answer names its plane; this is the two-plane counterpart of REQ-430.</li>
+<li>REQ-464 (index results are pointers, not sources): index.db only re-arranges the markdown (storage REQ-1132), so content claims in the answer SHALL come from pages: an FTS or table hit routes a Phase 1 page read (the hit’s <code>page</code> value), it is not quoted as page content itself. Aggregate answers (counts, lists of page names or dates) MAY come from SQL alone, attributed to index.db. Pages read after an index hit are Access-Logged per REQ-450, with the matched reason recording the index route (e.g.&nbsp;<code>fts: &lt;term&gt;</code> or <code>meetings: &lt;range&gt;</code>).</li>
+</ul>
+</section>
+<section id="data-reads-data-package-seam" class="level3">
+<h3 class="anchored" data-anchor-id="data-reads-data-package-seam">Data Reads (data-package seam)</h3>
+<p>Extends Phases 0-2 when dataset pages exist (specs/ingest.md REQ-100..106). Without them, every requirement below is inert.</p>
+<ul>
+<li>REQ-470 (routing): Questions about a dataset’s contents (aggregates, lookups, “which rows…”) SHALL route via the <code>wiki/data</code> hub and the dataset pages’ <code>## data dictionary</code> sections; the dictionary is the routing key that picks the dataset and columns without opening any CSV.</li>
+<li>REQ-471 (snapshot compute): Row-level answers SHALL be computed from the snapshot CSVs at the dataset page’s <code>source-file::</code> paths, READ-ONLY, using python3 stdlib (csv/sqlite3). The answer SHALL attribute the computation with the file, package version, and row count, e.g.&nbsp;<code>computed from ingested/data/sanitationdata-1.2.0/ toilets.csv (1,234 rows)</code>. Dual-register output (REQ-435..437) applies to computed answers like any other.</li>
+<li>REQ-472 (no live-session sourcing): A live R session (e.g.&nbsp;via an mcptools MCP server) is NOT a query source: content answers come from snapshots so they stay reproducible from the vault alone and pinned to the version the page records. (A spec’d live plane is parked by maintainer decision, 2026-07-07.)</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-simple-question-single-page-match" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-simple-question-single-page-match">Scenario 1: Simple question — single page match</h3>
+<pre><code>GIVEN the wiki contains Wiki/Tech/Strapi with content about Strapi CMS
+AND the page has confidence:: high and updated:: 2026-04-01
+WHEN the user runs /wiki-query "what port does Strapi use?"
+THEN the system SHALL read Wiki/Tech/Strapi
+AND synthesize an answer from that page's content
+AND output: "Sources: [[Wiki/Tech/Strapi]]"
+AND NOT flag the source as stale (updated 9 days ago)</code></pre>
+</section>
+<section id="scenario-2-complex-question-multi-page-synthesis" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-complex-question-multi-page-synthesis">Scenario 2: Complex question — multi-page synthesis</h3>
+<pre><code>GIVEN the wiki contains:
+    - Wiki/Tech/Deployment (deploy process, VPS details)
+    - Wiki/Tech/Strapi (CMS configuration, port settings)
+    - Wiki/Reference/Workflows (deploy workflow steps)
+WHEN the user runs /wiki-query "how do I deploy a new blog post?"
+THEN the system SHALL read all 3 pages (batching if needed)
+AND combine deployment steps from Workflows with Strapi API details
+AND present a coherent answer (not just 3 raw page dumps)
+AND output: "Sources: [[Wiki/Tech/Deployment]], [[Wiki/Tech/Strapi]],
+    [[Wiki/Reference/Workflows]]"</code></pre>
+</section>
+<section id="scenario-3-no-results-wiki-gap-detected" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-no-results-wiki-gap-detected">Scenario 3: No results — wiki gap detected</h3>
+<pre><code>GIVEN the wiki has no pages mentioning "Kubernetes"
+WHEN the user runs /wiki-query "how is Kubernetes configured?"
+THEN the system SHALL state: "No information found in the wiki for Kubernetes."
+AND offer: "Would you like me to create a Wiki/Tech/Kubernetes page?"
+AND NOT fabricate an answer about Kubernetes</code></pre>
+</section>
+<section id="scenario-4-stale-source-flagged" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-stale-source-flagged">Scenario 4: Stale source flagged</h3>
+<pre><code>GIVEN Wiki/Tech/Docker has updated:: 2025-12-01 and confidence:: high
+AND today is 2026-04-10 (131 days old, exceeds 90-day threshold)
+WHEN the user runs /wiki-query "what Docker version are we using?"
+THEN the system SHALL use the page to answer the question
+AND flag: "Note: [[Wiki/Tech/Docker]] was last updated 2025-12-01
+    (131 days ago) and may be outdated."</code></pre>
+</section>
+<section id="scenario-5-low-confidence-source-flagged" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-low-confidence-source-flagged">Scenario 5: Low-confidence source flagged</h3>
+<pre><code>GIVEN Wiki/Learning/Rust has confidence:: low
+WHEN the user runs /wiki-query "what Rust resources do we have?"
+THEN the system SHALL use the page to answer
+AND flag: "Note: [[Wiki/Learning/Rust]] has confidence:: low —
+    verify before acting on this."</code></pre>
+</section>
+<section id="scenario-6-write-back-offered-and-accepted" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-write-back-offered-and-accepted">Scenario 6: Write-back offered and accepted</h3>
+<pre><code>GIVEN the user asks /wiki-query "what is our Redis setup?"
+AND the wiki has no Redis page
+AND the user previously ingested Redis information in L1 memory
+WHEN the system reports "No wiki page for Redis"
+AND offers "Would you like me to create Wiki/Tech/Redis?"
+AND the user confirms "yes"
+THEN the system SHALL create Wiki/Tech/Redis with required properties
+AND update the Wiki/Tech hub page
+AND follow all ingest Phase 3 rules (append-only, cross-refs, etc.)</code></pre>
+</section>
+<section id="scenario-7-write-back-offered-and-declined" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-write-back-offered-and-declined">Scenario 7: Write-back offered and declined</h3>
+<pre><code>GIVEN the same setup as Scenario 6
+WHEN the system offers to create Wiki/Tech/Redis
+AND the user declines "no"
+THEN the system SHALL NOT create any pages
+AND SHALL NOT modify any existing pages</code></pre>
+</section>
+<section id="scenario-8-l1-memory-supplements-wiki-answer" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-8-l1-memory-supplements-wiki-answer">Scenario 8: L1 Memory supplements wiki answer</h3>
+<pre><code>GIVEN Wiki/Tech/Deployment contains general deploy documentation
+AND L1 Memory file feedback_deploy_ram.md contains "Stop ClamAV before deploy"
+WHEN the user runs /wiki-query "anything I should know before deploying?"
+THEN the system SHALL read the wiki page AND the L1 memory file
+AND include both in the synthesized answer
+AND attribute: "Sources: [[Wiki/Tech/Deployment]] + L1 Memory (deploy gotcha)"</code></pre>
+</section>
+<section id="scenario-9-contradicting-sources" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-9-contradicting-sources">Scenario 9: Contradicting sources</h3>
+<pre><code>GIVEN Wiki/Tech/Strapi says "Strapi runs on port 1337"
+AND Wiki/Reference/Workflows says "Strapi API is at localhost:1338"
+WHEN the user runs /wiki-query "what port is Strapi on?"
+THEN the system SHALL present both values
+AND note the contradiction: "Wiki sources disagree: Wiki/Tech/Strapi says 1337,
+    Wiki/Reference/Workflows says 1338. Verify which is current."
+AND NOT silently pick one value</code></pre>
+</section>
+<section id="scenario-10-batching-when-many-pages-match" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-10-batching-when-many-pages-match">Scenario 10: Batching when many pages match</h3>
+<pre><code>GIVEN a query matches 7 relevant wiki pages
+WHEN the system needs to read them for synthesis
+THEN the system SHALL read at most 3 pages at a time
+AND process in batches: read 3 → extract relevant info → read next 3 → read last 1
+AND synthesize from all extracted information
+AND list all 7 pages in source attribution</code></pre>
+</section>
+<section id="scenario-11-two-stage-routing-via-hub-index" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-11-two-stage-routing-via-hub-index">Scenario 11: Two-stage routing via hub index</h3>
+<pre><code>GIVEN the Wiki/Tech hub `### Index` contains:
+    - [[Wiki/Tech/Strapi]] -- Headless CMS, ports, deploy gotchas #strapi #deploy
+    - [[Wiki/Tech/PM2]] -- Process manager, cwd/reload bug #pm2 #deploy
+    - [[Wiki/Tech/Nginx]] -- Reverse proxy, TLS, upstream ports #nginx
+WHEN the user runs /wiki-query "what port does Strapi run on?"
+THEN the system SHALL read ONLY the Wiki/Tech hub page in Phase 0
+AND select [[Wiki/Tech/Strapi]] from its routing line description
+AND read ONLY Wiki/Tech/Strapi in Phase 1 (NOT PM2, NOT Nginx, NOT a full-namespace grep)
+AND append "&lt;today&gt; -- [[Wiki/Tech/Strapi]] -- query -- matched: \"Strapi 5 -- ports, deploy, migration\"" to Wiki/Reference/Access-Log</code></pre>
+</section>
+<section id="scenario-12-l3-fallback-when-routing-finds-nothing" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-12-l3-fallback-when-routing-finds-nothing">Scenario 12: L3 fallback when routing finds nothing</h3>
+<pre><code>GIVEN no hub `### Index` routing line mentions "rate limiting"
+WHEN the user runs /wiki-query "how do we handle rate limiting?"
+THEN Phase 0 SHALL return no confident match
+AND the system SHALL fall back to a full-text grep across all wiki pages (L3)
+AND read the top 3-5 grep matches in Phase 1</code></pre>
+</section>
+<section id="scenario-13-re-promote-an-evicted-page-on-re-hit" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-13-re-promote-an-evicted-page-on-re-hit">Scenario 13: Re-promote an evicted page on re-hit</h3>
+<pre><code>GIVEN Wiki/Tech/Legacy-Foo has archived:: 2026-06-07 and sits in the Wiki/Tech hub `### Archive`
+AND a full-text grep (L3 fallback) matches it for a new query
+WHEN the system reads Wiki/Tech/Legacy-Foo in full
+THEN the system SHOULD offer: "Wiki/Tech/Legacy-Foo was archived but is relevant again —
+    re-promote it to the live index?"
+AND on confirmation SHALL move its routing line from `### Archive` to `### Index`
+AND remove the archived:: property and reset status::</code></pre>
+</section>
+<section id="scenario-14-two-plane-routing-with-a-stale-index-v3.0-p-5" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-14-two-plane-routing-with-a-stale-index-v3.0-p-5">Scenario 14: Two-plane routing with a stale index (v3.0 P-5)</h3>
+<pre><code>GIVEN llm-wiki.yml configures index_db and index.db exists
+AND a page was edited after the last rebuild
+WHEN the user runs /wiki-query "which pages mention whisper?"
+THEN the system SHALL classify the question as full-text and route to index.db
+AND rebuild_index.py --stale-check SHALL report stale (exit 1)
+AND the system SHALL rebuild (or warn explicitly) before answering
+AND the FTS hits SHALL be read as pages before content is quoted (REQ-464)
+AND the answer SHALL name its plane: "Sources: [[wiki/tech/whisper]];
+    index.db (fts: whisper)"</code></pre>
+</section>
+<section id="scenario-15-dual-register-answer-with-a-stale-source-warning" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-15-dual-register-answer-with-a-stale-source-warning">Scenario 15: Dual-register answer with a stale-source warning</h3>
+<pre><code>GIVEN Wiki/Tech/Docker has updated:: 2025-12-01 (stale) and answers the question
+WHEN the user runs /wiki-query "what Docker version are we using?"
+THEN the answer SHALL open with the precise register (current synthesis style)
+AND continue under "In plain terms" with the same answer in plain language,
+    technical terms explained where they cannot be avoided
+AND BOTH registers SHALL carry the staleness warning, each in its own phrasing
+AND the sources line SHALL appear once, after both registers:
+    "Sources: [[Wiki/Tech/Docker]]"</code></pre>
+</section>
+<section id="scenario-16-entity-question-ignores-the-index-plane" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-16-entity-question-ignores-the-index-plane">Scenario 16: Entity question ignores the index plane</h3>
+<pre><code>GIVEN the same configured index.db
+WHEN the user runs /wiki-query "what do we know about Docker?"
+THEN the system SHALL route to the markdown plane (hub routing, REQ-440..444)
+AND SHALL NOT open index.db at all
+AND the answer reads "Sources: [[wiki/tech/docker]]" with no index attribution</code></pre>
+</section>
+<section id="scenario-17-aggregate-question-computed-from-a-snapshot-csv" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-17-aggregate-question-computed-from-a-snapshot-csv">Scenario 17: Aggregate question computed from a snapshot CSV</h3>
+<pre><code>GIVEN wiki/data/sanitationdata/toilets exists with a data dictionary and
+    source-file:: ingested/data/sanitationdata-1.2.0/toilets.csv
+WHEN the user runs /wiki-query "what share of facilities are improved?"
+THEN Phase 0 routes via the wiki/data hub and the dictionary picks the
+    dataset and column (REQ-470)
+AND the answer is computed read-only from the snapshot CSV (REQ-471)
+AND both registers carry it, attributed once: "Sources:
+    [[wiki/data/sanitationdata/toilets]]; computed from
+    ingested/data/sanitationdata-1.2.0/toilets.csv (1,234 rows)"
+AND no live R session is consulted (REQ-472)</code></pre>
+<hr>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Phase 0 routing reads ONLY hub index pages, not full namespace contents</label></li>
+<li><label><input type="checkbox">Phase 1 reads ONLY the pages selected by routing (or grep matches on fallback)</label></li>
+<li><label><input type="checkbox">Full-text grep is the L3 fallback, not the default retrieval path</label></li>
+<li><label><input type="checkbox">All phases execute in order (Routing, Targeted Read, Access Logging, Synthesize, Write-Back, Output)</label></li>
+<li><label><input type="checkbox">Max 3 pages loaded simultaneously</label></li>
+<li><label><input type="checkbox">Every full-page read appends one line to the Access-Log</label></li>
+<li><label><input type="checkbox">Each Access-Log line records a <code>matched:</code> routing reason (why the page was selected)</label></li>
+<li><label><input type="checkbox">Access-Log append does NOT trigger a per-query git commit</label></li>
+<li><label><input type="checkbox">Re-hit on an archived page offers re-promotion</label></li>
+<li><label><input type="checkbox">Answers synthesized from multiple sources (not raw dumps)</label></li>
+<li><label><input type="checkbox">Confidence levels checked and low-confidence flagged</label></li>
+<li><label><input type="checkbox">Staleness checked and old sources flagged (90-day threshold)</label></li>
+<li><label><input type="checkbox">Contradictions surfaced, not silently resolved</label></li>
+<li><label><input type="checkbox">No fabrication — “not found” when wiki has no answer</label></li>
+<li><label><input type="checkbox">Write-back requires explicit user confirmation</label></li>
+<li><label><input type="checkbox">Source attribution in every answer</label></li>
+<li><label><input type="checkbox">Every answer carries both registers: precise first, then “In plain terms”</label></li>
+<li><label><input type="checkbox">The plain register keeps every warning and adds no new claims</label></li>
+<li><label><input type="checkbox">Attribution appears once per answer, shared by both registers</label></li>
+<li><label><input type="checkbox">L1 Memory consulted when relevant</label></li>
+<li><label><input type="checkbox">Works in both Logseq and Obsidian modes</label></li>
+<li><label><input type="checkbox">(two-plane) Aggregate/temporal/full-text questions route to index.db; entity questions stay on pages; markdown plane wins when in doubt</label></li>
+<li><label><input type="checkbox">(two-plane) –stale-check runs before every index.db read; no silent stale answer</label></li>
+<li><label><input type="checkbox">(two-plane) Every answer names its plane; index hits become page reads before content is quoted</label></li>
+<li><label><input type="checkbox">(data) Dataset questions route via the data dictionary; row-level answers compute read-only on snapshot CSVs with version-pinned attribution; no live R session is consulted</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li><code>llm-wiki.yml</code> must exist and be valid (see specs/config.md)</li>
+<li>specs/schema.md defines valid page properties checked during synthesis, the hub <code>### Index</code>/<code>### Archive</code> structure, and the Access-Log page</li>
+<li>specs/ingest.md Phase 3 rules apply to write-back operations and maintain routing lines</li>
+<li>specs/prune.md defines LRU-Demote, which consumes the Access-Log this command writes</li>
+<li>specs/l1-l2-routing.md defines when L1 Memory is relevant</li>
+<li>specs/storage.md (REQ-1130..1133) defines index.db, its frozen schema, and the staleness rule the two-plane section binds to; specs/config.md REQ-627 defines the index_db key</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/query.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

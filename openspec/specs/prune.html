@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>prune – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spec-wiki-maintain-prune---lru-demote-index-eviction" id="toc-spec-wiki-maintain-prune---lru-demote-index-eviction" class="nav-link active" data-scroll-target="#spec-wiki-maintain-prune---lru-demote-index-eviction">Spec: /wiki-maintain prune - LRU-Demote (Index Eviction)</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#phase-1-access-profile" id="toc-phase-1-access-profile" class="nav-link" data-scroll-target="#phase-1-access-profile">Phase 1: Access Profile</a></li>
+  <li><a href="#phase-2-demote-candidates" id="toc-phase-2-demote-candidates" class="nav-link" data-scroll-target="#phase-2-demote-candidates">Phase 2: Demote Candidates</a></li>
+  <li><a href="#phase-3-report-commit" id="toc-phase-3-report-commit" class="nav-link" data-scroll-target="#phase-3-report-commit">Phase 3: Report + Commit</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-cold-page-demoted" id="toc-scenario-1-cold-page-demoted" class="nav-link" data-scroll-target="#scenario-1-cold-page-demoted">Scenario 1: Cold page demoted</a></li>
+  <li><a href="#scenario-2-never-accessed-page-uses-created-date" id="toc-scenario-2-never-accessed-page-uses-created-date" class="nav-link" data-scroll-target="#scenario-2-never-accessed-page-uses-created-date">Scenario 2: Never-accessed page uses created date</a></li>
+  <li><a href="#scenario-3-active-project-exempt" id="toc-scenario-3-active-project-exempt" class="nav-link" data-scroll-target="#scenario-3-active-project-exempt">Scenario 3: Active project exempt</a></li>
+  <li><a href="#scenario-4-custom-window" id="toc-scenario-4-custom-window" class="nav-link" data-scroll-target="#scenario-4-custom-window">Scenario 4: Custom window</a></li>
+  <li><a href="#scenario-5-re-promotion-is-handled-by-query-not-prune" id="toc-scenario-5-re-promotion-is-handled-by-query-not-prune" class="nav-link" data-scroll-target="#scenario-5-re-promotion-is-handled-by-query-not-prune">Scenario 5: Re-promotion is handled by query, not prune</a></li>
+  <li><a href="#scenario-6-demotion-preserves-incoming-links" id="toc-scenario-6-demotion-preserves-incoming-links" class="nav-link" data-scroll-target="#scenario-6-demotion-preserves-incoming-links">Scenario 6: Demotion preserves incoming links</a></li>
+  <li><a href="#scenario-7-obsidian-mode" id="toc-scenario-7-obsidian-mode" class="nav-link" data-scroll-target="#scenario-7-obsidian-mode">Scenario 7: Obsidian mode</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/prune.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="spec-wiki-maintain-prune---lru-demote-index-eviction" class="level1">
+<h1>Spec: /wiki-maintain prune - LRU-Demote (Index Eviction)</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The prune command keeps two-stage routing precise as the wiki grows by evicting cold pages from the live hub index. A page is “cold” when it has not been read (logged in the Access-Log) within a configurable window (default 6 months). Eviction is NOT deletion and NOT a file move: the page keeps its filename and location, its incoming <code>[[links]]</code> stay valid, and it remains greppable as an L3 fallback. Only its routing line moves from the hub <code>### Index</code> to <code>### Archive</code>, and the page is marked <code>archived::</code>. This is the access-frequency eviction layer of the L1/L2/L3 cache model — the counterpart to query (read path) and ingest (write path).</p>
+<p>prune is meant to run on a schedule (default cadence: 6 months). The command itself does NOT self-schedule; the user wires it via their own scheduler.</p>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="phase-1-access-profile" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1-access-profile">Phase 1: Access Profile</h3>
+<ul>
+<li>REQ-600: The system SHALL read <code>llm-wiki.yml</code> first to determine tool mode, wiki path, and memory path.</li>
+<li>REQ-601: The system SHALL read the Access-Log page (<code>Wiki/Reference/Access-Log</code>) and determine the last-access date per page from its newest log entry.</li>
+<li>REQ-602: For a page that has never been logged, the system SHALL use its <code>created::</code> date as the last-access proxy.</li>
+<li>REQ-603: The cold threshold SHALL be “no access in N months”, where N defaults to 6 and is overridable via <code>--months N</code>.</li>
+<li>REQ-604: The system SHALL EXEMPT from demotion: hub pages (type hub), the Schema page, the Dashboard page, the Access-Log page, and any page with <code>status:: active</code> that is a project (in-flight work is never evicted, even if unread).</li>
+</ul>
+</section>
+<section id="phase-2-demote-candidates" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-demote-candidates">Phase 2: Demote Candidates</h3>
+<ul>
+<li>REQ-610: The system SHALL list demote candidates (page — last-access date — age in months) and present them to the user BEFORE any write. Demotion is opt-in.</li>
+<li>REQ-611: For each confirmed candidate, the system SHALL add the property <code>archived:: &lt;today&gt;</code> — the canonical demoted marker, valid on any page type (see specs/schema.md REQ-565). It MUST NOT modify <code>created::</code> or <code>updated::</code>.</li>
+<li>REQ-612: For pages whose <code>status</code> enum includes <code>archived</code> (Entity), the system SHOULD also set <code>status:: archived</code>. For types whose enum does NOT (Project, Knowledge), the system MUST NOT set an out-of-enum <code>status</code> value.</li>
+<li>REQ-613: The system SHALL move the page’s routing line from the hub <code>### Index</code> to the hub <code>### Archive</code> section VERBATIM (move, not delete).</li>
+<li>REQ-614: The system MUST NOT rename the page or move its file to another namespace. The tool links by page name; a move would break every incoming <code>[[link]]</code>.</li>
+<li>REQ-615: After demotion, all incoming <code>[[links]]</code> to the page SHALL remain valid and the page SHALL remain readable via the L3 grep fallback in query.</li>
+</ul>
+</section>
+<section id="phase-3-report-commit" class="level3">
+<h3 class="anchored" data-anchor-id="phase-3-report-commit">Phase 3: Report + Commit</h3>
+<ul>
+<li>REQ-620: The system SHALL report the demoted list, the new live-index size per namespace, and the hot pages (top access count) for contrast.</li>
+<li>REQ-621: The system SHALL create a git commit for the structural change (hub index edits + page property changes). This commit also carries any pending Access-Log appends (which are non-structural and not committed per-query).</li>
+<li>REQ-622: The system SHALL note when the next prune is due (N months out). It MUST NOT create a scheduler entry itself.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-cold-page-demoted" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-cold-page-demoted">Scenario 1: Cold page demoted</h3>
+<pre><code>GIVEN Wiki/Tech/Legacy-Foo was last logged in the Access-Log on 2025-09-01
+AND today is 2026-06-07 (≈ 9 months, exceeds the 6-month threshold)
+AND it is a knowledge page (not a hub, not active project, not Schema/Dashboard/Access-Log)
+WHEN the user runs /wiki-maintain prune
+THEN the system SHALL list Wiki/Tech/Legacy-Foo as a demote candidate (last access 2025-09-01, 9 mo)
+AND on confirmation SHALL add archived:: 2026-06-07 to the page (created::/updated:: unchanged)
+AND move its routing line from the Wiki/Tech hub `### Index` to `### Archive`
+AND NOT rename or move the page file
+AND commit the change</code></pre>
+</section>
+<section id="scenario-2-never-accessed-page-uses-created-date" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-never-accessed-page-uses-created-date">Scenario 2: Never-accessed page uses created date</h3>
+<pre><code>GIVEN Wiki/Learning/Old-Course has no Access-Log entries
+AND its created:: date is 2025-08-01 (older than 6 months)
+WHEN the user runs /wiki-maintain prune
+THEN the system SHALL treat 2025-08-01 as its last-access proxy
+AND list it as a demote candidate</code></pre>
+</section>
+<section id="scenario-3-active-project-exempt" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-active-project-exempt">Scenario 3: Active project exempt</h3>
+<pre><code>GIVEN Wiki/Projects/Big-Migration has status:: active
+AND it has not been read in 8 months
+WHEN the user runs /wiki-maintain prune
+THEN the system SHALL NOT list it as a demote candidate (active projects are exempt)</code></pre>
+</section>
+<section id="scenario-4-custom-window" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-custom-window">Scenario 4: Custom window</h3>
+<pre><code>GIVEN several pages last accessed between 3 and 5 months ago
+WHEN the user runs /wiki-maintain prune --months 3
+THEN the system SHALL list every page with no access in the last 3 months as a candidate</code></pre>
+</section>
+<section id="scenario-5-re-promotion-is-handled-by-query-not-prune" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-re-promotion-is-handled-by-query-not-prune">Scenario 5: Re-promotion is handled by query, not prune</h3>
+<pre><code>GIVEN Wiki/Tech/Legacy-Foo is demoted (archived::, routing line in `### Archive`)
+WHEN a later /wiki-query L3 grep matches it and reads it in full
+THEN re-promotion is offered by the query command (specs/query.md REQ-452), NOT prune
+AND prune SHALL never auto-promote pages</code></pre>
+</section>
+<section id="scenario-6-demotion-preserves-incoming-links" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-demotion-preserves-incoming-links">Scenario 6: Demotion preserves incoming links</h3>
+<pre><code>GIVEN Wiki/Projects/Acme links to [[Wiki/Tech/Legacy-Foo]]
+WHEN Wiki/Tech/Legacy-Foo is demoted by /wiki-maintain prune
+THEN the [[Wiki/Tech/Legacy-Foo]] link in Wiki/Projects/Acme SHALL still resolve
+AND lint SHALL NOT report it as a broken reference</code></pre>
+</section>
+<section id="scenario-7-obsidian-mode" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-obsidian-mode">Scenario 7: Obsidian mode</h3>
+<pre><code>GIVEN llm-wiki.yml is configured with tool: obsidian
+AND Wiki/Tech/Legacy-Foo.md is a cold page
+WHEN the user runs /wiki-maintain prune
+THEN the system SHALL add archived: &lt;today&gt; to the YAML frontmatter
+AND move the routing line within the Wiki/Tech hub (Wiki/Tech/_index.md) from
+    `### Index` to `### Archive`
+AND keep the file at Wiki/Tech/Legacy-Foo.md (no move)</code></pre>
+<hr>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Last-access computed from the Access-Log; created:: used as proxy when never logged</label></li>
+<li><label><input type="checkbox">Default 6-month threshold, overridable via –months N</label></li>
+<li><label><input type="checkbox">Hubs, Schema, Dashboard, Access-Log, and active projects are exempt</label></li>
+<li><label><input type="checkbox">Candidates shown to the user before any write (opt-in)</label></li>
+<li><label><input type="checkbox">Demote adds archived:: (and status:: archived only where the enum allows)</label></li>
+<li><label><input type="checkbox">Routing line moved from <code>### Index</code> to <code>### Archive</code> (move, not delete)</label></li>
+<li><label><input type="checkbox">Page file never renamed or moved — incoming [[links]] stay valid</label></li>
+<li><label><input type="checkbox">Demoted page still greppable as L3 fallback</label></li>
+<li><label><input type="checkbox">Re-promotion is query’s responsibility, not prune’s</label></li>
+<li><label><input type="checkbox">Structural change committed; next-prune date reported (no self-scheduling)</label></li>
+<li><label><input type="checkbox">Works in both Logseq and Obsidian modes</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li><code>llm-wiki.yml</code> must exist and be valid (see specs/config.md)</li>
+<li>specs/schema.md defines the <code>archived::</code> marker, the hub <code>### Index</code>/<code>### Archive</code> structure, and the Access-Log page</li>
+<li>specs/query.md writes the Access-Log this command consumes and owns re-promotion</li>
+<li>specs/lint.md rules 10-11 detect index drift and archived-in-live-index left by an interrupted prune</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/prune.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

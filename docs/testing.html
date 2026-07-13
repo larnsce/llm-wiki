@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>testing – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-21dfb6f5b24708782b3851273225b992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#testing-the-pipeline" id="toc-testing-the-pipeline" class="nav-link active" data-scroll-target="#testing-the-pipeline">Testing the pipeline</a>
+  <ul class="collapse">
+  <li><a href="#the-mechanical-harness" id="toc-the-mechanical-harness" class="nav-link" data-scroll-target="#the-mechanical-harness">1. The mechanical harness</a></li>
+  <li><a href="#golden-transcript-tests-the-llm-regression-net" id="toc-golden-transcript-tests-the-llm-regression-net" class="nav-link" data-scroll-target="#golden-transcript-tests-the-llm-regression-net">2. Golden-transcript tests (the LLM regression net)</a></li>
+  <li><a href="#manual-llm-in-the-loop-protocol-literature-pipeline" id="toc-manual-llm-in-the-loop-protocol-literature-pipeline" class="nav-link" data-scroll-target="#manual-llm-in-the-loop-protocol-literature-pipeline">3. Manual LLM-in-the-loop protocol (literature pipeline)</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/testing.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="testing-the-pipeline" class="level1">
+<h1>Testing the pipeline</h1>
+<p>Three layers, from fully mechanical to fully human-in-the-loop:</p>
+<ol type="1">
+<li>the <strong>harness</strong> (<code>test_pipeline.sh</code>) asserts the validators mechanically,</li>
+<li>the <strong>golden-transcript tests</strong> (<code>tests/golden/</code>) pin the LLM-side ingest analysis,</li>
+<li>the <strong>manual protocol</strong> exercises the whole literature pipeline end to end against a scratch vault.</li>
+</ol>
+<section id="the-mechanical-harness" class="level2">
+<h2 class="anchored" data-anchor-id="the-mechanical-harness">1. The mechanical harness</h2>
+<pre><code>bash skills/wiki-core/scripts/test_pipeline.sh            # quiet, summary only
+bash skills/wiki-core/scripts/test_pipeline.sh --verbose  # every command + output</code></pre>
+<p>Needs only bash, python3, and git. Runs in a few seconds; exits 0 when every assertion passes, 1 otherwise, with a pass/fail summary block.</p>
+<p>What it does:</p>
+<ul>
+<li>scaffolds clean wikis at runtime via <code>init_wiki.py</code> for BOTH tool modes (logseq and obsidian); clean fixtures are generated, not checked in, so they cannot rot against the templates,</li>
+<li>overlays the checked-in defect deltas from <code>tests/fixtures/defects/&lt;tool&gt;/</code> one at a time (orphan page, broken ref, missing required property, bad date format, archived-in-live-index, empty page, credential leak, grandfathered page),</li>
+<li>runs every validator: <code>find_config.py</code>, <code>check_config.py</code>, <code>lint.py</code> (default, <code>--strict</code>, and the grandfather floor), <code>check_citations.py</code> (cited-clean green; uncited-claim and source-file/cite-mismatch red, from <code>tests/fixtures/citations/&lt;tool&gt;/</code>), <code>check_canon.py</code> (including a red case against a mutated temp copy of the canon surfaces), and <code>secret_scan.py</code>,</li>
+<li>asserts GREEN on the clean fixtures and RED on every planted defect: both the exit code and, for lint, that the expected REQ id appears in the <code>--json</code> findings,</li>
+<li>covers the raw-source secret cases from <code>tests/fixtures/sources/</code>: a fake AWS key in clipped HTML (blocking), an email + national-ID notes file (advisory), and a PDF-shaped binary with an embedded fake token that is generated at runtime (no binary is committed). All planted values are obviously fake (<code>AKIAIOSFODNN7EXAMPLE</code> and friends),</li>
+<li>exercises the <code>--gitignore-check</code> helper for the sensitive-source flow.</li>
+</ul>
+<p>Fixture layout:</p>
+<pre><code>tests/fixtures/
+  defects/logseq/&lt;defect&gt;/pages/...   overlay files, copied onto a fresh wiki
+  defects/obsidian/&lt;defect&gt;/wiki/...  same defects in obsidian layout
+  migration/&lt;tool&gt;/...                Title Case pre-migration vaults for the
+                                      lowercase rename pass (deliberately old
+                                      Wiki/ casing, plus Roam task markers)
+  sources/                            raw-source secret-gate cases
+  configs/                            invalid llm-wiki.yml cases</code></pre>
+<p>The <code>grandfathered</code> defect and the <code>migration/</code> vaults keep the pre-migration <code>Wiki/</code> casing on purpose (that is what they test) and run in bare vaults, never overlaid on a lowercase scaffold: on a case-insensitive filesystem <code>Wiki___Tech.md</code> and <code>wiki___tech.md</code> are the same file.</p>
+<p>Adding a defect: create the overlay directory for both tools, then add a <code>name:REQ-id</code> entry to the <code>LINT_DEFECTS</code> table in <code>test_pipeline.sh</code>.</p>
+</section>
+<section id="golden-transcript-tests-the-llm-regression-net" class="level2">
+<h2 class="anchored" data-anchor-id="golden-transcript-tests-the-llm-regression-net">2. Golden-transcript tests (the LLM regression net)</h2>
+<p>The harness cannot assert what the LLM plans or how it rates a source. <code>tests/golden/</code> pins fixture sources and the expected structured checkpoint output: planned page touches and the reliability rating with its rationale, in the plan-table row format from <code>skills/wiki-ingest/SKILL.md</code>. Two pairings: a fake paper (<code>ingest-checkpoint.golden.md</code>) and a promoted note exercising the para/notes promotion seam (<code>promotion-seam.golden.md</code>).</p>
+<p>Workflow: after ANY change to the ingest prompts (SKILL.md, its references) or to the model used to run them, re-run the ingest analysis on the pinned source and diff the checkpoint against the paired golden file. A diff is a re-review signal, not automatically a failure: wording drift is fine, but changed page touches, a changed reliability rating, or dropped Pending Review claims mean the change needs a second look before it ships.</p>
+<p>Model attribution (issue #108): each golden header carries a <code>model:</code> line recording what the file was validated on, and <code>tests/golden/fable-baseline/</code> holds the frozen reference checkpoints recorded on <code>claude-fable-5</code> (2026-07-08). Model comparisons diff a candidate model’s run against the Fable baseline under the scoring rubric in <code>tests/golden/README.md</code>. Never regenerate a golden or a baseline ON the cheaper model being evaluated: that re-baselines the regression net to that model’s own calibration, and the test can then only confirm the model agrees with itself. A generous-direction <code>reliability::</code> diff means the TASK escalates a tier, not that the baseline updates.</p>
+<p>Regeneration steps are in <code>tests/golden/README.md</code>.</p>
+</section>
+<section id="manual-llm-in-the-loop-protocol-literature-pipeline" class="level2">
+<h2 class="anchored" data-anchor-id="manual-llm-in-the-loop-protocol-literature-pipeline">3. Manual LLM-in-the-loop protocol (literature pipeline)</h2>
+<p>The end-to-end path documented in <code>docs/literature-research.md</code> (read paper, ingest, provenance move) has an LLM in the middle and a human at the checkpoint, so it is verified by running it, not by a script. Run this protocol after significant changes to wiki-ingest, the trust layer, or the secret gate; record the results on the tracking issue.</p>
+<ol type="1">
+<li><p>Scaffold a scratch vault (never your real wiki):</p>
+<pre><code>python3 skills/wiki-core/scripts/init_wiki.py \
+  --wiki-path /tmp/protocol-vault --tool logseq --date &lt;today&gt;
+cd /tmp/protocol-vault &amp;&amp; git init -b main &amp;&amp; git add -A \
+  &amp;&amp; git commit -m "wiki: initial scaffold"</code></pre></li>
+<li><p>Place the pinned fixture paper in the queue:</p>
+<pre><code>cp &lt;repo&gt;/tests/golden/source/miller-chen-2025-two-stage-retrieval.md \
+  /tmp/protocol-vault/raw/</code></pre></li>
+<li><p>In a Claude Code session in the vault, run <code>/wiki-ingest</code> (interactive, no <code>--auto</code>).</p></li>
+<li><p>Verify the run PAUSES at the batch checkpoint before any write, and the checkpoint shows the plan table (source, proposed page touches, reliability with one-line rationale, contradictions) plus the verbatim question “What should I emphasize, skip, or route to L1 Memory?”. Compare against the golden transcript.</p></li>
+<li><p>Confirm the checkpoint (optionally with guidance, e.g.&nbsp;“emphasize the routing-precision finding”).</p></li>
+<li><p>Verify the written pages: correct tool format, all required properties, <code>source-file::</code> pointing at <code>ingested/papers/&lt;file&gt;</code>, <code>reliability::</code> set, and a <code>## Pending Review</code> section when the page rests on a single non-high source. Verify the hub <code>### Index</code> gained a routing line.</p></li>
+<li><p>Verify the atomic move-plus-commit: the source file left <code>raw/</code>, sits at the exact path <code>source-file::</code> records, and ONE commit contains both the page edits and the file move (<code>git show --stat HEAD</code>).</p></li>
+<li><p>Run <code>/wiki-query</code> for the new content (e.g.&nbsp;“what do we know about two-stage retrieval?”) and verify it routes via the hub index line to the new page.</p></li>
+<li><p>Run <code>/wiki-lint</code> (or <code>python3 skills/wiki-core/scripts/lint.py --config /tmp/protocol-vault/llm-wiki.yml</code>) and verify the vault is clean.</p></li>
+<li><p>Record what worked, what was ambiguous in the SKILL.md, and the final lint output as a comment on the tracking issue.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/testing.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
