@@ -239,6 +239,11 @@ Maintain the name list where the insert script reads it (section 5 keeps it
 in a constant; edit it as projects and people change). Update it when
 transcripts start mangling a name; that is the signal.
 
+The command above shows only the `--prompt` bias. The production script in
+section 5 adds anti-repetition-loop decode guards (`--max-context 0` and
+temperature fallback, issue #120); copy the section 5 version, not this one,
+for real capture.
+
 ## 4. Phone to Mac sync
 
 Goal: every memo you speak on the phone appears as an audio file in
@@ -382,7 +387,20 @@ def transcribe(path):
         result = subprocess.run(
             [str(WHISPER / "build" / "bin" / "whisper-cli"),
              "-m", str(MODEL), "-f", str(wav),
-             "--no-timestamps", "--prompt", CONTEXT_PROMPT],
+             "--no-timestamps", "--prompt", CONTEXT_PROMPT,
+             # Anti-repetition-loop guards (issue #120). --max-context 0 stops
+             # decoded text from being carried across windows, which is what
+             # feeds a Whisper decoder loop. Do NOT use --no-context here: on
+             # this build it also voids the --prompt context and blanks the
+             # whole transcript; --max-context 0 suppresses the loop while
+             # keeping the prompt (verified x8/x11 repeats -> x1). Temperature
+             # fallback (increment non-zero) catches a degenerate decode; the
+             # entropy/logprob thresholds are whisper.cpp defaults, set
+             # explicitly so the guard stays legible.
+             "--max-context", "0",
+             "--temperature-inc", "0.2",
+             "--entropy-thold", "2.4",
+             "--logprob-thold", "-1.0"],
             capture_output=True, text=True, check=True)
     return result.stdout.strip()
 
