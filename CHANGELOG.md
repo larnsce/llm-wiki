@@ -5,14 +5,21 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.6.0] - 2026-07-13
 
-The wiki-chat-voice skill (issue #117). Version to be assigned at release:
-issue #111 earmarks v3.6.0 for the documentation-site release, so this
-entry stays unversioned until the maintainer sequences the two.
+The documentation site goes live (issue #111) and the wiki-chat-voice
+skill (issue #117) ships in the same release.
 
 ### Added
 
+- Documentation site (issue #111): a Quarto documentation site
+  (pkgdown-style), published from `main` to GitHub Pages at
+  https://larnsce.github.io/llm-wiki/ . The site renders the README as
+  the homepage, four populated reference indexes, full-text search, and
+  the CHANGELOG as News. Site config shipped on `dev` in commit
+  11825b9; this release takes it live. The reference index is
+  pre-render-generated, so new skills (including `wiki-chat-voice`) are
+  picked up automatically.
 - `wiki-chat-voice` (issue #117): a personal-tier conversational skill
   over recorded voice notes, the revisiting sibling of
   `wiki-ingest-voice`. Browse archive.db read-only (`mode=ro`
