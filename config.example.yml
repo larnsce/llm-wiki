@@ -34,11 +34,17 @@ source_types:
   - data
   - notes
   - assets
+  - transcripts
 default_source_type: papers
 
 # Source types whose archived bytes must not enter git history (REQ-624).
-# Values must be a subset of source_types. Uncomment to enable:
-# sensitive_source_types:
+# Values must be a subset of source_types. transcripts is sensitive BY
+# DEFAULT (ingest REQ-1301): AI-chat exports mix project detail, personal
+# context, and half-formed ideas, so their bytes never belong in history -
+# keep it listed. Add notes/data if promoted content can carry governed
+# personal data:
+sensitive_source_types:
+  - transcripts
 #   - notes
 #   - data
 

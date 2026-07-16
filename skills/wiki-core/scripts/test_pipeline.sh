@@ -727,6 +727,22 @@ run py secret_scan.py --json --gitignore-check "$GITWIKI" \
   "ingested/papers/tracked.md"
 assert_exit 2 "secret_scan: gitignore-check red on path that would enter history"
 
+# Transcript route (ingest REQ-1300/1301, issue #107): transcripts is a
+# configured source type AND sensitive by default in config.example.yml,
+# and the gitignore-check accepts the ingested/transcripts/ destination.
+run bash -c "awk '/^source_types:/,/^default_source_type:/' \
+  '$REPO_ROOT/config.example.yml' | grep -q -- '- transcripts'"
+assert_exit 0 "config.example: transcripts is a source type (REQ-623)"
+run bash -c "awk '/^sensitive_source_types:/,/^\$/' \
+  '$REPO_ROOT/config.example.yml' | grep -q -- '^  - transcripts'"
+assert_exit 0 "config.example: transcripts is sensitive by default (REQ-624, ingest REQ-1301)"
+echo "ingested/transcripts/" >>"$GITWIKI/.gitignore"
+run py secret_scan.py --json --gitignore-check "$GITWIKI" \
+  "ingested/transcripts/chat-2026-06-25-vault-design.md"
+assert_exit 0 "secret_scan: gitignore-check green on sensitive transcript path (REQ-1301)"
+run test -f "$REPO_ROOT/tests/golden/source/chat-2026-06-25-vault-design.md"
+assert_exit 0 "golden: frozen transcript fixture present (REQ-1300, issue #107)"
+
 # ---------------------------------------------------------------------------
 # author:: provenance (schema REQ-585a, ingest REQ-011a/033c, #73) and the
 # born-cited person page (ingest REQ-024a, #74): both shapes lint clean and

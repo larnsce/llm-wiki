@@ -9,6 +9,28 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- AI-conversation-transcript ingest route (issue #107 Part 2): the spec'd
+  machinery for chats as sources, shipped after the maintainer waived the
+  five-hand-ingest gate (2026-07-16; the Phase-0 hand ingests validated the
+  route). New Transcript Sources REQ block in `openspec/specs/ingest.md`,
+  REQ-1300..1305: file route through `raw/` with `chat-` filename type
+  inference (REQ-1300); `transcripts` source type, sensitive by default so
+  the bytes never enter git history, with an off-machine-copy requirement
+  for gitignored `ingested/` subtrees before the first sensitive ingest
+  (REQ-1301); capture-backed reliability with the confirmed-decision
+  `medium` exception (REQ-1302, schema REQ-586b extended); interactive-only
+  with a per-decision opt-in checkpoint variant and journal decision-log
+  default (REQ-1303); skip content another system of record already holds
+  (REQ-1304); curation precedes ingest (REQ-1305). Plus: config defaults
+  updated (config REQ-623/624, `config.example.yml`), audit REQ-927 extended
+  to give `ingested/transcripts/` refs the `capture-backed` verdict and
+  `source-missing` for lost gitignored bytes, `wiki-ingest` skill support
+  (prefix inference, checkpoint decision table, `--auto` exception), a
+  frozen chat fixture with `tests/golden/ingest-transcript.golden.md`
+  (recorded on claude-fable-5), harness assertions, and the
+  `docs/source-routes.md` route promoted from manual protocol to spec'd
+  machinery. Scenario 22 covers the end-to-end shape.
+
 - `SECURITY.md` (issue #112): private vulnerability reporting via GitHub
   security advisories, plus what counts as a vulnerability for a local-first
   tool (credential-lint bypasses, sensitive-source leaks past REQ-046, L1/L2

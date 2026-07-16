@@ -49,15 +49,19 @@ All downstream behavior depends on this file being valid.
   L1/L2 duplicate detection) are disabled.
 - REQ-623: The config MAY configure the source pipeline with the keys `raw_dir`
   (default `raw`), `ingested_dir` (default `ingested`), `source_types` (array;
-  default `papers, clippings, articles, data, notes, assets`), and
+  default `papers, clippings, articles, data, notes, assets, transcripts`), and
   `default_source_type` (one of `source_types`). When these keys are absent the
   source pipeline (specs/ingest.md Source Pipeline section) is disabled and ingest
   behaves as the base workflow.
 - REQ-624: The config MAY contain `sensitive_source_types`: an array of source
   types (subset of `source_types`) whose archived bytes MUST NOT enter git history
-  (specs/ingest.md REQ-046). Typical values: `notes`, `data`. This key already
-  covers PII in promoted `para/`/`notes/` content (specs/namespaces.md REQ-981);
-  no additional key is needed for the human namespaces.
+  (specs/ingest.md REQ-046). When the key is absent and `transcripts` is among the
+  configured `source_types`, the default is `transcripts` (specs/ingest.md
+  REQ-1301): chat exports mix project detail, personal context, and half-formed
+  ideas, so their bytes stay out of history even in an unconfigured vault.
+  Typical additional values: `notes`, `data`. This key already covers PII in
+  promoted `para/`/`notes/` content (specs/namespaces.md REQ-981); no additional
+  key is needed for the human namespaces.
 - REQ-625: The config MAY contain the keys `para_dir` (default `para`) and
   `notes_dir` (default `notes`): paths relative to the pages directory naming the
   human-owned namespaces (specs/namespaces.md). They are recognized by the

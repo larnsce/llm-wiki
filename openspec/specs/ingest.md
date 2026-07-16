@@ -461,6 +461,74 @@ STAGING: this section takes effect with the wiki-chat-voice skill
   words), push back: offer to narrow the selection or split into more than
   one session rather than degrade synthesis quality by loading everything.
 
+### Transcript Sources
+
+AI conversation transcripts (claude.ai chats, cross-project design
+discussions) as ingest sources. The route was designed in issue #107,
+descoped to a manual protocol by the 2026-07-07 premortem, validated by the
+Phase-0 hand ingests (2026-07-08), and spec'd when the maintainer waived the
+five-ingest gate (2026-07-16). It stays file-based on purpose: transcripts
+ride the standard `raw/` to `ingested/` lifecycle; there is NO archive.db
+transcript table (the shape for automated bulk capture - revisit only if
+volume demands it). Where this section is silent, the Source Pipeline rules
+apply unchanged.
+
+- REQ-1300 (file route and type inference): A transcript enters the pipeline
+  as a curated markdown export in `raw_dir`, with source type `transcripts`
+  (specs/config.md REQ-623). A filename with the `chat-` prefix
+  (`raw/chat-*.md`; convention `chat-YYYY-MM-DD-<topic-slug>.md`) SHALL
+  infer type `transcripts`, extending the REQ-071 inference set consistently
+  with the `para-`/`note-` promotion prefixes; non-prefixed exports fall
+  back per REQ-071 as before.
+- REQ-1301 (sensitive by default): `transcripts` is in
+  `sensitive_source_types` by default (specs/config.md REQ-624): chats mix
+  project detail, personal context, and half-formed ideas, and their bytes
+  MUST NOT enter git history. The REQ-046 machinery (gitignored
+  `ingested/transcripts/` path, the gitignore check of the secret gate)
+  carries the mechanics unchanged. Because gitignored bytes fall outside
+  git-as-backup, an off-machine copy of the gitignored `ingested/` subtrees
+  SHALL exist before the first sensitive transcript ingest (mirroring the
+  archive.db durability discipline, specs/storage.md REQ-1120); the
+  audit-side tripwire distinguishing lost bytes from weak sources is the
+  `source-missing` verdict (specs/audit.md REQ-923/927), which is never
+  conflated with `reliability:: low`.
+- REQ-1302 (capture-backed, decisions excepted): A transcript is
+  capture-backed (schema REQ-586b): claims resting only on it default to
+  `reliability:: low`, a transcript can never corroborate itself, and
+  multiple transcripts of the same speaker's conversations count as ONE
+  source for REQ-586 corroboration. The exception is the route's point:
+  DECISIONS - the user's own recorded conclusions ("we chose X because Y") -
+  route like promoted personal notes and rate `medium` once the user
+  confirms them INDIVIDUALLY at the checkpoint (the REQ-586
+  personal-synthesis case): the confirmation makes the user the source; the
+  transcript is merely where the decision was written down. Model-asserted
+  analysis in the same transcript stays `low` with a `## Pending Review`
+  entry per REQ-074.
+- REQ-1303 (interactive only, decision-log default): There is NO `--auto`
+  path for transcript sources (mirroring REQ-081): when `--auto` is passed
+  the system SHALL state that transcripts are interactive-only and run the
+  REQ-025 checkpoint anyway. The default destination is a 2-4 line
+  journal/decision-log entry with `[[links]]` (REQ-082 discipline); wiki
+  writes are offered PER EXTRACTED DECISION, individually opt-in with the
+  full sentence(s) shown (REQ-083). The people rules bind unchanged: rows
+  naming a person are confirmed individually (REQ-084) and assessments of
+  people never leave the checkpoint (REQ-085).
+- REQ-1304 (skip what another system records): The system SHOULD NOT extract
+  content a better system of record already holds: decisions from a session
+  on a repository (its issues, CHANGELOG, and commits absorb them),
+  ecosystem trivia, install mechanics. An ingest whose checkpoint proposes
+  no wiki writes is a VALID outcome; the source still completes the
+  lifecycle move so the queue drains.
+- REQ-1305 (curation precedes ingest): The expected input is an export
+  curated at capture time - decisions, the questions that drove them, enough
+  surrounding text to stay honest (Phase-0 evidence: a raw one-day session
+  export measured 4,637 lines and 254 tool calls and yielded zero net-new
+  content). When a queued transcript is visibly uncurated (dominated by tool
+  output or transcript noise), the system SHOULD recommend re-export with
+  curation at the checkpoint instead of attempting extraction over the
+  noise. Capture-at-source (ending a session by asking for a decision log)
+  is the recommended capture mechanism (docs/source-routes.md).
+
 ---
 
 ## Scenarios
@@ -725,6 +793,24 @@ THEN one checkpoint presents: the journal synthesis opening with the
 AND the discussion-born idea appears in the journal synthesis only; it is
     not offered as a wiki claim (REQ-1204)
 AND row 2 is flipped only after the atomic commit succeeds
+```
+
+### Scenario 22: Transcript ingest - decisions medium, analysis low, bytes out of git
+
+```
+GIVEN raw/chat-2026-06-25-vault-design.md is a curated claude.ai chat export
+AND llm-wiki.yml lists transcripts in source_types and sensitive_source_types
+WHEN the user runs /wiki-ingest --auto
+THEN the system states that transcript sources are interactive-only and runs
+    the checkpoint anyway (REQ-1303)
+AND the source's type infers as transcripts from the chat- prefix (REQ-1300)
+AND the checkpoint offers each extracted decision individually with the full
+    sentence(s); a decision the user confirms is written at
+    reliability:: medium, while model-only analysis from the same chat rates
+    low with a ## Pending Review entry (REQ-1302)
+AND after confirmation the file moves to ingested/transcripts/, which is
+    gitignored: the wiki pages and journal entry enter the atomic commit,
+    the transcript bytes do not (REQ-1301, REQ-046)
 ```
 
 ---
