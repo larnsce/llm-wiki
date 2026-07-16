@@ -97,6 +97,18 @@ with [rclone](https://rclone.org) (`brew install rclone`, then
 `rclone config` once for your provider). Any offsite target works; substitute
 your own copy command if you prefer.
 
+If the target is Google Drive, create your **own** Google Cloud OAuth
+`client_id`/`client_secret` during `rclone config` and do not fall back to
+rclone's built-in shared one: the shared client_id is being retired and is
+set to stop working during 2026 (issue #113), which would make this nightly
+copy start failing silently - exactly the failure the section 7 tripwires
+exist to catch. Follow
+[rclone's making-your-own-client-id guide](https://rclone.org/drive/#making-your-own-client-id);
+an existing remote can be reconfigured in place with `rclone config`
+(re-run the OAuth step), and the fix is verified when `rclone lsd remote:`
+no longer prints the shared-client retirement NOTICE. Re-run one backup and
+the section 2.3 restore drill after reconfiguring.
+
 Save as `~/bin/archive-backup.sh` and `chmod +x` it:
 
 ```bash
