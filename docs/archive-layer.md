@@ -75,6 +75,11 @@ what is in the database:
 - archive.db and every export file stay **out of git** (REQ-1103). Nothing in
   this guide touches the vault's git history except the people pages that go
   through the normal ingest checkpoint.
+- The same backup and drill cover rows added by the **daily IMAP capture**
+  ([`docs/mail-pipeline.md`](mail-pipeline.md)). Those rows have no export
+  file behind them -- archive.db is their primary record -- so the backup
+  precondition binds before that job's first run, and the `messages` count
+  in the drill loop above covers them with no changes.
 
 ## 3. Request Takeout EARLY (multi-day wait)
 
@@ -142,6 +147,10 @@ sqlite-utils search ~/archive/archive.db messages "sanitation planning" -c subje
 A large mailbox takes a while; re-running the import later with a fresh
 Takeout re-imports the file it is given (keep each export's zip -- section 1,
 rule 2).
+
+This section is the bulk historical backstop. Day-to-day mail lands in the
+same `messages` table through the daily IMAP capture
+([`docs/mail-pipeline.md`](mail-pipeline.md)); the two coexist by design.
 
 ## 6. My Activity (optional)
 
