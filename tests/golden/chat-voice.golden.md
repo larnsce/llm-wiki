@@ -59,10 +59,13 @@ the processed-flip offer appearing for the unprocessed row only.
 
 ## Phase 0 output: picker
 
-| # | id | recorded | length | status | description | keywords |
-|---|----|----------|--------|--------|-------------|----------|
-| 1 | 2 | 2026-07-06 17:05 | 88s | UNPROCESSED | Post-seminar retro: demo fixed by rebuilding the hub index first; cache metaphor fell flat, card-catalog analogy idea; Jana's chapter comments arrived | seminar, retrieval-demo, hub-index, teaching-analogy, jana |
-| 2 | 1 | 2026-07-05 18:40 | 62s | processed | Seminar prep: demo failure traced to stale routing descriptions; hub index must be rebuilt before stage one; Jana to review chapter | seminar, retrieval-demo, hub-index, jana |
+| # | id | recorded | length | status | file | description | keywords |
+|---|----|----------|--------|--------|------|-------------|----------|
+| 1 | 2 | 2026-07-06 17:05 | 88s | UNPROCESSED | voice-note-2.m4a | Post-seminar retro: demo fixed by rebuilding the hub index first; cache metaphor fell flat, card-catalog analogy idea; Jana's chapter comments arrived | seminar, retrieval-demo, hub-index, teaching-analogy, jana |
+| 2 | 1 | 2026-07-05 18:40 | 62s | processed | voice-note-1.m4a | Seminar prep: demo failure traced to stale routing descriptions; hub index must be rebuilt before stage one; Jana to review chapter | seminar, retrieval-demo, hub-index, jana |
+
+The `file` column is the basename of the row's stored `audio_path`, derived
+at display time (issue #121); the full cold-storage path never appears.
 
 Digests are runtime-only (REQ-1200): nothing is written to any file or
 database by this phase.

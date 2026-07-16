@@ -7,7 +7,54 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- AI-conversation-transcript ingest route (issue #107 Part 2): the spec'd
+  machinery for chats as sources, shipped after the maintainer waived the
+  five-hand-ingest gate (2026-07-16; the Phase-0 hand ingests validated the
+  route). New Transcript Sources REQ block in `openspec/specs/ingest.md`,
+  REQ-1300..1305: file route through `raw/` with `chat-` filename type
+  inference (REQ-1300); `transcripts` source type, sensitive by default so
+  the bytes never enter git history, with an off-machine-copy requirement
+  for gitignored `ingested/` subtrees before the first sensitive ingest
+  (REQ-1301); capture-backed reliability with the confirmed-decision
+  `medium` exception (REQ-1302, schema REQ-586b extended); interactive-only
+  with a per-decision opt-in checkpoint variant and journal decision-log
+  default (REQ-1303); skip content another system of record already holds
+  (REQ-1304); curation precedes ingest (REQ-1305). Plus: config defaults
+  updated (config REQ-623/624, `config.example.yml`), audit REQ-927 extended
+  to give `ingested/transcripts/` refs the `capture-backed` verdict and
+  `source-missing` for lost gitignored bytes, `wiki-ingest` skill support
+  (prefix inference, checkpoint decision table, `--auto` exception), a
+  frozen chat fixture with `tests/golden/ingest-transcript.golden.md`
+  (recorded on claude-fable-5), harness assertions, and the
+  `docs/source-routes.md` route promoted from manual protocol to spec'd
+  machinery. Scenario 22 covers the end-to-end shape.
+
+- `SECURITY.md` (issue #112): private vulnerability reporting via GitHub
+  security advisories, plus what counts as a vulnerability for a local-first
+  tool (credential-lint bypasses, sensitive-source leaks past REQ-046, L1/L2
+  boundary crossings). Fixes the dangling `SECURITY.md` link in
+  `docs/faq.md`.
+
 ### Fixed
+
+- Voice capture provenance (issue #121). `recorded_at` is now stamped from
+  the audio container's own creation time - the m4a `mvhd` box (UTC, MP4
+  epoch), falling back to the `©day` atom, then to `st_mtime` only as a
+  documented last resort - instead of trusting `st_mtime`, which AirDrop and
+  copies rewrite (observed shifting memos onto the wrong day). Pure-stdlib
+  MP4 box parse in the reference `voice_note_insert.py`
+  (`docs/voice-pipeline.md` section 5.2); no new dependency. Both voice
+  pickers (`wiki-chat-voice`, `wiki-ingest-voice`) now also show the
+  original filename (basename of the stored `audio_path`, derived at
+  display time - ingest REQ-1200 updated), so a row stays traceable to the
+  phone's recording and a suspicious timestamp can be cross-checked by eye.
+  The six-column `voice_notes` schema is unchanged (storage REQ-1111).
+- Stale repository URLs (issue #112): issue/reporting links in
+  `docs/faq.md`, `docs/troubleshooting.md`, the issue-template config,
+  `openspec/project.md`, and the CHANGELOG link definitions now point at
+  `larnsce/llm-wiki` instead of the pre-transfer repository path.
 
 - Voice transcription: whisper.cpp decoder repetition loops (issue #120).
   `voice_note_insert.py` now passes `--max-context 0` plus temperature
@@ -21,6 +68,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- `docs/voice-pipeline.md` section 2.2 (issue #113): Google Drive backup
+  setup now instructs creating a personal OAuth `client_id` for rclone -
+  rclone's shared client_id is being retired during 2026, and inheriting it
+  would make the nightly archive.db copy (storage REQ-1120) start failing
+  silently. Includes the reconfigure-in-place path and the verification
+  signal (no retirement NOTICE on `rclone lsd`).
 - index.db freshness reporting (issue #115). The dead-man status line now
   reads a missing or never-built index (`index n/a`) as INFORMATIONAL rather
   than a warning: `index.db` is rebuilt lazily at query time by design
@@ -694,7 +747,7 @@ First stable release.
 - Credential leak detection (lint rule 6) scans for tokens, passwords, secrets
 - L1/L2 security boundary: credentials stay in L1 (git-excluded), wiki is git-tracked
 
-[1.2.0]: https://github.com/MehmetGoekce/llm-wiki/compare/v1.1.1...v1.2.0
-[1.1.1]: https://github.com/MehmetGoekce/llm-wiki/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/MehmetGoekce/llm-wiki/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/MehmetGoekce/llm-wiki/releases/tag/v1.0.0
+[1.2.0]: https://github.com/larnsce/llm-wiki/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/larnsce/llm-wiki/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/larnsce/llm-wiki/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/larnsce/llm-wiki/releases/tag/v1.0.0

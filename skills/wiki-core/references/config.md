@@ -40,10 +40,12 @@ Optional (REQ-620..625):
   (query supplementation, L1/L2 duplicate detection) are disabled; this is a
   graceful degradation, not an error.
 - Source pipeline: `raw_dir` (default `raw`), `ingested_dir` (default `ingested`),
-  `source_types` (default `papers, clippings, articles, data, notes, assets`),
-  `default_source_type`. Absent keys disable the source pipeline.
+  `source_types` (default `papers, clippings, articles, data, notes, assets,
+  transcripts`), `default_source_type`. Absent keys disable the source pipeline.
 - `sensitive_source_types`: source types whose archived bytes must not enter git
-  history (see openspec/specs/ingest.md REQ-046).
+  history (see openspec/specs/ingest.md REQ-046). When the key is absent and
+  `transcripts` is a configured source type, the default is `transcripts`
+  (REQ-624, ingest REQ-1301).
 - `para_dir` (default `para`) / `notes_dir` (default `notes`): the human-owned
   namespaces recognized by the scope rule and namespace-hygiene (REQ-625,
   openspec/specs/namespaces.md REQ-980). Absent keys keep the defaults; the

@@ -69,6 +69,17 @@ frozen.
   non-corroboration keeping `reliability:: low`, and the processed-flip
   offer for the unprocessed row only. The user turns are fixed in the
   golden header so the close stays comparable.
+- `source/chat-2026-06-25-vault-design.md`: pinned fixture source, a FAKE
+  curated claude.ai chat export written for this suite; it enters the
+  queue as `raw/chat-2026-06-25-vault-design.md` so the `chat-` prefix
+  triggers the transcript route.
+- `ingest-transcript.golden.md`: the expected `/wiki-ingest` checkpoint
+  for that export (issue #107 Part 2, ingest REQ-1300..1305): `chat-`
+  prefix type inference, the per-decision opt-in table, confirmed
+  decisions `medium` vs model-asserted analysis `low` with Pending Review
+  (schema REQ-586b), the repo-absorbed-content skip, the individual
+  confirmation rule for rows naming a person, and the sensitive-type
+  flow (bytes to gitignored `ingested/transcripts/`).
 
 ## Model baselines (`fable-baseline/`)
 

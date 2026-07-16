@@ -9,6 +9,7 @@ project:
     - index.md
     - CHANGELOG.md
     - CONTRIBUTING.md
+    - SECURITY.md
     - reference/*.md
     - docs/*.md
     - openspec/specs/*.md
