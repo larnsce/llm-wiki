@@ -409,7 +409,10 @@ STAGING: this section takes effect with the wiki-chat-voice skill
   newest first, bounded by default (last ~20 rows, paginated on request) and
   filterable by date (`--since`), transcript substring (`--grep`, SQL LIKE),
   and `--unprocessed`. Each picker row carries: id, recorded date, duration,
-  a one-line description, and 3-5 keywords. Descriptions and keywords are
+  the original filename (the basename of `audio_path`, derived at display
+  time - a human-recognizable handle and a cross-check when a `recorded_at`
+  looks wrong, issue #121), a one-line description, and 3-5 keywords.
+  Descriptions and keywords are
   generated AT RUN TIME for the rows shown, and only those; they MUST NOT be
   persisted anywhere: `voice_notes` is frozen at six columns (storage
   REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db
@@ -702,7 +705,8 @@ AND with data_snapshots_keep: 3 the oldest unreferenced snapshot beyond
 GIVEN archive.db holds voice_notes rows 1 (processed) and 2 (unprocessed)
 WHEN the user runs /wiki-chat-voice
 THEN a picker lists both rows newest first, marked processed/unprocessed,
-    each with a runtime one-line description and 3-5 keywords
+    each with its original filename (basename of audio_path), a runtime
+    one-line description and 3-5 keywords
 AND the browse persists nothing (archive.db bytes are unchanged)
 AND after the user selects both and converses at length, no journal, page,
     or archive.db write happens before the closing checkpoint is confirmed

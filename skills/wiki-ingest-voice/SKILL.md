@@ -112,15 +112,22 @@ split of REQ-080 holds):
 
   ```
   python3 - "$ARCHIVE_DB" <<'PY'
-  import sys, sqlite3
+  import sys, sqlite3, pathlib
   db = sqlite3.connect(sys.argv[1])
   for row in db.execute(
-          "SELECT id, recorded_at, duration, transcript FROM voice_notes "
-          "WHERE processed = 0 ORDER BY id"):
-      print("--- id=%s recorded_at=%s duration=%.0fs" % row[:3])
-      print(row[3])
+          "SELECT id, recorded_at, duration, audio_path, transcript "
+          "FROM voice_notes WHERE processed = 0 ORDER BY id"):
+      print("--- id=%s recorded_at=%s duration=%.0fs file=%s" % (
+          row[0], row[1], row[2],
+          pathlib.PurePath(row[3]).name if row[3] else "-"))
+      print(row[4])
   PY
   ```
+
+  The `file=` field is the original filename (basename of the stored
+  `audio_path`, derived at display time; issue #121): show it wherever the
+  note is presented to the user, so a row stays traceable to the phone's
+  recording and a suspicious `recorded_at` can be cross-checked by eye.
 
 - Gather the dead-man status inputs (storage REQ-1140):
   - newest file age in the voice inbox (`inbox_dir` from config, default

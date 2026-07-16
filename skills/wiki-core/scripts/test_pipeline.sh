@@ -920,16 +920,17 @@ CHATDB_BEFORE="$(hash_db "$CHATDB")"
 
 # The browse snippet from skills/wiki-chat-voice/SKILL.md Phase 0, verbatim.
 run python3 - "$CHATDB" <<'PY'
-import sys, sqlite3
+import sys, sqlite3, pathlib
 db = sqlite3.connect("file:%s?mode=ro" % sys.argv[1], uri=True)
 rows = db.execute(
-    "SELECT id, recorded_at, duration, processed, transcript "
+    "SELECT id, recorded_at, duration, processed, audio_path, transcript "
     "FROM voice_notes ORDER BY id DESC LIMIT 20").fetchall()
-for id_, rec, dur, proc, t in rows:
+for id_, rec, dur, proc, audio, t in rows:
     words = t.split()
-    print("%s | %s | %.0fs | %s | %d words | %s..." % (
+    print("%s | %s | %.0fs | %s | %s | %d words | %s..." % (
         id_, rec[:16], dur,
         "processed" if proc else "UNPROCESSED",
+        pathlib.PurePath(audio).name if audio else "-",
         len(words), " ".join(words[:12])))
 PY
 assert_exit 0 "chat-voice: browse query runs clean (REQ-1200)"
@@ -940,6 +941,15 @@ if head -1 "$OUT" | grep -q '^2 | 2026-07-06' \
   report PASS "chat-voice: picker lists newest first with processed marks (REQ-1200)"
 else
   report FAIL "chat-voice: picker lists newest first with processed marks (REQ-1200)"
+fi
+# Original filename in the picker (issue #121): basename of audio_path only,
+# never the full cold-storage path.
+if head -1 "$OUT" | grep -q '| b\.m4a |' \
+  && sed -n 2p "$OUT" | grep -q '| a\.m4a |' \
+  && ! grep -q '/tmp/a\.m4a' "$OUT"; then
+  report PASS "chat-voice: picker shows the original filename (REQ-1200, issue #121)"
+else
+  report FAIL "chat-voice: picker shows the original filename (REQ-1200, issue #121)"
 fi
 if [[ "$(hash_db "$CHATDB")" == "$CHATDB_BEFORE" ]]; then
   report PASS "chat-voice: browse left archive.db bytes unchanged (REQ-1200)"
