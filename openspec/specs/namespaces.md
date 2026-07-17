@@ -53,11 +53,19 @@ query-page tiering decision for the human layers.
 - REQ-965: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
   future verb) SHALL operate ONLY on pages whose name starts with `wiki/`.
 - REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under `para/` or
-  `notes/`. These namespaces are human-authored.
+  `notes/`. These namespaces are human-authored. (The one sanctioned machine writer in `para/`
+  is the tasks-sync seam, which is not a wiki workflow - see REQ-969.)
 - REQ-967: A wiki workflow MAY READ `para/` and `notes/` pages when the user asks for context
   (e.g. a query that references a linked note), but SHALL NOT write to them as a side effect.
 - REQ-968: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by
   every skill; it SHALL NOT be restated divergently per skill (enforced by `check_canon.py`).
+- REQ-969: The tasks-sync seam (`specs/tasks-sync.md`) is NOT a wiki workflow and is not bound
+  by REQ-965..967; like the literature sync's managed properties on `notes/literature/` pages,
+  it is a human-layer companion tool with a narrow, enumerated write budget: `issue::`/
+  `opened::`/`closed::` block-property stamps and open-marker -> `DONE` transitions on task
+  blocks the human confirmed, on journal pages and `para/projects/` pages only. It inherits
+  none of the wiki conventions, never touches `wiki/`, `notes/`, or `glossary/`, and its write
+  budget is stated once, normatively, in `specs/tasks-sync.md` (REQ-1414) - not restated here.
 
 ### The Promotion Seam (the only path in)
 

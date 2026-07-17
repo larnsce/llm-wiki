@@ -77,6 +77,11 @@ tool does not read it):
   - `status:: active | paused | archived`
   - `outcome::` — one line: what "done" looks like.
 - Link freely into `[[wiki/...]]` and `[[notes/...]]`. That is the whole point of one graph.
+- **Optional GitHub task-state sync** ([tasks-sync workflow](tasks-sync-workflow.md),
+  `specs/tasks-sync.md`): add a `repo:: owner/repo` page property to route the project's tasks
+  to that repo's issues. tasks-sync is the one sanctioned machine writer in `para/` (namespaces
+  REQ-969, the exception to "never" in the contract table above) and only ever stamps
+  `issue::`/`opened::`/`closed::` properties and flips a marker to `DONE` when its issue closes.
 
 `para/resources/` is a waiting room, not a destination: anything source-backed and stable belongs
 in `wiki/` (as a proper page, or a `canonical-url::` stub if it lives elsewhere — see

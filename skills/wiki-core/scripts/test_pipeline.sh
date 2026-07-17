@@ -1085,6 +1085,173 @@ run py rebuild_index.py --config "$IDXWIKI/llm-wiki-inside.yml"
 assert_exit 0 "rebuild_index: gitignored in-vault target is accepted (REQ-1103)"
 
 # ---------------------------------------------------------------------------
+# tasks_sync.py (specs/tasks-sync.md REQ-1400..1317, config REQ-662..664)
+# ---------------------------------------------------------------------------
+TASKWIKI="$WORK/tasks-wiki"
+make_wiki "$TASKWIKI" logseq
+echo "tasks_repo: larnsce/tasks" >>"$TASKWIKI/llm-wiki.yml"
+echo "tasks_project: larnsce/1" >>"$TASKWIKI/llm-wiki.yml"
+echo "tasks_milestone_label: milestone" >>"$TASKWIKI/llm-wiki.yml"
+run py check_config.py "$TASKWIKI/llm-wiki.yml"
+assert_exit 0 "check_config: tasks-sync keys are known optional keys (REQ-662..664)"
+
+BADTASKS="$WORK/tasks-bad.yml"
+sed 's|^tasks_project:.*|tasks_project: not-a-project|' \
+  "$TASKWIKI/llm-wiki.yml" >"$BADTASKS"
+run py check_config.py "$BADTASKS"
+assert_exit 2 "check_config: malformed tasks_project is critical (REQ-663)"
+
+mkdir -p "$TASKWIKI/journals" "$WORK/tasks-bin"
+cat >"$TASKWIKI/journals/2026_07_16.md" <<'EOF'
+- plain journal prose
+- TODO Draft ingest prompt v3 [[para/projects/demo]]
+- TODO Renew domain #gh
+- TODO buy milk
+	- a child block
+EOF
+cat >"$TASKWIKI/pages/para___projects___demo.md" <<'EOF'
+type:: project
+status:: active
+outcome:: harness fixture
+repo:: larnsce/demo
+
+- TODO Write the demo spec
+- DONE Explore prior art
+EOF
+# Stub gh: logs argv, canned URLs/JSON, repo-aware closed list. No network.
+STUBGH="$WORK/tasks-bin/gh"
+cat >"$STUBGH" <<'EOF'
+#!/usr/bin/env bash
+echo "$@" >>"$GH_LOG"
+case "$1 $2" in
+  "auth status") exit "${GH_AUTH_RC:-0}" ;;
+  "issue create")
+    N=$(grep -c "^issue create" "$GH_LOG")
+    for ((i = 1; i <= $#; i++)); do
+      [[ "${!i}" == "-R" ]] && j=$((i + 1)) && REPO="${!j}"
+    done
+    echo "https://github.com/$REPO/issues/$((41 + N))" ;;
+  "issue list")
+    if [[ "$*" == *"${GH_CLOSED_REPO:-none}"* ]]; then
+      echo "${GH_CLOSED_JSON:-[]}"
+    else
+      echo "[]"
+    fi ;;
+  *) exit 0 ;;
+esac
+EOF
+chmod +x "$STUBGH"
+export GH_LOG="$WORK/tasks-gh.log"
+: >"$GH_LOG"
+tasks_sync() {
+  python3 "$REPO_ROOT/scripts/tasks_sync.py" "$@" \
+    --config "$TASKWIKI/llm-wiki.yml" --gh "$STUBGH"
+}
+
+# open --dry-run: gates candidates, writes nothing (REQ-1402/1304).
+cp -r "$TASKWIKI" "$WORK/tasks-before"
+run tasks_sync open --dry-run
+assert_exit 0 "tasks_sync: open dry-run runs clean (REQ-1404)"
+if grep -q "Draft ingest prompt v3" "$OUT" \
+  && grep -q "larnsce/demo" "$OUT" \
+  && grep -q "Renew domain" "$OUT" \
+  && ! grep -q "buy milk" "$OUT"; then
+  report PASS "tasks_sync: eligibility gate holds - buy milk never a candidate (REQ-1402)"
+else
+  report FAIL "tasks_sync: eligibility gate holds - buy milk never a candidate (REQ-1402)"
+fi
+run diff -r "$WORK/tasks-before" "$TASKWIKI"
+assert_exit 0 "tasks_sync: dry-run left the vault byte-identical (REQ-1404)"
+run grep -c "^issue create" "$GH_LOG"
+assert_exit 1 "tasks_sync: dry-run invoked no mutating gh command (REQ-1404)"
+
+# open (real): issues created, exactly issue::/opened:: stamped (REQ-1405).
+run tasks_sync open
+assert_exit 0 "tasks_sync: open creates and stamps (REQ-1405)"
+if grep -qE "^  issue:: larnsce/demo#[0-9]+$" \
+    "$TASKWIKI/journals/2026_07_16.md" \
+  && grep -qE "^  opened:: \[\[[0-9-]+\]\]$" \
+    "$TASKWIKI/journals/2026_07_16.md" \
+  && grep -qE "^  issue:: larnsce/demo#[0-9]+$" \
+    "$TASKWIKI/pages/para___projects___demo.md" \
+  && grep -qc "item-add" "$GH_LOG" >/dev/null; then
+  report PASS "tasks_sync: issue::/opened:: stamps landed, project item added (REQ-1405/1306)"
+else
+  report FAIL "tasks_sync: issue::/opened:: stamps landed, project item added (REQ-1405/1306)"
+fi
+if grep -A1 "TODO buy milk" "$TASKWIKI/journals/2026_07_16.md" \
+    | grep -q "a child block"; then
+  report PASS "tasks_sync: untracked blocks untouched (REQ-1414)"
+else
+  report FAIL "tasks_sync: untracked blocks untouched (REQ-1414)"
+fi
+
+# Rerun: no candidates, no writes (REQ-1412 idempotency, no state file).
+cp -r "$TASKWIKI" "$WORK/tasks-after-open"
+rm -rf "$WORK/tasks-before"
+run tasks_sync open --dry-run
+assert_exit 0 "tasks_sync: rerun finds zero candidates (REQ-1412)"
+if grep -q "no eligible candidates" "$OUT"; then
+  report PASS "tasks_sync: rerun reports no candidates (REQ-1412)"
+else
+  report FAIL "tasks_sync: rerun reports no candidates (REQ-1412)"
+fi
+
+# close: graph->GitHub for a DONE block, GitHub->graph flip for a
+# closed issue, and both reruns are no-ops (REQ-1410/1311/1312).
+sed -i.bak 's/- TODO Renew domain #gh/- DONE Renew domain #gh/' \
+  "$TASKWIKI/journals/2026_07_16.md" && rm "$TASKWIKI/journals/2026_07_16.md.bak"
+DEMO_ISSUE=$(grep -oE "issue:: larnsce/demo#[0-9]+" \
+  "$TASKWIKI/journals/2026_07_16.md" | head -1 | grep -oE "[0-9]+$")
+export GH_CLOSED_REPO="larnsce/demo"
+export GH_CLOSED_JSON="[{\"number\":$DEMO_ISSUE}]"
+run tasks_sync close
+assert_exit 0 "tasks_sync: close runs clean (REQ-1410/1311)"
+if grep -q "issue close" "$GH_LOG" \
+  && grep -B1 -A3 "DONE Draft ingest prompt v3" \
+    "$TASKWIKI/journals/2026_07_16.md" | grep -qE "closed:: \[\[[0-9-]+\]\]" \
+  && grep -A3 "DONE Renew domain" "$TASKWIKI/journals/2026_07_16.md" \
+    | grep -qE "closed:: \[\[[0-9-]+\]\]"; then
+  report PASS "tasks_sync: marker flipped + closed:: stamped both directions (REQ-1410/1311)"
+else
+  report FAIL "tasks_sync: marker flipped + closed:: stamped both directions (REQ-1410/1311)"
+fi
+cp -r "$TASKWIKI" "$WORK/tasks-after-close"
+run tasks_sync close
+assert_exit 0 "tasks_sync: close rerun is a no-op (REQ-1412)"
+run diff -r "$WORK/tasks-after-close" "$TASKWIKI"
+assert_exit 0 "tasks_sync: close rerun changed no bytes (REQ-1412)"
+rm -rf "$WORK/tasks-after-open" "$WORK/tasks-after-close"
+
+# Unauthenticated gh: clean stop, zero graph writes (REQ-1413).
+cp -r "$TASKWIKI" "$WORK/tasks-before-auth"
+run env GH_AUTH_RC=1 python3 "$REPO_ROOT/scripts/tasks_sync.py" close \
+  --config "$TASKWIKI/llm-wiki.yml" --gh "$STUBGH"
+assert_exit 2 "tasks_sync: unauthenticated gh is a clean stop (REQ-1413)"
+run diff -r "$WORK/tasks-before-auth" "$TASKWIKI"
+assert_exit 0 "tasks_sync: auth failure left the vault byte-identical (REQ-1413)"
+rm -rf "$WORK/tasks-before-auth"
+
+# Obsidian tiering gate (REQ-1401).
+OBSTASKS="$WORK/tasks-obsidian.yml"
+sed 's/^tool: logseq/tool: obsidian/' "$TASKWIKI/llm-wiki.yml" >"$OBSTASKS"
+run python3 "$REPO_ROOT/scripts/tasks_sync.py" open --dry-run \
+  --config "$OBSTASKS" --gh "$STUBGH"
+assert_exit 2 "tasks_sync: obsidian aborts cleanly - Logseq tier-1 (REQ-1401)"
+
+# status: read-only report (REQ-1415 counts).
+run tasks_sync status --json
+assert_exit 0 "tasks_sync: status runs clean"
+cp "$OUT" "$WORK/tasks-status.json"
+run python3 - "$WORK/tasks-status.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+sys.exit(0 if r["candidates"] == 0 and r["closed"] == 2 else 1)
+PY
+assert_exit 0 "tasks_sync: status counts tracked/closed blocks"
+unset GH_LOG GH_CLOSED_REPO GH_CLOSED_JSON
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo
