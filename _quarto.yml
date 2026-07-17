@@ -10,6 +10,7 @@ project:
     - CHANGELOG.md
     - CONTRIBUTING.md
     - reference/*.md
+    - plain/*.md
     - docs/*.md
     - openspec/specs/*.md
     - skills/*/SKILL.md
@@ -25,7 +26,11 @@ website:
   navbar:
     left:
       - text: Skills
-        href: reference/skills.md
+        menu:
+          - text: Standard (SKILL.md)
+            href: reference/skills.md
+          - text: In plain language
+            href: reference/skills-plain.md
       - text: Specs
         href: reference/specs.md
       - text: Agents

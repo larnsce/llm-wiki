@@ -15,6 +15,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   dashes, no jargon, no filler) with an optional HTML diff view for
   revisions. Not wiki-specific and independent of `wiki-core`; `setup.sh`
   installs it alongside the `wiki-*` skills (spec: setup.md REQ-802).
+- Plain language pages on the documentation site: every skill now has a
+  `plain/<skill>.md` companion page explaining it in everyday words,
+  written to the plain-writing skill's rules. The Skills navbar entry
+  becomes a dropdown with two entries, "Standard (SKILL.md)" (the
+  instructions the model runs, published word for word) and "In plain
+  language"; a new generated index (`reference/skills-plain.md`)
+  cross-links each pair, and the pre-render script warns when a skill
+  is missing its plain page. The generator's mini frontmatter reader
+  now folds YAML block scalars (`description: >-`), which the vendored
+  plain-writing SKILL.md uses.
 
 ## [3.6.0] - 2026-07-13
 
