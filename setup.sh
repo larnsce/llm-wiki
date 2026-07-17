@@ -191,7 +191,7 @@ is_personal_skill() {
 }
 
 echo "Installing skills into $SKILLS_DEST ($LINK_MODE mode):"
-for src in "$SCRIPT_DIR"/skills/wiki-*; do
+for src in "$SCRIPT_DIR"/skills/wiki-* "$SCRIPT_DIR"/skills/plain-writing; do
     [ -d "$src" ] || continue
     name="$(basename "$src")"
     if is_personal_skill "$name" && [ "$WITH_PERSONAL" = 0 ]; then

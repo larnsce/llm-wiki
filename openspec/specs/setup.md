@@ -129,10 +129,10 @@ skills for Claude Code. It requires only bash, python3, and git.
   for Claude Code.
 - REQ-801: The user MAY choose a project install (`<project>/.claude/skills/`), a
   user install (`~/.claude/skills/`), or "skip" to decline.
-- REQ-802: If installing: copy (or symlink) each `skills/wiki-*` directory into the
-  chosen skills directory, creating it if needed. No file is patched during
-  install: config location is resolved at runtime by discovery
-  (specs/config.md REQ-652).
+- REQ-802: If installing: copy (or symlink) each `skills/wiki-*` directory, plus
+  the vendored `skills/plain-writing` skill, into the chosen skills directory,
+  creating it if needed. No file is patched during install: config location is
+  resolved at runtime by discovery (specs/config.md REQ-652).
 - REQ-803 (personal tier is opt-in): The default install SHALL SKIP the
   personal-tier skills (`skills/wiki-ingest-voice`, `skills/wiki-chat-voice`);
   they are installed only when `--with-personal` is passed. The personal tier depends on

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `plain-writing`: vendored writing-style skill by Shreya Shankar
+  (https://github.com/shreyashankar/plain-writing-skill, commit `25a5393`,
+  MIT license). Plain prose rules (simple words, complete sentences, no
+  dashes, no jargon, no filler) with an optional HTML diff view for
+  revisions. Not wiki-specific and independent of `wiki-core`; `setup.sh`
+  installs it alongside the `wiki-*` skills (spec: setup.md REQ-802).
+
 ## [3.6.0] - 2026-07-13
 
 The documentation site goes live (issue #111) and the wiki-chat-voice
