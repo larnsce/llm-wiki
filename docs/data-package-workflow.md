@@ -157,6 +157,54 @@ rows inside `## description` or `## data dictionary`: those two blocks
 are machine territory and are regenerated wholesale on the next sync
 (ingest REQ-102).
 
+Here is the `toilets` dataset page from the dry-run example above
+(`pages/wiki___data___sanidata___toilets.md`) after a sync, with one
+note of each kind written in. The two bullets marked `<- yours` are the
+only human lines; everything else is machine-written and will be
+regenerated:
+
+```markdown
+type:: entity
+entity-type:: dataset
+created:: 2026-07-18
+status:: active
+source:: ingest
+reliability:: high
+schema-spec-version:: 2.0.0
+package:: larnsce/sanidata
+version:: 1.0.0
+license:: CC BY 4.0
+url:: https://github.com/larnsce/sanidata
+source-file:: ingested/data/sanidata-1.0.0/toilets.csv, ingested/data/sanidata-1.0.0/toilets.md
+data-last-sync:: 1.0.0
+updated:: 2026-07-18
+
+- Toilet observations from the 2019 sanitation survey
+  cite:: ingested/data/sanidata-1.0.0/toilets.md
+- ## description
+	- Toilet observations from the 2019 sanitation survey
+	  cite:: ingested/data/sanidata-1.0.0/toilets.md
+	- 412 rows, 6 variables (data: ingested/data/sanidata-1.0.0/toilets.csv)
+	  cite:: ingested/data/sanidata-1.0.0/toilets.csv
+- ## data dictionary
+	- id - unique toilet identifier
+	  cite:: ingested/data/sanidata-1.0.0/toilets.md
+	- ward - city ward the toilet stands in
+	  cite:: ingested/data/sanidata-1.0.0/toilets.md
+		- ward 7 was covered by two enumerators in week 1; counts may double #fleeting   <- yours
+- ## fleeting
+	- compare toilets-per-ward against [[wiki/data/sanidata/pumps]] before citing this #fleeting   <- yours
+- ## Cross-References
+	- [[wiki/data/sanidata]]
+```
+
+The note under the `ward` row is indented one level deeper than the row
+(a child bullet), so the next sync keeps it and re-attaches it after the
+regenerated dictionary. The note under `## fleeting` is free-form and
+never touched. Both carry the `#fleeting` tag by hand, per the
+Zettelkasten convention ([PARA + Zettelkasten
+workflow](para-notes-workflow.md)) - the tooling never writes tags.
+
 ## Special cases
 
 - **A package you develop locally** (or one not on GitHub): sync from

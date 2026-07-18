@@ -78,18 +78,28 @@ the SAME `ingested/<type>/<file>` path the wiki page cites. One archived
 source, two readings: the human's reading lives in `notes/literature/`, the
 machine's synthesis in `wiki/`, both auditable back to the same file.
 
-Ingest's part is a REMINDER, never a write:
+Ingest's part is a CONFIRMED write (REQ-974, issue #133): the human
+confirms, the tool types. Recognition first:
 
-- When a processed source is recognizably a literature note (the filename is
+- A processed source is recognizably a literature note when the filename is
   `raw/note-@<citekey>.md`, or its metadata carries `citekey::` or
-  `type:: literature`), add a reminder line to the Phase 5 report: "This
-  looks like a literature note for @<citekey>. If a
-  notes/literature/@<citekey> page exists, set its source-file:: to
+  `type:: literature`.
+- If a `notes/literature/@<citekey>` page EXISTS and its `source-file::` is
+  blank or absent, offer at the checkpoint: "This looks like a literature
+  note for @<citekey>. Set notes/literature/@<citekey>'s source-file:: to
   <ingested/path> so both readings point at the same archived source
-  (REQ-973)."
-- Setting that property is the human's edit. Never write it into `notes/`
-  as a side effect: `notes/` is human-authored and the scope rule (REQ-966)
-  forbids it.
+  (REQ-973)? [y/n]". On yes, write exactly that one property value -
+  nothing else on the page changes. On no, do nothing.
+- Everything else stays a REMINDER in the Phase 5 report, never a write:
+  the page does not exist (never create it - it is born from `/lit-sync`),
+  its `source-file::` already carries a different value (report the
+  conflict, never overwrite), or the run is `--auto` (no checkpoint means
+  no human to confirm, so no write).
+
+This is the ONLY sanctioned tool write into `notes/` - an enumerated
+exception to the scope rule (REQ-966). Everything else under `notes/`
+remains human-authored, and the write itself is the human's decision;
+the tool merely saves them the typing.
 
 Full claim-level auditability of this seam rides on the block-native
 citations the wiki side already emits (specs/citations.md).

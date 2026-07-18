@@ -35,7 +35,7 @@ Shared conventions (read before executing):
   claim blocks (specs/citations.md REQ-900..905, ingest REQ-033b), the
   source-file union invariant, and the `check_citations.py` gate step.
 - [promotion-seam](references/promotion-seam.md): the para/notes promotion
-  seam (specs/namespaces.md REQ-970..973): recognizing
+  seam (specs/namespaces.md REQ-970..974): recognizing
   `raw/para-<project>.md` / `raw/note-<name>.md` sources, the
   personal-synthesis reliability default, the literature variant, and
   sensitive-type handling.
@@ -432,14 +432,17 @@ blocking failure (REQ-026).
   Ingested bullets (REQ-092); all warnings (page-touch count, L1
   candidates found, skipped items) with their reasons (REQ-051); Pending Review
   flags raised or resolved
-- (source pipeline) Literature-note reminder (namespaces REQ-973): when a
+- (source pipeline) Literature-note seam (namespaces REQ-973/974): when a
   processed source is recognizably a literature note (filename
   `raw/note-@<citekey>.md`, or metadata with `citekey::` or
-  `type:: literature`), remind the user in the report to point the
-  `notes/literature/@<citekey>` page's `source-file::` at the SAME
-  `ingested/` path the wiki pages cite (one archived source, two readings).
-  A reminder only: NEVER write into `notes/` (scope rule, REQ-966); details
-  in [promotion-seam](references/promotion-seam.md)
+  `type:: literature`) and the `notes/literature/@<citekey>` page exists
+  with a blank `source-file::`, OFFER at the checkpoint to set it to the
+  SAME `ingested/` path the wiki pages cite (one archived source, two
+  readings); on explicit confirmation write EXACTLY that one property
+  value - the only sanctioned write into `notes/` (REQ-966 exception,
+  issue #133). Otherwise (page missing, value already set, or `--auto`)
+  fall back to a report reminder and write nothing; details in
+  [promotion-seam](references/promotion-seam.md)
 - `--auto` runs: include the FULL checkpoint plan table (the same table the
   checkpoint would have shown) in the report, one row per source with
   reliability rationale and contradictions (REQ-026)

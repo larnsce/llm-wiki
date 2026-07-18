@@ -8,7 +8,7 @@ right properties, and stay auditable against the same archived source the `wiki/
 > [#90](https://github.com/larnsce/llm-wiki/issues/90)). Replacement: `scripts/lit_sync.py`
 > against Zotero's local HTTP API, driven by the `/lit-sync` command. The schema side is
 > unchanged from v2.2 (the `@citekey` proper-noun leaf, namespaces REQ-976, the
-> literature-variant reminder in `/wiki-ingest`, REQ-973). The end-to-end loop run with the
+> literature-variant seam in `/wiki-ingest`, REQ-973/974). The end-to-end loop run with the
 > script is the remaining maintainer-verified item, tracked in
 > [#28](https://github.com/larnsce/llm-wiki/issues/28).
 
@@ -93,14 +93,15 @@ zotero-last-sync:: <library version>
 	- (synced from Zotero below this line)
 ```
 
-- `source-file::` is left blank by the template. Fill it **when the paper goes through the
+- `source-file::` is left blank by the template. It gets filled **when the paper goes through the
   pipeline**, pointing at `ingested/papers/<file>.md` - the same path the machine-written `wiki/`
   page cites. That shared path is the seam that makes your interpretation auditable against the
   same source as the wiki's ("one archived source, two readings", namespaces REQ-973). When
   `/wiki-ingest` recognizes a promoted literature note (a `raw/note-@<citekey>.md` filename, or
-  `citekey::` / `type:: literature` metadata), its report reminds you to set this property to the
-  `ingested/` path it produced; setting it is always your edit, the tool never writes into
-  `notes/`.
+  `citekey::` / `type:: literature` metadata) and this page exists with the property still blank,
+  it offers at the checkpoint to set it to the `ingested/` path it produced - you confirm, the
+  tool types (REQ-974, issue #133). This is the one sanctioned tool write into `notes/`; it never
+  creates the page, never overwrites a value you set, and in `--auto` runs it only reminds.
 - `## literature` is yours: your literature note in the Zettelkasten sense (add the `#literature` tag by hand when you write it; the tooling never writes tags). Annotation sync appends under its own blocks and never touches your
   prose.
 
@@ -110,9 +111,9 @@ zotero-last-sync:: <library version>
 2. Run `/lit-sync` (dry-run first, then real): new items get their `@citekey` page, new
    annotations append under `## annotations`.
 3. Write `## literature` in your own words - this is the literature note (tag it `#literature` yourself).
-4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki-ingest`, then
-   set `source-file::` here to the `ingested/` path the ingest produced (the report's
-   literature-note reminder, REQ-973, tells you the exact path).
+4. When the paper feeds the wiki: export/flatten to markdown into `raw/`, run `/wiki-ingest`, and
+   confirm at the checkpoint when it offers to set `source-file::` here to the `ingested/` path it
+   produced (REQ-973/974) - the tool writes the path for you.
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
    `[[notes/literature/@citekey]]`.
 

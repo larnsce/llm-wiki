@@ -9,6 +9,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- `plain-writing`: vendored writing-style skill by Shreya Shankar
+  (https://github.com/shreyashankar/plain-writing-skill, commit `25a5393`,
+  MIT license). Plain prose rules (simple words, complete sentences, no
+  dashes, no jargon, no filler) with an optional HTML diff view for
+  revisions. Not wiki-specific and independent of `wiki-core`; `setup.sh`
+  installs it alongside the `wiki-*` skills (spec: setup.md REQ-802).
+
+- Worked examples in the workflow docs: the data-package guide shows a
+  complete dataset page after a sync with the two surviving human-note
+  spots marked (issue #135), and the PARA/Zettelkasten guide shows what
+  each `type::` note looks like on disk plus the simple and advanced
+  queries that filter on the property (issue #136).
+
 - AI-conversation-transcript ingest route (issue #107 Part 2): the spec'd
   machinery for chats as sources, shipped after the maintainer waived the
   five-hand-ingest gate (2026-07-16; the Phase-0 hand ingests validated the
@@ -92,6 +105,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   time only.
 
 ### Changed
+
+- Literature-note `source-file::` is now written by the tool on the
+  human's confirmation (issue #133, new namespaces REQ-974). When
+  `/wiki-ingest` recognizes a promoted literature note and the
+  `notes/literature/@<citekey>` page exists with the property blank, the
+  checkpoint offers to set it to the `ingested/` path the run produced -
+  you confirm, the tool types. The one enumerated exception to the
+  "never write `notes/`" scope rule (REQ-966): the tool never creates
+  the page, never overwrites a value you set, and `--auto` runs keep
+  the old report-reminder behavior.
 
 - `docs/voice-pipeline.md` section 2.2 (issue #113): Google Drive backup
   setup now instructs creating a personal OAuth `client_id` for rclone -

@@ -29,6 +29,7 @@ llm-wiki is an implementation of that idea. Claude Code is the LLM brain; Logseq
 | `wiki-glossary` | The glossary curation loop (v2.3): drain `#glossary-todo` captures into one checkpoint, promote staging rows, pull-only termbase import; every write is human-confirmed, the tool never decides a Rule |
 | `wiki-ingest-voice` | Personal tier (v3.0, `--with-personal` only): drain unprocessed voice transcripts from archive.db to journal summaries; wiki writes per-row opt-in, interactive only |
 | `wiki-chat-voice` | Personal tier (issue #117, `--with-personal` only): a conversation with your recorded voice notes - browse the archive (read-only, runtime digests), talk about selected notes in-session, close with one confirmed ingest: journal synthesis by default, per-claim wiki offers citing the note ids |
+| `plain-writing` | Vendored writing-style skill by [Shreya Shankar](https://github.com/shreyashankar/plain-writing-skill) (MIT): plain prose rules (simple words, complete sentences, no dashes, no jargon, no filler) applied whenever the agent drafts or revises prose; not wiki-specific, installed alongside the suite |
 
 `skills/wiki-core/` is not a skill; it is the shared library the suite runs on: the scripts (`init_wiki.py`, `lint.py`, `check_canon.py`, `secret_scan.py`, `migrate_wiki.py`, config discovery) and the shared reference docs (config, architecture, formats, trust).
 
