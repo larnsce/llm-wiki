@@ -53,7 +53,8 @@ query-page tiering decision for the human layers.
 - REQ-965: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any
   future verb) SHALL operate ONLY on pages whose name starts with `wiki/`.
 - REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under `para/` or
-  `notes/`. These namespaces are human-authored.
+  `notes/`. These namespaces are human-authored. The single enumerated exception is the
+  human-confirmed literature-note `source-file::` write (REQ-974).
 - REQ-967: A wiki workflow MAY READ `para/` and `notes/` pages when the user asks for context
   (e.g. a query that references a linked note), but SHALL NOT write to them as a side effect.
 - REQ-968: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by
@@ -77,6 +78,15 @@ query-page tiering decision for the human layers.
   archived source, the note's `source-file::` SHOULD point at the SAME `ingested/<type>/<file>`
   path the wiki page cites - one archived source, two readings. (Full claim-level auditability of
   this seam depends on block-native citations, `specs/citations.md`.)
+- REQ-974: When ingest recognizes a promoted literature note (ingest side of REQ-973) and a
+  matching `notes/literature/@<citekey>` page already exists with a blank or absent
+  `source-file::`, the tool SHALL offer to set that property to the `ingested/` path it produced,
+  and on the human's explicit confirmation at the checkpoint SHALL write EXACTLY that one property
+  value - the only sanctioned tool write into `notes/` (the REQ-966 exception; issue #133). The
+  human confirms; the tool types. Bounds: it SHALL NOT create the page, SHALL NOT touch any other
+  line, SHALL NOT overwrite an existing non-blank value (a conflicting value is reported, never
+  replaced), and in `--auto` runs (no checkpoint, no human to confirm) SHALL fall back to the
+  report reminder and write nothing.
 
 ### Note-Type Vocabulary (recognized, not authored)
 
@@ -117,6 +127,7 @@ GIVEN a vault with pages under wiki/, para/, and notes/
 WHEN /wiki-ingest drains the raw/ queue
 THEN it SHALL create/update pages only under wiki/
 AND it SHALL NOT create, edit, or move any page under para/ or notes/
+(sole exception: the human-confirmed literature-note source-file:: write, REQ-974)
 ```
 
 ### Scenario 2: lint exempts human namespaces
