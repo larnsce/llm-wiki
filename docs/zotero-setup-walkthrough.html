@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>troubleshooting – llm-wiki</title>
+<title>zotero-setup-walkthrough – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -169,35 +169,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link active" data-scroll-target="#troubleshooting">Troubleshooting</a>
+  <li><a href="#zotero-setup-walkthrough-novice-friendly" id="toc-zotero-setup-walkthrough-novice-friendly" class="nav-link active" data-scroll-target="#zotero-setup-walkthrough-novice-friendly">Zotero setup walkthrough (novice-friendly)</a>
   <ul class="collapse">
-  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a>
-  <ul class="collapse">
-  <li><a href="#setup.sh-python3-command-not-found" id="toc-setup.sh-python3-command-not-found" class="nav-link" data-scroll-target="#setup.sh-python3-command-not-found"><code>setup.sh: python3: command not found</code></a></li>
-  <li><a href="#setup.sh-git-command-not-found" id="toc-setup.sh-git-command-not-found" class="nav-link" data-scroll-target="#setup.sh-git-command-not-found"><code>setup.sh: git: command not found</code></a></li>
-  <li><a href="#setup.sh-fails-during-template-rendering" id="toc-setup.sh-fails-during-template-rendering" class="nav-link" data-scroll-target="#setup.sh-fails-during-template-rendering"><code>setup.sh</code> fails during template rendering</a></li>
-  <li><a href="#the-script-exits-at-which-note-taking-tool-do-you-use" id="toc-the-script-exits-at-which-note-taking-tool-do-you-use" class="nav-link" data-scroll-target="#the-script-exits-at-which-note-taking-tool-do-you-use">The script exits at “Which note-taking tool do you use?”</a></li>
-  </ul></li>
-  <li><a href="#wiki-app-integration" id="toc-wiki-app-integration" class="nav-link" data-scroll-target="#wiki-app-integration">Wiki App Integration</a>
-  <ul class="collapse">
-  <li><a href="#new-pages-dont-appear-in-the-logseq-graph" id="toc-new-pages-dont-appear-in-the-logseq-graph" class="nav-link" data-scroll-target="#new-pages-dont-appear-in-the-logseq-graph">New pages don’t appear in the Logseq graph</a></li>
-  <li><a href="#obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties" id="toc-obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties" class="nav-link" data-scroll-target="#obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties">Obsidian shows YAML frontmatter as a code block instead of Properties</a></li>
-  <li><a href="#cross-references-wikitechstrapi-arent-clickable" id="toc-cross-references-wikitechstrapi-arent-clickable" class="nav-link" data-scroll-target="#cross-references-wikitechstrapi-arent-clickable">Cross-references <code>[[wiki/tech/Strapi]]</code> aren’t clickable</a></li>
-  </ul></li>
-  <li><a href="#claude-code-integration" id="toc-claude-code-integration" class="nav-link" data-scroll-target="#claude-code-integration">Claude Code Integration</a>
-  <ul class="collapse">
-  <li><a href="#the-wiki-skills-arent-available-or-cant-find-the-wiki" id="toc-the-wiki-skills-arent-available-or-cant-find-the-wiki" class="nav-link" data-scroll-target="#the-wiki-skills-arent-available-or-cant-find-the-wiki">The wiki skills aren’t available or can’t find the wiki</a></li>
-  <li><a href="#wiki-ingest-runs-forever-or-times-out" id="toc-wiki-ingest-runs-forever-or-times-out" class="nav-link" data-scroll-target="#wiki-ingest-runs-forever-or-times-out"><code>/wiki-ingest</code> runs forever or times out</a></li>
-  <li><a href="#wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials" id="toc-wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials" class="nav-link" data-scroll-target="#wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials"><code>/wiki-ingest</code> blocks with a credential-leak warning but the content has no credentials</a></li>
-  </ul></li>
-  <li><a href="#wiki-growth" id="toc-wiki-growth" class="nav-link" data-scroll-target="#wiki-growth">Wiki Growth</a>
-  <ul class="collapse">
-  <li><a href="#the-wiki-has-grown-past-200-pages-and-feels-unmanageable" id="toc-the-wiki-has-grown-past-200-pages-and-feels-unmanageable" class="nav-link" data-scroll-target="#the-wiki-has-grown-past-200-pages-and-feels-unmanageable">The wiki has grown past 200 pages and feels unmanageable</a></li>
-  <li><a href="#wiki-lint-keeps-flagging-the-same-orphan-pages" id="toc-wiki-lint-keeps-flagging-the-same-orphan-pages" class="nav-link" data-scroll-target="#wiki-lint-keeps-flagging-the-same-orphan-pages"><code>/wiki-lint</code> keeps flagging the same orphan pages</a></li>
-  </ul></li>
+  <li><a href="#what-you-are-building" id="toc-what-you-are-building" class="nav-link" data-scroll-target="#what-you-are-building">What you are building</a></li>
+  <li><a href="#step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero" id="toc-step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero" class="nav-link" data-scroll-target="#step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero">Step 1: Let other apps talk to Zotero (TODO: Add a another step to actually download the latest version of Zotero)</a></li>
+  <li><a href="#step-2-install-better-bibtex-and-pin-citekeys" id="toc-step-2-install-better-bibtex-and-pin-citekeys" class="nav-link" data-scroll-target="#step-2-install-better-bibtex-and-pin-citekeys">Step 2: Install Better BibTeX and pin citekeys</a></li>
+  <li><a href="#step-3-install-the-logseq-plugin" id="toc-step-3-install-the-logseq-plugin" class="nav-link" data-scroll-target="#step-3-install-the-logseq-plugin">Step 3: Install the Logseq plugin</a></li>
+  <li><a href="#step-4-set-the-page-name-template" id="toc-step-4-set-the-page-name-template" class="nav-link" data-scroll-target="#step-4-set-the-page-name-template">Step 4: Set the page-name template</a></li>
+  <li><a href="#step-5-set-the-page-template" id="toc-step-5-set-the-page-template" class="nav-link" data-scroll-target="#step-5-set-the-page-template">Step 5: Set the page template</a></li>
+  <li><a href="#step-6-run-the-loop-once-end-to-end" id="toc-step-6-run-the-loop-once-end-to-end" class="nav-link" data-scroll-target="#step-6-run-the-loop-once-end-to-end">Step 6: Run the loop once, end to end</a></li>
+  <li><a href="#related" id="toc-related" class="nav-link" data-scroll-target="#related">Related</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/troubleshooting.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/zotero-setup-walkthrough.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -205,165 +189,111 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="troubleshooting" class="level1">
-<h1>Troubleshooting</h1>
-<p>Common issues and fixes. If your problem is not listed here, open a <a href="https://github.com/larnsce/llm-wiki/issues/new/choose">GitHub issue</a>.</p>
-<section id="setup" class="level2">
-<h2 class="anchored" data-anchor-id="setup">Setup</h2>
-<section id="setup.sh-python3-command-not-found" class="level3">
-<h3 class="anchored" data-anchor-id="setup.sh-python3-command-not-found"><code>setup.sh: python3: command not found</code></h3>
-<p><strong>Cause:</strong> Python 3 is not installed or not in your <code>PATH</code>. The setup script uses Python 3 to render page templates.</p>
-<p><strong>Fix:</strong></p>
+<section id="zotero-setup-walkthrough-novice-friendly" class="level1">
+<h1>Zotero setup walkthrough (novice-friendly)</h1>
+<p>A step-by-step companion to <a href="../docs/zotero-setup.html">Zotero setup</a>. That doc states the design and the settings; this one walks through the installation for someone doing it for the first time, including the end-to-end verification run that <a href="https://github.com/larnsce/llm-wiki/issues/28">#28</a> tracks.</p>
+<section id="what-you-are-building" class="level2">
+<h2 class="anchored" data-anchor-id="what-you-are-building">What you are building</h2>
+<p>At the end of this setup, every paper you save in Zotero can become a page in Logseq named like <code>notes/literature/@Forte2022</code>, pre-filled with the paper’s metadata, and your PDF highlights can be synced onto that page with one click. Four pieces need to cooperate:</p>
 <ul>
-<li><strong>macOS:</strong> <code>brew install python3</code></li>
-<li><strong>Ubuntu/Debian:</strong> <code>sudo apt install python3</code></li>
-<li><strong>Fedora:</strong> <code>sudo dnf install python3</code></li>
-<li><strong>Windows:</strong> Install from <a href="https://www.python.org/downloads/">python.org</a> and check “Add python.exe to PATH” during install.</li>
-</ul>
-<p>Verify with <code>python3 --version</code>. The script requires Python 3.6 or newer (any version from the last ~8 years works).</p>
-</section>
-<section id="setup.sh-git-command-not-found" class="level3">
-<h3 class="anchored" data-anchor-id="setup.sh-git-command-not-found"><code>setup.sh: git: command not found</code></h3>
-<p><strong>Cause:</strong> Git is not installed. Needed for the optional <code>git init</code> step and to clone the repo in the first place.</p>
-<p><strong>Fix:</strong></p>
-<ul>
-<li><strong>macOS:</strong> Comes with Xcode Command Line Tools - run <code>xcode-select --install</code>.</li>
-<li><strong>Ubuntu/Debian:</strong> <code>sudo apt install git</code></li>
-<li><strong>Fedora:</strong> <code>sudo dnf install git</code></li>
-<li><strong>Windows:</strong> Install <a href="https://git-scm.com/download/win">Git for Windows</a>.</li>
+<li><strong>Zotero</strong> (the desktop app), which stores your papers and PDF annotations.</li>
+<li><strong>Better BibTeX</strong>, a Zotero plugin whose job here is to give every paper a stable short ID called a <em>citekey</em> (for example <code>Forte2022</code>). The Logseq page names are built from these citekeys.</li>
+<li><strong>Zotero’s local API</strong>, a setting that lets other apps on the same computer read your Zotero library. Nothing leaves your machine.</li>
+<li><strong>logseq-zoterolocal-plugin</strong>, a Logseq plugin that reads your library through that local API and creates or updates the pages.</li>
 </ul>
 </section>
-<section id="setup.sh-fails-during-template-rendering" class="level3">
-<h3 class="anchored" data-anchor-id="setup.sh-fails-during-template-rendering"><code>setup.sh</code> fails during template rendering</h3>
-<p><strong>Cause:</strong> Usually one of three things:</p>
+<section id="step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero">Step 1: Let other apps talk to Zotero (TODO: Add a another step to actually download the latest version of Zotero)</h2>
 <ol type="1">
-<li>The destination directory is not writable.</li>
-<li>The template directory is missing (corrupted clone or wrong working directory).</li>
-<li>A pre-existing file blocks template output.</li>
+<li>Open the Zotero desktop app.</li>
+<li>Go to <strong>Zotero → Settings</strong> (on macOS; <strong>Edit → Preferences</strong> on Windows/Linux).</li>
+<li>Open the <strong>Advanced</strong> tab.</li>
+<li>Check the box <strong>Allow other applications on this computer to communicate with Zotero</strong>.</li>
 </ol>
-<p><strong>Fix:</strong></p>
-<ul>
-<li>Confirm you ran <code>./setup.sh</code> from inside the cloned <code>llm-wiki</code> directory, not from elsewhere.</li>
-<li>Check the path you entered is writable: <code>touch ~/Documents/Logseq/test.txt &amp;&amp; rm ~/Documents/Logseq/test.txt</code>.</li>
-<li>If pre-existing pages block the render, setup will skip them. Delete the skipped pages manually if you want them regenerated.</li>
-<li>Re-clone the repo if <code>templates/</code> looks empty or partial.</li>
-</ul>
+<p>This switch is what “local API access” means. Without it, the Logseq plugin cannot see your library at all. It only allows apps on your own computer; it does not expose anything to the internet.</p>
 </section>
-<section id="the-script-exits-at-which-note-taking-tool-do-you-use" class="level3">
-<h3 class="anchored" data-anchor-id="the-script-exits-at-which-note-taking-tool-do-you-use">The script exits at “Which note-taking tool do you use?”</h3>
-<p><strong>Cause:</strong> Something other than <code>1</code> or <code>2</code> was entered. The script exits immediately on invalid input rather than re-prompting.</p>
-<p><strong>Fix:</strong> Re-run <code>./setup.sh</code> and enter exactly <code>1</code> (Logseq) or <code>2</code> (Obsidian). If you prefer non-interactive runs (e.g., CI or testing):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="at">-e</span> <span class="st">"1\n~/test-wiki\ny\n\nskip\ny\nskip"</span> <span class="kw">|</span> <span class="ex">./setup.sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>See <code>CONTRIBUTING.md</code> for the full stdin sequence.</p>
-</section>
-</section>
-<section id="wiki-app-integration" class="level2">
-<h2 class="anchored" data-anchor-id="wiki-app-integration">Wiki App Integration</h2>
-<section id="new-pages-dont-appear-in-the-logseq-graph" class="level3">
-<h3 class="anchored" data-anchor-id="new-pages-dont-appear-in-the-logseq-graph">New pages don’t appear in the Logseq graph</h3>
-<p><strong>Cause:</strong> Logseq watches the <code>pages/</code> directory but only re-indexes under specific conditions. New files created while Logseq is running may not show up until you reload.</p>
-<p><strong>Fix:</strong></p>
+<section id="step-2-install-better-bibtex-and-pin-citekeys" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-install-better-bibtex-and-pin-citekeys">Step 2: Install Better BibTeX and pin citekeys</h2>
+<p>Better BibTeX is not in a built-in plugin store; you install it from a downloaded file.</p>
 <ol type="1">
-<li>In Logseq: <code>File → Reindex</code> (or <code>Cmd/Ctrl + Shift + R</code>).</li>
-<li>Confirm the file path is correct. Logseq pages live in <code>&lt;graph-root&gt;/pages/</code> and must use the <code>wiki___&lt;namespace&gt;___&lt;page&gt;.md</code> triple-underscore naming.</li>
-<li>Check <code>journals/</code> is not accidentally being used - journals have a different format and will not render as regular wiki pages.</li>
+<li>In your browser, go to the <a href="https://github.com/retorquere/zotero-better-bibtex/releases">Better BibTeX releases page</a> and download the latest <code>.xpi</code> file. (If the browser asks whether to open or save it, save it. Firefox may try to install it as a browser extension; right-click the link and choose “Save Link As” instead.)</li>
+<li>In Zotero, go to <strong>Tools → Plugins</strong> (older versions call it Add-ons).</li>
+<li>Click the gear icon, choose <strong>Install Plugin From File</strong>, and select the <code>.xpi</code> you downloaded.</li>
+<li>Restart Zotero when prompted.</li>
 </ol>
-</section>
-<section id="obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties" class="level3">
-<h3 class="anchored" data-anchor-id="obsidian-shows-yaml-frontmatter-as-a-code-block-instead-of-properties">Obsidian shows YAML frontmatter as a code block instead of Properties</h3>
-<p><strong>Cause:</strong> Older Obsidian versions (before 1.4, released mid-2023) do not support the Properties feature. The frontmatter still works, but renders as literal text.</p>
-<p><strong>Fix:</strong></p>
-<ul>
-<li>Update Obsidian to the latest version.</li>
-<li>In Settings → Editor, ensure “Properties in document” is enabled.</li>
-<li>If you deliberately disable Properties, the wiki still works - the LLM reads the YAML, and nothing breaks. The display is just uglier.</li>
-</ul>
-</section>
-<section id="cross-references-wikitechstrapi-arent-clickable" class="level3">
-<h3 class="anchored" data-anchor-id="cross-references-wikitechstrapi-arent-clickable">Cross-references <code>[[wiki/tech/Strapi]]</code> aren’t clickable</h3>
-<p><strong>Cause:</strong> Wrong file-naming convention for the tool.</p>
-<p><strong>Fix:</strong></p>
-<ul>
-<li><strong>Logseq</strong> expects triple-underscore flat files: <code>wiki___tech___Strapi.md</code>. <code>[[wiki/tech/Strapi]]</code> resolves because Logseq treats <code>/</code> and <code>___</code> as equivalent path separators.</li>
-<li><strong>Obsidian</strong> expects directory hierarchy: <code>wiki/tech/Strapi.md</code>. The file literally lives inside <code>wiki/tech/</code>.</li>
-</ul>
-<p>If you mix conventions (e.g., triple-underscore files inside an Obsidian vault), links break. Check that <code>setup.sh</code> configured the correct tool - run it again and pick the tool matching your current vault.</p>
-</section>
-</section>
-<section id="claude-code-integration" class="level2">
-<h2 class="anchored" data-anchor-id="claude-code-integration">Claude Code Integration</h2>
-<section id="the-wiki-skills-arent-available-or-cant-find-the-wiki" class="level3">
-<h3 class="anchored" data-anchor-id="the-wiki-skills-arent-available-or-cant-find-the-wiki">The wiki skills aren’t available or can’t find the wiki</h3>
-<p><strong>Cause:</strong> Either the skill suite is not installed into <code>.claude/skills/</code>, or config discovery cannot locate your <code>llm-wiki.yml</code>. Since v2 there is no config-path placeholder to patch into the skill files; the skills discover the config at runtime.</p>
-<p><strong>Fix:</strong></p>
+<p>Now configure the one setting that matters here:</p>
 <ol type="1">
-<li><p>Confirm the skills are installed: <code>.claude/skills/wiki-core/</code>, <code>wiki-setup/</code>, <code>wiki-ingest/</code>, etc. exist in your project (or globally in <code>~/.claude/skills/</code>). If missing, run <code>./setup.sh</code> from the cloned <code>llm-wiki</code> directory; it copies or symlinks the suite.</p></li>
-<li><p>Check config discovery. The skills locate <code>llm-wiki.yml</code> in this order (first hit wins):</p>
-<ul>
-<li>the path in the <code>LLM_WIKI_CONFIG</code> environment variable, if set;</li>
-<li>walking up from the current working directory to <code>$HOME</code> (inclusive);</li>
-<li>the global pointer file <code>~/.config/llm-wiki/config.yml</code>, whose <code>wiki_path</code> names the wiki root containing the real <code>llm-wiki.yml</code>.</li>
-</ul></li>
-<li><p>Test it directly:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> skills/wiki-core/scripts/find_config.py <span class="at">--json</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Exit 0 prints the resolved path and which discovery method matched; exit 2 means nothing was found (or <code>LLM_WIKI_CONFIG</code> points at a missing file).</p></li>
-<li><p>If discovery fails, run the <code>wiki-setup</code> skill: it scaffolds a fresh wiki when none exists and offers to write the global pointer file so the skills work from any directory.</p></li>
+<li>Go back to <strong>Zotero → Settings</strong> and open the <strong>Better BibTeX</strong> tab. TODO: update for Zotero 9</li>
+<li>Find the option <strong>Automatically pin citation key after</strong> and set it to <strong>1 second</strong>. TODO Update for Zotero 9</li>
 </ol>
-<p>Restart Claude Code after installing skills so they are picked up.</p>
+<p>TODO: Update citation key to: auth.lower +year + veryshorttitle(1, 0).lower</p>
+<p>TODO: I have old instructions here: https://ds4owd-002.github.io/website/content/guide/#zotero-reference-management find guidance on all steps and add them TODO: This guide is more up to date, but still doesn’t get there fully: https://unlimited.ethz.ch/spaces/ghestudents/pages/182077770/Reference+management the export quick copy step is still there. TODO: Now, here is what I have learned. The autopin setting is gone: https://www.perplexity.ai/search/1727235c-58d2-41d5-b17b-8fbbaa029312 keys are always pinned</p>
+<p>Why this matters: Better BibTeX normally computes citekeys on the fly, which means they can silently change (for example, if you fix a typo in an author name). “Pinning” writes the citekey into the item permanently. The Logseq plugin can only read pinned citekeys, and since your page names are built from them, they must never change once a page exists. The 1-second setting pins every new item automatically so you never have to think about it.</p>
+<p>For papers already in your library: select them all, right-click, and choose <strong>Better BibTeX → Pin BibTeX key</strong> to pin the existing items in one go.</p>
+<p>TODO: Rewrite to: right-glick -&gt;Y better bibtex -&gt; regenerater</p>
 </section>
-<section id="wiki-ingest-runs-forever-or-times-out" class="level3">
-<h3 class="anchored" data-anchor-id="wiki-ingest-runs-forever-or-times-out"><code>/wiki-ingest</code> runs forever or times out</h3>
-<p><strong>Cause:</strong> Source is too large, or the wiki has grown past the batch limit and Claude is trying to load too many pages at once.</p>
-<p><strong>Fix:</strong></p>
-<ul>
-<li>Split large sources. A 10,000-word document should be ingested in 2-3 passes, not one.</li>
-<li>The ingest pipeline has a 3-page batch limit - if your wiki has hundreds of pages and many are relevant to the source, processing takes proportionally longer.</li>
-<li>If Claude Code hits a context limit mid-ingest, it will stop and report. Re-run the same ingest - Claude’s append-only discipline prevents duplicates.</li>
-</ul>
-</section>
-<section id="wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials" class="level3">
-<h3 class="anchored" data-anchor-id="wiki-ingest-blocks-with-a-credential-leak-warning-but-the-content-has-no-credentials"><code>/wiki-ingest</code> blocks with a credential-leak warning but the content has no credentials</h3>
-<p><strong>Cause:</strong> False positive from lint rule #6. The credential-leak regex includes base64-like patterns (<code>[A-Za-z0-9+/]{40,}</code>), which also match innocent long strings - long URLs, hashes, or technical identifiers.</p>
-<p><strong>Fix:</strong></p>
+<section id="step-3-install-the-logseq-plugin" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-install-the-logseq-plugin">Step 3: Install the Logseq plugin</h2>
 <ol type="1">
-<li>Review the flagged content. If it is a genuine credential, move it to L1 (memory) and strip it from the source before re-ingesting.</li>
-<li>If it is a false positive (e.g., a commit SHA or a long URL), you have two options:
-<ul>
-<li>Edit the source to break the pattern (e.g., add a space or truncate).</li>
-<li>Temporarily disable the base64 pattern in <code>llm-wiki.yml</code> → <code>lint.credential_patterns</code>. Re-enable it after the ingest.</li>
-</ul></li>
+<li>In Logseq, first make sure plugins are enabled: <strong>Settings → Advanced → Plug-in system</strong> must be on (restart Logseq if you just turned it on). TODO: hard to find. point out it’s at the three dot menu in the top-right. Also: don’t have that option under advanced. plug-ins are already there</li>
+<li>Click the three-dot menu (top right) → <strong>Plugins</strong> → <strong>Marketplace</strong> tab.</li>
+<li>Search for <strong>zoterolocal</strong> and install <strong>logseq-zoterolocal-plugin</strong> (author: benjypng).</li>
+<li>Open the plugin’s settings (gear icon on its card in the Plugins list) and confirm the <strong>connection to Zotero</strong> check passes. Zotero must be running for this to work; it must also be running any time you import or sync later.</li>
 </ol>
-<p>Never commit around the lint by force. The false positive rate is low, and genuine credential leaks have serious consequences.</p>
+<p>One caution (see the status note in <a href="../docs/zotero-setup.html">Zotero setup</a>): community plugins change over time. Note down which plugin version you installed, and avoid blind updates; if the marketplace offers an update, check its changelog before accepting. Your provenance chain depends on the plugin producing the same properties it produces today.</p>
 </section>
+<section id="step-4-set-the-page-name-template" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-set-the-page-name-template">Step 4: Set the page-name template</h2>
+<p>In the plugin’s settings, find the page-name template field and set it to exactly:</p>
+<pre><code>notes/literature/@&lt;% citeKey %&gt;</code></pre>
+<p>Reading this template left to right: every imported item becomes a page inside the <code>notes/literature/</code> namespace, and the page’s own name is <code>@</code> followed by the citekey. So the paper with citekey <code>Forte2022</code> becomes the page <code>notes/literature/@Forte2022</code>.</p>
+<p>This matters for the vault’s rules: <code>notes/</code> is the human-owned namespace that the wiki toolchain never writes to, and the <code>@citekey</code> leaf is explicitly recognized by lint as a proper noun (<a href="../openspec/specs/namespaces.html"><code>namespaces.md</code></a> REQ-976), so these pages will not show up as naming violations.</p>
 </section>
-<section id="wiki-growth" class="level2">
-<h2 class="anchored" data-anchor-id="wiki-growth">Wiki Growth</h2>
-<section id="the-wiki-has-grown-past-200-pages-and-feels-unmanageable" class="level3">
-<h3 class="anchored" data-anchor-id="the-wiki-has-grown-past-200-pages-and-feels-unmanageable">The wiki has grown past 200 pages and feels unmanageable</h3>
-<p><strong>Cause:</strong> Natural friction at scale. Past ~200 pages, flat namespaces get noisy, hub pages grow long, and the mental model of “what is where” breaks down. Retrieval also gets imprecise if it relies on grep-over-everything.</p>
-<p><strong>Fix:</strong></p>
+<section id="step-5-set-the-page-template" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-set-the-page-template">Step 5: Set the page template</h2>
+<p>The plugin also has a template for the page <em>content</em> (what gets pre-filled when an item is imported). Run its <strong>Insert Zotero template</strong> command once to see the default, then replace the generated block with this trimmed version:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>type:: literature</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>citekey:: &lt;% citeKey %&gt;</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>authors:: &lt;% creators %&gt;</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>year:: &lt;% date %&gt;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>item-type:: &lt;% itemType %&gt;</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>doi:: &lt;% DOI %&gt;</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>zotero:: &lt;% libraryLink %&gt;</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>source-file::</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## my reading</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    -</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## annotations</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>(synced from Zotero below this line)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What each part is for:</p>
 <ul>
-<li><strong>Two-stage routing handles retrieval precision automatically.</strong> Since v1.2.0, <code>/wiki-query</code> reads the hub <code>### Index</code> routing lines first and opens only the 3 best-matching pages, rather than grepping every page. Keep each routing line’s description terse and distinctive - that is what keeps routing sharp as the wiki grows.</li>
-<li><strong>Run <code>/wiki-maintain prune</code> periodically (default every 6 months).</strong> It evicts cold pages - no read in N months - from the live hub index into <code>### Archive</code>, so routing stays focused on the pages you actually use. Eviction never deletes or moves files; demoted pages stay greppable and are re-promoted automatically if queried again.</li>
-<li><strong>Split namespaces.</strong> If <code>wiki/tech/</code> has 50+ pages, consider splitting into <code>wiki/tech/infrastructure/</code>, <code>wiki/tech/languages/</code>, etc. Namespaces can go 3 levels deep.</li>
-<li><strong>Run <code>/wiki-lint --fix</code>.</strong> Beyond stale detection (90+ days), it now also fixes index drift - backfilling missing routing lines and tidying archived pages left in the live index.</li>
-<li><strong>Audit L1/L2.</strong> If you find yourself querying the same L2 page every session, promote the essential part to L1.</li>
+<li>The <code>key:: value</code> lines at the top are Logseq page properties; they hold just enough metadata to identify the paper. The full record stays in Zotero, and the archived full text lives in <code>ingested/</code>, so copying every metadata field here would only add noise.</li>
+<li><code>source-file::</code> is deliberately left empty at import time. You fill it in later, only when the paper actually goes through the wiki pipeline: after <code>/wiki-ingest</code> archives the paper to <code>ingested/papers/&lt;file&gt;.md</code>, you paste that path here by hand. That shared path is what makes your reading auditable against the same source the wiki cites (“one archived source, two readings”, REQ-973). The tool never writes this for you.</li>
+<li><code>## my reading</code> is where your own words go. Nothing automated ever touches it.</li>
+<li><code>## annotations</code> is where the plugin appends your synced PDF highlights. The sync is incremental (tracked via a <code>zotero-last-sync</code> property), so re-syncing adds only new highlights and never clobbers what is already on the page.</li>
 </ul>
-<p>The wiki scales, but like any knowledge system, it requires periodic gardening - now mostly automated by <code>/wiki-maintain prune</code> and <code>/wiki-lint --fix</code>.</p>
 </section>
-<section id="wiki-lint-keeps-flagging-the-same-orphan-pages" class="level3">
-<h3 class="anchored" data-anchor-id="wiki-lint-keeps-flagging-the-same-orphan-pages"><code>/wiki-lint</code> keeps flagging the same orphan pages</h3>
-<p><strong>Cause:</strong> Pages that have no incoming links are flagged as orphans. If the same pages appear every run, they are genuinely unlinked.</p>
-<p><strong>Fix:</strong></p>
+<section id="step-6-run-the-loop-once-end-to-end" class="level2">
+<h2 class="anchored" data-anchor-id="step-6-run-the-loop-once-end-to-end">Step 6: Run the loop once, end to end</h2>
+<p>This is the verification <a href="https://github.com/larnsce/llm-wiki/issues/28">#28</a> asks for. Pick one real paper and walk it through:</p>
+<ol type="1">
+<li>In Zotero, open the paper’s PDF and add at least one highlight.</li>
+<li>In Logseq, import the item via the plugin and confirm the page appears as <code>notes/literature/@&lt;citekey&gt;</code> with the properties filled in.</li>
+<li>Right-click the page title → <strong>Zotero: Sync annotations</strong> (or use the command palette → <em>Sync all annotations</em>) and confirm your highlight appears under <code>## annotations</code>.</li>
+<li>Write a sentence or two under <code>## my reading</code>.</li>
+<li>Export or flatten the paper to markdown into <code>raw/</code>, run <code>/wiki-ingest</code>, and when the ingest report shows the <code>ingested/papers/...</code> path, paste it into <code>source-file::</code> on the literature note.</li>
+</ol>
+<p>If all five steps work, the setup is done and #28 can be closed with a note recording the plugin version you pinned.</p>
+</section>
+<section id="related" class="level2">
+<h2 class="anchored" data-anchor-id="related">Related</h2>
 <ul>
-<li>Add the page to the appropriate hub page (e.g., <code>wiki/tech</code> hub should list all <code>wiki/tech/*</code> pages).</li>
-<li>Add cross-references from related pages - if <code>wiki/projects/X</code> mentions <code>wiki/tech/Y</code>, make sure it uses <code>[[wiki/tech/Y]]</code> syntax.</li>
-<li>Run <code>/wiki-lint --fix</code> - it auto-adds missing hub entries where obvious.</li>
+<li><a href="../docs/zotero-setup.html">Zotero setup</a> - the design rationale, page-name contract, and status</li>
+<li><a href="../docs/literature-research.html">Literature Research</a> - the full discovery→Zotero→ingest funnel</li>
+<li><a href="../docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> - the <code>notes/</code> layer this feeds</li>
 </ul>
-<p>If a page is genuinely isolated and cannot be linked from anywhere, it may be a sign the page is misplaced (wrong namespace) or should be deleted.</p>
 
 
-</section>
 </section>
 </section>
 
@@ -773,4 +703,4 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/troubleshooting.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/zotero-setup-walkthrough.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

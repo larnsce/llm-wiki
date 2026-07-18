@@ -150,6 +150,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#data-package-seam" id="toc-data-package-seam" class="nav-link" data-scroll-target="#data-package-seam">Data-Package Seam</a></li>
   <li><a href="#voice-sources" id="toc-voice-sources" class="nav-link" data-scroll-target="#voice-sources">Voice Sources</a></li>
   <li><a href="#voice-conversation-sessions" id="toc-voice-conversation-sessions" class="nav-link" data-scroll-target="#voice-conversation-sessions">Voice Conversation Sessions</a></li>
+  <li><a href="#transcript-sources" id="toc-transcript-sources" class="nav-link" data-scroll-target="#transcript-sources">Transcript Sources</a></li>
   </ul></li>
   <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
   <ul class="collapse">
@@ -174,6 +175,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#scenario-19-data-package-version-update-keeps-old-claims-citable" id="toc-scenario-19-data-package-version-update-keeps-old-claims-citable" class="nav-link" data-scroll-target="#scenario-19-data-package-version-update-keeps-old-claims-citable">Scenario 19: Data-package version update keeps old claims citable</a></li>
   <li><a href="#scenario-20-chat-voice-browse-and-conversation-write-nothing" id="toc-scenario-20-chat-voice-browse-and-conversation-write-nothing" class="nav-link" data-scroll-target="#scenario-20-chat-voice-browse-and-conversation-write-nothing">Scenario 20: Chat-voice browse and conversation write nothing</a></li>
   <li><a href="#scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip" id="toc-scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip" class="nav-link" data-scroll-target="#scenario-21-chat-voice-closing-ingest-cites-notes-offers-the-flip">Scenario 21: Chat-voice closing ingest cites notes, offers the flip</a></li>
+  <li><a href="#scenario-22-transcript-ingest---decisions-medium-analysis-low-bytes-out-of-git" id="toc-scenario-22-transcript-ingest---decisions-medium-analysis-low-bytes-out-of-git" class="nav-link" data-scroll-target="#scenario-22-transcript-ingest---decisions-medium-analysis-low-bytes-out-of-git">Scenario 22: Transcript ingest - decisions medium, analysis low, bytes out of git</a></li>
   </ul></li>
   <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
   <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
@@ -328,7 +330,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="voice-conversation-sessions">Voice Conversation Sessions</h3>
 <p>This extends the Voice Sources section for <code>/wiki-chat-voice</code> (issue #117): a conversational session over STORED voice notes - browse the archive, talk about selected notes in the session, and close with one ingest. Where Voice Sources (REQ-080..087) drains the unprocessed queue note by note, this section covers REVISITING notes (processed or not) as conversation material. The Voice Sources rules apply unchanged wherever this section is silent. STAGING: this section takes effect with the wiki-chat-voice skill (issue #117).</p>
 <ul>
-<li>REQ-1200 (browse is read-only): The session SHALL open with a picker over <code>voice_notes</code> rows - processed AND unprocessed, marked which is which - read via python3’s stdlib sqlite3 (storage REQ-1104) in read-only mode, newest first, bounded by default (last ~20 rows, paginated on request) and filterable by date (<code>--since</code>), transcript substring (<code>--grep</code>, SQL LIKE), and <code>--unprocessed</code>. Each picker row carries: id, recorded date, duration, a one-line description, and 3-5 keywords. Descriptions and keywords are generated AT RUN TIME for the rows shown, and only those; they MUST NOT be persisted anywhere: <code>voice_notes</code> is frozen at six columns (storage REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db admits nothing without a markdown source (REQ-1132). Digest generation SHOULD dispatch to the haiku-tier triage agent when installed (setup REQ-807) and degrades to inline generation without it.</li>
+<li>REQ-1200 (browse is read-only): The session SHALL open with a picker over <code>voice_notes</code> rows - processed AND unprocessed, marked which is which - read via python3’s stdlib sqlite3 (storage REQ-1104) in read-only mode, newest first, bounded by default (last ~20 rows, paginated on request) and filterable by date (<code>--since</code>), transcript substring (<code>--grep</code>, SQL LIKE), and <code>--unprocessed</code>. Each picker row carries: id, recorded date, duration, the original filename (the basename of <code>audio_path</code>, derived at display time - a human-recognizable handle and a cross-check when a <code>recorded_at</code> looks wrong, issue #121), a one-line description, and 3-5 keywords. Descriptions and keywords are generated AT RUN TIME for the rows shown, and only those; they MUST NOT be persisted anywhere: <code>voice_notes</code> is frozen at six columns (storage REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db admits nothing without a markdown source (REQ-1132). Digest generation SHOULD dispatch to the haiku-tier triage agent when installed (setup REQ-807) and degrades to inline generation without it.</li>
 <li>REQ-1201 (interactive only): A conversation session is interactive by nature; there is NO <code>--auto</code> path (mirroring REQ-081). When <code>--auto</code> is passed the system SHALL state that and continue interactively.</li>
 <li>REQ-1202 (the conversation writes nothing): Between note selection and the closing checkpoint the system MUST NOT write: no journal edits, no page edits, no <code>processed</code> flips, no archive.db mutation of any kind. Candidate insights (journal lines, wiki claims, TODOs, contradictions with existing pages) are tracked in-session only. The conversation ends only on the user’s explicit signal, never on the system’s initiative.</li>
 <li>REQ-1203 (one closing checkpoint): On the end signal the system SHALL run ONE consolidated checkpoint (REQ-025 discipline) presenting: the journal synthesis (the default destination, REQ-082 discipline; the block opens with the pipeline status line per storage REQ-1140), each wiki offer with the full sentence(s) (REQ-083), retained sensitive items (REQ-085, listed by category only), the TODO hand-over (REQ-087), and the processed-flip offers (REQ-1205). All writes happen after this checkpoint or not at all.</li>
@@ -336,6 +338,18 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-1205 (processed-flip is per-note opt-in, post-commit): For each UNPROCESSED note whose content the closing journal synthesis substantively covers, the checkpoint SHALL offer to mark it processed - suggested yes, individually declinable - so the queue drain (REQ-080/082) does not write a duplicate journal summary later. Flips happen only AFTER the run’s atomic commit succeeds, reusing the REQ-080 lifecycle. Notes merely listed or partially discussed, and already-processed notes, are never touched.</li>
 <li>REQ-1206 (people and sensitive-content rules bind at write time): REQ-084 (individual confirmation for rows naming people) and REQ-085 (assessments of people are never promoted, regardless of confirmation) apply to the closing checkpoint exactly as to voice ingest. Discussing people DURING the conversation is unrestricted - the session is private; the rules gate what leaves the checkpoint, not what is talked about.</li>
 <li>REQ-1207 (context budget): At selection time the system SHALL sum the selected transcripts’ word counts and, above a threshold (default 15000 words), push back: offer to narrow the selection or split into more than one session rather than degrade synthesis quality by loading everything.</li>
+</ul>
+</section>
+<section id="transcript-sources" class="level3">
+<h3 class="anchored" data-anchor-id="transcript-sources">Transcript Sources</h3>
+<p>AI conversation transcripts (claude.ai chats, cross-project design discussions) as ingest sources. The route was designed in issue #107, descoped to a manual protocol by the 2026-07-07 premortem, validated by the Phase-0 hand ingests (2026-07-08), and spec’d when the maintainer waived the five-ingest gate (2026-07-16). It stays file-based on purpose: transcripts ride the standard <code>raw/</code> to <code>ingested/</code> lifecycle; there is NO archive.db transcript table (the shape for automated bulk capture - revisit only if volume demands it). Where this section is silent, the Source Pipeline rules apply unchanged.</p>
+<ul>
+<li>REQ-1300 (file route and type inference): A transcript enters the pipeline as a curated markdown export in <code>raw_dir</code>, with source type <code>transcripts</code> (specs/config.md REQ-623). A filename with the <code>chat-</code> prefix (<code>raw/chat-*.md</code>; convention <code>chat-YYYY-MM-DD-&lt;topic-slug&gt;.md</code>) SHALL infer type <code>transcripts</code>, extending the REQ-071 inference set consistently with the <code>para-</code>/<code>note-</code> promotion prefixes; non-prefixed exports fall back per REQ-071 as before.</li>
+<li>REQ-1301 (sensitive by default): <code>transcripts</code> is in <code>sensitive_source_types</code> by default (specs/config.md REQ-624): chats mix project detail, personal context, and half-formed ideas, and their bytes MUST NOT enter git history. The REQ-046 machinery (gitignored <code>ingested/transcripts/</code> path, the gitignore check of the secret gate) carries the mechanics unchanged. Because gitignored bytes fall outside git-as-backup, an off-machine copy of the gitignored <code>ingested/</code> subtrees SHALL exist before the first sensitive transcript ingest (mirroring the archive.db durability discipline, specs/storage.md REQ-1120); the audit-side tripwire distinguishing lost bytes from weak sources is the <code>source-missing</code> verdict (specs/audit.md REQ-923/927), which is never conflated with <code>reliability:: low</code>.</li>
+<li>REQ-1302 (capture-backed, decisions excepted): A transcript is capture-backed (schema REQ-586b): claims resting only on it default to <code>reliability:: low</code>, a transcript can never corroborate itself, and multiple transcripts of the same speaker’s conversations count as ONE source for REQ-586 corroboration. The exception is the route’s point: DECISIONS - the user’s own recorded conclusions (“we chose X because Y”) - route like promoted personal notes and rate <code>medium</code> once the user confirms them INDIVIDUALLY at the checkpoint (the REQ-586 personal-synthesis case): the confirmation makes the user the source; the transcript is merely where the decision was written down. Model-asserted analysis in the same transcript stays <code>low</code> with a <code>## Pending Review</code> entry per REQ-074.</li>
+<li>REQ-1303 (interactive only, decision-log default): There is NO <code>--auto</code> path for transcript sources (mirroring REQ-081): when <code>--auto</code> is passed the system SHALL state that transcripts are interactive-only and run the REQ-025 checkpoint anyway. The default destination is a 2-4 line journal/decision-log entry with <code>[[links]]</code> (REQ-082 discipline); wiki writes are offered PER EXTRACTED DECISION, individually opt-in with the full sentence(s) shown (REQ-083). The people rules bind unchanged: rows naming a person are confirmed individually (REQ-084) and assessments of people never leave the checkpoint (REQ-085).</li>
+<li>REQ-1304 (skip what another system records): The system SHOULD NOT extract content a better system of record already holds: decisions from a session on a repository (its issues, CHANGELOG, and commits absorb them), ecosystem trivia, install mechanics. An ingest whose checkpoint proposes no wiki writes is a VALID outcome; the source still completes the lifecycle move so the queue drains.</li>
+<li>REQ-1305 (curation precedes ingest): The expected input is an export curated at capture time - decisions, the questions that drove them, enough surrounding text to stay honest (Phase-0 evidence: a raw one-day session export measured 4,637 lines and 254 tool calls and yielded zero net-new content). When a queued transcript is visibly uncurated (dominated by tool output or transcript noise), the system SHOULD recommend re-export with curation at the checkpoint instead of attempting extraction over the noise. Capture-at-source (ending a session by asking for a decision log) is the recommended capture mechanism (docs/source-routes.md).</li>
 </ul>
 <hr>
 </section>
@@ -543,7 +557,8 @@ AND with data_snapshots_keep: 3 the oldest unreferenced snapshot beyond
 <pre><code>GIVEN archive.db holds voice_notes rows 1 (processed) and 2 (unprocessed)
 WHEN the user runs /wiki-chat-voice
 THEN a picker lists both rows newest first, marked processed/unprocessed,
-    each with a runtime one-line description and 3-5 keywords
+    each with its original filename (basename of audio_path), a runtime
+    one-line description and 3-5 keywords
 AND the browse persists nothing (archive.db bytes are unchanged)
 AND after the user selects both and converses at length, no journal, page,
     or archive.db write happens before the closing checkpoint is confirmed</code></pre>
@@ -560,6 +575,22 @@ THEN one checkpoint presents: the journal synthesis opening with the
 AND the discussion-born idea appears in the journal synthesis only; it is
     not offered as a wiki claim (REQ-1204)
 AND row 2 is flipped only after the atomic commit succeeds</code></pre>
+</section>
+<section id="scenario-22-transcript-ingest---decisions-medium-analysis-low-bytes-out-of-git" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-22-transcript-ingest---decisions-medium-analysis-low-bytes-out-of-git">Scenario 22: Transcript ingest - decisions medium, analysis low, bytes out of git</h3>
+<pre><code>GIVEN raw/chat-2026-06-25-vault-design.md is a curated claude.ai chat export
+AND llm-wiki.yml lists transcripts in source_types and sensitive_source_types
+WHEN the user runs /wiki-ingest --auto
+THEN the system states that transcript sources are interactive-only and runs
+    the checkpoint anyway (REQ-1303)
+AND the source's type infers as transcripts from the chat- prefix (REQ-1300)
+AND the checkpoint offers each extracted decision individually with the full
+    sentence(s); a decision the user confirms is written at
+    reliability:: medium, while model-only analysis from the same chat rates
+    low with a ## Pending Review entry (REQ-1302)
+AND after confirmation the file moves to ingested/transcripts/, which is
+    gitignored: the wiki pages and journal entry enter the atomic commit,
+    the transcript bytes do not (REQ-1301, REQ-046)</code></pre>
 <hr>
 </section>
 </section>

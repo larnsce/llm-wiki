@@ -152,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
 <h1>wiki-maintain</h1>
 <p>Maintain the wiki’s cache hygiene. Two modes:</p>
 <ul>
-<li><strong>status</strong> (default, read-only): metrics and health overview including the hot/cold cache profile. Runs when the skill is invoked without arguments or with <code>status</code>. It modifies NO files.</li>
+<li><strong>status</strong> (default, read-only): metrics and health overview including the hot/cold cache profile. Runs when the skill is invoked without arguments or with <code>status</code>. It modifies NO vault files. The single exception is an OPT-IN index.db rebuild (Phase 2d, storage REQ-1142): on an explicit yes it may rewrite the derived, gitignored <code>index.db</code> (never a vault page); detection is read-only and a rebuild never happens without confirmation.</li>
 <li><strong>prune</strong> (write action): LRU-Demote; evict cold pages from the live hub index. Runs only when explicitly requested (<code>prune</code>, optionally <code>--months N</code>, default 6 months).</li>
 </ul>
 <p>Spec: openspec/specs/prune.md REQ-600..622 (prune); status is the read-only report ported from the status verb of the legacy v1 single command, reusing the health rules of openspec/specs/lint.md REQ-100..222 without writes</p>
@@ -188,6 +188,16 @@ ul.task-list li input[type="checkbox"] {
 <p>Phase 2c - Data-package staleness (only when <code>data_packages</code> is configured, ingest REQ-106):</p>
 <ul>
 <li>Run <code>Rscript scripts/data_pkg_sync.R --check</code> and include its report: which registered packages have a newer version on GitHub than the newest local snapshot. Detection only; when something is stale, recommend <code>/data-sync</code>, never sync from here. Skip silently when the config key is absent or Rscript is unavailable (note the degradation in the report)</li>
+</ul>
+<p>Phase 2d - index.db freshness (storage REQ-1140a/1142):</p>
+<ul>
+<li><code>index.db</code> is rebuilt lazily at query time (storage REQ-1133), so a stale or missing index here is EXPECTED when no index-plane query has run, not a defect. Run <code>python3 skills/wiki-core/scripts/rebuild_index.py --config &lt;llm-wiki.yml&gt; --stale-check</code> and report the freshness state:
+<ul>
+<li>missing (<code>index n/a</code>): informational - “builds on the first index-plane query”; do not flag as a problem;</li>
+<li>fresh (stamp matches): report the rebuild age from the index.db mtime;</li>
+<li>stale (exit 1): report how far the index lags, then OFFER to rebuild: “index.db is stale (vault moved since last rebuild). Rebuild now? [y/N]”.</li>
+</ul></li>
+<li>This is the ONE place status may propose a write. Detection is read-only; the rebuild happens only on an explicit yes and runs <code>rebuild_index.py --config &lt;llm-wiki.yml&gt;</code> (no flag). A no leaves the index untouched - the next index-plane query rebuilds it lazily (REQ-1133). Status modifies no vault files regardless; a confirmed rebuild only writes the derived <code>index.db</code>, never a page. Skip silently when no <code>index_db</code> path is configured or the script is unavailable (note the degradation).</li>
 </ul>
 <p>Phase 3 - Activity:</p>
 <ul>

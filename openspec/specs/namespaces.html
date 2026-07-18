@@ -199,7 +199,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="scope-rule-binds-every-wiki-workflow">Scope Rule (binds every wiki workflow)</h3>
 <ul>
 <li>REQ-965: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any future verb) SHALL operate ONLY on pages whose name starts with <code>wiki/</code>.</li>
-<li>REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under <code>para/</code> or <code>notes/</code>. These namespaces are human-authored.</li>
+<li>REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under <code>para/</code> or <code>notes/</code>. These namespaces are human-authored. The single enumerated exception is the human-confirmed literature-note <code>source-file::</code> write (REQ-974).</li>
 <li>REQ-967: A wiki workflow MAY READ <code>para/</code> and <code>notes/</code> pages when the user asks for context (e.g.&nbsp;a query that references a linked note), but SHALL NOT write to them as a side effect.</li>
 <li>REQ-968: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by every skill; it SHALL NOT be restated divergently per skill (enforced by <code>check_canon.py</code>).</li>
 </ul>
@@ -211,6 +211,7 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-971: A page ingested from a <code>para/</code>/<code>notes/</code>-derived source is personal synthesis: it SHALL receive the default rating given by the reliability rubric’s personal-synthesis case (<code>specs/schema.md</code> REQ-586), UNLESS it carries external citations that justify a higher rating under that rubric. The rubric is the single normative statement of the default value; this requirement only binds the seam to it.</li>
 <li>REQ-972: A promoted source SHALL follow the standard <code>raw/</code> → <code>ingested/&lt;type&gt;/</code> lifecycle and atomic move+commit (REQ-589). The provenance seam is identical to any other source; being personal in origin does not exempt it from provenance.</li>
 <li>REQ-973: When a <code>notes/literature/@&lt;citekey&gt;</code> page and a <code>wiki/</code> page both derive from the same archived source, the note’s <code>source-file::</code> SHOULD point at the SAME <code>ingested/&lt;type&gt;/&lt;file&gt;</code> path the wiki page cites - one archived source, two readings. (Full claim-level auditability of this seam depends on block-native citations, <code>specs/citations.md</code>.)</li>
+<li>REQ-974: When ingest recognizes a promoted literature note (ingest side of REQ-973) and a matching <code>notes/literature/@&lt;citekey&gt;</code> page already exists with a blank or absent <code>source-file::</code>, the tool SHALL offer to set that property to the <code>ingested/</code> path it produced, and on the human’s explicit confirmation at the checkpoint SHALL write EXACTLY that one property value - the only sanctioned tool write into <code>notes/</code> (the REQ-966 exception; issue #133). The human confirms; the tool types. Bounds: it SHALL NOT create the page, SHALL NOT touch any other line, SHALL NOT overwrite an existing non-blank value (a conflicting value is reported, never replaced), and in <code>--auto</code> runs (no checkpoint, no human to confirm) SHALL fall back to the report reminder and write nothing.</li>
 </ul>
 </section>
 <section id="note-type-vocabulary-recognized-not-authored" class="level3">
@@ -242,7 +243,8 @@ ul.task-list li input[type="checkbox"] {
 <pre><code>GIVEN a vault with pages under wiki/, para/, and notes/
 WHEN /wiki-ingest drains the raw/ queue
 THEN it SHALL create/update pages only under wiki/
-AND it SHALL NOT create, edit, or move any page under para/ or notes/</code></pre>
+AND it SHALL NOT create, edit, or move any page under para/ or notes/
+(sole exception: the human-confirmed literature-note source-file:: write, REQ-974)</code></pre>
 </section>
 <section id="scenario-2-lint-exempts-human-namespaces" class="level3">
 <h3 class="anchored" data-anchor-id="scenario-2-lint-exempts-human-namespaces">Scenario 2: lint exempts human namespaces</h3>

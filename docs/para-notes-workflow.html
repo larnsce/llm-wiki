@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -149,6 +184,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#notes-the-zettelkasten-layer" id="toc-notes-the-zettelkasten-layer" class="nav-link" data-scroll-target="#notes-the-zettelkasten-layer"><code>notes/</code> — the Zettelkasten layer</a>
   <ul class="collapse">
   <li><a href="#conventions-1" id="toc-conventions-1" class="nav-link" data-scroll-target="#conventions-1">Conventions</a></li>
+  <li><a href="#what-each-type-looks-like" id="toc-what-each-type-looks-like" class="nav-link" data-scroll-target="#what-each-type-looks-like">What each type looks like</a></li>
+  <li><a href="#querying-on-type" id="toc-querying-on-type" class="nav-link" data-scroll-target="#querying-on-type">Querying on <code>type::</code></a></li>
   <li><a href="#the-fleeting-inbox-a-query-page-you-own" id="toc-the-fleeting-inbox-a-query-page-you-own" class="nav-link" data-scroll-target="#the-fleeting-inbox-a-query-page-you-own">The fleeting inbox (a query page you own)</a></li>
   </ul></li>
   <li><a href="#a-note-on-personal-data" id="toc-a-note-on-personal-data" class="nav-link" data-scroll-target="#a-note-on-personal-data">A note on personal data</a></li>
@@ -170,7 +207,7 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Status (v2.2, 2026-07-04).</strong> The conventions in this guide shipped in v2.2: the namespace contract, the promotion seam in <code>/wiki-ingest</code> (namespaces REQ-970..973), the opt-in scaffold (<code>init_wiki.py --with-para-notes</code>), and the Roam task-marker conversion in the migration pass. The pre-archive secret gate with <code>sensitive_source_types</code> shipped earlier (#15). The query pages and the manual archive procedure below are maintainer-verified items tracked in <a href="https://github.com/larnsce/llm-wiki/issues/27">#27</a>.</p>
 </blockquote>
 <blockquote class="blockquote">
-<p><strong>Scope.</strong> This is a <strong>vault-side workflow guide</strong>, not a skill reference. The wiki toolchain does not manage <code>para/</code> or <code>notes/</code> - by design (see <a href="../openspec/specs/namespaces.html"><code>openspec/specs/namespaces.md</code></a>) it never writes to them. The pages, queries, and task markers below are things <strong>you</strong> create and maintain in Logseq/Obsidian (the opt-in scaffold only creates the directories and seed schema pages; after that they are yours). The tool’s only involvement is the promotion seam at the end: durable content you deliberately copy into <code>raw/</code> and run through <code>/wiki-ingest</code>.</p>
+<p><strong>Scope.</strong> This is a <strong>vault-side workflow guide</strong>, not a skill reference. The wiki toolchain does not manage <code>para/</code> or <code>notes/</code> - by design (see <a href="../openspec/specs/namespaces.html"><code>openspec/specs/namespaces.md</code></a>) it never writes to them (sole enumerated exception: the human-confirmed literature-note <code>source-file::</code> write, REQ-974). The pages, queries, and task markers below are things <strong>you</strong> create and maintain in Logseq/Obsidian (the opt-in scaffold only creates the directories and seed schema pages; after that they are yours). The tool’s only involvement is the promotion seam at the end: durable content you deliberately copy into <code>raw/</code> and run through <code>/wiki-ingest</code>.</p>
 </blockquote>
 <section id="the-namespace-contract" class="level2">
 <h2 class="anchored" data-anchor-id="the-namespace-contract">The namespace contract</h2>
@@ -310,7 +347,7 @@ para/archives/&lt;project-name&gt;     completed/inactive projects</code></pre>
 <li>Layout:
 <ul>
 <li><strong>fleeting</strong> → NOT pages. Journal blocks tagged <code>#fleeting</code>.</li>
-<li><strong>literature</strong> → <code>notes/literature/@&lt;citekey&gt;</code> (born from Zotero; see <a href="../docs/zotero-setup.html"><code>docs/zotero-setup.md</code></a>). Carries <code>source-file::</code> pointing at the SAME <code>ingested/...</code> path the wiki pages cite. One archived source, two readings (namespaces REQ-973; when ingest recognizes a literature note it reminds you to set the property, and never writes it into <code>notes/</code> itself).</li>
+<li><strong>literature</strong> → <code>notes/literature/@&lt;citekey&gt;</code> (born from Zotero; see <a href="../docs/zotero-setup.html"><code>docs/zotero-setup.md</code></a>). Carries <code>source-file::</code> pointing at the SAME <code>ingested/...</code> path the wiki pages cite. One archived source, two readings (namespaces REQ-973; when ingest recognizes a literature note it offers to set the property and writes it on your confirmation - the one sanctioned write into <code>notes/</code>, REQ-974).</li>
 <li><strong>permanent</strong> → <code>notes/permanent/&lt;idea-in-a-few-words&gt;</code>. Atomic: one idea, your own words, densely linked to other <code>[[notes/...]]</code> and <code>[[wiki/...]]</code> pages.</li>
 </ul></li>
 <li><strong>Promotion is an act of writing, not a rename:</strong>
@@ -321,6 +358,39 @@ para/archives/&lt;project-name&gt;     completed/inactive projects</code></pre>
 </ul></li>
 <li><strong>notes → wiki (deliberate only):</strong> copy the note into <code>raw/note-&lt;name&gt;.md</code> and run <code>/wiki-ingest</code>; the filename marks it as a promoted source (namespaces REQ-970). It arrives at <code>reliability:: medium</code> (schema REQ-586 / namespaces REQ-971) with the standard lifecycle, provenance, and per-claim citations (REQ-972).</li>
 </ul>
+</section>
+<section id="what-each-type-looks-like" class="level3">
+<h3 class="anchored" data-anchor-id="what-each-type-looks-like">What each type looks like</h3>
+<p>The <code>type::</code> property only exists on <strong>pages</strong>, so a fleeting note never carries one - it is a journal block, and the <code>#fleeting</code> tag (added by hand) is its whole markup:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>properties beat tags for note types - is that why the schema queries filter on type::? #fleeting</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A <strong>permanent</strong> note is a page under <code>notes/permanent/</code>, one <code>type::</code> property, one idea, densely linked (<code>pages/notes___permanent___properties-beat-tags.md</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>type:: permanent</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Properties beat tags for note types</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>A <span class="in">`type::`</span> property holds exactly one value per page, so a query can filter on it like a</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      column. Tags accumulate and carry no constraint - good for workflow states (<span class="in">`#fleeting`</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      wrong for classification.</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Sparked by [<span class="co">[</span><span class="ot">notes/literature/@Forte2022</span><span class="co">]</span>]; the wiki side makes the same choice in</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      [<span class="co">[</span><span class="ot">wiki/architecture</span><span class="co">]</span>].</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A <strong>literature</strong> note is a page under <code>notes/literature/@&lt;citekey&gt;</code> with <code>type:: literature</code> in the template <code>/lit-sync</code> writes - see <a href="../docs/zotero-setup.html"><code>docs/zotero-setup.md</code></a> for the full template and the working loop.</p>
+</section>
+<section id="querying-on-type" class="level3">
+<h3 class="anchored" data-anchor-id="querying-on-type">Querying on <code>type::</code></h3>
+<p>Because the type is a property, one simple query per type is enough (put these on any page you own, e.g.&nbsp;a <code>notes/index</code> page):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>{{query (property type permanent)}}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>{{query (property type literature)}}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Fleeting notes are queried by tag, not property - that is exactly the fleeting-inbox query below. An advanced-query example: literature notes whose <code>source-file::</code> is still blank, i.e.&nbsp;papers annotated in Zotero but not yet through the ingest pipeline:</p>
+<pre><code>#+BEGIN_QUERY
+{:title "literature notes not yet through the pipeline"
+ :query [:find (pull ?p [*])
+         :where
+         [?p :block/name ?name]
+         [(clojure.string/starts-with? ?name "notes/literature/")]
+         [?p :block/properties ?props]
+         [(get ?props :source-file "") ?sf]
+         [(= ?sf "")]]}
+#+END_QUERY</code></pre>
+<p>These are Logseq tier-1 like the query pages below (namespaces REQ-977); on Obsidian, reproduce them with Dataview (experimental, not maintained by this project).</p>
 </section>
 <section id="the-fleeting-inbox-a-query-page-you-own" class="level3">
 <h3 class="anchored" data-anchor-id="the-fleeting-inbox-a-query-page-you-own">The fleeting inbox (a query page you own)</h3>

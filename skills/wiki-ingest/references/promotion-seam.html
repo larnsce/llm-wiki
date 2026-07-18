@@ -193,11 +193,13 @@ ul.task-list li input[type="checkbox"] {
 <section id="the-literature-variant-one-archived-source-two-readings-req-973" class="level2">
 <h2 class="anchored" data-anchor-id="the-literature-variant-one-archived-source-two-readings-req-973">The literature variant: one archived source, two readings (REQ-973)</h2>
 <p>When a <code>notes/literature/@&lt;citekey&gt;</code> page and a <code>wiki/</code> page both derive from the same archived source, the note’s <code>source-file::</code> SHOULD point at the SAME <code>ingested/&lt;type&gt;/&lt;file&gt;</code> path the wiki page cites. One archived source, two readings: the human’s reading lives in <code>notes/literature/</code>, the machine’s synthesis in <code>wiki/</code>, both auditable back to the same file.</p>
-<p>Ingest’s part is a REMINDER, never a write:</p>
+<p>Ingest’s part is a CONFIRMED write (REQ-974, issue #133): the human confirms, the tool types. Recognition first:</p>
 <ul>
-<li>When a processed source is recognizably a literature note (the filename is <code>raw/note-@&lt;citekey&gt;.md</code>, or its metadata carries <code>citekey::</code> or <code>type:: literature</code>), add a reminder line to the Phase 5 report: “This looks like a literature note for @<citekey>. If a notes/literature/@<citekey> page exists, set its source-file:: to <ingested path=""> so both readings point at the same archived source (REQ-973).”</ingested></citekey></citekey></li>
-<li>Setting that property is the human’s edit. Never write it into <code>notes/</code> as a side effect: <code>notes/</code> is human-authored and the scope rule (REQ-966) forbids it.</li>
+<li>A processed source is recognizably a literature note when the filename is <code>raw/note-@&lt;citekey&gt;.md</code>, or its metadata carries <code>citekey::</code> or <code>type:: literature</code>.</li>
+<li>If a <code>notes/literature/@&lt;citekey&gt;</code> page EXISTS and its <code>source-file::</code> is blank or absent, offer at the checkpoint: “This looks like a literature note for @<citekey>. Set notes/literature/@<citekey>’s source-file:: to <ingested path=""> so both readings point at the same archived source (REQ-973)? [y/n]”. On yes, write exactly that one property value - nothing else on the page changes. On no, do nothing.</ingested></citekey></citekey></li>
+<li>Everything else stays a REMINDER in the Phase 5 report, never a write: the page does not exist (never create it - it is born from <code>/lit-sync</code>), its <code>source-file::</code> already carries a different value (report the conflict, never overwrite), or the run is <code>--auto</code> (no checkpoint means no human to confirm, so no write).</li>
 </ul>
+<p>This is the ONLY sanctioned tool write into <code>notes/</code> - an enumerated exception to the scope rule (REQ-966). Everything else under <code>notes/</code> remains human-authored, and the write itself is the human’s decision; the tool merely saves them the typing.</p>
 <p>Full claim-level auditability of this seam rides on the block-native citations the wiki side already emits (specs/citations.md).</p>
 
 

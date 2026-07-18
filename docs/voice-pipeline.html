@@ -257,6 +257,7 @@ deleting archive.db destroys irreplaceable source data.</code></pre>
 <p>“Off-machine” means a target that survives loss of the MacBook (storage REQ-1120): Time Machine plus one cloud or offsite copy. Time Machine covers <code>~/archive/</code> already if the disk is not excluded; verify with:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tmutil</span> isexcluded ~/archive</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For the cloud leg, the snippet below snapshots the database safely (SQLite’s <code>.backup</code>, consistent even while a writer is active) and pushes the snapshot with <a href="https://rclone.org">rclone</a> (<code>brew install rclone</code>, then <code>rclone config</code> once for your provider). Any offsite target works; substitute your own copy command if you prefer.</p>
+<p>If the target is Google Drive, create your <strong>own</strong> Google Cloud OAuth <code>client_id</code>/<code>client_secret</code> during <code>rclone config</code> and do not fall back to rclone’s built-in shared one: the shared client_id is being retired and is set to stop working during 2026 (issue #113), which would make this nightly copy start failing silently - exactly the failure the section 7 tripwires exist to catch. Follow <a href="https://rclone.org/drive/#making-your-own-client-id">rclone’s making-your-own-client-id guide</a>; an existing remote can be reconfigured in place with <code>rclone config</code> (re-run the OAuth step), and the fix is verified when <code>rclone lsd remote:</code> no longer prints the shared-client retirement NOTICE. Re-run one backup and the section 2.3 restore drill after reconfiguring.</p>
 <p>Save as <code>~/bin/archive-backup.sh</code> and <code>chmod +x</code> it:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-euo</span> pipefail</span>
@@ -350,6 +351,7 @@ deleting archive.db destroys irreplaceable source data.</code></pre>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-f</span> /tmp/test-memo.wav <span class="at">--no-timestamps</span> <span class="dt">\</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--prompt</span> <span class="st">"Lars, Logseq, llm-wiki, whisper.cpp, Zotero, PARA, Syncthing"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Maintain the name list where the insert script reads it (section 5 keeps it in a constant; edit it as projects and people change). Update it when transcripts start mangling a name; that is the signal.</p>
+<p>The command above shows only the <code>--prompt</code> bias. The production script in section 5 adds anti-repetition-loop decode guards (<code>--max-context 0</code> and temperature fallback, issue #120); copy the section 5 version, not this one, for real capture.</p>
 </section>
 </section>
 <section id="phone-to-mac-sync" class="level2">
@@ -433,65 +435,137 @@ deleting archive.db destroys irreplaceable source data.</code></pre>
 <span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co"># The context prompt (section 3.4): active people, projects, tools.</span></span>
 <span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>CONTEXT_PROMPT <span class="op">=</span> <span class="st">"Lars, Logseq, llm-wiki, whisper.cpp, Zotero, PARA, Syncthing"</span></span>
 <span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> duration_seconds(path):</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> subprocess.run([<span class="st">"afinfo"</span>, <span class="bu">str</span>(path)], capture_output<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>                         text<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span>).stdout</span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> out.splitlines():</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">"estimated duration"</span> <span class="kw">in</span> line:</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">round</span>(<span class="bu">float</span>(line.split(<span class="st">":"</span>)[<span class="dv">1</span>].split()[<span class="dv">0</span>]), <span class="dv">2</span>)</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.0</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> transcribe(path):</span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> tempfile.TemporaryDirectory() <span class="im">as</span> tmp:</span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>        wav <span class="op">=</span> pathlib.Path(tmp) <span class="op">/</span> <span class="st">"audio.wav"</span></span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>        subprocess.run([<span class="st">"afconvert"</span>, <span class="st">"-f"</span>, <span class="st">"WAVE"</span>, <span class="st">"-d"</span>, <span class="st">"LEI16@16000"</span>,</span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"-c"</span>, <span class="st">"1"</span>, <span class="bu">str</span>(path), <span class="bu">str</span>(wav)], check<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> subprocess.run(</span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>            [<span class="bu">str</span>(WHISPER <span class="op">/</span> <span class="st">"build"</span> <span class="op">/</span> <span class="st">"bin"</span> <span class="op">/</span> <span class="st">"whisper-cli"</span>),</span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>             <span class="st">"-m"</span>, <span class="bu">str</span>(MODEL), <span class="st">"-f"</span>, <span class="bu">str</span>(wav),</span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>             <span class="st">"--no-timestamps"</span>, <span class="st">"--prompt"</span>, CONTEXT_PROMPT],</span>
-<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>            capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result.stdout.strip()</span>
-<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
-<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>    src <span class="op">=</span> pathlib.Path(sys.argv[<span class="dv">1</span>]).expanduser()</span>
-<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    COLD.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>    dest <span class="op">=</span> COLD <span class="op">/</span> src.name</span>
-<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>    con <span class="op">=</span> sqlite3.<span class="ex">connect</span>(DB)</span>
-<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
-<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>        row <span class="op">=</span> con.execute(<span class="st">"SELECT id FROM voice_notes WHERE audio_path = ?"</span>,</span>
-<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>                          (<span class="bu">str</span>(dest),)).fetchone()</span>
-<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> row:</span>
-<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>            <span class="co"># A previous run inserted the row but died before the move:</span></span>
-<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>            <span class="co"># finish the move, insert nothing.</span></span>
-<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>            shutil.move(<span class="bu">str</span>(src), <span class="bu">str</span>(dest))</span>
-<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"row </span><span class="sc">{</span>row[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> already exists for </span><span class="sc">{</span>dest<span class="sc">.</span>name<span class="sc">}</span><span class="ss">; audio moved"</span>)</span>
-<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span></span>
-<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>        recorded_at <span class="op">=</span> datetime.datetime.fromtimestamp(</span>
-<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>            src.stat().st_mtime).astimezone().isoformat(timespec<span class="op">=</span><span class="st">"seconds"</span>)</span>
-<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>        dur <span class="op">=</span> duration_seconds(src)</span>
-<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>        transcript <span class="op">=</span> transcribe(src)</span>
-<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> con.execute(</span>
-<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>            <span class="st">"INSERT INTO voice_notes"</span></span>
-<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>            <span class="st">" (recorded_at, duration, transcript, audio_path, processed)"</span></span>
-<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>            <span class="st">" VALUES (?, ?, ?, ?, 0)"</span>,</span>
-<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>            (recorded_at, dur, transcript, <span class="bu">str</span>(dest)))</span>
-<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>        con.commit()</span>
-<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a>        shutil.move(<span class="bu">str</span>(src), <span class="bu">str</span>(dest))</span>
-<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"voice_notes/</span><span class="sc">{</span>cur<span class="sc">.</span>lastrowid<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>dur<span class="sc">}</span><span class="ss">s, audio moved to cold storage"</span>)</span>
-<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
-<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a>        con.close()</span>
-<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-76"><a href="#cb17-76" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
-<span id="cb17-77"><a href="#cb17-77" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>MP4_EPOCH <span class="op">=</span> datetime.datetime(<span class="dv">1904</span>, <span class="dv">1</span>, <span class="dv">1</span>, tzinfo<span class="op">=</span>datetime.timezone.utc)</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _mp4_boxes(buf, start, end):</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    pos <span class="op">=</span> start</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> pos <span class="op">+</span> <span class="dv">8</span> <span class="op">&lt;=</span> end:</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>        size <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf[pos:pos <span class="op">+</span> <span class="dv">4</span>], <span class="st">"big"</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>        kind <span class="op">=</span> buf[pos <span class="op">+</span> <span class="dv">4</span>:pos <span class="op">+</span> <span class="dv">8</span>]</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>        body <span class="op">=</span> pos <span class="op">+</span> <span class="dv">8</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> size <span class="op">==</span> <span class="dv">1</span>:  <span class="co"># 64-bit largesize</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf[pos <span class="op">+</span> <span class="dv">8</span>:pos <span class="op">+</span> <span class="dv">16</span>], <span class="st">"big"</span>)</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>            body <span class="op">=</span> pos <span class="op">+</span> <span class="dv">16</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> size <span class="op">&lt;</span> <span class="dv">8</span> <span class="kw">or</span> pos <span class="op">+</span> size <span class="op">&gt;</span> end:</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> kind, body, pos <span class="op">+</span> size</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>        pos <span class="op">+=</span> size</span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _mp4_find(buf, start, end, path):</span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> kind, body, box_end <span class="kw">in</span> _mp4_boxes(buf, start, end):</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> kind <span class="op">!=</span> path[<span class="dv">0</span>]:</span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> kind <span class="op">==</span> <span class="st">b"meta"</span>:  <span class="co"># meta is a full box: 4 version/flags bytes first</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>            body <span class="op">+=</span> <span class="dv">4</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(path) <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> body, box_end</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>        found <span class="op">=</span> _mp4_find(buf, body, box_end, path[<span class="dv">1</span>:])</span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> found:</span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> found</span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> recorded_at_iso(src):</span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Capture time of the memo, best source first (issue #121):</span></span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a><span class="co">    1. the m4a's mvhd creation time (UTC, MP4 epoch 1904-01-01),</span></span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a><span class="co">    2. the ©day metadata atom,</span></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a><span class="co">    3. st_mtime - last resort only; AirDrop and copies rewrite it."""</span></span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> src.read_bytes()</span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>    span <span class="op">=</span> _mp4_find(buf, <span class="dv">0</span>, <span class="bu">len</span>(buf), [<span class="st">b"moov"</span>, <span class="st">b"mvhd"</span>])</span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> span:</span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>        body <span class="op">=</span> buf[span[<span class="dv">0</span>]:span[<span class="dv">1</span>]]</span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> body:</span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>            width <span class="op">=</span> <span class="dv">8</span> <span class="cf">if</span> body[<span class="dv">0</span>] <span class="op">==</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">4</span></span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>            raw <span class="op">=</span> <span class="bu">int</span>.from_bytes(body[<span class="dv">4</span>:<span class="dv">4</span> <span class="op">+</span> width], <span class="st">"big"</span>)</span>
+<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> raw:</span>
+<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>                utc <span class="op">=</span> MP4_EPOCH <span class="op">+</span> datetime.timedelta(seconds<span class="op">=</span>raw)</span>
+<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> utc.astimezone().isoformat(timespec<span class="op">=</span><span class="st">"seconds"</span>)</span>
+<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a>    span <span class="op">=</span> _mp4_find(buf, <span class="dv">0</span>, <span class="bu">len</span>(buf),</span>
+<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a>                     [<span class="st">b"moov"</span>, <span class="st">b"udta"</span>, <span class="st">b"meta"</span>, <span class="st">b"ilst"</span>, <span class="st">b"</span><span class="ch">\xa9</span><span class="st">day"</span>, <span class="st">b"data"</span>])</span>
+<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> span:</span>
+<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> buf[span[<span class="dv">0</span>] <span class="op">+</span> <span class="dv">8</span>:span[<span class="dv">1</span>]].decode(<span class="st">"utf-8"</span>, <span class="st">"replace"</span>).strip()</span>
+<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> (datetime.datetime.fromisoformat(text).astimezone()</span>
+<span id="cb17-76"><a href="#cb17-76" aria-hidden="true" tabindex="-1"></a>                    .isoformat(timespec<span class="op">=</span><span class="st">"seconds"</span>))</span>
+<span id="cb17-77"><a href="#cb17-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb17-78"><a href="#cb17-78" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
+<span id="cb17-79"><a href="#cb17-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> datetime.datetime.fromtimestamp(</span>
+<span id="cb17-80"><a href="#cb17-80" aria-hidden="true" tabindex="-1"></a>        src.stat().st_mtime).astimezone().isoformat(timespec<span class="op">=</span><span class="st">"seconds"</span>)</span>
+<span id="cb17-81"><a href="#cb17-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-82"><a href="#cb17-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-83"><a href="#cb17-83" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> duration_seconds(path):</span>
+<span id="cb17-84"><a href="#cb17-84" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> subprocess.run([<span class="st">"afinfo"</span>, <span class="bu">str</span>(path)], capture_output<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb17-85"><a href="#cb17-85" aria-hidden="true" tabindex="-1"></a>                         text<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span>).stdout</span>
+<span id="cb17-86"><a href="#cb17-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> out.splitlines():</span>
+<span id="cb17-87"><a href="#cb17-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">"estimated duration"</span> <span class="kw">in</span> line:</span>
+<span id="cb17-88"><a href="#cb17-88" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">round</span>(<span class="bu">float</span>(line.split(<span class="st">":"</span>)[<span class="dv">1</span>].split()[<span class="dv">0</span>]), <span class="dv">2</span>)</span>
+<span id="cb17-89"><a href="#cb17-89" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.0</span></span>
+<span id="cb17-90"><a href="#cb17-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-91"><a href="#cb17-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-92"><a href="#cb17-92" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> transcribe(path):</span>
+<span id="cb17-93"><a href="#cb17-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> tempfile.TemporaryDirectory() <span class="im">as</span> tmp:</span>
+<span id="cb17-94"><a href="#cb17-94" aria-hidden="true" tabindex="-1"></a>        wav <span class="op">=</span> pathlib.Path(tmp) <span class="op">/</span> <span class="st">"audio.wav"</span></span>
+<span id="cb17-95"><a href="#cb17-95" aria-hidden="true" tabindex="-1"></a>        subprocess.run([<span class="st">"afconvert"</span>, <span class="st">"-f"</span>, <span class="st">"WAVE"</span>, <span class="st">"-d"</span>, <span class="st">"LEI16@16000"</span>,</span>
+<span id="cb17-96"><a href="#cb17-96" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"-c"</span>, <span class="st">"1"</span>, <span class="bu">str</span>(path), <span class="bu">str</span>(wav)], check<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-97"><a href="#cb17-97" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> subprocess.run(</span>
+<span id="cb17-98"><a href="#cb17-98" aria-hidden="true" tabindex="-1"></a>            [<span class="bu">str</span>(WHISPER <span class="op">/</span> <span class="st">"build"</span> <span class="op">/</span> <span class="st">"bin"</span> <span class="op">/</span> <span class="st">"whisper-cli"</span>),</span>
+<span id="cb17-99"><a href="#cb17-99" aria-hidden="true" tabindex="-1"></a>             <span class="st">"-m"</span>, <span class="bu">str</span>(MODEL), <span class="st">"-f"</span>, <span class="bu">str</span>(wav),</span>
+<span id="cb17-100"><a href="#cb17-100" aria-hidden="true" tabindex="-1"></a>             <span class="st">"--no-timestamps"</span>, <span class="st">"--prompt"</span>, CONTEXT_PROMPT,</span>
+<span id="cb17-101"><a href="#cb17-101" aria-hidden="true" tabindex="-1"></a>             <span class="co"># Anti-repetition-loop guards (issue #120). --max-context 0 stops</span></span>
+<span id="cb17-102"><a href="#cb17-102" aria-hidden="true" tabindex="-1"></a>             <span class="co"># decoded text from being carried across windows, which is what</span></span>
+<span id="cb17-103"><a href="#cb17-103" aria-hidden="true" tabindex="-1"></a>             <span class="co"># feeds a Whisper decoder loop. Do NOT use --no-context here: on</span></span>
+<span id="cb17-104"><a href="#cb17-104" aria-hidden="true" tabindex="-1"></a>             <span class="co"># this build it also voids the --prompt context and blanks the</span></span>
+<span id="cb17-105"><a href="#cb17-105" aria-hidden="true" tabindex="-1"></a>             <span class="co"># whole transcript; --max-context 0 suppresses the loop while</span></span>
+<span id="cb17-106"><a href="#cb17-106" aria-hidden="true" tabindex="-1"></a>             <span class="co"># keeping the prompt (verified x8/x11 repeats -&gt; x1). Temperature</span></span>
+<span id="cb17-107"><a href="#cb17-107" aria-hidden="true" tabindex="-1"></a>             <span class="co"># fallback (increment non-zero) catches a degenerate decode; the</span></span>
+<span id="cb17-108"><a href="#cb17-108" aria-hidden="true" tabindex="-1"></a>             <span class="co"># entropy/logprob thresholds are whisper.cpp defaults, set</span></span>
+<span id="cb17-109"><a href="#cb17-109" aria-hidden="true" tabindex="-1"></a>             <span class="co"># explicitly so the guard stays legible.</span></span>
+<span id="cb17-110"><a href="#cb17-110" aria-hidden="true" tabindex="-1"></a>             <span class="st">"--max-context"</span>, <span class="st">"0"</span>,</span>
+<span id="cb17-111"><a href="#cb17-111" aria-hidden="true" tabindex="-1"></a>             <span class="st">"--temperature-inc"</span>, <span class="st">"0.2"</span>,</span>
+<span id="cb17-112"><a href="#cb17-112" aria-hidden="true" tabindex="-1"></a>             <span class="st">"--entropy-thold"</span>, <span class="st">"2.4"</span>,</span>
+<span id="cb17-113"><a href="#cb17-113" aria-hidden="true" tabindex="-1"></a>             <span class="st">"--logprob-thold"</span>, <span class="st">"-1.0"</span>],</span>
+<span id="cb17-114"><a href="#cb17-114" aria-hidden="true" tabindex="-1"></a>            capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-115"><a href="#cb17-115" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result.stdout.strip()</span>
+<span id="cb17-116"><a href="#cb17-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-117"><a href="#cb17-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-118"><a href="#cb17-118" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb17-119"><a href="#cb17-119" aria-hidden="true" tabindex="-1"></a>    src <span class="op">=</span> pathlib.Path(sys.argv[<span class="dv">1</span>]).expanduser()</span>
+<span id="cb17-120"><a href="#cb17-120" aria-hidden="true" tabindex="-1"></a>    COLD.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-121"><a href="#cb17-121" aria-hidden="true" tabindex="-1"></a>    dest <span class="op">=</span> COLD <span class="op">/</span> src.name</span>
+<span id="cb17-122"><a href="#cb17-122" aria-hidden="true" tabindex="-1"></a>    con <span class="op">=</span> sqlite3.<span class="ex">connect</span>(DB)</span>
+<span id="cb17-123"><a href="#cb17-123" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb17-124"><a href="#cb17-124" aria-hidden="true" tabindex="-1"></a>        row <span class="op">=</span> con.execute(<span class="st">"SELECT id FROM voice_notes WHERE audio_path = ?"</span>,</span>
+<span id="cb17-125"><a href="#cb17-125" aria-hidden="true" tabindex="-1"></a>                          (<span class="bu">str</span>(dest),)).fetchone()</span>
+<span id="cb17-126"><a href="#cb17-126" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> row:</span>
+<span id="cb17-127"><a href="#cb17-127" aria-hidden="true" tabindex="-1"></a>            <span class="co"># A previous run inserted the row but died before the move:</span></span>
+<span id="cb17-128"><a href="#cb17-128" aria-hidden="true" tabindex="-1"></a>            <span class="co"># finish the move, insert nothing.</span></span>
+<span id="cb17-129"><a href="#cb17-129" aria-hidden="true" tabindex="-1"></a>            shutil.move(<span class="bu">str</span>(src), <span class="bu">str</span>(dest))</span>
+<span id="cb17-130"><a href="#cb17-130" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"row </span><span class="sc">{</span>row[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> already exists for </span><span class="sc">{</span>dest<span class="sc">.</span>name<span class="sc">}</span><span class="ss">; audio moved"</span>)</span>
+<span id="cb17-131"><a href="#cb17-131" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span></span>
+<span id="cb17-132"><a href="#cb17-132" aria-hidden="true" tabindex="-1"></a>        recorded_at <span class="op">=</span> recorded_at_iso(src)</span>
+<span id="cb17-133"><a href="#cb17-133" aria-hidden="true" tabindex="-1"></a>        dur <span class="op">=</span> duration_seconds(src)</span>
+<span id="cb17-134"><a href="#cb17-134" aria-hidden="true" tabindex="-1"></a>        transcript <span class="op">=</span> transcribe(src)</span>
+<span id="cb17-135"><a href="#cb17-135" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> con.execute(</span>
+<span id="cb17-136"><a href="#cb17-136" aria-hidden="true" tabindex="-1"></a>            <span class="st">"INSERT INTO voice_notes"</span></span>
+<span id="cb17-137"><a href="#cb17-137" aria-hidden="true" tabindex="-1"></a>            <span class="st">" (recorded_at, duration, transcript, audio_path, processed)"</span></span>
+<span id="cb17-138"><a href="#cb17-138" aria-hidden="true" tabindex="-1"></a>            <span class="st">" VALUES (?, ?, ?, ?, 0)"</span>,</span>
+<span id="cb17-139"><a href="#cb17-139" aria-hidden="true" tabindex="-1"></a>            (recorded_at, dur, transcript, <span class="bu">str</span>(dest)))</span>
+<span id="cb17-140"><a href="#cb17-140" aria-hidden="true" tabindex="-1"></a>        con.commit()</span>
+<span id="cb17-141"><a href="#cb17-141" aria-hidden="true" tabindex="-1"></a>        shutil.move(<span class="bu">str</span>(src), <span class="bu">str</span>(dest))</span>
+<span id="cb17-142"><a href="#cb17-142" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"voice_notes/</span><span class="sc">{</span>cur<span class="sc">.</span>lastrowid<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>dur<span class="sc">}</span><span class="ss">s, audio moved to cold storage"</span>)</span>
+<span id="cb17-143"><a href="#cb17-143" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb17-144"><a href="#cb17-144" aria-hidden="true" tabindex="-1"></a>        con.close()</span>
+<span id="cb17-145"><a href="#cb17-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-146"><a href="#cb17-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-147"><a href="#cb17-147" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
+<span id="cb17-148"><a href="#cb17-148" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Run it by hand on one synced memo to prove the leg:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> ~/bin/voice_note_insert.py ~/voice-inbox/<span class="op">&lt;</span>some-memo<span class="op">&gt;</span>.m4a</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite3</span> ~/archive/archive.db <span class="st">"SELECT id, recorded_at, duration, substr(transcript, 1, 80) FROM voice_notes;"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The insert happens before the move, and the script checks for an existing row by cold-storage path first, so a crash at any point is safe to re-run: the file either stays in the inbox (retried next run) or the leftover move is completed without a duplicate row.</p>
+<p><code>recorded_at</code> is read from the audio container, not the filesystem (issue #121). The source-of-truth order is: the m4a’s <code>mvhd</code> creation time (iOS Voice Memos stamp it at capture, in UTC), then the <code>©day</code> metadata atom, then the file’s <code>st_mtime</code> as a documented last resort. <code>st_mtime</code> alone is not trustworthy - AirDrop and ordinary copies rewrite it, which was observed to shift memos onto the wrong day. The parse is pure stdlib (a minimal MP4 box walk); no ffprobe or exiftool dependency.</p>
 </section>
 </section>
 <section id="the-watcher-phase-1" class="level2">
@@ -569,6 +643,12 @@ deleting archive.db destroys irreplaceable source data.</code></pre>
 <span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"index rebuilt: n/a (no index.db yet; rebuild_index.py creates it)"</span></span>
 <span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Read it the way storage.md scenario 5 does: an old newest-file age with nothing unprocessed means capture has stalled upstream, on the phone side.</p>
+<p><strong>What keeps <code>index.db</code> fresh, and how to read the <code>index rebuilt</code> field.</strong> The index is rebuilt lazily, at query time only: <code>/wiki-query</code> rebuilds it (or warns) when a question routes to the index plane (storage REQ-1133). Nothing rebuilds it on a timer or a git hook, by design. So its freshness tracks how often you ask routed questions, not how often you edit pages. Two consequences for the status line, both expected rather than defects (storage REQ-1140a):</p>
+<ul>
+<li><code>index n/a</code> means no <code>index.db</code> exists yet - a fresh setup, or a vault where no index-plane query has run. It builds on the first such query. This is informational, not a warning.</li>
+<li>A large <code>index rebuilt Nh ago</code> age just means no routed query has run in that span. It is a prompt to rebuild if you want to, not a failure.</li>
+</ul>
+<p>If you never run index-plane queries and want a fresh index anyway, two skills will OFFER to rebuild when they notice a stale or missing index (never automatically, storage REQ-1142): <code>wiki-maintain status</code> (Phase 2d) and <code>wiki-ingest-voice</code> (after its run). You can also rebuild by hand at any time: <code>python3 skills/wiki-core/scripts/rebuild_index.py --config &lt;path&gt;/llm-wiki.yml</code>.</p>
 </section>
 <section id="the-weekly-canary-memo" class="level3">
 <h3 class="anchored" data-anchor-id="the-weekly-canary-memo">7.2 The weekly canary memo</h3>
@@ -632,7 +712,7 @@ deleting archive.db destroys irreplaceable source data.</code></pre>
 <h2 class="anchored" data-anchor-id="talking-to-your-notes-wiki-chat-voice">10. Talking to your notes: /wiki-chat-voice</h2>
 <p>Once memos accumulate in archive.db, draining the queue is not the only thing worth doing with them. <code>/wiki-chat-voice</code> (issue #117, installed with the same <code>--with-personal</code> flag) is a conversation with the recordings:</p>
 <ol type="1">
-<li><strong>Browse.</strong> A picker over <code>voice_notes</code> - processed and unprocessed rows, newest first, with a runtime one-line description and keywords per row (<code>--since</code>, <code>--grep</code>, <code>--unprocessed</code> to filter). The browse is mechanically read-only (the connection is opened <code>mode=ro</code>), and the digests are never cached anywhere: the schema is frozen (storage REQ-1111) and there is deliberately no derived-digest table.</li>
+<li><strong>Browse.</strong> A picker over <code>voice_notes</code> - processed and unprocessed rows, newest first, each with its original filename (the basename of <code>audio_path</code>, issue #121) plus a runtime one-line description and keywords (<code>--since</code>, <code>--grep</code>, <code>--unprocessed</code> to filter). The browse is mechanically read-only (the connection is opened <code>mode=ro</code>), and the digests are never cached anywhere: the schema is frozen (storage REQ-1111) and there is deliberately no derived-digest table.</li>
 <li><strong>Converse.</strong> Pick notes (“1 and 2”, or “the two about the seminar”) and just talk: what did I say, how do these connect, does this contradict a wiki page. Nothing is written during the conversation - no journal, no pages, no processed flips (ingest REQ-1202). End it explicitly (“wrap up”).</li>
 <li><strong>Close.</strong> One checkpoint, then one atomic ingest: a journal synthesis by default (opening with the pipeline status line), per-claim wiki offers that cite the underlying note ids - the conversation itself is never a cite target and never raises reliability (REQ-1204; two memos by the same speaker do not corroborate each other either) - and a per-note offer to mark covered unprocessed notes processed, so tomorrow’s <code>/wiki-ingest-voice</code> drain does not journal them twice (REQ-1205). Declining a flip leaves the note for the normal drain.</li>
 </ol>

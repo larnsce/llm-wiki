@@ -153,6 +153,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#scenario-4-agent-asked-to-clean-the-vault" id="toc-scenario-4-agent-asked-to-clean-the-vault" class="nav-link" data-scroll-target="#scenario-4-agent-asked-to-clean-the-vault">Scenario 4: agent asked to clean the vault</a></li>
   <li><a href="#scenario-5-dead-man-status-line-surfaces-a-stalled-phone-sync" id="toc-scenario-5-dead-man-status-line-surfaces-a-stalled-phone-sync" class="nav-link" data-scroll-target="#scenario-5-dead-man-status-line-surfaces-a-stalled-phone-sync">Scenario 5: dead-man status line surfaces a stalled phone sync</a></li>
   <li><a href="#scenario-6-staleness-is-checked-at-query-time-not-commit-time" id="toc-scenario-6-staleness-is-checked-at-query-time-not-commit-time" class="nav-link" data-scroll-target="#scenario-6-staleness-is-checked-at-query-time-not-commit-time">Scenario 6: staleness is checked at query time, not commit time</a></li>
+  <li><a href="#scenario-7-a-never-built-index-reads-as-informational-not-a-defect" id="toc-scenario-7-a-never-built-index-reads-as-informational-not-a-defect" class="nav-link" data-scroll-target="#scenario-7-a-never-built-index-reads-as-informational-not-a-defect">Scenario 7: a never-built index reads as informational, not a defect</a></li>
+  <li><a href="#scenario-8-a-routine-skill-offers-never-forces-an-index-rebuild" id="toc-scenario-8-a-routine-skill-offers-never-forces-an-index-rebuild" class="nav-link" data-scroll-target="#scenario-8-a-routine-skill-offers-never-forces-an-index-rebuild">Scenario 8: a routine skill offers, never forces, an index rebuild</a></li>
   </ul></li>
   <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
   <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
@@ -273,7 +275,9 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="dead-man-pipeline-status-premortem-4">Dead-Man Pipeline Status (premortem #4)</h3>
 <ul>
 <li>REQ-1140: The daily journal summary (the voice workflow’s output block on today’s journal page, <code>specs/ingest.md</code> REQ-082) SHALL begin with a one-line pipeline status: the age of the newest file in the voice inbox, the count of unprocessed <code>voice_notes</code> rows, and the age of the last index rebuild. Example: <code>pipeline: inbox newest 2h | unprocessed 3 | index rebuilt 26h ago</code>. Silence becomes visible in the one place the maintainer already looks.</li>
+<li>REQ-1140a (index freshness follows query traffic, by design): <code>index.db</code> is rebuilt lazily at query time (REQ-1133), never on a timer or a git hook, so its freshness is a function of index-plane query traffic, not edit activity. The <code>index rebuilt</code> field of the status line SHALL reflect this without reading as a defect. When no <code>index.db</code> exists yet (a valid state after a fresh setup, or when no index-plane query has ever run), the field reads <code>index n/a</code> and is INFORMATIONAL, not a warning: it means “will build on the first index-plane query,” not “the pipeline is broken.” A large <code>index rebuilt Nh ago</code> age is likewise expected when no routed query has run in that span; it is a prompt to rebuild if desired (REQ-1142), never a failure. The inbox-age and unprocessed-count fields keep their warning semantics (a stale inbox is an upstream capture failure, Scenario 5); only the index field is reframed here.</li>
 <li>REQ-1141: The voice pipeline documentation (v3.0, P-2) SHALL document a weekly canary memo: speak one test memo on the phone and expect it in tomorrow’s journal. Mac-side monitoring cannot see a dead phone-side leg; the canary closes that gap.</li>
+<li>REQ-1142 (opt-in rebuild from routine skills, never automatic): A skill that is already running for another purpose and computes or reports index freshness (<code>wiki-maintain status</code>, <code>wiki-ingest-voice</code>) MAY run <code>rebuild_index.py --stale-check</code> and, on a stale or missing index, OFFER to rebuild - detection plus an explicit offer, exactly the shape of the data-package staleness check (ingest REQ-106). The rebuild is a write and SHALL NOT happen automatically inside a read-only status or status-line path: it requires explicit user confirmation, and declining leaves the index as-is (the next index-plane query still handles it lazily, REQ-1133). This closes the freshness loop for a maintainer who never runs index-plane queries without turning the read-only report into a writer or reintroducing the background rebuild REQ-1133 forbids.</li>
 </ul>
 <hr>
 </section>
@@ -324,6 +328,22 @@ AND the 5-day inbox age is the visible warning that capture has stalled upstream
 WHEN a query routes to index.db
 THEN the system warns that the index is stale and MAY rebuild before answering
 AND no pre-commit hook has rebuilt the index (none exists)</code></pre>
+</section>
+<section id="scenario-7-a-never-built-index-reads-as-informational-not-a-defect" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-7-a-never-built-index-reads-as-informational-not-a-defect">Scenario 7: a never-built index reads as informational, not a defect</h3>
+<pre><code>GIVEN a vault where no index-plane query has ever run, so index.db does not exist
+WHEN the daily journal summary (or wiki-maintain status) reports pipeline status
+THEN the index field reads "index n/a" as an informational state
+    ("builds on the first index-plane query"), NOT a warning (REQ-1140a)
+AND the run is not treated as a defect for the missing index</code></pre>
+</section>
+<section id="scenario-8-a-routine-skill-offers-never-forces-an-index-rebuild" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-8-a-routine-skill-offers-never-forces-an-index-rebuild">Scenario 8: a routine skill offers, never forces, an index rebuild</h3>
+<pre><code>GIVEN wiki-maintain status runs and index.db is stale (or missing)
+WHEN it reports index freshness (rebuild_index.py --stale-check)
+THEN it OFFERS to rebuild with explicit confirmation (REQ-1142)
+AND if the user declines, index.db is left unchanged and the status path
+    performs no write; the next index-plane query still rebuilds lazily</code></pre>
 <hr>
 </section>
 </section>
@@ -341,6 +361,8 @@ AND no pre-commit hook has rebuilt the index (none exists)</code></pre>
 <li><label><input type="checkbox">Nothing without a markdown source enters index.db; importers never write to it</label></li>
 <li><label><input type="checkbox">No pre-commit rebuild hooks; staleness is checked at query time</label></li>
 <li><label><input type="checkbox">The daily journal summary begins with the pipeline status line</label></li>
+<li><label><input type="checkbox">A missing/never-built index reads as informational (<code>index n/a</code>), not a warning, when no index-plane query has run (REQ-1140a)</label></li>
+<li><label><input type="checkbox">A routine skill (<code>wiki-maintain status</code>, <code>wiki-ingest-voice</code>) offers, with explicit confirmation, to rebuild a stale/missing index; it never rebuilds automatically in a read-only status path (REQ-1142)</label></li>
 </ul>
 <hr>
 </section>

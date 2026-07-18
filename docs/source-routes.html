@@ -146,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#teaching-feedback-and-handwritten-notes-deliberately-informal" id="toc-teaching-feedback-and-handwritten-notes-deliberately-informal" class="nav-link" data-scroll-target="#teaching-feedback-and-handwritten-notes-deliberately-informal">Teaching feedback and handwritten notes: deliberately informal</a></li>
   <li><a href="#messaging-threads-and-calendar-no-route" id="toc-messaging-threads-and-calendar-no-route" class="nav-link" data-scroll-target="#messaging-threads-and-calendar-no-route">Messaging threads and calendar: no route</a></li>
   </ul></li>
-  <li><a href="#ai-conversation-transcripts-the-manual-protocol" id="toc-ai-conversation-transcripts-the-manual-protocol" class="nav-link" data-scroll-target="#ai-conversation-transcripts-the-manual-protocol">AI conversation transcripts: the manual protocol</a></li>
+  <li><a href="#ai-conversation-transcripts-the-specd-route" id="toc-ai-conversation-transcripts-the-specd-route" class="nav-link" data-scroll-target="#ai-conversation-transcripts-the-specd-route">AI conversation transcripts: the spec’d route</a></li>
   <li><a href="#what-deliberately-has-no-route" id="toc-what-deliberately-has-no-route" class="nav-link" data-scroll-target="#what-deliberately-has-no-route">What deliberately has no route</a></li>
   </ul></li>
   </ul>
@@ -274,11 +274,11 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>AI conversation transcripts</td>
-<td>manual protocol below; gated until five hand ingests</td>
+<td>curate at export (best: end the session by asking for a decision log), name it <code>chat-YYYY-MM-DD-&lt;slug&gt;.md</code>, drop into <code>raw/</code> (ingest REQ-1300..1305)</td>
 <td><code>raw/chat-*.md</code></td>
-<td><code>notes</code> (classified by hand at the checkpoint)</td>
-<td><code>low</code>; the user’s own decisions <code>medium</code> once confirmed at the checkpoint</td>
-<td>opus/fable class while the protocol is manual</td>
+<td><code>transcripts</code> (sensitive by default, REQ-1301: bytes never enter git)</td>
+<td><code>low</code>, capture-backed (schema REQ-586b); the user’s own decisions <code>medium</code> once confirmed per decision (REQ-1302)</td>
+<td>sonnet; escalate when the extraction would supersede existing wiki truth</td>
 </tr>
 <tr class="odd">
 <td>Teaching feedback</td>
@@ -326,22 +326,23 @@ ul.task-list li input[type="checkbox"] {
 <p>Blocked on the unresolved people/meetings/email design question. The staging ground is the archive layer (<code>docs/archive-layer.md</code>); nothing enters the wiki from there until that question is decided. Adding a route here without that decision would hard-code an answer to the harder question by accident.</p>
 </section>
 </section>
-<section id="ai-conversation-transcripts-the-manual-protocol" class="level2">
-<h2 class="anchored" data-anchor-id="ai-conversation-transcripts-the-manual-protocol">AI conversation transcripts: the manual protocol</h2>
-<p>Status: MANUAL protocol, not spec’d machinery. The Phase-0 evaluation (issue #107, 2026-07-08) found that spec work before real usage would repeat the voice pipeline’s early mistake, so the machinery (a <code>transcripts</code> source type, <code>chat-</code> filename inference, checkpoint variant, golden) is gated: if fewer than five transcripts have been hand-ingested by 2026-07-22, the spec REQ block does not get written and this stays a manual protocol.</p>
-<p>What the Phase-0 hand ingests established:</p>
+<section id="ai-conversation-transcripts-the-specd-route" class="level2">
+<h2 class="anchored" data-anchor-id="ai-conversation-transcripts-the-specd-route">AI conversation transcripts: the spec’d route</h2>
+<p>Status: SPEC’D machinery (ingest REQ-1300..1305, issue #107 Part 2). The Phase-0 evaluation (2026-07-08) descoped this to a manual protocol behind a five-hand-ingest gate; the maintainer waived the gate on 2026-07-16 after the route proved itself in use, and the machinery shipped: <code>transcripts</code> source type (sensitive by default, REQ-1301), <code>chat-</code> filename inference (REQ-1300), the per-decision checkpoint variant (REQ-1302/1303), and the golden (<code>tests/golden/ingest-transcript.golden.md</code>).</p>
+<p>What the Phase-0 hand ingests established (now encoded in the REQs):</p>
 <ul>
-<li>Claude Code sessions on a repository are usually NOT worth ingesting: the repo itself absorbs the decisions (issues, CHANGELOG, commit messages). A raw export of one working day measured 4,637 lines and 254 tool calls and yielded zero net-new wiki content after trimming.</li>
-<li>The value concentrates in conversations with no repository behind them (claude.ai chats, cross-project design discussions), and in the trim: a hand-curated export was ingestable as-is; the raw dump was not. Curate at export time (or end the session by asking the model for a decision log) rather than trimming dumps afterwards.</li>
+<li>Claude Code sessions on a repository are usually NOT worth ingesting: the repo itself absorbs the decisions (issues, CHANGELOG, commit messages). A raw export of one working day measured 4,637 lines and 254 tool calls and yielded zero net-new wiki content after trimming (REQ-1304).</li>
+<li>The value concentrates in conversations with no repository behind them (claude.ai chats, cross-project design discussions), and in the trim: a hand-curated export was ingestable as-is; the raw dump was not. Curate at export time (or end the session by asking the model for a decision log) rather than trimming dumps afterwards (REQ-1305).</li>
 </ul>
-<p>The protocol, per transcript:</p>
+<p>Using the route, per transcript:</p>
 <ol type="1">
 <li>Export and curate. Keep the decisions (“we chose X because Y”), the questions that drove them, and enough surrounding text to stay honest; drop tool noise and dead ends. Aim for something a stranger could read.</li>
-<li>Name it <code>chat-YYYY-MM-DD-&lt;topic-slug&gt;.md</code> and drop it into <code>raw/</code>. The <code>chat-</code> prefix is not machinery yet (type inference will fall back to your <code>default_source_type</code> or ask); it keeps transcripts recognizable in the queue and is the prefix the future inference rule would use.</li>
-<li>Run <code>/wiki-ingest</code> and classify as <code>notes</code> at the checkpoint when asked.</li>
-<li>Trust calls at the checkpoint: a transcript is capture, not a vetted source. Model-asserted analysis rates <code>low</code> with a <code>## Pending Review</code> entry (corroborate later from real sources); your own decisions recorded in the chat rate <code>medium</code> once you confirm them at the checkpoint, the same standing as promoted personal notes. A transcript can never corroborate itself (schema REQ-586b applies in spirit).</li>
-<li>Skip what another system already records: repo decisions live in the repo; ecosystem trivia goes stale; install mechanics are in the docs. If the checkpoint proposes nothing durable, the correct outcome is no wiki writes.</li>
+<li>Name it <code>chat-YYYY-MM-DD-&lt;topic-slug&gt;.md</code> and drop it into <code>raw/</code>; the <code>chat-</code> prefix infers type <code>transcripts</code> (REQ-1300).</li>
+<li>Run <code>/wiki-ingest</code>. Transcripts are interactive-only: <code>--auto</code> states that and runs the checkpoint anyway (REQ-1303). The default outcome is a short journal decision-log entry; wiki writes are offered per extracted decision, individually (never on a batch yes).</li>
+<li>Trust calls are made for you but overridable: model-asserted analysis rates <code>low</code> with a <code>## Pending Review</code> entry (a transcript is capture, schema REQ-586b, and can never corroborate itself); your own decisions rate <code>medium</code> once you confirm them at the checkpoint, the same standing as promoted personal notes (REQ-1302).</li>
+<li>Expect skips: repo decisions live in the repo; ecosystem trivia goes stale; install mechanics are in the docs. A checkpoint proposing no wiki writes is the route working, not failing (REQ-1304).</li>
 </ol>
+<p>Durability note, applies to EVERY sensitive source type: gitignored <code>ingested/&lt;type&gt;/</code> bytes sit outside git-as-backup, so an off-machine copy of those subtrees must exist before the first sensitive ingest (REQ-1301, mirroring the archive.db rule, storage REQ-1120). If the bytes are lost, <code>/wiki-audit</code> reports the affected claims as <code>source-missing</code> - broken provenance, deliberately distinct from <code>reliability:: low</code> (audit REQ-927).</p>
 </section>
 <section id="what-deliberately-has-no-route" class="level2">
 <h2 class="anchored" data-anchor-id="what-deliberately-has-no-route">What deliberately has no route</h2>
@@ -349,7 +350,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Automated subscription or feed ingestion (violates the funnel rule).</li>
 <li>Bulk import of unread backlogs (same rule; drain read material in reviewable batches).</li>
 <li>Messaging and calendar data (blocked on the people/meetings/email question, see above).</li>
-<li>Automated AI-transcript capture into archive.db (revisit only if the manual protocol survives its gate and volume demands it).</li>
+<li>Automated AI-transcript capture into archive.db (the file route, ingest REQ-1300, is deliberately manual and selective; revisit only if its volume demands bulk capture).</li>
 </ul>
 
 

@@ -185,21 +185,22 @@ ul.task-list li input[type="checkbox"] {
 <li><p>If the archive_db file does not exist, there is nothing to talk to: say so and stop. This skill never creates the database.</p></li>
 <li><p>List the notes, newest first, read-only (the <code>mode=ro</code> URI is the mechanical guarantee that browsing cannot mutate capture):</p>
 <pre><code>python3 - "$ARCHIVE_DB" &lt;&lt;'PY'
-import sys, sqlite3
+import sys, sqlite3, pathlib
 db = sqlite3.connect("file:%s?mode=ro" % sys.argv[1], uri=True)
 rows = db.execute(
-    "SELECT id, recorded_at, duration, processed, transcript "
+    "SELECT id, recorded_at, duration, processed, audio_path, transcript "
     "FROM voice_notes ORDER BY id DESC LIMIT 20").fetchall()
-for id_, rec, dur, proc, t in rows:
+for id_, rec, dur, proc, audio, t in rows:
     words = t.split()
-    print("%s | %s | %.0fs | %s | %d words | %s..." % (
+    print("%s | %s | %.0fs | %s | %s | %d words | %s..." % (
         id_, rec[:16], dur,
         "processed" if proc else "UNPROCESSED",
+        pathlib.PurePath(audio).name if audio else "-",
         len(words), " ".join(words[:12])))
 PY</code></pre>
 <p>Flags adjust the query, nothing else: <code>--since &lt;date&gt;</code> adds <code>WHERE recorded_at &gt;= ?</code>, <code>--grep &lt;term&gt;</code> adds <code>WHERE transcript LIKE ?</code> (<code>%term%</code>), <code>--unprocessed</code> adds <code>WHERE processed = 0</code>; combine with AND. More than 20 matches: paginate on request (<code>LIMIT 20 OFFSET n</code>), never dump the whole archive.</p></li>
 <li><p>Enrich the deterministic rows into the picker table: one-line description and 3-5 keywords per row shown. Dispatch the digest batch to the <code>wiki-triage</code> agent when installed (setup REQ-807; the haiku tier fits one-line summarization) - hand it only id + transcript, get back <code>id | description | keywords</code>; without the agent, digest inline. Digests are ephemeral: never written to any file or database (REQ-1200).</p></li>
-<li><p>Present the picker:</p>
+<li><p>Present the picker (<code>file</code> is the original filename, the basename of <code>audio_path</code> derived at display time - the human-recognizable handle back to the phone’s recording, and the cross-check when a <code>recorded_at</code> looks wrong; issue #121):</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -208,6 +209,7 @@ PY</code></pre>
 <th>recorded</th>
 <th>length</th>
 <th>status</th>
+<th>file</th>
 <th>description</th>
 <th>keywords</th>
 </tr>

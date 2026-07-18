@@ -277,6 +277,40 @@ git commit -m "data: sync &lt;pkg&gt; &lt;version&gt; (&lt;n&gt; datasets)"</cod
 <li><strong>Nested under a dictionary row</strong> - indent one level deeper than the row (a child bullet of it). Preserved across regenerations, though it re-attaches at the end of the dictionary block when the rows change.</li>
 </ul>
 <p>Do NOT write free-standing bullets at the same level as the dictionary rows inside <code>## description</code> or <code>## data dictionary</code>: those two blocks are machine territory and are regenerated wholesale on the next sync (ingest REQ-102).</p>
+<p>Here is the <code>toilets</code> dataset page from the dry-run example above (<code>pages/wiki___data___sanidata___toilets.md</code>) after a sync, with one note of each kind written in. The two bullets marked <code>&lt;- yours</code> are the only human lines; everything else is machine-written and will be regenerated:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>type:: entity</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>entity-type:: dataset</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>created:: 2026-07-18</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>status:: active</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>source:: ingest</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>reliability:: high</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>schema-spec-version:: 2.0.0</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>package:: larnsce/sanidata</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>version:: 1.0.0</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>license:: CC BY 4.0</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>url:: https://github.com/larnsce/sanidata</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>source-file:: ingested/data/sanidata-1.0.0/toilets.csv, ingested/data/sanidata-1.0.0/toilets.md</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>data-last-sync:: 1.0.0</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>updated:: 2026-07-18</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Toilet observations from the 2019 sanitation survey</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  cite:: ingested/data/sanidata-1.0.0/toilets.md</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## description</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Toilet observations from the 2019 sanitation survey</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>      cite:: ingested/data/sanidata-1.0.0/toilets.md</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>412 rows, 6 variables (data: ingested/data/sanidata-1.0.0/toilets.csv)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      cite:: ingested/data/sanidata-1.0.0/toilets.csv</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## data dictionary</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>id - unique toilet identifier</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>      cite:: ingested/data/sanidata-1.0.0/toilets.md</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>ward - city ward the toilet stands in</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>      cite:: ingested/data/sanidata-1.0.0/toilets.md</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="ss">        - </span>ward 7 was covered by two enumerators in week 1; counts may double #fleeting   &lt;- yours</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## fleeting</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>compare toilets-per-ward against [<span class="co">[</span><span class="ot">wiki/data/sanidata/pumps</span><span class="co">]</span>] before citing this #fleeting   &lt;- yours</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## Cross-References</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/data/sanidata</span><span class="co">]</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The note under the <code>ward</code> row is indented one level deeper than the row (a child bullet), so the next sync keeps it and re-attaches it after the regenerated dictionary. The note under <code>## fleeting</code> is free-form and never touched. Both carry the <code>#fleeting</code> tag by hand, per the Zettelkasten convention (<a href="../docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a>) - the tooling never writes tags.</p>
 </section>
 </section>
 <section id="special-cases" class="level2">
