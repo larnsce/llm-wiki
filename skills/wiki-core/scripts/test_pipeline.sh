@@ -727,6 +727,22 @@ run py secret_scan.py --json --gitignore-check "$GITWIKI" \
   "ingested/papers/tracked.md"
 assert_exit 2 "secret_scan: gitignore-check red on path that would enter history"
 
+# Transcript route (ingest REQ-1300/1301, issue #107): transcripts is a
+# configured source type AND sensitive by default in config.example.yml,
+# and the gitignore-check accepts the ingested/transcripts/ destination.
+run bash -c "awk '/^source_types:/,/^default_source_type:/' \
+  '$REPO_ROOT/config.example.yml' | grep -q -- '- transcripts'"
+assert_exit 0 "config.example: transcripts is a source type (REQ-623)"
+run bash -c "awk '/^sensitive_source_types:/,/^\$/' \
+  '$REPO_ROOT/config.example.yml' | grep -q -- '^  - transcripts'"
+assert_exit 0 "config.example: transcripts is sensitive by default (REQ-624, ingest REQ-1301)"
+echo "ingested/transcripts/" >>"$GITWIKI/.gitignore"
+run py secret_scan.py --json --gitignore-check "$GITWIKI" \
+  "ingested/transcripts/chat-2026-06-25-vault-design.md"
+assert_exit 0 "secret_scan: gitignore-check green on sensitive transcript path (REQ-1301)"
+run test -f "$REPO_ROOT/tests/golden/source/chat-2026-06-25-vault-design.md"
+assert_exit 0 "golden: frozen transcript fixture present (REQ-1300, issue #107)"
+
 # ---------------------------------------------------------------------------
 # author:: provenance (schema REQ-585a, ingest REQ-011a/033c, #73) and the
 # born-cited person page (ingest REQ-024a, #74): both shapes lint clean and
@@ -920,16 +936,17 @@ CHATDB_BEFORE="$(hash_db "$CHATDB")"
 
 # The browse snippet from skills/wiki-chat-voice/SKILL.md Phase 0, verbatim.
 run python3 - "$CHATDB" <<'PY'
-import sys, sqlite3
+import sys, sqlite3, pathlib
 db = sqlite3.connect("file:%s?mode=ro" % sys.argv[1], uri=True)
 rows = db.execute(
-    "SELECT id, recorded_at, duration, processed, transcript "
+    "SELECT id, recorded_at, duration, processed, audio_path, transcript "
     "FROM voice_notes ORDER BY id DESC LIMIT 20").fetchall()
-for id_, rec, dur, proc, t in rows:
+for id_, rec, dur, proc, audio, t in rows:
     words = t.split()
-    print("%s | %s | %.0fs | %s | %d words | %s..." % (
+    print("%s | %s | %.0fs | %s | %s | %d words | %s..." % (
         id_, rec[:16], dur,
         "processed" if proc else "UNPROCESSED",
+        pathlib.PurePath(audio).name if audio else "-",
         len(words), " ".join(words[:12])))
 PY
 assert_exit 0 "chat-voice: browse query runs clean (REQ-1200)"
@@ -940,6 +957,15 @@ if head -1 "$OUT" | grep -q '^2 | 2026-07-06' \
   report PASS "chat-voice: picker lists newest first with processed marks (REQ-1200)"
 else
   report FAIL "chat-voice: picker lists newest first with processed marks (REQ-1200)"
+fi
+# Original filename in the picker (issue #121): basename of audio_path only,
+# never the full cold-storage path.
+if head -1 "$OUT" | grep -q '| b\.m4a |' \
+  && sed -n 2p "$OUT" | grep -q '| a\.m4a |' \
+  && ! grep -q '/tmp/a\.m4a' "$OUT"; then
+  report PASS "chat-voice: picker shows the original filename (REQ-1200, issue #121)"
+else
+  report FAIL "chat-voice: picker shows the original filename (REQ-1200, issue #121)"
 fi
 if [[ "$(hash_db "$CHATDB")" == "$CHATDB_BEFORE" ]]; then
   report PASS "chat-voice: browse left archive.db bytes unchanged (REQ-1200)"

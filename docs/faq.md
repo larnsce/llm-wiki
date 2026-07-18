@@ -102,4 +102,4 @@ After the first push, the L1/L2 boundary enforces itself. The lint runs catch dr
 
 ## Where do I report bugs or request features?
 
-[GitHub Issues](https://github.com/MehmetGoekce/llm-wiki/issues) — there are templates for bug reports and feature requests. Security issues: see [SECURITY.md](../SECURITY.md).
+[GitHub Issues](https://github.com/larnsce/llm-wiki/issues) — there are templates for bug reports and feature requests. Security issues: see [SECURITY.md](../SECURITY.md).

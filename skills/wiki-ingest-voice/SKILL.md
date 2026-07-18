@@ -112,15 +112,22 @@ split of REQ-080 holds):
 
   ```
   python3 - "$ARCHIVE_DB" <<'PY'
-  import sys, sqlite3
+  import sys, sqlite3, pathlib
   db = sqlite3.connect(sys.argv[1])
   for row in db.execute(
-          "SELECT id, recorded_at, duration, transcript FROM voice_notes "
-          "WHERE processed = 0 ORDER BY id"):
-      print("--- id=%s recorded_at=%s duration=%.0fs" % row[:3])
-      print(row[3])
+          "SELECT id, recorded_at, duration, audio_path, transcript "
+          "FROM voice_notes WHERE processed = 0 ORDER BY id"):
+      print("--- id=%s recorded_at=%s duration=%.0fs file=%s" % (
+          row[0], row[1], row[2],
+          pathlib.PurePath(row[3]).name if row[3] else "-"))
+      print(row[4])
   PY
   ```
+
+  The `file=` field is the original filename (basename of the stored
+  `audio_path`, derived at display time; issue #121): show it wherever the
+  note is presented to the user, so a row stays traceable to the phone's
+  recording and a suspicious `recorded_at` can be cross-checked by eye.
 
 - Gather the dead-man status inputs (storage REQ-1140):
   - newest file age in the voice inbox (`inbox_dir` from config, default
@@ -130,8 +137,22 @@ split of REQ-080 holds):
   - the age of the last index rebuild (the index.db file's mtime, storage
     REQ-1131; the path is the `index_db` config key, default
     `~/archive/index.db`; report `index n/a` when no index.db exists yet).
+    `index n/a` is INFORMATIONAL, not a warning (storage REQ-1140a): the index
+    builds lazily on the first index-plane query, so a missing or old index is
+    expected when no routed query has run. Only the inbox-age field carries an
+    upstream-failure warning; do not present the index field as a defect.
 
   Format: `pipeline: inbox newest 2h | unprocessed 3 | index rebuilt 26h ago`
+
+- Freshness offer (storage REQ-1142, AFTER the run, never woven into the
+  journal write): if `index_db` is configured and the index is stale or
+  missing, you MAY run
+  `python3 skills/wiki-core/scripts/rebuild_index.py --config <llm-wiki.yml> --stale-check`
+  and offer once - "index.db is stale; rebuild now? [y/N]" - rebuilding only on
+  an explicit yes (`rebuild_index.py` without the flag). Declining leaves it for
+  the next index-plane query (REQ-1133). The status line itself and the journal
+  block stay read-only for the index; the rebuild, if confirmed, writes only the
+  derived index.db, never a page.
 
 - If `--auto` was passed: state that voice sources are interactive-only
   (REQ-081) and continue in interactive mode.

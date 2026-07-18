@@ -238,14 +238,22 @@ lint (validation).
   threshold. The qualitative rubric remains the decision.
 - REQ-586b (capture-backed provenance): A claim whose provenance is an archive.db
   row (a `source-file::`/`cite::` ref of shape `archive.db:voice_notes/<id>`,
-  specs/ingest.md Voice Sources) is CAPTURE-BACKED: raw capture, not a vetted
-  source. A transcript is what was said, not a source for what is true.
+  specs/ingest.md Voice Sources) or an AI-conversation transcript (an
+  `ingested/transcripts/` path, specs/ingest.md Transcript Sources) is
+  CAPTURE-BACKED: raw capture, not a vetted source. A transcript is what was
+  said, not a source for what is true.
   Capture-backed claims default to `reliability:: low` (they rate with the
   speculative/anecdotal tier of the REQ-586 rubric), and the page roll-up applies
   as usual. Raising a capture-backed claim above `low` SHALL require a real
   source ingested through the normal pipeline (`raw/` to `ingested/`) that
-  supports the claim: a transcript cannot corroborate itself, and multiple voice
-  notes from the same speaker count as ONE source for REQ-586 corroboration.
+  supports the claim: a transcript cannot corroborate itself, multiple voice
+  notes from the same speaker count as ONE source for REQ-586 corroboration,
+  and so do multiple chat transcripts of the same speaker's conversations.
+  ONE exception, defined by ingest REQ-1302: a claim recording the user's OWN
+  decision, individually confirmed by the user at the checkpoint, rates as
+  personal synthesis (`medium`, the REQ-586 personal-synthesis case) - the
+  confirmation makes the user the source; the transcript is merely where the
+  decision was written down. Model-asserted analysis stays at the `low` default.
   This is the single normative statement of the capture-backed default; other
   specs (ingest, audit, storage) cite it rather than restate it.
 - REQ-587: `confidence::` (REQ-530/533) and `reliability::` (REQ-586) are TWO SEPARATE

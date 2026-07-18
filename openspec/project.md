@@ -8,7 +8,7 @@ inspired by CPU memory hierarchies.
 
 - **Owner:** Mehmet Goekce / MEMOTECH
 - **License:** MIT (open-source)
-- **Repository:** github.com/MehmetGoekce/llm-wiki
+- **Repository:** github.com/larnsce/llm-wiki
 - **Status:** Initial release (v1.0), actively developed
 
 ## Architecture

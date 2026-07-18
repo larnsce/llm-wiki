@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Common issues and fixes. If your problem is not listed here, open a [GitHub issue](https://github.com/MehmetGoekce/llm-wiki/issues/new/choose).
+Common issues and fixes. If your problem is not listed here, open a [GitHub issue](https://github.com/larnsce/llm-wiki/issues/new/choose).
 
 ## Setup
 

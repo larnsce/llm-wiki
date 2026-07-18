@@ -72,7 +72,9 @@ every wiki workflow, in every tool mode:
 - **Never write the human namespaces.** Never create, edit, lint, or audit any
   page under `para/` or `notes/` (human-authored; REQ-966), and never modify
   non-wiki pages such as existing notes or journals. There is no grandfathered
-  exception: a fresh graph starts under this rule and stays under it.
+  exception: a fresh graph starts under this rule and stays under it. The one
+  enumerated exception is ingest's human-confirmed literature-note
+  `source-file::` write (REQ-974; wiki-ingest's promotion-seam reference).
 - **Reading is allowed, on request.** A wiki workflow MAY read `para/` or
   `notes/` pages when the user asks for context (e.g. a query referencing a
   linked note), but never writes to them as a side effect (REQ-967).

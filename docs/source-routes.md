@@ -26,7 +26,7 @@ installed tooling.
 | Book and e-reader highlights (Kindle, KOReader, Readwise) | import the export into Zotero, then the normal paper route | via Zotero | `papers` | per rubric | sonnet |
 | Audio and video actually listened to (podcasts, YouTube, lectures) | obtain or make a transcript, treat it as an article with `canonical-url::` | `raw/<file>` | `articles` | per rubric | sonnet |
 | Newsletters and RSS actually read | clip the read item like any web page | `raw/<file>` | `clippings` | per rubric | sonnet |
-| AI conversation transcripts | manual protocol below; gated until five hand ingests | `raw/chat-*.md` | `notes` (classified by hand at the checkpoint) | `low`; the user's own decisions `medium` once confirmed at the checkpoint | opus/fable class while the protocol is manual |
+| AI conversation transcripts | curate at export (best: end the session by asking for a decision log), name it `chat-YYYY-MM-DD-<slug>.md`, drop into `raw/` (ingest REQ-1300..1305) | `raw/chat-*.md` | `transcripts` (sensitive by default, REQ-1301: bytes never enter git) | `low`, capture-backed (schema REQ-586b); the user's own decisions `medium` once confirmed per decision (REQ-1302) | sonnet; escalate when the extraction would supersede existing wiki truth |
 | Teaching feedback | manual capture as `raw/note-*.md`; anything with student names needs `sensitive_source_types` handling first | `raw/note-*.md` | `notes` | `medium` | sonnet |
 | Handwritten and physical notes | photo, OCR by hand, then `raw/note-*.md` | `raw/note-*.md` | `notes` | `medium` | haiku intake, sonnet synthesis |
 
@@ -80,47 +80,54 @@ ground is the archive layer (`docs/archive-layer.md`); nothing enters the
 wiki from there until that question is decided. Adding a route here without
 that decision would hard-code an answer to the harder question by accident.
 
-## AI conversation transcripts: the manual protocol
+## AI conversation transcripts: the spec'd route
 
-Status: MANUAL protocol, not spec'd machinery. The Phase-0 evaluation
-(issue #107, 2026-07-08) found that spec work before real usage would repeat
-the voice pipeline's early mistake, so the machinery (a `transcripts` source
-type, `chat-` filename inference, checkpoint variant, golden) is gated: if
-fewer than five transcripts have been hand-ingested by 2026-07-22, the spec
-REQ block does not get written and this stays a manual protocol.
+Status: SPEC'D machinery (ingest REQ-1300..1305, issue #107 Part 2). The
+Phase-0 evaluation (2026-07-08) descoped this to a manual protocol behind a
+five-hand-ingest gate; the maintainer waived the gate on 2026-07-16 after
+the route proved itself in use, and the machinery shipped: `transcripts`
+source type (sensitive by default, REQ-1301), `chat-` filename inference
+(REQ-1300), the per-decision checkpoint variant (REQ-1302/1303), and the
+golden (`tests/golden/ingest-transcript.golden.md`).
 
-What the Phase-0 hand ingests established:
+What the Phase-0 hand ingests established (now encoded in the REQs):
 
 - Claude Code sessions on a repository are usually NOT worth ingesting: the
   repo itself absorbs the decisions (issues, CHANGELOG, commit messages). A
   raw export of one working day measured 4,637 lines and 254 tool calls and
-  yielded zero net-new wiki content after trimming.
+  yielded zero net-new wiki content after trimming (REQ-1304).
 - The value concentrates in conversations with no repository behind them
   (claude.ai chats, cross-project design discussions), and in the trim: a
   hand-curated export was ingestable as-is; the raw dump was not. Curate at
   export time (or end the session by asking the model for a decision log)
-  rather than trimming dumps afterwards.
+  rather than trimming dumps afterwards (REQ-1305).
 
-The protocol, per transcript:
+Using the route, per transcript:
 
 1. Export and curate. Keep the decisions ("we chose X because Y"), the
    questions that drove them, and enough surrounding text to stay honest;
    drop tool noise and dead ends. Aim for something a stranger could read.
-2. Name it `chat-YYYY-MM-DD-<topic-slug>.md` and drop it into `raw/`. The
-   `chat-` prefix is not machinery yet (type inference will fall back to
-   your `default_source_type` or ask); it keeps transcripts recognizable in
-   the queue and is the prefix the future inference rule would use.
-3. Run `/wiki-ingest` and classify as `notes` at the checkpoint when asked.
-4. Trust calls at the checkpoint: a transcript is capture, not a vetted
-   source. Model-asserted analysis rates `low` with a `## Pending Review`
-   entry (corroborate later from real sources); your own decisions recorded
-   in the chat rate `medium` once you confirm them at the checkpoint, the
-   same standing as promoted personal notes. A transcript can never
-   corroborate itself (schema REQ-586b applies in spirit).
-5. Skip what another system already records: repo decisions live in the
-   repo; ecosystem trivia goes stale; install mechanics are in the docs.
-   If the checkpoint proposes nothing durable, the correct outcome is no
-   wiki writes.
+2. Name it `chat-YYYY-MM-DD-<topic-slug>.md` and drop it into `raw/`; the
+   `chat-` prefix infers type `transcripts` (REQ-1300).
+3. Run `/wiki-ingest`. Transcripts are interactive-only: `--auto` states
+   that and runs the checkpoint anyway (REQ-1303). The default outcome is a
+   short journal decision-log entry; wiki writes are offered per extracted
+   decision, individually (never on a batch yes).
+4. Trust calls are made for you but overridable: model-asserted analysis
+   rates `low` with a `## Pending Review` entry (a transcript is capture,
+   schema REQ-586b, and can never corroborate itself); your own decisions
+   rate `medium` once you confirm them at the checkpoint, the same standing
+   as promoted personal notes (REQ-1302).
+5. Expect skips: repo decisions live in the repo; ecosystem trivia goes
+   stale; install mechanics are in the docs. A checkpoint proposing no wiki
+   writes is the route working, not failing (REQ-1304).
+
+Durability note, applies to EVERY sensitive source type: gitignored
+`ingested/<type>/` bytes sit outside git-as-backup, so an off-machine copy
+of those subtrees must exist before the first sensitive ingest (REQ-1301,
+mirroring the archive.db rule, storage REQ-1120). If the bytes are lost,
+`/wiki-audit` reports the affected claims as `source-missing` - broken
+provenance, deliberately distinct from `reliability:: low` (audit REQ-927).
 
 ## What deliberately has no route
 
@@ -129,5 +136,6 @@ The protocol, per transcript:
   reviewable batches).
 - Messaging and calendar data (blocked on the people/meetings/email
   question, see above).
-- Automated AI-transcript capture into archive.db (revisit only if the
-  manual protocol survives its gate and volume demands it).
+- Automated AI-transcript capture into archive.db (the file route,
+  ingest REQ-1300, is deliberately manual and selective; revisit only if
+  its volume demands bulk capture).
