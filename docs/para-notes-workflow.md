@@ -12,7 +12,8 @@ same graph as your machine-written `wiki/`, without the two ever colliding.
 
 > **Scope.** This is a **vault-side workflow guide**, not a skill reference. The wiki
 > toolchain does not manage `para/` or `notes/` - by design (see
-> [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md)) it never writes to them. The
+> [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md)) it never writes to them (sole
+> enumerated exception: the human-confirmed literature-note `source-file::` write, REQ-974). The
 > pages, queries, and task markers below are things **you** create and maintain in Logseq/Obsidian
 > (the opt-in scaffold only creates the directories and seed schema pages; after that they are
 > yours). The tool's only involvement is the promotion seam at the end: durable content you
@@ -168,8 +169,8 @@ The seed `notes/schema` page records these (create it yourself if you skipped th
   - **literature** → `notes/literature/@<citekey>` (born from Zotero; see
     [`docs/zotero-setup.md`](zotero-setup.md)). Carries `source-file::` pointing at the SAME
     `ingested/...` path the wiki pages cite. One archived source, two readings (namespaces
-    REQ-973; when ingest recognizes a literature note it reminds you to set the property, and
-    never writes it into `notes/` itself).
+    REQ-973; when ingest recognizes a literature note it offers to set the property and writes
+    it on your confirmation - the one sanctioned write into `notes/`, REQ-974).
   - **permanent** → `notes/permanent/<idea-in-a-few-words>`. Atomic: one idea, your own words,
     densely linked to other `[[notes/...]]` and `[[wiki/...]]` pages.
 - **Promotion is an act of writing, not a rename:**
@@ -181,6 +182,63 @@ The seed `notes/schema` page records these (create it yourself if you skipped th
   `/wiki-ingest`; the filename marks it as a promoted source (namespaces REQ-970). It arrives at
   `reliability:: medium` (schema REQ-586 / namespaces REQ-971) with the standard lifecycle,
   provenance, and per-claim citations (REQ-972).
+
+### What each type looks like
+
+The `type::` property only exists on **pages**, so a fleeting note never carries one - it is a
+journal block, and the `#fleeting` tag (added by hand) is its whole markup:
+
+```markdown
+- properties beat tags for note types - is that why the schema queries filter on type::? #fleeting
+```
+
+A **permanent** note is a page under `notes/permanent/`, one `type::` property, one idea, densely
+linked (`pages/notes___permanent___properties-beat-tags.md`):
+
+```markdown
+type:: permanent
+
+- Properties beat tags for note types
+	- A `type::` property holds exactly one value per page, so a query can filter on it like a
+	  column. Tags accumulate and carry no constraint - good for workflow states (`#fleeting`),
+	  wrong for classification.
+	- Sparked by [[notes/literature/@Forte2022]]; the wiki side makes the same choice in
+	  [[wiki/architecture]].
+```
+
+A **literature** note is a page under `notes/literature/@<citekey>` with `type:: literature` in
+the template `/lit-sync` writes - see [`docs/zotero-setup.md`](zotero-setup.md) for the full
+template and the working loop.
+
+### Querying on `type::`
+
+Because the type is a property, one simple query per type is enough (put these on any page you
+own, e.g. a `notes/index` page):
+
+```markdown
+- {{query (property type permanent)}}
+- {{query (property type literature)}}
+```
+
+Fleeting notes are queried by tag, not property - that is exactly the fleeting-inbox query below.
+An advanced-query example: literature notes whose `source-file::` is still blank, i.e. papers
+annotated in Zotero but not yet through the ingest pipeline:
+
+```
+#+BEGIN_QUERY
+{:title "literature notes not yet through the pipeline"
+ :query [:find (pull ?p [*])
+         :where
+         [?p :block/name ?name]
+         [(clojure.string/starts-with? ?name "notes/literature/")]
+         [?p :block/properties ?props]
+         [(get ?props :source-file "") ?sf]
+         [(= ?sf "")]]}
+#+END_QUERY
+```
+
+These are Logseq tier-1 like the query pages below (namespaces REQ-977); on Obsidian, reproduce
+them with Dataview (experimental, not maintained by this project).
 
 ### The fleeting inbox (a query page you own)
 
