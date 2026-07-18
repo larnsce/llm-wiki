@@ -9,6 +9,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **iPad / iOS section in the Zotero setup guide** (issue #137): reading
+  and annotating on a tablet. Sign in with the zotero.org account in the
+  iOS app - no API keys, no plugins, no citation-key settings on the
+  device; requires enabling Zotero account sync on the desktop (plus file
+  syncing via Zotero Storage or WebDAV to read PDFs). Annotations made on
+  the iPad flow into `/lit-sync` unchanged; `lit_sync.py` still talks only
+  to the desktop's local API (issue #90, decision 1).
+
 - `plain-writing`: vendored writing-style skill by Shreya Shankar
   (https://github.com/shreyashankar/plain-writing-skill, commit `25a5393`,
   MIT license). Plain prose rules (simple words, complete sentences, no
@@ -51,6 +59,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `docs/faq.md`.
 
 ### Fixed
+
+- `lit_sync.py` reads Zotero's native citation-key field (issue #137):
+  since Better BibTeX 8 (Zotero 8/9) citekeys live in the item's
+  `citationKey` field and BBT migrates them out of `extra`, so the
+  extra-only lookup would have skipped every migrated item. The native
+  field is now preferred, with `extra` (`Citation Key: xxx`) kept as a
+  fallback for unmigrated libraries. Docs updated to match: the
+  autopin/pinning instructions are gone (keys are always pinned now), and
+  the walkthrough documents the citation key formula
+  (`auth.lower + year + veryshorttitle(1, 0).lower`).
 
 - Voice capture provenance (issue #121). `recorded_at` is now stamped from
   the audio container's own creation time - the m4a `mvhd` box (UTC, MP4
