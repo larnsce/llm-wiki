@@ -58,16 +58,22 @@ actually say this". Read-only by default.
 ### Capture-Backed Claims (v3.0)
 
 - REQ-927: A claim whose ref is a capture ref (`archive.db:voice_notes/<id>`,
-  specs/ingest.md Voice Sources) SHALL receive the distinct verdict
+  specs/ingest.md Voice Sources; or an `ingested/transcripts/` path,
+  specs/ingest.md Transcript Sources) SHALL receive the distinct verdict
   `capture-backed` instead of being judged supported/partial/unsupported against
   the transcript: the transcript is raw capture, not a vetted source, and
-  verifying against it would launder spoken speculation into green-checked fact.
-  When the ref does not resolve against archive.db (dangling id), the verdict is
+  verifying against it would launder spoken (or chatted) speculation into
+  green-checked fact.
+  When the ref does not resolve (dangling archive.db id, or a gitignored
+  `ingested/transcripts/` file missing from disk), the verdict is
   `source-missing` (broken capture provenance); this resolution check is the
-  audit-side durability tripwire for archive.db (specs/storage.md). During
-  reconciliation (REQ-924), capture-backed claims keep the `reliability:: low`
-  default of schema REQ-586b and MUST NOT raise any rating; the only upgrade
-  path is a real source through normal ingest (per REQ-586b). STAGING: takes
+  audit-side durability tripwire for archive.db (specs/storage.md) and for
+  gitignored sensitive bytes (ingest REQ-1301), and is never conflated with
+  low reliability. During reconciliation (REQ-924), capture-backed claims keep
+  their ingest-time rating (the `reliability:: low` default of schema REQ-586b;
+  a confirmed-decision claim keeps its `medium` per ingest REQ-1302) and the
+  audit MUST NOT raise any capture-backed rating; the only upgrade path is a
+  real source through normal ingest (per REQ-586b). STAGING: takes
   effect with the voice pipeline implementation (v3.0, P-3); until then no
   capture ref exists and the REQ-923 verdict set is unchanged.
 

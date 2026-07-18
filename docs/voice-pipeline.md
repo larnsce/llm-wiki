@@ -97,6 +97,18 @@ with [rclone](https://rclone.org) (`brew install rclone`, then
 `rclone config` once for your provider). Any offsite target works; substitute
 your own copy command if you prefer.
 
+If the target is Google Drive, create your **own** Google Cloud OAuth
+`client_id`/`client_secret` during `rclone config` and do not fall back to
+rclone's built-in shared one: the shared client_id is being retired and is
+set to stop working during 2026 (issue #113), which would make this nightly
+copy start failing silently - exactly the failure the section 7 tripwires
+exist to catch. Follow
+[rclone's making-your-own-client-id guide](https://rclone.org/drive/#making-your-own-client-id);
+an existing remote can be reconfigured in place with `rclone config`
+(re-run the OAuth step), and the fix is verified when `rclone lsd remote:`
+no longer prints the shared-client retirement NOTICE. Re-run one backup and
+the section 2.3 restore drill after reconfiguring.
+
 Save as `~/bin/archive-backup.sh` and `chmod +x` it:
 
 ```bash
@@ -239,6 +251,11 @@ Maintain the name list where the insert script reads it (section 5 keeps it
 in a constant; edit it as projects and people change). Update it when
 transcripts start mangling a name; that is the signal.
 
+The command above shows only the `--prompt` bias. The production script in
+section 5 adds anti-repetition-loop decode guards (`--max-context 0` and
+temperature fallback, issue #120); copy the section 5 version, not this one,
+for real capture.
+
 ## 4. Phone to Mac sync
 
 Goal: every memo you speak on the phone appears as an audio file in
@@ -364,6 +381,65 @@ MODEL = WHISPER / "models" / "ggml-large-v3-turbo.bin"
 # The context prompt (section 3.4): active people, projects, tools.
 CONTEXT_PROMPT = "Lars, Logseq, llm-wiki, whisper.cpp, Zotero, PARA, Syncthing"
 
+MP4_EPOCH = datetime.datetime(1904, 1, 1, tzinfo=datetime.timezone.utc)
+
+
+def _mp4_boxes(buf, start, end):
+    pos = start
+    while pos + 8 <= end:
+        size = int.from_bytes(buf[pos:pos + 4], "big")
+        kind = buf[pos + 4:pos + 8]
+        body = pos + 8
+        if size == 1:  # 64-bit largesize
+            size = int.from_bytes(buf[pos + 8:pos + 16], "big")
+            body = pos + 16
+        if size < 8 or pos + size > end:
+            return
+        yield kind, body, pos + size
+        pos += size
+
+
+def _mp4_find(buf, start, end, path):
+    for kind, body, box_end in _mp4_boxes(buf, start, end):
+        if kind != path[0]:
+            continue
+        if kind == b"meta":  # meta is a full box: 4 version/flags bytes first
+            body += 4
+        if len(path) == 1:
+            return body, box_end
+        found = _mp4_find(buf, body, box_end, path[1:])
+        if found:
+            return found
+    return None
+
+
+def recorded_at_iso(src):
+    """Capture time of the memo, best source first (issue #121):
+    1. the m4a's mvhd creation time (UTC, MP4 epoch 1904-01-01),
+    2. the ©day metadata atom,
+    3. st_mtime - last resort only; AirDrop and copies rewrite it."""
+    buf = src.read_bytes()
+    span = _mp4_find(buf, 0, len(buf), [b"moov", b"mvhd"])
+    if span:
+        body = buf[span[0]:span[1]]
+        if body:
+            width = 8 if body[0] == 1 else 4
+            raw = int.from_bytes(body[4:4 + width], "big")
+            if raw:
+                utc = MP4_EPOCH + datetime.timedelta(seconds=raw)
+                return utc.astimezone().isoformat(timespec="seconds")
+    span = _mp4_find(buf, 0, len(buf),
+                     [b"moov", b"udta", b"meta", b"ilst", b"\xa9day", b"data"])
+    if span:
+        text = buf[span[0] + 8:span[1]].decode("utf-8", "replace").strip()
+        try:
+            return (datetime.datetime.fromisoformat(text).astimezone()
+                    .isoformat(timespec="seconds"))
+        except ValueError:
+            pass
+    return datetime.datetime.fromtimestamp(
+        src.stat().st_mtime).astimezone().isoformat(timespec="seconds")
+
 
 def duration_seconds(path):
     out = subprocess.run(["afinfo", str(path)], capture_output=True,
@@ -382,7 +458,20 @@ def transcribe(path):
         result = subprocess.run(
             [str(WHISPER / "build" / "bin" / "whisper-cli"),
              "-m", str(MODEL), "-f", str(wav),
-             "--no-timestamps", "--prompt", CONTEXT_PROMPT],
+             "--no-timestamps", "--prompt", CONTEXT_PROMPT,
+             # Anti-repetition-loop guards (issue #120). --max-context 0 stops
+             # decoded text from being carried across windows, which is what
+             # feeds a Whisper decoder loop. Do NOT use --no-context here: on
+             # this build it also voids the --prompt context and blanks the
+             # whole transcript; --max-context 0 suppresses the loop while
+             # keeping the prompt (verified x8/x11 repeats -> x1). Temperature
+             # fallback (increment non-zero) catches a degenerate decode; the
+             # entropy/logprob thresholds are whisper.cpp defaults, set
+             # explicitly so the guard stays legible.
+             "--max-context", "0",
+             "--temperature-inc", "0.2",
+             "--entropy-thold", "2.4",
+             "--logprob-thold", "-1.0"],
             capture_output=True, text=True, check=True)
     return result.stdout.strip()
 
@@ -401,8 +490,7 @@ def main():
             shutil.move(str(src), str(dest))
             print(f"row {row[0]} already exists for {dest.name}; audio moved")
             return
-        recorded_at = datetime.datetime.fromtimestamp(
-            src.stat().st_mtime).astimezone().isoformat(timespec="seconds")
+        recorded_at = recorded_at_iso(src)
         dur = duration_seconds(src)
         transcript = transcribe(src)
         cur = con.execute(
@@ -432,6 +520,14 @@ The insert happens before the move, and the script checks for an existing
 row by cold-storage path first, so a crash at any point is safe to re-run:
 the file either stays in the inbox (retried next run) or the leftover move
 is completed without a duplicate row.
+
+`recorded_at` is read from the audio container, not the filesystem (issue
+#121). The source-of-truth order is: the m4a's `mvhd` creation time (iOS
+Voice Memos stamp it at capture, in UTC), then the `©day` metadata atom,
+then the file's `st_mtime` as a documented last resort. `st_mtime` alone is
+not trustworthy - AirDrop and ordinary copies rewrite it, which was observed
+to shift memos onto the wrong day. The parse is pure stdlib (a minimal MP4
+box walk); no ffprobe or exiftool dependency.
 
 ## 6. The watcher (Phase 1)
 
@@ -545,6 +641,25 @@ fi
 Read it the way storage.md scenario 5 does: an old newest-file age with
 nothing unprocessed means capture has stalled upstream, on the phone side.
 
+**What keeps `index.db` fresh, and how to read the `index rebuilt` field.**
+The index is rebuilt lazily, at query time only: `/wiki-query` rebuilds it (or
+warns) when a question routes to the index plane (storage REQ-1133). Nothing
+rebuilds it on a timer or a git hook, by design. So its freshness tracks how
+often you ask routed questions, not how often you edit pages. Two consequences
+for the status line, both expected rather than defects (storage REQ-1140a):
+
+- `index n/a` means no `index.db` exists yet - a fresh setup, or a vault where
+  no index-plane query has run. It builds on the first such query. This is
+  informational, not a warning.
+- A large `index rebuilt Nh ago` age just means no routed query has run in that
+  span. It is a prompt to rebuild if you want to, not a failure.
+
+If you never run index-plane queries and want a fresh index anyway, two skills
+will OFFER to rebuild when they notice a stale or missing index (never
+automatically, storage REQ-1142): `wiki-maintain status` (Phase 2d) and
+`wiki-ingest-voice` (after its run). You can also rebuild by hand at any time:
+`python3 skills/wiki-core/scripts/rebuild_index.py --config <path>/llm-wiki.yml`.
+
 ### 7.2 The weekly canary memo
 
 Per storage REQ-1141: once a week, speak one test memo on the phone
@@ -630,8 +745,9 @@ thing worth doing with them. `/wiki-chat-voice` (issue #117, installed with
 the same `--with-personal` flag) is a conversation with the recordings:
 
 1. **Browse.** A picker over `voice_notes` - processed and unprocessed rows,
-   newest first, with a runtime one-line description and keywords per row
-   (`--since`, `--grep`, `--unprocessed` to filter). The browse is
+   newest first, each with its original filename (the basename of
+   `audio_path`, issue #121) plus a runtime one-line description and
+   keywords (`--since`, `--grep`, `--unprocessed` to filter). The browse is
    mechanically read-only (the connection is opened `mode=ro`), and the
    digests are never cached anywhere: the schema is frozen (storage
    REQ-1111) and there is deliberately no derived-digest table.

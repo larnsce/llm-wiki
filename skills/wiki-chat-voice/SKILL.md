@@ -87,16 +87,17 @@ same conservative, confirm-everything ingest discipline as wiki-ingest-voice.
 
   ```
   python3 - "$ARCHIVE_DB" <<'PY'
-  import sys, sqlite3
+  import sys, sqlite3, pathlib
   db = sqlite3.connect("file:%s?mode=ro" % sys.argv[1], uri=True)
   rows = db.execute(
-      "SELECT id, recorded_at, duration, processed, transcript "
+      "SELECT id, recorded_at, duration, processed, audio_path, transcript "
       "FROM voice_notes ORDER BY id DESC LIMIT 20").fetchall()
-  for id_, rec, dur, proc, t in rows:
+  for id_, rec, dur, proc, audio, t in rows:
       words = t.split()
-      print("%s | %s | %.0fs | %s | %d words | %s..." % (
+      print("%s | %s | %.0fs | %s | %s | %d words | %s..." % (
           id_, rec[:16], dur,
           "processed" if proc else "UNPROCESSED",
+          pathlib.PurePath(audio).name if audio else "-",
           len(words), " ".join(words[:12])))
   PY
   ```
@@ -112,10 +113,13 @@ same conservative, confirm-everything ingest discipline as wiki-ingest-voice.
   one-line summarization) - hand it only id + transcript, get back
   `id | description | keywords`; without the agent, digest inline. Digests
   are ephemeral: never written to any file or database (REQ-1200).
-- Present the picker:
+- Present the picker (`file` is the original filename, the basename of
+  `audio_path` derived at display time - the human-recognizable handle back
+  to the phone's recording, and the cross-check when a `recorded_at` looks
+  wrong; issue #121):
 
-  | # | id | recorded | length | status | description | keywords |
-  |---|----|----------|--------|--------|-------------|----------|
+  | # | id | recorded | length | status | file | description | keywords |
+  |---|----|----------|--------|--------|------|-------------|----------|
 
 - If `--auto` was passed: state that conversation sessions are
   interactive-only (REQ-1201) and continue.

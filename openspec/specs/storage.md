@@ -133,10 +133,35 @@ pipeline silence visible.
   unprocessed `voice_notes` rows, and the age of the last index rebuild.
   Example: `pipeline: inbox newest 2h | unprocessed 3 | index rebuilt 26h ago`.
   Silence becomes visible in the one place the maintainer already looks.
+- REQ-1140a (index freshness follows query traffic, by design): `index.db` is
+  rebuilt lazily at query time (REQ-1133), never on a timer or a git hook, so
+  its freshness is a function of index-plane query traffic, not edit activity.
+  The `index rebuilt` field of the status line SHALL reflect this without
+  reading as a defect. When no `index.db` exists yet (a valid state after a
+  fresh setup, or when no index-plane query has ever run), the field reads
+  `index n/a` and is INFORMATIONAL, not a warning: it means "will build on the
+  first index-plane query," not "the pipeline is broken." A large `index
+  rebuilt Nh ago` age is likewise expected when no routed query has run in that
+  span; it is a prompt to rebuild if desired (REQ-1142), never a failure. The
+  inbox-age and unprocessed-count fields keep their warning semantics (a stale
+  inbox is an upstream capture failure, Scenario 5); only the index field is
+  reframed here.
 - REQ-1141: The voice pipeline documentation (v3.0, P-2) SHALL document a weekly
   canary memo: speak one test memo on the phone and expect it in tomorrow's
   journal. Mac-side monitoring cannot see a dead phone-side leg; the canary
   closes that gap.
+- REQ-1142 (opt-in rebuild from routine skills, never automatic): A skill that
+  is already running for another purpose and computes or reports index
+  freshness (`wiki-maintain status`, `wiki-ingest-voice`) MAY run
+  `rebuild_index.py --stale-check` and, on a stale or missing index, OFFER to
+  rebuild - detection plus an explicit offer, exactly the shape of the
+  data-package staleness check (ingest REQ-106). The rebuild is a write and
+  SHALL NOT happen automatically inside a read-only status or status-line path:
+  it requires explicit user confirmation, and declining leaves the index as-is
+  (the next index-plane query still handles it lazily, REQ-1133). This closes
+  the freshness loop for a maintainer who never runs index-plane queries
+  without turning the read-only report into a writer or reintroducing the
+  background rebuild REQ-1133 forbids.
 
 ---
 
@@ -199,6 +224,26 @@ THEN the system warns that the index is stale and MAY rebuild before answering
 AND no pre-commit hook has rebuilt the index (none exists)
 ```
 
+### Scenario 7: a never-built index reads as informational, not a defect
+
+```
+GIVEN a vault where no index-plane query has ever run, so index.db does not exist
+WHEN the daily journal summary (or wiki-maintain status) reports pipeline status
+THEN the index field reads "index n/a" as an informational state
+    ("builds on the first index-plane query"), NOT a warning (REQ-1140a)
+AND the run is not treated as a defect for the missing index
+```
+
+### Scenario 8: a routine skill offers, never forces, an index rebuild
+
+```
+GIVEN wiki-maintain status runs and index.db is stale (or missing)
+WHEN it reports index freshness (rebuild_index.py --stale-check)
+THEN it OFFERS to rebuild with explicit confirmation (REQ-1142)
+AND if the user declines, index.db is left unchanged and the status path
+    performs no write; the next index-plane query still rebuilds lazily
+```
+
 ---
 
 ## Acceptance Criteria
@@ -219,6 +264,11 @@ AND no pre-commit hook has rebuilt the index (none exists)
       to it
 - [ ] No pre-commit rebuild hooks; staleness is checked at query time
 - [ ] The daily journal summary begins with the pipeline status line
+- [ ] A missing/never-built index reads as informational (`index n/a`), not a
+      warning, when no index-plane query has run (REQ-1140a)
+- [ ] A routine skill (`wiki-maintain status`, `wiki-ingest-voice`) offers, with
+      explicit confirmation, to rebuild a stale/missing index; it never rebuilds
+      automatically in a read-only status path (REQ-1142)
 
 ---
 

@@ -10,7 +10,8 @@ checkpoint for the whole run, then write: create and update pages append-only
 with hub routing lines, cross-references, and provenance, and archive processed
 sources with an atomic move-plus-commit. Counterpart to wiki-query (read path).
 
-Spec: openspec/specs/ingest.md REQ-010..075, journal seam REQ-090..095
+Spec: openspec/specs/ingest.md REQ-010..075, journal seam REQ-090..095,
+transcript sources REQ-1300..1305
 
 Shared conventions (read before executing):
 
@@ -34,7 +35,7 @@ Shared conventions (read before executing):
   claim blocks (specs/citations.md REQ-900..905, ingest REQ-033b), the
   source-file union invariant, and the `check_citations.py` gate step.
 - [promotion-seam](references/promotion-seam.md): the para/notes promotion
-  seam (specs/namespaces.md REQ-970..973): recognizing
+  seam (specs/namespaces.md REQ-970..974): recognizing
   `raw/para-<project>.md` / `raw/note-<name>.md` sources, the
   personal-synthesis reliability default, the literature variant, and
   sensitive-type handling.
@@ -46,7 +47,9 @@ Shared conventions (read before executing):
 - **`--auto`:** skips the checkpoint for queue draining. The plan table still
   goes into the Phase 5 report, and the quality gate still blocks on failures;
   `--auto` never bypasses a blocking gate (REQ-026). Usage is tracked as a
-  success signal (see "Success signal" below).
+  success signal (see "Success signal" below). Exception: `transcripts`
+  sources are interactive-only (REQ-1303) - in an `--auto` drain, state that
+  and run the checkpoint for the transcript rows anyway.
 - **`--import`:** pull notes already written in the graph (or a directory of
   existing markdown notes) into wiki format. Same write path and quality gate,
   but NO file move and NO `source-file::`; see
@@ -99,14 +102,24 @@ provenance, and ensure structural integrity.
   in `raw_dir` or `ingested/<type>/`, append `-2`, `-3`, ...
 - Infer each source's type (one of `source_types`): paper/PDF/Zotero export ->
   `papers`; web clip -> `clippings`; news/blog -> `articles`; dataset/CSV ->
-  `data`; personal note -> `notes`; image/binary -> `assets`. Fall back to
-  `default_source_type`; ask only if genuinely ambiguous (REQ-071)
+  `data`; personal note -> `notes`; image/binary -> `assets`; AI-chat export
+  -> `transcripts`. Fall back to `default_source_type`; ask only if genuinely
+  ambiguous (REQ-071)
 - A `raw/para-<project>.md` or `raw/note-<name>.md` filename marks a PROMOTED
   source: content the human copied out of the `para/` or `notes/` namespaces
   (the promotion seam, specs/namespaces.md REQ-970). Treat it as a normal
   source in the queue; it usually infers as type `notes`, and para/notes
   content is candidate `sensitive_source_types` material. Seam specifics in
   [promotion-seam](references/promotion-seam.md)
+- A `raw/chat-*.md` filename (convention `chat-YYYY-MM-DD-<topic-slug>.md`)
+  marks an AI-conversation TRANSCRIPT and infers type `transcripts`
+  (REQ-1300). Transcripts are sensitive by default (REQ-1301: their bytes
+  never enter git history via the REQ-046 flow) and interactive-only
+  (REQ-1303: `--auto` states this and runs the checkpoint anyway). A
+  transcript is capture-backed (schema REQ-586b): treat it per the
+  checkpoint variant below, and if the file is visibly uncurated (dominated
+  by tool output), recommend re-export with curation instead of extracting
+  over the noise (REQ-1305)
 - If processing fails partway, LEAVE the file in `raw_dir` (the queue is
   resumable). Never move a half-processed source (REQ-072)
 
@@ -132,6 +145,15 @@ provenance, and ensure structural integrity.
   REQ-586), UNLESS its external citations justify higher under the rubric
   (namespaces REQ-971; the rubric decides, medium is not a hard floor);
   see [promotion-seam](references/promotion-seam.md)
+- (source pipeline) A `transcripts` source is capture-backed (schema
+  REQ-586b): everything resting only on the chat rates `low`, and the chat
+  can never corroborate itself or another chat by the same speaker. The
+  extraction target is DECISIONS - the user's own recorded conclusions ("we
+  chose X because Y") - which rate `medium` once individually confirmed at
+  the checkpoint (REQ-1302). Skip what a better system of record already
+  holds: repo-session decisions (the repo's issues/CHANGELOG/commits absorb
+  them), ecosystem trivia, install mechanics (REQ-1304); proposing NO wiki
+  writes is a valid plan, the file still completes the lifecycle move
 - (source pipeline, optional) Semantic Scholar enrichment per REQ-073a: only
   when an S2 MCP is configured, resolve the source and record `s2-metrics::`
   verbatim. Metrics inform the qualitative judgment, never determine it by
@@ -189,6 +211,16 @@ The checkpoint table, one row per source:
   (REQ-092): the journal page that will receive the daily Ingested block
   and the number of bullets to append, e.g.
   `Journal: journals/2026_07_06 <- 3 bullets in the Ingested block`
+
+Transcript variant (REQ-1302/1303): a `transcripts` row additionally expands
+into a DECISION TABLE - one row per extracted decision with the full
+sentence(s) to be written, its target page, and the cite target - because
+wiki writes from a transcript are opt-in PER DECISION, never batch-confirmed.
+The default destination is a 2-4 line journal/decision-log entry with
+`[[links]]` (batch-confirmable like the voice journal summary); only the
+per-decision wiki rows need individual yeses. People rows keep REQ-084/085
+discipline unchanged. There is no `--auto` for transcripts: state it and run
+this checkpoint anyway.
 
 Then ask, verbatim from REQ-025: "What should I emphasize, skip, or route to
 L1 Memory?"

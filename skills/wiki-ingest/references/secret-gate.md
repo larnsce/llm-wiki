@@ -45,8 +45,9 @@ embedded media does not false-positive.
 ## Sensitive source types (REQ-046)
 
 `sensitive_source_types` in `llm-wiki.yml` (specs/config.md REQ-624) lists
-source types (typically `notes`, `data`) whose bytes must NEVER enter git,
-even when the scan is clean. The flow:
+source types whose bytes must NEVER enter git, even when the scan is clean.
+`transcripts` is in the list by default (ingest REQ-1301); `notes` and
+`data` are the typical additions. The flow:
 
 1. The source is scanned like any other (a blocking finding still blocks).
 2. Ingest writes the wiki pages as normal; `source-file::` records
