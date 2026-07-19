@@ -121,6 +121,19 @@ zotero-last-sync:: <library version>
    [PARA + Zettelkasten workflow](para-notes-workflow.md) under "From literature note to
    synthesis".
 
+```mermaid
+flowchart TD
+    READ["1 · read + annotate the PDF in Zotero"] --> SYNC["2 · /lit-sync<br>dry-run, review, real run"]
+    SYNC --> PAGE["notes/literature/@citekey<br>managed properties + new annotations appended"]
+    PAGE --> LIT["3 · write ## literature in your own words<br>(tag #literature by hand - the tool never will)"]
+    LIT --> FEED{"paper feeds<br>the wiki?"}
+    FEED -- "yes" --> RAW["4 · flatten to raw/, run /wiki-ingest"]
+    RAW --> SEAM["checkpoint: confirm the source-file:: write<br>one archived source, two readings"]
+    SEAM --> WIKI[["wiki/ page cites the same ingested/ path"]]
+    FEED -- "not yet" --> STAY["note stays in notes/, source-file:: blank"]
+    LIT --> PERM["5 · ideas that outgrow the paper<br>notes/permanent/ + the synthesis step"]
+```
+
 ## Citation-graph gap
 
 No Logseq plugin replicates zoteroRoam's citation-network browsing (Scite / Connected Papers).

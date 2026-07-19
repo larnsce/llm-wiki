@@ -107,6 +107,20 @@ If you run the `notes/` Zettelkasten layer, the right-hand side of this split ha
 5. **Read and annotate.** Export the highlights to markdown (Better BibTeX, a Zotero-to-markdown export, or a Logseq-Zotero plugin), and drop the result into `raw/`.
 6. **`/wiki-ingest`** synthesizes the page, stamps `reliability::`, and moves the source into `ingested/papers/`.
 
+```mermaid
+flowchart TD
+    Q["1 · /wiki-query<br>what do I already know? find the gap"] --> CP["2 · Connected Papers<br>map the cluster from seed papers"]
+    CP --> S2["3 · Semantic Scholar MCP<br>chase citations, build the candidate list"]
+    S2 --> SCREEN{"4 · screen"}
+    SCREEN -- "keepers" --> Z[("Zotero<br>citation source of truth")]
+    SCREEN -- "the rest" --> DROP["discard - discovery is transient"]
+    Z --> READ["5 · read + annotate,<br>export highlights into raw/"]
+    READ --> INGEST["6 · /wiki-ingest<br>synthesize, stamp reliability::"]
+    INGEST --> WIKI[["wiki/ page<br>source archived in ingested/papers/"]]
+```
+
+Only read papers cross the line from Zotero into the wiki - the funnel narrows at every arrow.
+
 ## Semantic Scholar MCP setup
 
 This is session or user configuration, not a change to this repository. You wire the MCP server into Claude Code once.

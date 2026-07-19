@@ -52,6 +52,14 @@ quarto render         # full build into _site/
   `templates/`) stay raw `.md` and 404 on the site while still working
   on GitHub; they only occur in archival roadmap docs, which is the
   accepted trade-off.
+- Workflow diagrams are ` ```mermaid ` fences in the markdown source.
+  GitHub renders them natively; Quarto's own `{mermaid}` cells only work
+  in `.qmd` files, so for the site `assets/mermaid.html` (wired in via
+  `include-in-header`) normalizes the `<pre class="mermaid">` blocks
+  Pandoc emits and renders them client-side with mermaid.js from the
+  jsdelivr CDN, fetched only on pages that contain a diagram. Verify a
+  new diagram on both surfaces; keep diagrams under ~15 nodes and free
+  of hardcoded colors so both GitHub themes stay legible.
 
 ## First-time publishing checklist
 

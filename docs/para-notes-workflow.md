@@ -251,6 +251,20 @@ and want a cited answer, it is a wiki page. A good session often produces one of
 permanent note holding the position, the wiki page holding the evidence, each linking to the
 other.
 
+The whole `notes/` lifecycle, with this synthesis fork on the right:
+
+```mermaid
+flowchart TD
+    J["journal block tagged #35;fleeting"] -- "promote: write fresh" --> P["notes/permanent/&lt;idea&gt;<br>atomic, your own words"]
+    J -- "actually a task" --> PARA["para/ project page, as TODO"]
+    J -- "~2 weeks unpromoted" --> DEL["delete without guilt"]
+    LIT["notes/literature/@citekey<br>read, ## literature written"] --> SYN{"synthesis session<br>one or several finished notes<br>(Claude reads notes/, never writes)"}
+    SYN -- "your position" --> P
+    SYN -- "cited cross-paper comparison" --> RAW["raw/note-&lt;name&gt;.md → /wiki-ingest"]
+    P -. "deliberate promotion only" .-> RAW
+    RAW --> WIKI[["wiki/ knowledge page<br>reliability:: medium default (REQ-971)"]]
+```
+
 ### Querying on `type::`
 
 Because the type is a property, one simple query per type is enough (put these on any page you
