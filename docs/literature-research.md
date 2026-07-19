@@ -96,6 +96,8 @@ These are two different kinds of note.
 
 Zotero notes are about one document. Wiki notes are about your understanding across documents. If a note only makes sense next to the paper it is attached to, it is a Zotero note. If it would still be useful to a future-you who never re-opens that paper, it is a wiki page. The Zotero annotation is the input; the wiki synthesis is the output. Do not put synthesis in Zotero (it gets buried per-document) and do not put per-passage highlights in the wiki (they crowd it with detail you will never query).
 
+If you run the `notes/` Zettelkasten layer, the right-hand side of this split has one more fork: synthesis that is *your position* becomes a human-written `notes/permanent/` page, synthesis that is a *cited cross-paper comparison* becomes a wiki `knowledge` page. The step-by-step procedure - including synthesizing across several finished literature notes in one session - is in the [PARA + Zettelkasten workflow](para-notes-workflow.md) under "From literature note to synthesis".
+
 ## The full loop
 
 1. **`/wiki-query`** asks your wiki what you already know, and finds the gap.

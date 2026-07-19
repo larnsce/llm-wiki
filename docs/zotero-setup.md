@@ -115,7 +115,11 @@ zotero-last-sync:: <library version>
    confirm at the checkpoint when it offers to set `source-file::` here to the `ingested/` path it
    produced (REQ-973/974) - the tool writes the path for you.
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
-   `[[notes/literature/@citekey]]`.
+   `[[notes/literature/@citekey]]`. Finished notes - one or several at once - then feed the
+   deliberate synthesis step (permanent note for your position, wiki `knowledge` page for the
+   cited cross-paper comparison); the procedure is in the
+   [PARA + Zettelkasten workflow](para-notes-workflow.md) under "From literature note to
+   synthesis".
 
 ## Citation-graph gap
 
