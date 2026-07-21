@@ -65,6 +65,7 @@ The repo ships a personal pipeline beside the generic tool, behind an explicit o
 - **Voice pipeline** (`docs/voice-pipeline.md` + `/wiki-ingest-voice`): phone memo to whisper.cpp transcript to a journal summary with provenance (`archive.db:voice_notes/<id>`). Journal-only by default; anything touching a wiki page or naming a person is confirmed per row; assessments of people never leave the transcript.
 - **Two-plane query**: aggregate, temporal, and full-text questions route to `index.db` SQL (FTS5, stdlib sqlite3) with a staleness check before every read; entity questions stay on pages. Every answer names its plane.
 - **Archive layer** (`docs/archive-layer.md`): Google Takeout (mail, calendar, contacts) into archive.db, documented copy-paste importers, lazy alias resolution.
+- **Mail pipeline** (`docs/mail-pipeline.md`): nightly deterministic Infomaniak IMAP capture into archive.db -- capture only, no wiki route, no LLM in the loop; the sent-mail overview is a review-time SQL query, never a journal write.
 
 Zero external dependencies still holds: sqlite3 and FTS5 come with python3.
 
