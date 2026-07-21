@@ -58,6 +58,31 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   boundary crossings). Fixes the dangling `SECURITY.md` link in
   `docs/faq.md`.
 
+- tasks-sync seam (issue #127): GitHub Issues (plus an optional
+  user-level GitHub Project v2) as the canonical store for task state,
+  with the Logseq journal as capture layer and `para/projects/` pages
+  as the task home. Two one-way flows driven by `scripts/tasks_sync.py`
+  and the `/tasks-sync` command: open-sync promotes confirmed open task
+  blocks (gated on a `[[para/projects/...]]` link, the `#gh` tag, or
+  para-page residence) into issues and stamps `issue::`/`opened::` on
+  the block; close-sync flips tracked blocks to `DONE` with a
+  `closed::` stamp when their issue closes, and closes issues for
+  blocks completed in Logseq - GitHub wins on state, an issue is never
+  reopened from the graph. Idempotency is content-embedded (`issue::`
+  is the sole link key; no state file, per the suite convention),
+  stamps land per issue, and an unauthenticated `gh` is a clean stop
+  with zero graph writes. Spec: `openspec/specs/tasks-sync.md`
+  REQ-1400..1417 (the 1300s went to transcript sources in the same
+  release); the `para/` write carve-out is namespaces REQ-969 (the
+  seam is a human-layer companion tool like the literature sync, not a
+  wiki workflow); config keys
+  `tasks_repo`/`tasks_project`/`tasks_milestone_label` (config
+  REQ-662..664, with REQ-629 amended to name the seam's journal
+  stamps). Logseq tier-1; Project v2 field mapping and the para-page
+  milestone hook are specified as Phase 2 (REQ-1416). Guide:
+  `docs/tasks-sync-workflow.md`; harness coverage in
+  `test_pipeline.sh` against a stubbed `gh`.
+
 ### Fixed
 
 - `lit_sync.py` reads Zotero's native citation-key field (issue #137):
@@ -126,7 +151,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   status path introduces no silent write and no background rebuild (new
   storage REQ-1142). `docs/voice-pipeline.md` section 7.1 documents what keeps
   the index fresh and how to read the `index rebuilt` age.
-
 ## [3.6.0] - 2026-07-13
 
 The documentation site goes live (issue #111) and the wiki-chat-voice
