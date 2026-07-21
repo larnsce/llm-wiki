@@ -120,7 +120,24 @@ zotero-last-sync:: <library version>
    confirm at the checkpoint when it offers to set `source-file::` here to the `ingested/` path it
    produced (REQ-973/974) - the tool writes the path for you.
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
-   `[[notes/literature/@citekey]]`.
+   `[[notes/literature/@citekey]]`. Finished notes - one or several at once - then feed the
+   deliberate synthesis step (permanent note for your position, wiki `knowledge` page for the
+   cited cross-paper comparison); the procedure is in the
+   [PARA + Zettelkasten workflow](para-notes-workflow.md) under "From literature note to
+   synthesis".
+
+```mermaid
+flowchart TD
+    READ["1 · read + annotate the PDF in Zotero"] --> SYNC["2 · /lit-sync<br>dry-run, review, real run"]
+    SYNC --> PAGE["notes/literature/@citekey<br>managed properties + new annotations appended"]
+    PAGE --> LIT["3 · write ## literature in your own words<br>(tag #literature by hand - the tool never will)"]
+    LIT --> FEED{"paper feeds<br>the wiki?"}
+    FEED -- "yes" --> RAW["4 · flatten to raw/, run /wiki-ingest"]
+    RAW --> SEAM["checkpoint: confirm the source-file:: write<br>one archived source, two readings"]
+    SEAM --> WIKI[["wiki/ page cites the same ingested/ path"]]
+    FEED -- "not yet" --> STAY["note stays in notes/, source-file:: blank"]
+    LIT --> PERM["5 · ideas that outgrow the paper<br>notes/permanent/ + the synthesis step"]
+```
 
 ## iPad / iOS (reading and annotating)
 

@@ -210,6 +210,61 @@ A **literature** note is a page under `notes/literature/@<citekey>` with `type::
 the template `/lit-sync` writes - see [`docs/zotero-setup.md`](zotero-setup.md) for the full
 template and the working loop.
 
+### From literature note to synthesis (the step after reading)
+
+Finishing a paper is not the end of the loop. Synced annotations and a written `## literature`
+section make the literature note *complete*; they do not yet make it *useful*. The step that pays
+for the reading is deliberate: sit down with the finished note - or several - and write synthesis.
+There is no command for this, on purpose (the writing IS the thinking); what follows is the manual
+procedure, with two possible outputs depending on what the synthesis is.
+
+**One paper, one idea that outgrew it → a permanent note.**
+
+The default output. When a literature note holds an idea you keep coming back to, write it as
+`notes/permanent/<idea-in-a-few-words>`: atomic, your own words, linking back to
+`[[notes/literature/@citekey]]` and to any other `[[notes/...]]` or `[[wiki/...]]` pages it
+touches. This is step 5 of the [Zotero working loop](zotero-setup.md) - the permanent note is
+where the idea stops belonging to the paper and starts belonging to you.
+
+**Several papers, one question → synthesize across them.**
+
+Nothing restricts a synthesis session to one paper; the sessions that earn their keep usually put
+three or four finished literature notes on the table at once. The namespace contract forbids tool
+*writes* into `notes/`, not reads, so Claude can sit in the session as a sparring partner:
+
+1. Pick the finished notes (papers read, `## literature` written).
+2. Ask Claude to read the `notes/literature/@...` pages side by side: where do they agree, where
+   do they disagree, what does none of them answer?
+3. Argue with what comes back, then route the output by what it is:
+   - **Your position** ("X and Y disagree on Z; I side with Y because...") → write it yourself as
+     a permanent note. Claude probes and challenges; it does not draft the note - human-written
+     is what makes it a note (see the conventions above).
+   - **Source-backed comparison you will want to query later** → that is `wiki/` material: put it
+     in `raw/note-<name>.md` and run `/wiki-ingest` as a `knowledge` page that links down to the
+     existing `wiki/` paper pages, the same pattern as ingesting an Elicit review (see
+     [Literature Research](literature-research.md)). It enters at `reliability:: medium` as
+     personal synthesis unless its citations justify higher (REQ-971).
+
+The routing test is the one from [Literature Research](literature-research.md): if the output only
+makes sense as *your* thinking, it is a permanent note; if future-you will `/wiki-query` for it
+and want a cited answer, it is a wiki page. A good session often produces one of each - the
+permanent note holding the position, the wiki page holding the evidence, each linking to the
+other.
+
+The whole `notes/` lifecycle, with this synthesis fork on the right:
+
+```mermaid
+flowchart TD
+    J["journal block tagged #35;fleeting"] -- "promote: write fresh" --> P["notes/permanent/&lt;idea&gt;<br>atomic, your own words"]
+    J -- "actually a task" --> PARA["para/ project page, as TODO"]
+    J -- "~2 weeks unpromoted" --> DEL["delete without guilt"]
+    LIT["notes/literature/@citekey<br>read, ## literature written"] --> SYN{"synthesis session<br>one or several finished notes<br>(Claude reads notes/, never writes)"}
+    SYN -- "your position" --> P
+    SYN -- "cited cross-paper comparison" --> RAW["raw/note-&lt;name&gt;.md → /wiki-ingest"]
+    P -. "deliberate promotion only" .-> RAW
+    RAW --> WIKI[["wiki/ knowledge page<br>reliability:: medium default (REQ-971)"]]
+```
+
 ### Querying on `type::`
 
 Because the type is a property, one simple query per type is enough (put these on any page you
