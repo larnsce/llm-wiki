@@ -169,6 +169,40 @@ REQ-100..106). Without them, every requirement below is inert.
   the version the page records. (A spec'd live plane is parked by
   maintainer decision, 2026-07-07.)
 
+### One-Hop Neighbor Expansion (v3.7, not yet implemented)
+
+Extends Phases 1 and 4. After the targeted reads, the pages' outgoing links
+are surfaced as a ranked neighbor list - the graph context around the answer,
+as pointers, not additional reads. Adapted from daniloc/mnemion's recall
+shape (entries return with their one-hop links); here it is mechanical link
+extraction over the pages already in context, so it costs no extra page
+budget. Implementation is tracked in `docs/roadmap-v3.7-recall.md`.
+
+- REQ-480 (extraction): After the Phase 1 reads, the system SHALL collect the
+  outgoing `[[wiki/...]]` links from the bodies of the fully-read pages.
+  Extraction is mechanical (the link text as written). Links into `para/`,
+  `notes/`, and `glossary/` are NOT expanded - neighbor expansion stays inside
+  the machine-written namespace (namespaces.md ownership contract).
+- REQ-481 (pointers, not reads): Neighbors are POINTERS. The system SHALL
+  present each with its hub routing description when one exists (`### Index`
+  or `### Archive` line) and MUST NOT read a neighbor in full unless it was
+  already selected by Phase 0 routing within the REQ-404 budget.
+- REQ-482 (ranking and cap): Neighbors SHALL be ranked by the number of
+  distinct read pages linking to them (ties: live-index pages before archived
+  ones) and capped at 7. Already-read pages, hub pages, and the
+  Schema/Dashboard/Access-Log pages are excluded from the list.
+- REQ-483 (placement): The neighbor list SHALL appear once per answer, after
+  the shared attribution block (REQ-437), under a `Related:` line. It is the
+  primary source for the related-pages suggestion of REQ-433.
+- REQ-484 (archived neighbors flagged): A neighbor whose page carries
+  `archived::` SHALL be flagged as archived in the list. The re-promotion
+  offer (REQ-452) applies only if the page is actually read in full, not to
+  its appearance as a pointer.
+- REQ-485 (no Access-Log entries): Neighbors are not full reads; the system
+  MUST NOT Access-Log them (REQ-450 scope unchanged). A broken neighbor link
+  (target page does not exist) is reported to the user as a candidate lint
+  issue, not silently dropped.
+
 ---
 
 ## Scenarios
@@ -377,6 +411,21 @@ AND both registers carry it, attributed once: "Sources:
 AND no live R session is consulted (REQ-472)
 ```
 
+### Scenario 18: One-hop neighbors listed after the answer (v3.7)
+
+```
+GIVEN Wiki/Tech/Strapi links to [[wiki/tech/pm2]] and [[wiki/tech/nginx]]
+AND Wiki/Reference/Workflows also links to [[wiki/tech/pm2]]
+AND wiki/tech/legacy-foo is linked once and carries archived:: 2026-06-07
+WHEN the user runs /wiki-query "how do I deploy a new blog post?"
+AND Phase 1 fully reads Wiki/Tech/Strapi and Wiki/Reference/Workflows
+THEN the answer SHALL end, after the shared attribution, with a Related: list
+AND rank [[wiki/tech/pm2]] first (linked from 2 read pages), each neighbor
+    shown with its hub routing description
+AND flag wiki/tech/legacy-foo as archived if listed
+AND NOT read any neighbor in full, and NOT Access-Log any neighbor
+```
+
 ---
 
 ## Acceptance Criteria
@@ -411,6 +460,9 @@ AND no live R session is consulted (REQ-472)
 - [ ] (data) Dataset questions route via the data dictionary; row-level
       answers compute read-only on snapshot CSVs with version-pinned
       attribution; no live R session is consulted
+- [ ] (one-hop, v3.7) Outgoing wiki/ links of fully-read pages surface as a
+      ranked, capped `Related:` pointer list after attribution; pointers are
+      never read in full and never Access-Logged; archived neighbors flagged
 
 ---
 
