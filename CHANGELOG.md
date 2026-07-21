@@ -124,6 +124,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Model tiering adjusted now that Fable is available on demand rather
+  than a scarce or expiring resource (issue #108): the two deep-reasoning
+  agents `wiki-audit-judge` and `wiki-synthesize` move from opus to
+  `model: fable`, so the durable-truth work (final audit judgment, dense
+  or high-stakes ingest synthesis) runs on the strongest reasoning by
+  default. Opus becomes the middle escalation tier for routine tasks that
+  trip a trigger; sonnet stays the default session and verification tier;
+  haiku keeps the mechanical work. `docs/model-tiering.md` reframes the
+  fable-baseline golden set as a standing regression net (no longer
+  "expires at midnight"), and the premortem's hard Fable-expiry kill
+  criterion no longer applies. `check_canon.py` exit 0, harness 204/204.
+
 - Literature-note `source-file::` is now written by the tool on the
   human's confirmation (issue #133, new namespaces REQ-974). When
   `/wiki-ingest` recognizes a promoted literature note and the
