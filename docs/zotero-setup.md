@@ -40,8 +40,11 @@ Zotero cloud API, no BBT export file.
   sorted by position in the PDF, and only annotations with a Zotero version newer than the
   page's `zotero-last-sync::` stamp are appended; the stamp is then updated from the library
   version. Re-syncing never clobbers your prose; the reading section (`## literature`; `## my reading` on pages created before the #101 rename) is never touched.
-- **Skips unpinned items with a warning:** the citekey is read from the item's `extra` field
-  (`Citation Key: xxx`, written by Better BibTeX pinning). Nothing is guessed.
+- **Skips items without a citekey, with a warning:** the citekey is read from Zotero's native
+  citation-key field (`citationKey`, kept filled by Better BibTeX; since BBT 8 / Zotero 8 every
+  key is pinned automatically and this field replaces the old `Citation Key: xxx` line in
+  `extra`), with a fallback to `extra` for libraries BBT has not migrated yet. Nothing is
+  guessed.
 
 (Obsidian users: the **Zotero Integration** plugin remains the equivalent there. This guide is
 written for the Logseq script; the property template idea transfers.)
@@ -50,8 +53,10 @@ written for the Logseq script; the property template idea transfers.)
 
 1. Zotero → **Settings → Advanced** → check *Allow other applications on this computer to
    communicate with Zotero* (the local API returns 403 without it).
-2. Install **Better BibTeX**; set *Automatically pin citation key after* to `1` second (citekeys
-   must be pinned to reach Logseq).
+2. Install **Better BibTeX**. Since BBT 8 (Zotero 8/9) there is no pinning setting to configure:
+   every key is written into Zotero's native citation-key field as soon as it is generated, and
+   that field syncs across devices. (Earlier versions of this guide said to set *Automatically
+   pin citation key after* to `1` second; that setting is gone.)
 
 ### Running it
 
@@ -116,6 +121,37 @@ zotero-last-sync:: <library version>
    produced (REQ-973/974) - the tool writes the path for you.
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
    `[[notes/literature/@citekey]]`.
+
+## iPad / iOS (reading and annotating)
+
+The iPad is a **reading device** in this loop: read and highlight PDFs in the Zotero iOS app.
+Importing, citekeys, and `/lit-sync` all stay on the desktop.
+
+- **Setup on the iPad:** install Zotero from the App Store and sign in with your zotero.org
+  account. That is all. There are no API keys to create (the app authenticates itself; "API
+  keys" only exist for third-party tools on the *web* API, which this setup does not use), no
+  plugins (Better BibTeX does not exist on iOS), and no citation-key settings (keys live in
+  Zotero's native, syncing citation-key field, assigned by BBT on the desktop).
+- **Prerequisite on the desktop:** turn on Zotero sync (**Settings → Sync** → sign in). Data
+  sync is free and unlimited; reading PDFs on the iPad additionally needs **file syncing**
+  (attachments as stored copies, not linked files) via Zotero Storage (300 MB free, paid tiers)
+  or WebDAV. Zotero Storage is the simplest choice and the default recommendation.
+- **Scope of the cloud:** this syncs your Zotero *library between your own devices*. It changes
+  nothing about the sync into Logseq: `lit_sync.py` still talks only to the desktop's local API
+  and never the cloud API (issue #90, decision 1).
+- **The loop with an iPad:** highlight on the iPad → it syncs to zotero.org → desktop Zotero
+  pulls it down → run `/lit-sync` on the desktop as usual. Synced annotations carry new Zotero
+  version numbers, so the incremental `zotero-last-sync::` logic picks them up like any
+  desktop-made highlight.
+- Items saved on the iPad get their citekey the next time desktop Zotero (with BBT) syncs;
+  until then `/lit-sync` skips them with a warning. If you import on the desktop only, this
+  never comes up.
+- The `## literature` prose is written in Logseq, not on the iPad; setting up Logseq mobile is a
+  separate concern, out of scope here.
+
+> Written against the current Zotero iOS release (2026-07); not yet verified end-to-end - fold
+> that into the #28 verification run (annotate one paper on the iPad and confirm `/lit-sync`
+> picks the highlight up on the desktop).
 
 ## Citation-graph gap
 

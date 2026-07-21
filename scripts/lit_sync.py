@@ -28,9 +28,10 @@ Design decisions (issue #90; do not change without discussion):
 5. source-file:: stays blank at creation; it is filled manually when the
    paper goes through /wiki-ingest (the "one source, two readings" seam).
 
-Citekeys come from Better BibTeX pinned keys in the item's extra field
-("Citation Key: xxx"). Items without a pinned citekey are SKIPPED with a
-warning.
+Citekeys come from Zotero's native citation-key field ("citationKey",
+Zotero 8+ / Better BibTeX 8, which keeps it filled), falling back to the
+legacy "Citation Key: xxx" line in the extra field for libraries BBT has
+not migrated. Items without a citekey are SKIPPED with a warning.
 
 Usage:
     python3 scripts/lit_sync.py --vault <logseq-graph-root> [--dry-run]
@@ -118,6 +119,9 @@ def api_get_all(path_base, base_url):
 # ---------------------------------------------------------------------------
 
 def extract_citekey(data):
+    citekey = (data.get("citationKey") or "").strip()
+    if citekey:
+        return citekey
     match = CITEKEY_RE.search(data.get("extra") or "")
     return match.group(1) if match else None
 
@@ -356,11 +360,13 @@ def sync(vault, base_url, dry_run):
 
     print()
     print("lit_sync summary%s: %d created, %d updated, %d annotations "
-          "appended, %d unchanged, %d skipped (no pinned citekey)"
+          "appended, %d unchanged, %d skipped (no citekey)"
           % (" (dry-run, nothing written)" if dry_run else "",
              created, updated, appended, unchanged, len(skipped)))
     for title in skipped:
-        print("  skipped: %s  <- pin its citekey in Better BibTeX" % title)
+        print("  skipped: %s  <- no citekey yet; let Better BibTeX assign "
+              "one on the desktop (then sync, if the item was added on iOS)"
+              % title)
     print("library version stamped: %s (namespace encoding: %s)"
           % (library_version, separator))
     return 0

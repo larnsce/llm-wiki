@@ -8,8 +8,9 @@ local HTTP API. Plugin-free: this replaces the logseq-zoterolocal-plugin
 
 1. Zotero is running, with Settings -> Advanced -> "Allow other
    applications on this computer to communicate with Zotero" enabled.
-2. Better BibTeX is installed with citekeys auto-pinned. Items without a
-   pinned citekey are skipped with a warning, never guessed.
+2. Better BibTeX is installed (BBT 8+ keeps Zotero's native citation-key
+   field filled; no pinning setting to configure). Items without a citekey
+   are skipped with a warning, never guessed.
 3. The vault path: resolve the Logseq graph root from `llm-wiki.yml`
    (`wiki_path`), or ask if no config is discoverable.
 

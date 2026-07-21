@@ -30,7 +30,7 @@ This switch is what "local API access" means. Without it, the Logseq plugin cann
 library at all. It only allows apps on your own computer; it does not expose anything to the
 internet.
 
-## Step 2: Install Better BibTeX and pin citekeys
+## Step 2: Install Better BibTeX and set the citation key formula
 
 Better BibTeX is not in a built-in plugin store; you install it from a downloaded file.
 
@@ -45,25 +45,27 @@ Better BibTeX is not in a built-in plugin store; you install it from a downloade
 
 Now configure the one setting that matters here:
 
-1. Go back to **Zotero → Settings** and open the **Better BibTeX** tab. TODO: update for Zotero 9
-2. Find the option **Automatically pin citation key after** and set it to **1 second**. TODO Update for Zotero 9
+1. Go back to **Zotero → Settings** and open the **Better BibTeX** tab.
+2. Under **Citation keys**, set the citation key formula to:
 
-TODO: Update citation key to: auth.lower +year + veryshorttitle(1, 0).lower
+   ```
+   auth.lower + year + veryshorttitle(1, 0).lower
+   ```
+
+A note on "pinning", in case you read older guides: Better BibTeX used to compute citekeys on
+the fly (so they could silently change, for example if you fixed a typo in an author name), and
+you had to "pin" a key to freeze it - older versions of this walkthrough said to set
+*Automatically pin citation key after* to 1 second. That setting is gone: since Better BibTeX 8
+(Zotero 8/9), every key is written into Zotero's native citation-key field as soon as it is
+generated, and that field syncs across your devices. You never have to think about pinning.
+
+Since your Logseq page names are built from citekeys, a key must never change once its page
+exists. For papers already in your library that you want recomputed with the formula above, do
+it **before** creating their pages: select them, right-click, and choose
+**Better BibTeX → Regenerate citation key**.
 
 TODO: I have old instructions here: https://ds4owd-002.github.io/website/content/guide/#zotero-reference-management find guidance on all steps and add them
 TODO: This guide is more up to date, but still doesn't get there fully: https://unlimited.ethz.ch/spaces/ghestudents/pages/182077770/Reference+management the export quick copy step is still there.
-TODO: Now, here is what I have learned. The autopin setting is gone: https://www.perplexity.ai/search/1727235c-58d2-41d5-b17b-8fbbaa029312 keys are always pinned 
-
-Why this matters: Better BibTeX normally computes citekeys on the fly, which means they can
-silently change (for example, if you fix a typo in an author name). "Pinning" writes the citekey
-into the item permanently. The Logseq plugin can only read pinned citekeys, and since your page
-names are built from them, they must never change once a page exists. The 1-second setting pins
-every new item automatically so you never have to think about it.
-
-For papers already in your library: select them all, right-click, and choose
-**Better BibTeX → Pin BibTeX key** to pin the existing items in one go.
-
-TODO: Rewrite to: right-glick ->Y better bibtex -> regenerater
 
 ## Step 3: Install the Logseq plugin
 
@@ -154,6 +156,7 @@ version you pinned.
 
 ## Related
 
-- [Zotero setup](zotero-setup.md) - the design rationale, page-name contract, and status
+- [Zotero setup](zotero-setup.md) - the design rationale, page-name contract, and status;
+  includes the **iPad / iOS** section if you also read and annotate on a tablet
 - [Literature Research](literature-research.md) - the full discovery→Zotero→ingest funnel
 - [PARA + Zettelkasten workflow](para-notes-workflow.md) - the `notes/` layer this feeds
