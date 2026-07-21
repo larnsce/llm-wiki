@@ -134,7 +134,7 @@ sanctions this seam is namespaces REQ-969.
   critical.
 - REQ-1414: The complete write budget, per run: (a) insert `issue::`,
   `opened::`, `closed::` property lines under task blocks per
-  REQ-1405/1310/1311; (b) replace one marker token per REQ-1410. The
+  REQ-1405/1410/1411; (b) replace one marker token per REQ-1410. The
   tool SHALL NOT create, reorder, or delete blocks or pages; SHALL NOT
   edit block text beyond the single marker token; SHALL NOT write a
   `#tag`; SHALL NOT touch journal content outside the stamped blocks

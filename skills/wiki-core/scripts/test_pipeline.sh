@@ -1085,7 +1085,7 @@ run py rebuild_index.py --config "$IDXWIKI/llm-wiki-inside.yml"
 assert_exit 0 "rebuild_index: gitignored in-vault target is accepted (REQ-1103)"
 
 # ---------------------------------------------------------------------------
-# tasks_sync.py (specs/tasks-sync.md REQ-1400..1317, config REQ-662..664)
+# tasks_sync.py (specs/tasks-sync.md REQ-1400..1417, config REQ-662..664)
 # ---------------------------------------------------------------------------
 TASKWIKI="$WORK/tasks-wiki"
 make_wiki "$TASKWIKI" logseq
@@ -1148,7 +1148,7 @@ tasks_sync() {
     --config "$TASKWIKI/llm-wiki.yml" --gh "$STUBGH"
 }
 
-# open --dry-run: gates candidates, writes nothing (REQ-1402/1304).
+# open --dry-run: gates candidates, writes nothing (REQ-1402).
 cp -r "$TASKWIKI" "$WORK/tasks-before"
 run tasks_sync open --dry-run
 assert_exit 0 "tasks_sync: open dry-run runs clean (REQ-1404)"
@@ -1175,9 +1175,9 @@ if grep -qE "^  issue:: larnsce/demo#[0-9]+$" \
   && grep -qE "^  issue:: larnsce/demo#[0-9]+$" \
     "$TASKWIKI/pages/para___projects___demo.md" \
   && grep -qc "item-add" "$GH_LOG" >/dev/null; then
-  report PASS "tasks_sync: issue::/opened:: stamps landed, project item added (REQ-1405/1306)"
+  report PASS "tasks_sync: issue::/opened:: stamps landed, project item added (REQ-1405)"
 else
-  report FAIL "tasks_sync: issue::/opened:: stamps landed, project item added (REQ-1405/1306)"
+  report FAIL "tasks_sync: issue::/opened:: stamps landed, project item added (REQ-1405)"
 fi
 if grep -A1 "TODO buy milk" "$TASKWIKI/journals/2026_07_16.md" \
     | grep -q "a child block"; then
@@ -1198,7 +1198,7 @@ else
 fi
 
 # close: graph->GitHub for a DONE block, GitHub->graph flip for a
-# closed issue, and both reruns are no-ops (REQ-1410/1311/1312).
+# closed issue, and both reruns are no-ops (REQ-1410/1411/1412).
 sed -i.bak 's/- TODO Renew domain #gh/- DONE Renew domain #gh/' \
   "$TASKWIKI/journals/2026_07_16.md" && rm "$TASKWIKI/journals/2026_07_16.md.bak"
 DEMO_ISSUE=$(grep -oE "issue:: larnsce/demo#[0-9]+" \
@@ -1206,15 +1206,15 @@ DEMO_ISSUE=$(grep -oE "issue:: larnsce/demo#[0-9]+" \
 export GH_CLOSED_REPO="larnsce/demo"
 export GH_CLOSED_JSON="[{\"number\":$DEMO_ISSUE}]"
 run tasks_sync close
-assert_exit 0 "tasks_sync: close runs clean (REQ-1410/1311)"
+assert_exit 0 "tasks_sync: close runs clean (REQ-1410/1411)"
 if grep -q "issue close" "$GH_LOG" \
   && grep -B1 -A3 "DONE Draft ingest prompt v3" \
     "$TASKWIKI/journals/2026_07_16.md" | grep -qE "closed:: \[\[[0-9-]+\]\]" \
   && grep -A3 "DONE Renew domain" "$TASKWIKI/journals/2026_07_16.md" \
     | grep -qE "closed:: \[\[[0-9-]+\]\]"; then
-  report PASS "tasks_sync: marker flipped + closed:: stamped both directions (REQ-1410/1311)"
+  report PASS "tasks_sync: marker flipped + closed:: stamped both directions (REQ-1410/1411)"
 else
-  report FAIL "tasks_sync: marker flipped + closed:: stamped both directions (REQ-1410/1311)"
+  report FAIL "tasks_sync: marker flipped + closed:: stamped both directions (REQ-1410/1411)"
 fi
 cp -r "$TASKWIKI" "$WORK/tasks-after-close"
 run tasks_sync close
