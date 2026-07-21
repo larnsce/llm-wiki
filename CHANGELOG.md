@@ -9,6 +9,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- v3.7 recall canon (issues #142, #143 - spec only, NOT yet implemented):
+  the two recall features adapted from daniloc/mnemion's `prime` tool and
+  one-hop link expansion, translated to the local lexical architecture.
+  New `openspec/specs/prime.md` (REQ-1400..1431): `/wiki-query --prime`
+  context priming - explicit or derived-and-echoed context, lexical-only
+  recall (breadth-first hub scan, optional index.db FTS, bounded grep),
+  max 3 full reads plus pointers, one-hop neighbor lists, L1 pass,
+  single-register briefing, read-only contract, no auto-run. New
+  One-Hop Neighbor Expansion section in `openspec/specs/query.md`
+  (REQ-480..485, Scenario 18): ranked, capped `Related:` pointer list
+  built from the fully-read pages' outgoing `wiki/` links - pointers are
+  never read in full and never Access-Logged. Cycle plan with design
+  decisions, dependency order (#142 before #143), and parked non-goals
+  (decay half-lives, mechanical overlap detection, schema evolution,
+  embeddings) in `docs/roadmap-v3.7-recall.md`; both specs registered in
+  `openspec/project.md` as "v3.7, not yet implemented".
+
 - `plain-writing`: vendored writing-style skill by Shreya Shankar
   (https://github.com/shreyashankar/plain-writing-skill, commit `25a5393`,
   MIT license). Plain prose rules (simple words, complete sentences, no

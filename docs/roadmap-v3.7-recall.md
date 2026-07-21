@@ -7,8 +7,8 @@ one PR per issue, mechanical verification per PR.
 
 Status: canon drafted and merged with this roadmap (`openspec/specs/prime.md`,
 `openspec/specs/query.md` REQ-480..485, both marked "v3.7, not yet
-implemented"). The implementation issues below are filed but NOT implemented;
-this document is the cycle plan.
+implemented"). The implementation issues (#142, #143) are filed but NOT
+implemented; this document is the cycle plan.
 
 ## Context
 
@@ -72,8 +72,8 @@ both tool modes (Logseq and Obsidian) for every change.
 
 | # | Issue | Contents | Deps |
 |---|---|---|---|
-| R-1 | implement one-hop neighbor expansion in /wiki-query | query.md REQ-480..485: mechanical `[[wiki/...]]` link extraction from fully-read pages, ranked/capped `Related:` pointer list after attribution, archived flags, no neighbor reads, no Access-Log entries. `skills/wiki-query/SKILL.md` update, golden transcript, harness assertions, both tool modes. Drop the "not yet implemented" markers for the section. | - |
-| R-2 | implement /wiki-query --prime (context priming) | prime.md REQ-1400..1431: context argument or derived-and-echoed context, lexical term extraction, breadth-first hub scan, optional index.db channel, bounded grep fallback, <= 3 full reads + pointers, neighbor lists via R-1, L1 pass, single-register briefing, read-only contract, `prime:` Access-Log reasons. `skills/wiki-query/SKILL.md` update, golden transcript, harness assertions, both tool modes. Drop the spec's "not yet implemented" status. | R-1 |
+| R-1 (#142) | implement one-hop neighbor expansion in /wiki-query | query.md REQ-480..485: mechanical `[[wiki/...]]` link extraction from fully-read pages, ranked/capped `Related:` pointer list after attribution, archived flags, no neighbor reads, no Access-Log entries. `skills/wiki-query/SKILL.md` update, golden transcript, harness assertions, both tool modes. Drop the "not yet implemented" markers for the section. | - |
+| R-2 (#143) | implement /wiki-query --prime (context priming) | prime.md REQ-1400..1431: context argument or derived-and-echoed context, lexical term extraction, breadth-first hub scan, optional index.db channel, bounded grep fallback, <= 3 full reads + pointers, neighbor lists via R-1, L1 pass, single-register briefing, read-only contract, `prime:` Access-Log reasons. `skills/wiki-query/SKILL.md` update, golden transcript, harness assertions, both tool modes. Drop the spec's "not yet implemented" status. | R-1 |
 
 ## Non-goals this cycle (parked, with reasons)
 
