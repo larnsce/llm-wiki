@@ -62,6 +62,7 @@ a{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;
 a.wl{text-decoration-style:dotted}
 a.ext::after{content:"\2197";font-size:.75em;margin-left:.12em;color:var(--muted)}
 strong{font-weight:650}
+del{color:var(--muted)}
 code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);
   border-radius:3px;padding:.1em .32em}
 pre{background:var(--code-bg);border:1px solid var(--rule);border-radius:4px;
@@ -97,7 +98,8 @@ footer code{font-size:.9em}
       <a href="#/agent-log.md" data-path="agent-log.md">AI log</a>
       <a href="#/pages/wiki___papers___cbs-adoption.md" data-path="pages/wiki___papers___cbs-adoption.md">Logseq twin</a>
     </nav>
-    <div class="raw"><a id="rawlink" href="index.md" target="_blank" rel="noopener">raw .md</a></div>
+    <div class="raw"><a id="flavorlink" href="#" hidden></a>
+      <a id="rawlink" href="index.md" target="_blank" rel="noopener">raw .md</a></div>
   </div>
 </header>
 <main id="content" aria-live="polite"></main>
@@ -127,6 +129,7 @@ function inline(s){
     const lab=label?label.trim():target.split('/').pop();
     return '<a class="wl" href="#/'+encodeURI(target)+'.md">'+lab+'</a>';
   });
+  s=s.replace(/~~([^~]+)~~/g,'<del>$1</del>');
   s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   s=s.replace(/(^|[\s(>])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g,'$1<em>$2</em>');
   s=s.replace(/\u0000(\d+)\u0000/g,(m,i)=>'<code>'+escapeHtml(codes[+i])+'</code>');
@@ -250,7 +253,22 @@ function renderMeta(meta,flavor){
 
 const content=document.getElementById('content');
 const rawlink=document.getElementById('rawlink');
+const flavorlink=document.getElementById('flavorlink');
 let blobUrl=null;
+
+// Obsidian-flavor page -> its Logseq-flavor serialization (same content)
+const TWINS={
+  'index.md':'pages/wiki___papers___cbs-adoption.md',
+  'about.md':'pages/about.md',
+  'agent-log.md':'pages/wiki___papers___cbs-adoption___agent-log.md',
+  'notes/literature/@tilley2024.md':'pages/notes___literature___@tilley2024.md',
+  'notes/literature/@russel2023.md':'pages/notes___literature___@russel2023.md',
+  'notes/literature/@who2025.md':'pages/notes___literature___@who2025.md',
+  'wiki/concept/container-based-sanitation.md':'pages/wiki___concept___container-based-sanitation.md',
+  'wiki/concept/service-chain.md':'pages/wiki___concept___service-chain.md',
+  'wiki/data/household-survey-2026.md':'pages/wiki___data___household-survey-2026.md'
+};
+const OBSIDIAN=Object.fromEntries(Object.entries(TWINS).map(([k,v])=>[v,k]));
 
 async function route(){
   let path=decodeURIComponent(location.hash.replace(/^#\/?/,''))||'index.md';
@@ -279,6 +297,11 @@ async function route(){
   else{blobUrl=URL.createObjectURL(new Blob([text],{type:'text/plain'}));rawlink.href=blobUrl;}
   document.querySelectorAll('#nav a').forEach(a=>
     a.classList.toggle('active',a.dataset.path===path));
+  if(TWINS[path]){flavorlink.hidden=false;flavorlink.textContent='logseq flavor';
+    flavorlink.href='#/'+TWINS[path];}
+  else if(OBSIDIAN[path]){flavorlink.hidden=false;flavorlink.textContent='obsidian flavor';
+    flavorlink.href='#/'+OBSIDIAN[path];}
+  else flavorlink.hidden=true;
   window.scrollTo(0,0);
 }
 

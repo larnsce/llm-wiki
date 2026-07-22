@@ -26,6 +26,7 @@ fixture material for the llm-wiki example, not a real study.*
 
 - [[notes/literature/@tilley2024|Tilley et al. 2024]] — compendium framing for [[wiki/concept/container-based-sanitation|container-based sanitation]] within the sanitation [[wiki/concept/service-chain|service chain]]
 - [[notes/literature/@russel2023|Russel et al. 2023]] — longitudinal adoption data from three CBS programmes
+- [[notes/literature/@who2025|WHO 2025]] — guideline framing for safe-collection frequency (institutional source)
 
 ## Data
 
