@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +70,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -262,6 +288,7 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p>Zotero notes are about one document. Wiki notes are about your understanding across documents. If a note only makes sense next to the paper it is attached to, it is a Zotero note. If it would still be useful to a future-you who never re-opens that paper, it is a wiki page. The Zotero annotation is the input; the wiki synthesis is the output. Do not put synthesis in Zotero (it gets buried per-document) and do not put per-passage highlights in the wiki (they crowd it with detail you will never query).</p>
+<p>If you run the <code>notes/</code> Zettelkasten layer, the right-hand side of this split has one more fork: synthesis that is <em>your position</em> becomes a human-written <code>notes/permanent/</code> page, synthesis that is a <em>cited cross-paper comparison</em> becomes a wiki <code>knowledge</code> page. The step-by-step procedure - including synthesizing across several finished literature notes in one session - is in the <a href="../docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> under “From literature note to synthesis”.</p>
 </section>
 <section id="the-full-loop" class="level2">
 <h2 class="anchored" data-anchor-id="the-full-loop">The full loop</h2>
@@ -273,6 +300,16 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Read and annotate.</strong> Export the highlights to markdown (Better BibTeX, a Zotero-to-markdown export, or a Logseq-Zotero plugin), and drop the result into <code>raw/</code>.</li>
 <li><strong><code>/wiki-ingest</code></strong> synthesizes the page, stamps <code>reliability::</code>, and moves the source into <code>ingested/papers/</code>.</li>
 </ol>
+<pre class="mermaid"><code>flowchart TD
+    Q["1 · /wiki-query&lt;br&gt;what do I already know? find the gap"] --&gt; CP["2 · Connected Papers&lt;br&gt;map the cluster from seed papers"]
+    CP --&gt; S2["3 · Semantic Scholar MCP&lt;br&gt;chase citations, build the candidate list"]
+    S2 --&gt; SCREEN{"4 · screen"}
+    SCREEN -- "keepers" --&gt; Z[("Zotero&lt;br&gt;citation source of truth")]
+    SCREEN -- "the rest" --&gt; DROP["discard - discovery is transient"]
+    Z --&gt; READ["5 · read + annotate,&lt;br&gt;export highlights into raw/"]
+    READ --&gt; INGEST["6 · /wiki-ingest&lt;br&gt;synthesize, stamp reliability::"]
+    INGEST --&gt; WIKI[["wiki/ page&lt;br&gt;source archived in ingested/papers/"]]</code></pre>
+<p>Only read papers cross the line from Zotero into the wiki - the funnel narrows at every arrow.</p>
 </section>
 <section id="semantic-scholar-mcp-setup" class="level2">
 <h2 class="anchored" data-anchor-id="semantic-scholar-mcp-setup">Semantic Scholar MCP setup</h2>

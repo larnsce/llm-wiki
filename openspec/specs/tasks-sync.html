@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Run the glossary curation loop. Collect open">
 
-<title>skill – llm-wiki</title>
+<title>tasks-sync – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -161,15 +160,31 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#wiki-glossary" id="toc-wiki-glossary" class="nav-link active" data-scroll-target="#wiki-glossary">wiki-glossary</a>
+  <li><a href="#spec-tasks-sync---github-issues-as-canonical-task-state" id="toc-spec-tasks-sync---github-issues-as-canonical-task-state" class="nav-link active" data-scroll-target="#spec-tasks-sync---github-issues-as-canonical-task-state">Spec: Tasks Sync - GitHub Issues as Canonical Task State</a>
   <ul class="collapse">
-  <li><a href="#standing-rules-never-overridden" id="toc-standing-rules-never-overridden" class="nav-link" data-scroll-target="#standing-rules-never-overridden">Standing rules (never overridden)</a></li>
-  <li><a href="#mode-promote" id="toc-mode-promote" class="nav-link" data-scroll-target="#mode-promote">Mode: promote</a></li>
-  <li><a href="#mode-import" id="toc-mode-import" class="nav-link" data-scroll-target="#mode-import">Mode: import <file></file></a></li>
-  <li><a href="#mode-context" id="toc-mode-context" class="nav-link" data-scroll-target="#mode-context">Mode: context <domain> […]</domain></a></li>
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#scope-ownership" id="toc-scope-ownership" class="nav-link" data-scroll-target="#scope-ownership">Scope &amp; Ownership</a></li>
+  <li><a href="#open-sync-graph---github" id="toc-open-sync-graph---github" class="nav-link" data-scroll-target="#open-sync-graph---github">open-sync (graph -&gt; GitHub)</a></li>
+  <li><a href="#close-sync-github---graph-two-one-way-halves" id="toc-close-sync-github---graph-two-one-way-halves" class="nav-link" data-scroll-target="#close-sync-github---graph-two-one-way-halves">close-sync (GitHub &lt;-&gt; graph, two one-way halves)</a></li>
+  <li><a href="#mechanics-write-budget" id="toc-mechanics-write-budget" class="nav-link" data-scroll-target="#mechanics-write-budget">Mechanics &amp; Write Budget</a></li>
+  <li><a href="#phase-2-specified-deferred" id="toc-phase-2-specified-deferred" class="nav-link" data-scroll-target="#phase-2-specified-deferred">Phase 2 (specified, deferred)</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-first-open-sync-round-trip" id="toc-scenario-1-first-open-sync-round-trip" class="nav-link" data-scroll-target="#scenario-1-first-open-sync-round-trip">Scenario 1: first open-sync round-trip</a></li>
+  <li><a href="#scenario-2-re-run-is-a-no-op" id="toc-scenario-2-re-run-is-a-no-op" class="nav-link" data-scroll-target="#scenario-2-re-run-is-a-no-op">Scenario 2: re-run is a no-op</a></li>
+  <li><a href="#scenario-3-close-round-trip-from-github" id="toc-scenario-3-close-round-trip-from-github" class="nav-link" data-scroll-target="#scenario-3-close-round-trip-from-github">Scenario 3: close round-trip from GitHub</a></li>
+  <li><a href="#scenario-4-graph-side-completion-closes-the-issue" id="toc-scenario-4-graph-side-completion-closes-the-issue" class="nav-link" data-scroll-target="#scenario-4-graph-side-completion-closes-the-issue">Scenario 4: graph-side completion closes the issue</a></li>
+  <li><a href="#scenario-5-the-gate-holds" id="toc-scenario-5-the-gate-holds" class="nav-link" data-scroll-target="#scenario-5-the-gate-holds">Scenario 5: the gate holds</a></li>
+  <li><a href="#scenario-6-unauthenticated-gh-is-a-clean-stop" id="toc-scenario-6-unauthenticated-gh-is-a-clean-stop" class="nav-link" data-scroll-target="#scenario-6-unauthenticated-gh-is-a-clean-stop">Scenario 6: unauthenticated gh is a clean stop</a></li>
+  </ul></li>
+  <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-glossary/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/tasks-sync.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -177,80 +192,145 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="wiki-glossary" class="level1">
-<h1>wiki-glossary</h1>
-<p>Automate the mechanical parts of the glossary workflow (<code>docs/glossary-workflow.md</code>): collect, present, and write what the human decides. The Rule column is the product and it is always a human call; this skill exists so the human spends their glossary time deciding, not copying.</p>
-<p>Spec: openspec/specs/glossary.md REQ-1000..1014; namespace contract specs/namespaces.md REQ-960; structure lint is rule 15 (specs/lint.md REQ-250..253).</p>
-<p>Shared conventions (read before executing):</p>
+<section id="spec-tasks-sync---github-issues-as-canonical-task-state" class="level1">
+<h1>Spec: Tasks Sync - GitHub Issues as Canonical Task State</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>The tasks-sync seam makes GitHub Issues (plus, optionally, one user-level GitHub Project v2) the canonical store for TASK STATE, while the Logseq journal stays the capture layer and <code>para/projects/</code> pages stay the task home. Two one-way flows, never a bidirectional sync:</p>
 <ul>
-<li><a href="../../skills/wiki-core/references/config.html">config</a>: discover and read <code>llm-wiki.yml</code> FIRST (<code>tool</code>, <code>wiki_path</code>, <code>pages_dir</code>; optional <code>glossary_dir</code>, config REQ-628, default <code>glossary</code>).</li>
-<li><a href="../../skills/wiki-core/references/formats.html">formats</a>: tool-specific page formats and file naming.</li>
+<li><strong>open-sync (graph -&gt; GitHub):</strong> eligible open task blocks without an <code>issue::</code> property become GitHub issues after human confirmation; the block is stamped with <code>issue::</code> and <code>opened::</code>.</li>
+<li><strong>close-sync (GitHub -&gt; graph, plus the graph-side companion):</strong> issues closed on GitHub flip their tracked block to <code>DONE</code> and stamp <code>closed::</code>; a tracked block the human marked <code>DONE</code>/<code>CANCELED</code> closes its issue. GitHub wins on task state: an issue is never reopened from the graph.</li>
 </ul>
-<section id="standing-rules-never-overridden" class="level2">
-<h2 class="anchored" data-anchor-id="standing-rules-never-overridden">Standing rules (never overridden)</h2>
+<p>tasks-sync is NOT a wiki workflow. It is a human-layer companion tool in the same category as the literature sync (<code>scripts/lit_sync.py</code>, which maintains managed properties on <code>notes/literature/</code> pages): deterministic script, dry-run first, human confirmation before any mutation, and a narrow, enumerated write budget. The namespace scope rule (specs/namespaces.md REQ-965..968) is untouched; the carve-out that sanctions this seam is namespaces REQ-969.</p>
+<blockquote class="blockquote">
+<p>Spec version: introduced for v3.7 (tasks-sync v0.1, exploration draft -&gt; repo spec). This spec uses the globally unique REQ-1400..1417 range (the 900s, 1200s, and 1300s are taken by specs/namespaces.md, the voice conversation seam, and the transcript-source route landed in the same release; ids are unique across the spec canon). The config keys live in specs/config.md REQ-662..664. Deterministic behavior lives in <code>scripts/tasks_sync.py</code>; the <code>/tasks-sync</code> command (<code>.claude/commands/tasks-sync.md</code>) only orchestrates the dry-run -&gt; confirm -&gt; run ritual.</p>
+</blockquote>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="scope-ownership" class="level3">
+<h3 class="anchored" data-anchor-id="scope-ownership">Scope &amp; Ownership</h3>
 <ul>
-<li><strong>The tool never decides (REQ-1000).</strong> Rule values, DE equivalents, and Note content on decided rows are human-authored. This skill writes ONLY rows the human confirmed at the checkpoint, verbatim as confirmed.</li>
-<li><strong>Writes land under <code>glossary/</code> only.</strong> Never write any other namespace from this skill; wiki verbs in turn never write <code>glossary/</code> (REQ-1001).</li>
-<li><strong>Import is pull, not bulk (REQ-1012).</strong> Only terms matching open <code>#glossary-todo</code> captures plus explicitly requested ones; never the full termbase.</li>
-<li><strong>Staging is never drafting context (REQ-1013).</strong> Context loads domain pages only.</li>
-<li><strong>Table canon (REQ-1004):</strong> <code>| EN | DE | Rule | Note |</code> under <code>## Terms</code>; Rule enum <code>keep-en | translate | context</code>. Structure is lint rule 15’s business; run <code>/wiki-lint</code> after larger sessions.</li>
+<li>REQ-1400: tasks-sync SHALL operate ONLY on journal pages (the <code>journals_dir</code> of specs/config.md REQ-629) and <code>para/projects/</code> pages (the <code>para_dir</code> of REQ-625). It SHALL NOT create, modify, or delete any page under <code>wiki/</code>, <code>notes/</code>, or <code>glossary/</code>, and SHALL NOT create or delete pages anywhere: it edits existing task blocks in place, within the write budget of REQ-1414, under the namespaces REQ-969 carve-out.</li>
+<li>REQ-1401: The seam is inert unless the config contains <code>tasks_repo</code> (specs/config.md REQ-662); without it every subcommand SHALL report the missing key and exit without touching the graph or calling <code>gh</code>. The GitHub Project v2 add-on (REQ-1406) activates only when <code>tasks_project</code> (REQ-663) is also set. tasks-sync is Logseq tier-1: on <code>tool: obsidian</code> it SHALL abort cleanly with a tiering message (task markers and <code>::</code> block properties are Logseq-native; same tiering posture as namespaces REQ-977).</li>
 </ul>
-<p><role> Terminology assistant for a bilingual (EN-DE) writer. You collect open terminology questions, present them for decision, and record the decisions exactly where and exactly as the human confirms them. </role></p>
-<p><workflow> ## Mode: curate (default)</workflow></p>
-<p>Drain the <code>#glossary-todo</code> captures into decisions.</p>
-<ol type="1">
-<li><p>Read <code>llm-wiki.yml</code>; resolve <code>glossary_dir</code>. Read the <code>glossary</code> index page for the list of domain pages.</p></li>
-<li><p>Collect open captures: grep journals and pages for <code>#glossary-todo</code> blocks that are not marked <code>DONE</code>. Each capture = the block text and where it was written (the context that prompted the hesitation).</p></li>
-<li><p>Present ONE curation checkpoint, one row per capture:</p>
-<table class="caption-top">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 32%">
-<col style="width: 23%">
-<col style="width: 41%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>#</th>
-<th>Captured term (context)</th>
-<th>Suggested domain</th>
-<th>Draft row (EN, DE, Rule, Note)</th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
-<p>Draft cells are suggestions to react to, clearly marked as drafts; the human may rewrite every cell. Nothing is written before the response.</p></li>
-<li><p>For each confirmed row: append it to the chosen domain page’s <code>## Terms</code> table (exactly as confirmed), and mark the capture block <code>DONE</code> (or remove the tag, the human’s preference). Declined captures stay open or are dropped on request.</p></li>
-<li><p>Report: rows written per domain, captures closed, captures left open.</p></li>
-</ol>
 </section>
-<section id="mode-promote" class="level2">
-<h2 class="anchored" data-anchor-id="mode-promote">Mode: promote</h2>
-<p>Move decided staging rows onto domain pages (REQ-1014).</p>
-<ol type="1">
-<li>List <code>glossary/imported/&lt;source&gt;</code> staging pages and their rows.</li>
-<li>Checkpoint: for each row the human wants to promote, they decide the Rule (and may edit DE/Note). Confirmed rows are appended to the chosen domain page; the staging row is removed. When a staging page empties, offer to delete it.</li>
-<li>For a load-bearing term, offer a term page (<code>glossary/&lt;domain&gt;/&lt;term&gt;</code>, template <code>glossary-term.md</code>) carrying <code>alias::</code>, <code>domain::</code>, <code>rule::</code>, <code>conflicts::</code> (REQ-1005); the domain row’s EN cell becomes the link.</li>
-</ol>
-</section>
-<section id="mode-import" class="level2">
-<h2 class="anchored" data-anchor-id="mode-import">Mode: import <file></file></h2>
-<p>Pull matching entries from a local termbase file onto a staging page (REQ-1010..1012). Agent-transformed, never a parser script (premortem revision 4).</p>
-<ol type="1">
-<li>Collect the open <code>#glossary-todo</code> captures (as in curate) plus any terms the user names explicitly. This set, and ONLY this set, is imported.</li>
-<li>Read the local termbase file (e.g.&nbsp;Glosario’s <code>glossary.yml</code>; no network). For each matching term, draft a staging row with the EN and DE forms and an attribution link in Note; the Rule cell stays EMPTY.</li>
-<li>Verify the count mechanically: the number of drafted rows must be explainable against <code>grep -c</code> over the source file; report terms that have no entry.</li>
-<li>Checkpoint: show the staging rows; on confirmation write them to <code>glossary/imported/&lt;source&gt;</code> with page properties <code>source::</code> (attribution, license, URL) and <code>status:: unreviewed</code>.</li>
-<li>Deciding the rows happens later in promote mode; import never fills a Rule cell.</li>
-</ol>
-</section>
-<section id="mode-context" class="level2">
-<h2 class="anchored" data-anchor-id="mode-context">Mode: context <domain> […]</domain></h2>
-<p>Load domain pages as drafting context (REQ-1013).</p>
+<section id="open-sync-graph---github" class="level3">
+<h3 class="anchored" data-anchor-id="open-sync-graph---github">open-sync (graph -&gt; GitHub)</h3>
 <ul>
-<li>Read the requested <code>glossary/&lt;domain&gt;</code> page(s) (via the index when the user names no domain but the draft’s subject implies one) and apply the decided conventions to the drafting session.</li>
-<li>NEVER load <code>glossary/imported/</code> staging pages as context, even on request; point at promote mode instead (a staging row is not a decision). </li>
+<li>REQ-1402: An open-sync candidate is a block whose marker is one of <code>TODO | DOING | NOW | LATER | WAITING</code> and that lacks an <code>issue::</code> block property, AND that satisfies the promotion gate:
+<ul>
+<li>it lives on a <code>para/projects/</code> page (page ownership implies the project), OR</li>
+<li>it lives on a journal page and links a <code>[[para/projects/...]]</code> page, OR</li>
+<li>it lives on a journal page and carries the <code>#gh</code> tag. Nothing else is ever a candidate: an untagged, unlinked journal TODO (“buy milk”) SHALL NOT reach GitHub.</li>
+</ul></li>
+<li>REQ-1403: The target repo for a candidate resolves in this order, first hit wins: the <code>repo::</code> page property of the owning or linked <code>para/projects/</code> page (an <code>owner/repo</code> slug, human-set); the config <code>tasks_repo</code>. A candidate with no resolvable repo is SKIPPED with a warning, never guessed.</li>
+<li>REQ-1404: open-sync SHALL present the full candidate list (stable candidate id, title, target repo, source file and line) and SHALL create nothing without confirmation. <code>--dry-run</code> SHALL write no graph bytes and SHALL invoke no mutating <code>gh</code> command. A run may be limited to confirmed candidates with <code>--ids</code>.</li>
+<li>REQ-1405: After a successful <code>gh issue create</code>, the tool SHALL write exactly two block-property lines under the block - <code>issue:: &lt;owner&gt;/&lt;repo&gt;#&lt;number&gt;</code> and <code>opened:: [[&lt;date&gt;]]</code> - and nothing else. The stamp is written immediately per issue (never batched at the end of the run), so a crash mid-run cannot leave created issues unstamped behind later candidates.</li>
+<li>REQ-1406: When <code>tasks_project</code> is set, each created issue is added to the Project via <code>gh project item-add</code>. A failed add is a warning, not a rollback: the issue exists and the <code>issue::</code> stamp still lands. Project v2 FIELD mapping (PARA/Project single-selects) is Phase 2 (REQ-1416).</li>
+<li>REQ-1407: Issue title and body are deterministic functions of the block: title = the block text with the marker, <code>[[para/projects/...]]</code> links, and <code>#gh</code> tags removed and other <code>[[refs]]</code> reduced to their leaf text; body = a provenance trailer naming the source file:line relative to the graph root and the resolved project page. After creation the issue is authoritative: retitling on GitHub does not touch the block, and editing the block text does not touch the issue (the link key is <code>issue::</code>, not the text).</li>
+</ul>
+</section>
+<section id="close-sync-github---graph-two-one-way-halves" class="level3">
+<h3 class="anchored" data-anchor-id="close-sync-github---graph-two-one-way-halves">close-sync (GitHub &lt;-&gt; graph, two one-way halves)</h3>
+<ul>
+<li>REQ-1410: GitHub -&gt; graph: for every TRACKED block (has <code>issue::</code>, lacks <code>closed::</code>) whose issue is closed on GitHub, close-sync SHALL replace the marker token with <code>DONE</code> and append a <code>closed:: [[&lt;date&gt;]]</code> property line. No other byte of the block changes. Closed-issue state is fetched with ONE <code>gh issue list --state closed</code> call per distinct repo, never per issue.</li>
+<li>REQ-1411: graph -&gt; GitHub: a tracked block whose marker is <code>DONE</code> or <code>CANCELED</code> and that lacks <code>closed::</code> SHALL close its issue (<code>gh issue close</code>, with reason “not planned” for <code>CANCELED</code>, and a “closed via journal (tasks-sync)” comment), then receive the <code>closed::</code> stamp. GitHub wins on state: tasks-sync SHALL NEVER reopen an issue; a block whose issue was closed on GitHub becomes <code>DONE</code>, not the reverse.</li>
+<li>REQ-1412: Idempotency is content-embedded, by construction: <code>issue::</code> is the sole link key; open-sync only touches blocks lacking <code>issue::</code>; close-sync only touches blocks lacking <code>closed::</code>. Re-running either flow with no external change is a byte-for-byte no-op. There is NO state file (the repo convention: state lives in vault content, like <code>zotero-last-sync::</code>); <code>--since</code> only narrows the closed-issue query and MUST NOT affect correctness - a full run without it yields the same graph.</li>
+<li>REQ-1415: Closed issues in a queried repo with NO tracked block, and tracked blocks whose <code>issue::</code> no longer resolves, are REPORTED only (the orphan report); tasks-sync SHALL NOT create blocks for them or delete their stamps.</li>
+</ul>
+</section>
+<section id="mechanics-write-budget" class="level3">
+<h3 class="anchored" data-anchor-id="mechanics-write-budget">Mechanics &amp; Write Budget</h3>
+<ul>
+<li>REQ-1413: All <code>gh</code> invocations are single-line argv vectors executed without a shell. Before any flow that calls <code>gh</code>, the tool SHALL preflight <code>gh auth status</code>; a missing or unauthenticated <code>gh</code> is a clean stop (exit 2, actionable message, zero graph writes) - never worked around with a raw API token. Exit codes follow the suite convention: 0 clean, 1 warnings (skipped candidates, orphans), 2 critical.</li>
+<li>REQ-1414: The complete write budget, per run: (a) insert <code>issue::</code>, <code>opened::</code>, <code>closed::</code> property lines under task blocks per REQ-1405/1410/1411; (b) replace one marker token per REQ-1410. The tool SHALL NOT create, reorder, or delete blocks or pages; SHALL NOT edit block text beyond the single marker token; SHALL NOT write a <code>#tag</code>; SHALL NOT touch journal content outside the stamped blocks (the ingest journal seam’s append-only discipline, ingest REQ-094, stays intact for everything else).</li>
+<li>REQ-1417: <code>opened::</code>/<code>closed::</code> stamps are <code>[[YYYY-MM-DD]]</code> page references (ISO date, the journal-ref form used throughout this seam’s design). Full <code>owner/repo#N</code> is always written to <code>issue::</code>; short forms (<code>repo#N</code>, <code>#N</code>) are accepted on read and resolved against <code>tasks_repo</code>.</li>
+</ul>
+</section>
+<section id="phase-2-specified-deferred" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-specified-deferred">Phase 2 (specified, deferred)</h3>
+<ul>
+<li>REQ-1416: Deferred to Phase 2, behind the same config gates: Project v2 single-select field mapping (<code>PARA</code>, <code>Project</code>) after <code>item-add</code>; the milestone hook (issues labeled with <code>tasks_milestone_label</code>, config REQ-664, append one line under a <code>## milestones</code> heading on the owning <code>para/projects/</code> page - inside the REQ-1414 budget extended by that single sanctioned append; note the hook targets the PARA page, never <code>wiki/projects/</code>, which would bypass ingest provenance); a richer standing orphan report. Until implemented, these are documentation only.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-first-open-sync-round-trip" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-first-open-sync-round-trip">Scenario 1: first open-sync round-trip</h3>
+<pre><code>GIVEN journals/2026_07_16.md contains
+    - TODO Draft ingest prompt v3 [[para/projects/llm-wiki]]
+AND para/projects/llm-wiki has repo:: larnsce/llm-wiki
+WHEN open-sync runs and the user confirms the candidate
+THEN gh issue create runs once against larnsce/llm-wiki
+AND the block gains exactly two property lines:
+    issue:: larnsce/llm-wiki#42
+    opened:: [[2026-07-16]]
+AND no other byte of the journal changes</code></pre>
+</section>
+<section id="scenario-2-re-run-is-a-no-op" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-re-run-is-a-no-op">Scenario 2: re-run is a no-op</h3>
+<pre><code>GIVEN the vault state after Scenario 1
+WHEN open-sync runs again
+THEN it finds zero candidates (the block carries issue::)
+AND writes nothing and calls no mutating gh command</code></pre>
+</section>
+<section id="scenario-3-close-round-trip-from-github" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-close-round-trip-from-github">Scenario 3: close round-trip from GitHub</h3>
+<pre><code>GIVEN the block of Scenario 1 and its issue closed on GitHub
+WHEN close-sync runs
+THEN the marker flips TODO -&gt; DONE
+AND closed:: [[&lt;today&gt;]] is appended to the block's properties
+AND a second close-sync run changes nothing (closed:: present)</code></pre>
+</section>
+<section id="scenario-4-graph-side-completion-closes-the-issue" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-graph-side-completion-closes-the-issue">Scenario 4: graph-side completion closes the issue</h3>
+<pre><code>GIVEN a tracked block the human marked DONE, with no closed::
+WHEN close-sync runs
+THEN gh issue close runs once with a "closed via journal" comment
+AND the block gains closed:: [[&lt;today&gt;]]
+AND the issue is never reopened afterwards even if the block is
+    edited back to TODO (reported as an orphan-state warning only)</code></pre>
+</section>
+<section id="scenario-5-the-gate-holds" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-the-gate-holds">Scenario 5: the gate holds</h3>
+<pre><code>GIVEN a journal block "- TODO buy milk" with no project link and no #gh
+WHEN open-sync runs
+THEN the block is not listed as a candidate and never reaches GitHub</code></pre>
+</section>
+<section id="scenario-6-unauthenticated-gh-is-a-clean-stop" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-6-unauthenticated-gh-is-a-clean-stop">Scenario 6: unauthenticated gh is a clean stop</h3>
+<pre><code>GIVEN gh is absent or gh auth status fails
+WHEN open-sync (real run) or close-sync starts
+THEN the tool exits 2 with an actionable message
+AND the graph is byte-for-byte unchanged</code></pre>
+<hr>
+</section>
+</section>
+<section id="acceptance-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Eligibility gate: only linked/tagged/para-resident open blocks are candidates</label></li>
+<li><label><input type="checkbox">Confirmation before creation; dry-run mutates nothing anywhere</label></li>
+<li><label><input type="checkbox">Stamps are exactly issue::/opened::/closed:: lines plus one marker flip</label></li>
+<li><label><input type="checkbox">Both flows are idempotent with no state file; –since is efficiency-only</label></li>
+<li><label><input type="checkbox">One closed-issue listing per repo; never reopens an issue</label></li>
+<li><label><input type="checkbox">gh preflight failure exits 2 with zero graph writes</label></li>
+<li><label><input type="checkbox">wiki/, notes/, glossary/ untouched in every run</label></li>
+</ul>
+<hr>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<ul>
+<li>specs/namespaces.md - REQ-969 (the carve-out sanctioning this seam); the scope rule REQ-965..968 that tasks-sync is NOT bound by but must not disturb</li>
+<li>specs/config.md - REQ-662..664 (<code>tasks_repo</code>, <code>tasks_project</code>, <code>tasks_milestone_label</code>), REQ-625 (<code>para_dir</code>), REQ-629 (<code>journals_dir</code>, amended to name this seam’s journal stamps)</li>
+<li>specs/ingest.md - REQ-090..095 (the journal seam whose append-only discipline REQ-1414 preserves outside stamped blocks)</li>
+<li>docs/para-notes-workflow.md - task-marker conventions, the <code>para/projects/</code> layout, the archive procedure</li>
+<li>docs/tasks-sync-workflow.md - the vault-side guide (<code>repo::</code> convention, <code>#gh</code> gate, daily-review hook point)</li>
 </ul>
 
 
@@ -663,4 +743,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-glossary/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/tasks-sync.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

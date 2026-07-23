@@ -65,6 +65,7 @@ The repo ships a personal pipeline beside the generic tool, behind an explicit o
 - **Voice pipeline** (`docs/voice-pipeline.md` + `/wiki-ingest-voice`): phone memo to whisper.cpp transcript to a journal summary with provenance (`archive.db:voice_notes/<id>`). Journal-only by default; anything touching a wiki page or naming a person is confirmed per row; assessments of people never leave the transcript.
 - **Two-plane query**: aggregate, temporal, and full-text questions route to `index.db` SQL (FTS5, stdlib sqlite3) with a staleness check before every read; entity questions stay on pages. Every answer names its plane.
 - **Archive layer** (`docs/archive-layer.md`): Google Takeout (mail, calendar, contacts) into archive.db, documented copy-paste importers, lazy alias resolution.
+- **Mail pipeline** (`docs/mail-pipeline.md`): nightly deterministic Infomaniak IMAP capture into archive.db -- capture only, no wiki route, no LLM in the loop; the sent-mail overview is a review-time SQL query, never a journal write.
 
 Zero external dependencies still holds: sqlite3 and FTS5 come with python3.
 
@@ -127,6 +128,8 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`
+- [Tasks-sync workflow](docs/tasks-sync-workflow.md) - GitHub Issues as canonical task state: journal/`para/` TODOs to issues via `/tasks-sync`, closed issues back as `DONE`
+- [Getting started with Zotero](docs/zotero-getting-started.md) - Standalone Zotero install and configuration guide (GHE-harmonized citation keys); no llm-wiki knowledge needed
 - [Zotero setup](docs/zotero-setup.md) - Wire Zotero so literature notes are born as `notes/literature/@citekey`
 - [Roadmap: v2.2](docs/roadmap-v2.2-para-notes-zotero.md) - The para/notes/Zotero assessment and issue breakdown
 

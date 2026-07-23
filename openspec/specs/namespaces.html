@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +70,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -199,9 +225,10 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="scope-rule-binds-every-wiki-workflow">Scope Rule (binds every wiki workflow)</h3>
 <ul>
 <li>REQ-965: Every wiki workflow (ingest, query, prune, lint, status, audit, update, and any future verb) SHALL operate ONLY on pages whose name starts with <code>wiki/</code>.</li>
-<li>REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under <code>para/</code> or <code>notes/</code>. These namespaces are human-authored. The single enumerated exception is the human-confirmed literature-note <code>source-file::</code> write (REQ-974).</li>
+<li>REQ-966: A wiki workflow SHALL NOT create, modify, lint, or audit any page under <code>para/</code> or <code>notes/</code>. These namespaces are human-authored. Two narrow carve-outs exist: the human-confirmed literature-note <code>source-file::</code> write in <code>notes/</code> (REQ-974), and the tasks-sync seam in <code>para/</code>, which is not a wiki workflow - see REQ-969.</li>
 <li>REQ-967: A wiki workflow MAY READ <code>para/</code> and <code>notes/</code> pages when the user asks for context (e.g.&nbsp;a query that references a linked note), but SHALL NOT write to them as a side effect.</li>
 <li>REQ-968: This scope rule is a shared invariant stated once (wiki-core reference) and loaded by every skill; it SHALL NOT be restated divergently per skill (enforced by <code>check_canon.py</code>).</li>
+<li>REQ-969: The tasks-sync seam (<code>specs/tasks-sync.md</code>) is NOT a wiki workflow and is not bound by REQ-965..967; like the literature sync’s managed properties on <code>notes/literature/</code> pages, it is a human-layer companion tool with a narrow, enumerated write budget: <code>issue::</code>/ <code>opened::</code>/<code>closed::</code> block-property stamps and open-marker -&gt; <code>DONE</code> transitions on task blocks the human confirmed, on journal pages and <code>para/projects/</code> pages only. It inherits none of the wiki conventions, never touches <code>wiki/</code>, <code>notes/</code>, or <code>glossary/</code>, and its write budget is stated once, normatively, in <code>specs/tasks-sync.md</code> (REQ-1414) - not restated here.</li>
 </ul>
 </section>
 <section id="the-promotion-seam-the-only-path-in" class="level3">

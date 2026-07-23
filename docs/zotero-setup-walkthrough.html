@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -172,12 +198,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#zotero-setup-walkthrough-novice-friendly" id="toc-zotero-setup-walkthrough-novice-friendly" class="nav-link active" data-scroll-target="#zotero-setup-walkthrough-novice-friendly">Zotero setup walkthrough (novice-friendly)</a>
   <ul class="collapse">
   <li><a href="#what-you-are-building" id="toc-what-you-are-building" class="nav-link" data-scroll-target="#what-you-are-building">What you are building</a></li>
-  <li><a href="#step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero" id="toc-step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero" class="nav-link" data-scroll-target="#step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero">Step 1: Let other apps talk to Zotero (TODO: Add a another step to actually download the latest version of Zotero)</a></li>
-  <li><a href="#step-2-install-better-bibtex-and-pin-citekeys" id="toc-step-2-install-better-bibtex-and-pin-citekeys" class="nav-link" data-scroll-target="#step-2-install-better-bibtex-and-pin-citekeys">Step 2: Install Better BibTeX and pin citekeys</a></li>
-  <li><a href="#step-3-install-the-logseq-plugin" id="toc-step-3-install-the-logseq-plugin" class="nav-link" data-scroll-target="#step-3-install-the-logseq-plugin">Step 3: Install the Logseq plugin</a></li>
-  <li><a href="#step-4-set-the-page-name-template" id="toc-step-4-set-the-page-name-template" class="nav-link" data-scroll-target="#step-4-set-the-page-name-template">Step 4: Set the page-name template</a></li>
-  <li><a href="#step-5-set-the-page-template" id="toc-step-5-set-the-page-template" class="nav-link" data-scroll-target="#step-5-set-the-page-template">Step 5: Set the page template</a></li>
-  <li><a href="#step-6-run-the-loop-once-end-to-end" id="toc-step-6-run-the-loop-once-end-to-end" class="nav-link" data-scroll-target="#step-6-run-the-loop-once-end-to-end">Step 6: Run the loop once, end to end</a></li>
+  <li><a href="#step-1-install-zotero" id="toc-step-1-install-zotero" class="nav-link" data-scroll-target="#step-1-install-zotero">Step 1: Install Zotero</a></li>
+  <li><a href="#step-2-let-other-apps-talk-to-zotero" id="toc-step-2-let-other-apps-talk-to-zotero" class="nav-link" data-scroll-target="#step-2-let-other-apps-talk-to-zotero">Step 2: Let other apps talk to Zotero</a></li>
+  <li><a href="#step-3-install-better-bibtex" id="toc-step-3-install-better-bibtex" class="nav-link" data-scroll-target="#step-3-install-better-bibtex">Step 3: Install Better BibTeX</a></li>
+  <li><a href="#step-4-configure-the-citation-keys" id="toc-step-4-configure-the-citation-keys" class="nav-link" data-scroll-target="#step-4-configure-the-citation-keys">Step 4: Configure the citation keys</a></li>
+  <li><a href="#step-5-set-up-quick-copy" id="toc-step-5-set-up-quick-copy" class="nav-link" data-scroll-target="#step-5-set-up-quick-copy">Step 5: Set up Quick Copy</a></li>
+  <li><a href="#step-6-run-the-sync" id="toc-step-6-run-the-sync" class="nav-link" data-scroll-target="#step-6-run-the-sync">Step 6: Run the sync</a></li>
+  <li><a href="#step-7-run-the-loop-once-end-to-end" id="toc-step-7-run-the-loop-once-end-to-end" class="nav-link" data-scroll-target="#step-7-run-the-loop-once-end-to-end">Step 7: Run the loop once, end to end</a></li>
   <li><a href="#related" id="toc-related" class="nav-link" data-scroll-target="#related">Related</a></li>
   </ul></li>
   </ul>
@@ -192,28 +219,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="zotero-setup-walkthrough-novice-friendly" class="level1">
 <h1>Zotero setup walkthrough (novice-friendly)</h1>
 <p>A step-by-step companion to <a href="../docs/zotero-setup.html">Zotero setup</a>. That doc states the design and the settings; this one walks through the installation for someone doing it for the first time, including the end-to-end verification run that <a href="https://github.com/larnsce/llm-wiki/issues/28">#28</a> tracks.</p>
+<p>If you are entirely new to Zotero, start with <a href="../docs/zotero-getting-started.html">Getting started with Zotero</a> instead. It covers the same install and settings without assuming llm-wiki, plus the account, sync, and browser-connector basics; Steps 1 to 5 below overlap with it, and Step 6 onward is the llm-wiki-specific part.</p>
 <section id="what-you-are-building" class="level2">
 <h2 class="anchored" data-anchor-id="what-you-are-building">What you are building</h2>
-<p>At the end of this setup, every paper you save in Zotero can become a page in Logseq named like <code>notes/literature/@Forte2022</code>, pre-filled with the paper’s metadata, and your PDF highlights can be synced onto that page with one click. Four pieces need to cooperate:</p>
+<p>At the end of this setup, every paper you save in Zotero can become a page in Logseq named like <code>notes/literature/@forte2022building</code>, pre-filled with the paper’s metadata, and your PDF highlights can be synced onto that page with one command. Four pieces need to cooperate:</p>
 <ul>
 <li><strong>Zotero</strong> (the desktop app), which stores your papers and PDF annotations.</li>
-<li><strong>Better BibTeX</strong>, a Zotero plugin whose job here is to give every paper a stable short ID called a <em>citekey</em> (for example <code>Forte2022</code>). The Logseq page names are built from these citekeys.</li>
+<li><strong>Better BibTeX</strong>, a Zotero plugin whose job here is to give every paper a stable short ID called a <em>citekey</em> (for example <code>forte2022building</code>). The Logseq page names are built from these citekeys.</li>
 <li><strong>Zotero’s local API</strong>, a setting that lets other apps on the same computer read your Zotero library. Nothing leaves your machine.</li>
-<li><strong>logseq-zoterolocal-plugin</strong>, a Logseq plugin that reads your library through that local API and creates or updates the pages.</li>
+<li><strong><code>scripts/lit_sync.py</code></strong>, the sync script in this repository, run through the <code>/lit-sync</code> command. It reads your library through the local API and creates or updates the pages. No Logseq plugin is involved; the plugin that earlier versions of this walkthrough recommended did not work in practice and was abandoned (issue <a href="https://github.com/larnsce/llm-wiki/issues/90">#90</a>, see the status note in <a href="../docs/zotero-setup.html">Zotero setup</a>).</li>
 </ul>
 </section>
-<section id="step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero" class="level2">
-<h2 class="anchored" data-anchor-id="step-1-let-other-apps-talk-to-zotero-todo-add-a-another-step-to-actually-download-the-latest-version-of-zotero">Step 1: Let other apps talk to Zotero (TODO: Add a another step to actually download the latest version of Zotero)</h2>
+<section id="step-1-install-zotero" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-install-zotero">Step 1: Install Zotero</h2>
+<ol type="1">
+<li>Download the installer for your platform from <a href="https://www.zotero.org/download/">zotero.org/download</a> and install it.</li>
+<li>If Zotero is already installed, update it first: <strong>Zotero → Check for Updates</strong> on macOS, <strong>Help → Check for Updates</strong> on Windows/Linux. The local API used below needs Zotero 7 or newer; this guide is written against Zotero 9.</li>
+</ol>
+</section>
+<section id="step-2-let-other-apps-talk-to-zotero" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-let-other-apps-talk-to-zotero">Step 2: Let other apps talk to Zotero</h2>
 <ol type="1">
 <li>Open the Zotero desktop app.</li>
 <li>Go to <strong>Zotero → Settings</strong> (on macOS; <strong>Edit → Preferences</strong> on Windows/Linux).</li>
 <li>Open the <strong>Advanced</strong> tab.</li>
 <li>Check the box <strong>Allow other applications on this computer to communicate with Zotero</strong>.</li>
 </ol>
-<p>This switch is what “local API access” means. Without it, the Logseq plugin cannot see your library at all. It only allows apps on your own computer; it does not expose anything to the internet.</p>
+<p>This switch is what “local API access” means. Without it, the sync script cannot see your library at all. It only allows apps on your own computer; it does not expose anything to the internet.</p>
 </section>
-<section id="step-2-install-better-bibtex-and-pin-citekeys" class="level2">
-<h2 class="anchored" data-anchor-id="step-2-install-better-bibtex-and-pin-citekeys">Step 2: Install Better BibTeX and pin citekeys</h2>
+<section id="step-3-install-better-bibtex" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-install-better-bibtex">Step 3: Install Better BibTeX</h2>
 <p>Better BibTeX is not in a built-in plugin store; you install it from a downloaded file.</p>
 <ol type="1">
 <li>In your browser, go to the <a href="https://github.com/retorquere/zotero-better-bibtex/releases">Better BibTeX releases page</a> and download the latest <code>.xpi</code> file. (If the browser asks whether to open or save it, save it. Firefox may try to install it as a browser extension; right-click the link and choose “Save Link As” instead.)</li>
@@ -221,74 +256,78 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Click the gear icon, choose <strong>Install Plugin From File</strong>, and select the <code>.xpi</code> you downloaded.</li>
 <li>Restart Zotero when prompted.</li>
 </ol>
-<p>Now configure the one setting that matters here:</p>
+</section>
+<section id="step-4-configure-the-citation-keys" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-configure-the-citation-keys">Step 4: Configure the citation keys</h2>
+<p>Go back to <strong>Zotero → Settings</strong>, open the <strong>Better BibTeX</strong> tab, and work through the <strong>Citation keys</strong> section:</p>
 <ol type="1">
-<li>Go back to <strong>Zotero → Settings</strong> and open the <strong>Better BibTeX</strong> tab. TODO: update for Zotero 9</li>
-<li>Find the option <strong>Automatically pin citation key after</strong> and set it to <strong>1 second</strong>. TODO Update for Zotero 9</li>
+<li><p>Set the citation key formula to:</p>
+<pre><code>auth.lower + year + veryshorttitle(1, 0).lower</code></pre>
+<p>The formula builds lowercase keys from the first author, the year, and the first meaningful word of the title. For example, Tiago Forte’s 2022 book “Building a Second Brain” gets the key <code>forte2022building</code>.</p></li>
+<li><p>Set <strong>Automatically fill citation key after</strong> to <code>2</code> seconds. Filling writes the generated key into Zotero’s native citation-key field, which syncs across your devices. The sync script reads exactly this field, and it skips any item whose key is not filled yet.</p></li>
+<li><p>Keep <strong>Force citation key to plain text</strong> checked.</p></li>
+<li><p>Keep <strong>Regenerate citation key when item changes</strong> unchecked. Your Logseq page names are built from citekeys, so a key must never change once its page exists. With the box unchecked, a filled key stays put even when you later fix a typo in the item’s metadata.</p></li>
+<li><p>The defaults under <strong>Keeping citation keys unique</strong> are fine: comparison ignores upper/lowercase, and keys are kept unique within each library.</p></li>
 </ol>
-<p>TODO: Update citation key to: auth.lower +year + veryshorttitle(1, 0).lower</p>
-<p>TODO: I have old instructions here: https://ds4owd-002.github.io/website/content/guide/#zotero-reference-management find guidance on all steps and add them TODO: This guide is more up to date, but still doesn’t get there fully: https://unlimited.ethz.ch/spaces/ghestudents/pages/182077770/Reference+management the export quick copy step is still there. TODO: Now, here is what I have learned. The autopin setting is gone: https://www.perplexity.ai/search/1727235c-58d2-41d5-b17b-8fbbaa029312 keys are always pinned</p>
-<p>Why this matters: Better BibTeX normally computes citekeys on the fly, which means they can silently change (for example, if you fix a typo in an author name). “Pinning” writes the citekey into the item permanently. The Logseq plugin can only read pinned citekeys, and since your page names are built from them, they must never change once a page exists. The 1-second setting pins every new item automatically so you never have to think about it.</p>
-<p>For papers already in your library: select them all, right-click, and choose <strong>Better BibTeX → Pin BibTeX key</strong> to pin the existing items in one go.</p>
-<p>TODO: Rewrite to: right-glick -&gt;Y better bibtex -&gt; regenerater</p>
+<p>A note on “pinning”, in case you read older guides: earlier Better BibTeX versions called a stored key “pinned”, and the setting in point 2 was named <em>Automatically pin citation key after</em>. The mechanism is the same, only the wording changed.</p>
+<p>For papers already in your library that you want recomputed with the formula above, do it <strong>before</strong> creating their pages: select them, right-click, and choose <strong>Better BibTeX → Regenerate citation key</strong>.</p>
 </section>
-<section id="step-3-install-the-logseq-plugin" class="level2">
-<h2 class="anchored" data-anchor-id="step-3-install-the-logseq-plugin">Step 3: Install the Logseq plugin</h2>
+<section id="step-5-set-up-quick-copy" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-set-up-quick-copy">Step 5: Set up Quick Copy</h2>
+<p>Quick Copy is how you get a citekey out of Zotero while you write, so you can link <code>[[notes/literature/@&lt;citekey&gt;]]</code> from any other page. Go to <strong>Zotero → Settings</strong>, open the <strong>Export</strong> tab, and under <strong>Quick Copy</strong>:</p>
 <ol type="1">
-<li>In Logseq, first make sure plugins are enabled: <strong>Settings → Advanced → Plug-in system</strong> must be on (restart Logseq if you just turned it on). TODO: hard to find. point out it’s at the three dot menu in the top-right. Also: don’t have that option under advanced. plug-ins are already there</li>
-<li>Click the three-dot menu (top right) → <strong>Plugins</strong> → <strong>Marketplace</strong> tab.</li>
-<li>Search for <strong>zoterolocal</strong> and install <strong>logseq-zoterolocal-plugin</strong> (author: benjypng).</li>
-<li>Open the plugin’s settings (gear icon on its card in the Plugins list) and confirm the <strong>connection to Zotero</strong> check passes. Zotero must be running for this to work; it must also be running any time you import or sync later.</li>
+<li>Set <strong>Item Format</strong> to <strong>Better BibTeX Citation Key Quick Copy</strong>.</li>
+<li>Set <strong>Note Format</strong> to <strong>Markdown + Rich Text</strong>, and check <strong>Include Zotero Links</strong> on the Markdown line (leave the Rich Text/HTML line unchecked). A Zotero note copied out as markdown then keeps a link back to the item it came from.</li>
 </ol>
-<p>One caution (see the status note in <a href="../docs/zotero-setup.html">Zotero setup</a>): community plugins change over time. Note down which plugin version you installed, and avoid blind updates; if the marketplace offers an update, check its changelog before accepting. Your provenance chain depends on the plugin producing the same properties it produces today.</p>
+<p>With that in place, selecting an item and pressing <strong>Cmd+Shift+C</strong> (<strong>Ctrl+Shift+C</strong> on Windows/Linux) copies its citekey, and dragging an item into a text field pastes it.</p>
 </section>
-<section id="step-4-set-the-page-name-template" class="level2">
-<h2 class="anchored" data-anchor-id="step-4-set-the-page-name-template">Step 4: Set the page-name template</h2>
-<p>In the plugin’s settings, find the page-name template field and set it to exactly:</p>
-<pre><code>notes/literature/@&lt;% citeKey %&gt;</code></pre>
-<p>Reading this template left to right: every imported item becomes a page inside the <code>notes/literature/</code> namespace, and the page’s own name is <code>@</code> followed by the citekey. So the paper with citekey <code>Forte2022</code> becomes the page <code>notes/literature/@Forte2022</code>.</p>
-<p>This matters for the vault’s rules: <code>notes/</code> is the human-owned namespace that the wiki toolchain never writes to, and the <code>@citekey</code> leaf is explicitly recognized by lint as a proper noun (<a href="../openspec/specs/namespaces.html"><code>namespaces.md</code></a> REQ-976), so these pages will not show up as naming violations.</p>
-</section>
-<section id="step-5-set-the-page-template" class="level2">
-<h2 class="anchored" data-anchor-id="step-5-set-the-page-template">Step 5: Set the page template</h2>
-<p>The plugin also has a template for the page <em>content</em> (what gets pre-filled when an item is imported). Run its <strong>Insert Zotero template</strong> command once to see the default, then replace the generated block with this trimmed version:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>type:: literature</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>citekey:: &lt;% citeKey %&gt;</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>authors:: &lt;% creators %&gt;</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>year:: &lt;% date %&gt;</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>item-type:: &lt;% itemType %&gt;</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>doi:: &lt;% DOI %&gt;</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>zotero:: &lt;% libraryLink %&gt;</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>source-file::</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## my reading</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    -</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## annotations</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>(synced from Zotero below this line)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="step-6-run-the-sync" class="level2">
+<h2 class="anchored" data-anchor-id="step-6-run-the-sync">Step 6: Run the sync</h2>
+<p>Zotero must be running, now and any time you sync later. Run <code>/lit-sync</code> in Claude Code. It resolves your graph location from <code>llm-wiki.yml</code>, shows a dry-run for review, then does the real run and the commit. To run the script by hand instead:</p>
+<pre><code>python3 scripts/lit_sync.py --vault &lt;logseq-graph-root&gt; --dry-run   # review first
+python3 scripts/lit_sync.py --vault &lt;logseq-graph-root&gt;            # then for real</code></pre>
+<p>Every item with a filled citekey gets a page named <code>notes/literature/@&lt;citekey&gt;</code>, created from this template:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>type:: literature</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>citekey:: forte2022building</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>authors:: Tiago Forte</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>year:: 2022</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>item-type:: book</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>doi::</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>zotero:: zotero://select/library/items/<span class="dt">&lt;</span><span class="kw">KEY</span><span class="dt">&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>source-file::</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>zotero-last-sync:: <span class="dt">&lt;</span><span class="kw">library</span><span class="ot"> version</span><span class="dt">&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## literature</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    -</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>## annotations</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>(synced from Zotero below this line)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>What each part is for:</p>
 <ul>
-<li>The <code>key:: value</code> lines at the top are Logseq page properties; they hold just enough metadata to identify the paper. The full record stays in Zotero, and the archived full text lives in <code>ingested/</code>, so copying every metadata field here would only add noise.</li>
-<li><code>source-file::</code> is deliberately left empty at import time. You fill it in later, only when the paper actually goes through the wiki pipeline: after <code>/wiki-ingest</code> archives the paper to <code>ingested/papers/&lt;file&gt;.md</code>, you paste that path here by hand. That shared path is what makes your reading auditable against the same source the wiki cites (“one archived source, two readings”, REQ-973). The tool never writes this for you.</li>
-<li><code>## my reading</code> is where your own words go. Nothing automated ever touches it.</li>
-<li><code>## annotations</code> is where the plugin appends your synced PDF highlights. The sync is incremental (tracked via a <code>zotero-last-sync</code> property), so re-syncing adds only new highlights and never clobbers what is already on the page.</li>
+<li>The <code>key:: value</code> lines at the top are Logseq page properties; they hold just enough metadata to identify the paper. The full record stays in Zotero, and the archived full text lives in <code>ingested/</code>, so copying every metadata field here would only add noise. On later runs the script rewrites only these managed properties; <code>source-file::</code> and anything you add yourself survive.</li>
+<li><code>source-file::</code> starts empty. It gets filled when the paper goes through the wiki pipeline: after <code>/wiki-ingest</code> archives the paper to <code>ingested/papers/&lt;file&gt;.md</code>, it offers at its checkpoint to set the property to that path, and you confirm the write (REQ-974). That shared path is what makes your reading auditable against the same source the wiki cites (“one archived source, two readings”, REQ-973).</li>
+<li><code>## literature</code> is where your own words go - your literature note in the Zettelkasten sense. Nothing automated ever touches it. Add the <code>#literature</code> tag by hand when you write the note; the tooling never writes tags.</li>
+<li><code>## annotations</code> is where the script appends your synced PDF highlights, sorted by their position in the PDF. The sync is incremental (tracked through the <code>zotero-last-sync::</code> property), so re-syncing adds only new highlights and never clobbers what is already on the page.</li>
 </ul>
+<p>Items whose citekey is not filled yet are skipped with a warning and picked up on a later run; nothing is guessed. If the script cannot reach Zotero, fix the Zotero side (is Zotero running, is the Step 2 box checked); do not work around it with the Zotero cloud API.</p>
+<p>The page name also fits the vault’s rules: <code>notes/</code> is the human-owned namespace, and lint recognizes the <code>@citekey</code> leaf (<a href="../openspec/specs/namespaces.html"><code>namespaces.md</code></a> REQ-976), so these pages will not show up as naming violations.</p>
 </section>
-<section id="step-6-run-the-loop-once-end-to-end" class="level2">
-<h2 class="anchored" data-anchor-id="step-6-run-the-loop-once-end-to-end">Step 6: Run the loop once, end to end</h2>
+<section id="step-7-run-the-loop-once-end-to-end" class="level2">
+<h2 class="anchored" data-anchor-id="step-7-run-the-loop-once-end-to-end">Step 7: Run the loop once, end to end</h2>
 <p>This is the verification <a href="https://github.com/larnsce/llm-wiki/issues/28">#28</a> asks for. Pick one real paper and walk it through:</p>
 <ol type="1">
 <li>In Zotero, open the paper’s PDF and add at least one highlight.</li>
-<li>In Logseq, import the item via the plugin and confirm the page appears as <code>notes/literature/@&lt;citekey&gt;</code> with the properties filled in.</li>
-<li>Right-click the page title → <strong>Zotero: Sync annotations</strong> (or use the command palette → <em>Sync all annotations</em>) and confirm your highlight appears under <code>## annotations</code>.</li>
-<li>Write a sentence or two under <code>## my reading</code>.</li>
-<li>Export or flatten the paper to markdown into <code>raw/</code>, run <code>/wiki-ingest</code>, and when the ingest report shows the <code>ingested/papers/...</code> path, paste it into <code>source-file::</code> on the literature note.</li>
+<li>Run <code>/lit-sync</code>; confirm the dry-run lists the item, then let the real run create the page.</li>
+<li>In Logseq, confirm the page appears as <code>notes/literature/@&lt;citekey&gt;</code> with the properties filled in and your highlight under <code>## annotations</code>.</li>
+<li>Write a sentence or two under <code>## literature</code>.</li>
+<li>Export or flatten the paper to markdown into <code>raw/</code>, run <code>/wiki-ingest</code>, and confirm at the checkpoint when it offers to set <code>source-file::</code> on the literature note to the <code>ingested/papers/...</code> path it produced.</li>
 </ol>
-<p>If all five steps work, the setup is done and #28 can be closed with a note recording the plugin version you pinned.</p>
+<p>If all five steps work, the setup is done. Close #28 and stamp <a href="../docs/zotero-setup.html">Zotero setup</a> with the Zotero and Better BibTeX versions the run used.</p>
 </section>
 <section id="related" class="level2">
 <h2 class="anchored" data-anchor-id="related">Related</h2>
 <ul>
-<li><a href="../docs/zotero-setup.html">Zotero setup</a> - the design rationale, page-name contract, and status</li>
+<li><a href="../docs/zotero-getting-started.html">Getting started with Zotero</a> - the standalone Zotero guide for first-time users (install, sync, connector, GHE-harmonized citation keys)</li>
+<li><a href="../docs/zotero-setup.html">Zotero setup</a> - the design rationale, page-name contract, and status; includes the <strong>iPad / iOS</strong> section if you also read and annotate on a tablet</li>
 <li><a href="../docs/literature-research.html">Literature Research</a> - the full discovery→Zotero→ingest funnel</li>
 <li><a href="../docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> - the <code>notes/</code> layer this feeds</li>
 </ul>

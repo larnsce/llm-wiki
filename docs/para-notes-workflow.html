@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -177,6 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#layout" id="toc-layout" class="nav-link" data-scroll-target="#layout">Layout</a></li>
   <li><a href="#conventions" id="toc-conventions" class="nav-link" data-scroll-target="#conventions">Conventions</a></li>
+  <li><a href="#the-project-template-scaffolded-then-yours" id="toc-the-project-template-scaffolded-then-yours" class="nav-link" data-scroll-target="#the-project-template-scaffolded-then-yours">The project template (scaffolded, then yours)</a></li>
   <li><a href="#roam-logseq-task-conversion-one-time-on-import" id="toc-roam-logseq-task-conversion-one-time-on-import" class="nav-link" data-scroll-target="#roam-logseq-task-conversion-one-time-on-import">Roam → Logseq task conversion (one-time, on import)</a></li>
   <li><a href="#the-live-list-a-query-page-you-own" id="toc-the-live-list-a-query-page-you-own" class="nav-link" data-scroll-target="#the-live-list-a-query-page-you-own">The Live List (a query page you own)</a></li>
   <li><a href="#archiving-a-project-a-manual-procedure" id="toc-archiving-a-project-a-manual-procedure" class="nav-link" data-scroll-target="#archiving-a-project-a-manual-procedure">Archiving a project (a manual procedure)</a></li>
@@ -185,6 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#conventions-1" id="toc-conventions-1" class="nav-link" data-scroll-target="#conventions-1">Conventions</a></li>
   <li><a href="#what-each-type-looks-like" id="toc-what-each-type-looks-like" class="nav-link" data-scroll-target="#what-each-type-looks-like">What each type looks like</a></li>
+  <li><a href="#from-literature-note-to-synthesis-the-step-after-reading" id="toc-from-literature-note-to-synthesis-the-step-after-reading" class="nav-link" data-scroll-target="#from-literature-note-to-synthesis-the-step-after-reading">From literature note to synthesis (the step after reading)</a></li>
   <li><a href="#querying-on-type" id="toc-querying-on-type" class="nav-link" data-scroll-target="#querying-on-type">Querying on <code>type::</code></a></li>
   <li><a href="#the-fleeting-inbox-a-query-page-you-own" id="toc-the-fleeting-inbox-a-query-page-you-own" class="nav-link" data-scroll-target="#the-fleeting-inbox-a-query-page-you-own">The fleeting inbox (a query page you own)</a></li>
   </ul></li>
@@ -207,7 +235,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Status (v2.2, 2026-07-04).</strong> The conventions in this guide shipped in v2.2: the namespace contract, the promotion seam in <code>/wiki-ingest</code> (namespaces REQ-970..973), the opt-in scaffold (<code>init_wiki.py --with-para-notes</code>), and the Roam task-marker conversion in the migration pass. The pre-archive secret gate with <code>sensitive_source_types</code> shipped earlier (#15). The query pages and the manual archive procedure below are maintainer-verified items tracked in <a href="https://github.com/larnsce/llm-wiki/issues/27">#27</a>.</p>
 </blockquote>
 <blockquote class="blockquote">
-<p><strong>Scope.</strong> This is a <strong>vault-side workflow guide</strong>, not a skill reference. The wiki toolchain does not manage <code>para/</code> or <code>notes/</code> - by design (see <a href="../openspec/specs/namespaces.html"><code>openspec/specs/namespaces.md</code></a>) it never writes to them (sole enumerated exception: the human-confirmed literature-note <code>source-file::</code> write, REQ-974). The pages, queries, and task markers below are things <strong>you</strong> create and maintain in Logseq/Obsidian (the opt-in scaffold only creates the directories and seed schema pages; after that they are yours). The tool’s only involvement is the promotion seam at the end: durable content you deliberately copy into <code>raw/</code> and run through <code>/wiki-ingest</code>.</p>
+<p><strong>Scope.</strong> This is a <strong>vault-side workflow guide</strong>, not a skill reference. The wiki toolchain does not manage <code>para/</code> or <code>notes/</code> - by design (see <a href="../openspec/specs/namespaces.html"><code>openspec/specs/namespaces.md</code></a>) it never writes to them (sole enumerated exception: the human-confirmed literature-note <code>source-file::</code> write, REQ-974). The pages, queries, and task markers below are things <strong>you</strong> create and maintain in Logseq/Obsidian (the opt-in scaffold only creates the directories, the seed schema pages, and a project-page template seed; after that they are yours). The tool’s only involvement is the promotion seam at the end: durable content you deliberately copy into <code>raw/</code> and run through <code>/wiki-ingest</code>.</p>
 </blockquote>
 <section id="the-namespace-contract" class="level2">
 <h2 class="anchored" data-anchor-id="the-namespace-contract">The namespace contract</h2>
@@ -267,7 +295,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 para/areas/&lt;area-name&gt;           ongoing responsibilities
 para/resources/&lt;topic&gt;           reference material by interest
 para/archives/&lt;project-name&gt;     completed/inactive projects</code></pre>
-<p><code>init_wiki.py --with-para-notes</code> (or <code>setup.sh --init --with-para-notes</code>) scaffolds these directories, the <code>notes/</code> layout, and seed <code>para/schema</code> / <code>notes/schema</code> pages. The scaffold is opt-in and one-time; the pages it seeds are human-editable references, not tool-managed files.</p>
+<p><code>init_wiki.py --with-para-notes</code> (or <code>setup.sh --init --with-para-notes</code>) scaffolds these directories, the <code>notes/</code> layout, seed <code>para/schema</code> / <code>notes/schema</code> pages, and a project-page template seed. The scaffold is opt-in and one-time; the pages it seeds are human-editable references, not tool-managed files.</p>
 </section>
 <section id="conventions" class="level3">
 <h3 class="anchored" data-anchor-id="conventions">Conventions</h3>
@@ -282,8 +310,18 @@ para/archives/&lt;project-name&gt;     completed/inactive projects</code></pre>
 <li><code>outcome::</code> — one line: what “done” looks like.</li>
 </ul></li>
 <li>Link freely into <code>[[wiki/...]]</code> and <code>[[notes/...]]</code>. That is the whole point of one graph.</li>
+<li><strong>Optional GitHub task-state sync</strong> (<a href="../docs/tasks-sync-workflow.html">tasks-sync workflow</a>, <code>specs/tasks-sync.md</code>): add a <code>repo:: owner/repo</code> page property to route the project’s tasks to that repo’s issues. tasks-sync is the one sanctioned machine writer in <code>para/</code> (namespaces REQ-969, the exception to “never” in the contract table above) and only ever stamps <code>issue::</code>/<code>opened::</code>/<code>closed::</code> properties and flips a marker to <code>DONE</code> when its issue closes.</li>
 </ul>
 <p><code>para/resources/</code> is a waiting room, not a destination: anything source-backed and stable belongs in <code>wiki/</code> (as a proper page, or a <code>canonical-url::</code> stub if it lives elsewhere — see <a href="../docs/literature-research.html"><code>docs/literature-research.md</code></a>); anything that is your own thinking belongs in <code>notes/</code>.</p>
+</section>
+<section id="the-project-template-scaffolded-then-yours" class="level3">
+<h3 class="anchored" data-anchor-id="the-project-template-scaffolded-then-yours">The project template (scaffolded, then yours)</h3>
+<p>The scaffold seeds a project-page template so a new <code>para/projects/</code> page starts with exactly the skeleton above (<code>type:: project</code>, <code>status:: active</code>, an empty <code>outcome::</code>, and a <code>## tasks</code> section) instead of being retyped each time. Like the schema seeds, it is created once and never touched by the toolchain again; edit it freely and add your own templates beside it (an area template, a journal template, whatever your practice settles on - those stay vault-side by design).</p>
+<ul>
+<li><strong>Logseq</strong>: the <code>para/templates</code> page carries a native template block named <code>para-project</code>. On a new project page, type <code>/Template</code> on the first empty block and pick <code>para-project</code>; the inserted property block becomes the page properties. Add <code>repo:: owner/repo</code> to it if the project’s tasks should sync to GitHub issues (tasks-sync, above).</li>
+<li><strong>Obsidian</strong>: the skeleton lives at <code>para/templates/project.md</code>. Point the core Templates plugin’s folder setting at <code>para/templates/</code>, or copy the file by hand.</li>
+</ul>
+<p>If you skipped the scaffold, create the template yourself from the skeleton above; the tool does not read it.</p>
 </section>
 <section id="roam-logseq-task-conversion-one-time-on-import" class="level3">
 <h3 class="anchored" data-anchor-id="roam-logseq-task-conversion-one-time-on-import">Roam → Logseq task conversion (one-time, on import)</h3>
@@ -374,11 +412,39 @@ para/archives/&lt;project-name&gt;     completed/inactive projects</code></pre>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      [<span class="co">[</span><span class="ot">wiki/architecture</span><span class="co">]</span>].</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A <strong>literature</strong> note is a page under <code>notes/literature/@&lt;citekey&gt;</code> with <code>type:: literature</code> in the template <code>/lit-sync</code> writes - see <a href="../docs/zotero-setup.html"><code>docs/zotero-setup.md</code></a> for the full template and the working loop.</p>
 </section>
+<section id="from-literature-note-to-synthesis-the-step-after-reading" class="level3">
+<h3 class="anchored" data-anchor-id="from-literature-note-to-synthesis-the-step-after-reading">From literature note to synthesis (the step after reading)</h3>
+<p>Finishing a paper is not the end of the loop. Synced annotations and a written <code>## literature</code> section make the literature note <em>complete</em>; they do not yet make it <em>useful</em>. The step that pays for the reading is deliberate: sit down with the finished note - or several - and write synthesis. There is no command for this, on purpose (the writing IS the thinking); what follows is the manual procedure, with two possible outputs depending on what the synthesis is.</p>
+<p><strong>One paper, one idea that outgrew it → a permanent note.</strong></p>
+<p>The default output. When a literature note holds an idea you keep coming back to, write it as <code>notes/permanent/&lt;idea-in-a-few-words&gt;</code>: atomic, your own words, linking back to <code>[[notes/literature/@citekey]]</code> and to any other <code>[[notes/...]]</code> or <code>[[wiki/...]]</code> pages it touches. This is step 5 of the <a href="../docs/zotero-setup.html">Zotero working loop</a> - the permanent note is where the idea stops belonging to the paper and starts belonging to you.</p>
+<p><strong>Several papers, one question → synthesize across them.</strong></p>
+<p>Nothing restricts a synthesis session to one paper; the sessions that earn their keep usually put three or four finished literature notes on the table at once. The namespace contract forbids tool <em>writes</em> into <code>notes/</code>, not reads, so Claude can sit in the session as a sparring partner:</p>
+<ol type="1">
+<li>Pick the finished notes (papers read, <code>## literature</code> written).</li>
+<li>Ask Claude to read the <code>notes/literature/@...</code> pages side by side: where do they agree, where do they disagree, what does none of them answer?</li>
+<li>Argue with what comes back, then route the output by what it is:
+<ul>
+<li><strong>Your position</strong> (“X and Y disagree on Z; I side with Y because…”) → write it yourself as a permanent note. Claude probes and challenges; it does not draft the note - human-written is what makes it a note (see the conventions above).</li>
+<li><strong>Source-backed comparison you will want to query later</strong> → that is <code>wiki/</code> material: put it in <code>raw/note-&lt;name&gt;.md</code> and run <code>/wiki-ingest</code> as a <code>knowledge</code> page that links down to the existing <code>wiki/</code> paper pages, the same pattern as ingesting an Elicit review (see <a href="../docs/literature-research.html">Literature Research</a>). It enters at <code>reliability:: medium</code> as personal synthesis unless its citations justify higher (REQ-971).</li>
+</ul></li>
+</ol>
+<p>The routing test is the one from <a href="../docs/literature-research.html">Literature Research</a>: if the output only makes sense as <em>your</em> thinking, it is a permanent note; if future-you will <code>/wiki-query</code> for it and want a cited answer, it is a wiki page. A good session often produces one of each - the permanent note holding the position, the wiki page holding the evidence, each linking to the other.</p>
+<p>The whole <code>notes/</code> lifecycle, with this synthesis fork on the right:</p>
+<pre class="mermaid"><code>flowchart TD
+    J["journal block tagged #35;fleeting"] -- "promote: write fresh" --&gt; P["notes/permanent/&amp;lt;idea&amp;gt;&lt;br&gt;atomic, your own words"]
+    J -- "actually a task" --&gt; PARA["para/ project page, as TODO"]
+    J -- "~2 weeks unpromoted" --&gt; DEL["delete without guilt"]
+    LIT["notes/literature/@citekey&lt;br&gt;read, ## literature written"] --&gt; SYN{"synthesis session&lt;br&gt;one or several finished notes&lt;br&gt;(Claude reads notes/, never writes)"}
+    SYN -- "your position" --&gt; P
+    SYN -- "cited cross-paper comparison" --&gt; RAW["raw/note-&amp;lt;name&amp;gt;.md → /wiki-ingest"]
+    P -. "deliberate promotion only" .-&gt; RAW
+    RAW --&gt; WIKI[["wiki/ knowledge page&lt;br&gt;reliability:: medium default (REQ-971)"]]</code></pre>
+</section>
 <section id="querying-on-type" class="level3">
 <h3 class="anchored" data-anchor-id="querying-on-type">Querying on <code>type::</code></h3>
 <p>Because the type is a property, one simple query per type is enough (put these on any page you own, e.g.&nbsp;a <code>notes/index</code> page):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>{{query (property type permanent)}}</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>{{query (property type literature)}}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>{{query (property type permanent)}}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>{{query (property type literature)}}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Fleeting notes are queried by tag, not property - that is exactly the fleeting-inbox query below. An advanced-query example: literature notes whose <code>source-file::</code> is still blank, i.e.&nbsp;papers annotated in Zotero but not yet through the ingest pipeline:</p>
 <pre><code>#+BEGIN_QUERY
 {:title "literature notes not yet through the pipeline"

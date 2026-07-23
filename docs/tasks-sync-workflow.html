@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>web-clipper-firefox – llm-wiki</title>
+<title>tasks-sync-workflow – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -160,22 +195,19 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos" id="toc-setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos" class="nav-link active" data-scroll-target="#setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos">Setting up a Firefox web-clipper for the LLM Wiki (MarkDownload on macOS)</a>
+  <li><a href="#github-issues-as-canonical-task-state-tasks-sync" id="toc-github-issues-as-canonical-task-state-tasks-sync" class="nav-link active" data-scroll-target="#github-issues-as-canonical-task-state-tasks-sync">GitHub Issues as canonical task state (tasks-sync)</a>
   <ul class="collapse">
-  <li><a href="#which-firefox-extension-fits-the-pipeline" id="toc-which-firefox-extension-fits-the-pipeline" class="nav-link" data-scroll-target="#which-firefox-extension-fits-the-pipeline">1. Which Firefox extension fits the pipeline</a></li>
-  <li><a href="#can-markdownload-save-to-a-dedicated-folder" id="toc-can-markdownload-save-to-a-dedicated-folder" class="nav-link" data-scroll-target="#can-markdownload-save-to-a-dedicated-folder">2. Can MarkDownload save to a dedicated folder?</a></li>
-  <li><a href="#step-by-step-setup-macos" id="toc-step-by-step-setup-macos" class="nav-link" data-scroll-target="#step-by-step-setup-macos">3. Step-by-step setup (macOS)</a>
-  <ul class="collapse">
-  <li><a href="#part-a---install-and-set-the-download-mode" id="toc-part-a---install-and-set-the-download-mode" class="nav-link" data-scroll-target="#part-a---install-and-set-the-download-mode">Part A - Install and set the download mode</a></li>
-  <li><a href="#part-b---point-it-at-a-wiki-raw-subfolder" id="toc-part-b---point-it-at-a-wiki-raw-subfolder" class="nav-link" data-scroll-target="#part-b---point-it-at-a-wiki-raw-subfolder">Part B - Point it at a <code>wiki-raw</code> subfolder</a></li>
-  <li><a href="#part-c---stamp-each-clip-with-its-source-provenance" id="toc-part-c---stamp-each-clip-with-its-source-provenance" class="nav-link" data-scroll-target="#part-c---stamp-each-clip-with-its-source-provenance">Part C - Stamp each clip with its source (provenance)</a></li>
-  <li><a href="#part-d---create-the-symlink-one-time-terminal-step" id="toc-part-d---create-the-symlink-one-time-terminal-step" class="nav-link" data-scroll-target="#part-d---create-the-symlink-one-time-terminal-step">Part D - Create the symlink (one-time Terminal step)</a></li>
-  <li><a href="#part-e---test" id="toc-part-e---test" class="nav-link" data-scroll-target="#part-e---test">Part E - Test</a></li>
-  </ul></li>
-  <li><a href="#troubleshooting-nested-symlink" id="toc-troubleshooting-nested-symlink" class="nav-link" data-scroll-target="#troubleshooting-nested-symlink">4. Troubleshooting: nested symlink</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The model</a></li>
+  <li><a href="#one-time-setup" id="toc-one-time-setup" class="nav-link" data-scroll-target="#one-time-setup">One-time setup</a></li>
+  <li><a href="#the-promotion-gate" id="toc-the-promotion-gate" class="nav-link" data-scroll-target="#the-promotion-gate">The promotion gate</a></li>
+  <li><a href="#what-a-synced-block-looks-like" id="toc-what-a-synced-block-looks-like" class="nav-link" data-scroll-target="#what-a-synced-block-looks-like">What a synced block looks like</a></li>
+  <li><a href="#daily-rhythm" id="toc-daily-rhythm" class="nav-link" data-scroll-target="#daily-rhythm">Daily rhythm</a></li>
+  <li><a href="#edge-cases-v0.1-stances" id="toc-edge-cases-v0.1-stances" class="nav-link" data-scroll-target="#edge-cases-v0.1-stances">Edge cases (v0.1 stances)</a></li>
+  <li><a href="#archiving-a-project" id="toc-archiving-a-project" class="nav-link" data-scroll-target="#archiving-a-project">Archiving a project</a></li>
+  <li><a href="#phase-2-specified-not-yet-implemented" id="toc-phase-2-specified-not-yet-implemented" class="nav-link" data-scroll-target="#phase-2-specified-not-yet-implemented">Phase 2 (specified, not yet implemented)</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/web-clipper-firefox.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/tasks-sync-workflow.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -183,104 +215,122 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos" class="level1">
-<h1>Setting up a Firefox web-clipper for the LLM Wiki (MarkDownload on macOS)</h1>
-<p>Setup notes for clipping web pages into the Logseq-based LLM Wiki’s <code>raw/</code> folder, where <code>/wiki-ingest</code> picks them up. Companion to the provenance work in the <a href="../docs/schema-reference.html">Schema Reference</a> and <a href="../docs/literature-research.html">Literature Research</a> guides.</p>
-<p>This covers choosing a Firefox extension to turn web pages into <code>.md</code> files, configuring it to drop clips into the wiki’s raw-input folder on macOS, and fixing the symlink so the hand-off is automatic.</p>
-<section id="which-firefox-extension-fits-the-pipeline" class="level2">
-<h2 class="anchored" data-anchor-id="which-firefox-extension-fits-the-pipeline">1. Which Firefox extension fits the pipeline</h2>
-<p>Goal: turn web pages into <code>.md</code> files that feed the existing file-based <code>/wiki-ingest</code> workflow, ideally carrying source metadata that maps onto the wiki’s provenance fields (<code>source-file::</code>, <code>reliability::</code>).</p>
-<p>Shortlist, sorted by fit:</p>
+<section id="github-issues-as-canonical-task-state-tasks-sync" class="level1">
+<h1>GitHub Issues as canonical task state (tasks-sync)</h1>
+<p>How to run task state through GitHub Issues (plus, optionally, one user-level GitHub Project v2) while the Logseq journal stays the capture layer and <code>para/projects/</code> pages stay the task home. Driven by the <code>/tasks-sync</code> command (<code>scripts/tasks_sync.py</code>); the normative spec is <a href="../openspec/specs/tasks-sync.html"><code>openspec/specs/tasks-sync.md</code></a>.</p>
+<blockquote class="blockquote">
+<p><strong>Scope.</strong> This extends the <a href="../docs/para-notes-workflow.html">PARA workflow</a>. <code>para/</code> stays human-owned; tasks-sync is the one sanctioned machine writer in it (namespaces REQ-969) and its write budget is tiny: <code>issue::</code>/<code>opened::</code>/<code>closed::</code> property stamps and a marker flip to <code>DONE</code> when an issue closes. Everything else in this guide is something <strong>you</strong> set up (the repos, the Project, the <code>repo::</code> properties) or do in Logseq (write TODOs, mark them DONE).</p>
+</blockquote>
+<section id="the-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-model">The model</h2>
+<p>Two one-way flows, never a bidirectional sync:</p>
 <ul>
-<li><strong>MarkDownload (deathau)</strong> is the best fit. It uses Mozilla Readability + Turndown, downloads a <code>.md</code> file, and is open-source and mature. Its front/back template system stamps each clip with source URL, title, author, and date, exactly the fields the ingest step needs to populate provenance. It supports selection-only clipping and right-click context menus.</li>
-<li><strong>Get Markdown</strong> is a close second, more turnkey. Readability-based, it emits rich metadata (title, author, source, URL, save date) automatically with a one-click <code>.md</code> download. Newer and less battle-tested.</li>
-<li><strong>LLMFeeder</strong> is open-source (Readability + Turndown), with customizable metadata templates, download/ZIP/merge options, and a token counter. Clipboard-first by design, so slightly less aligned with a file-based ingest.</li>
-<li><strong>Page to Markdown</strong> is a simple one-click download with a plain-text mode that strips links and images for minimal-noise context.</li>
-<li><strong>Page to Markdown Exporter</strong> bundles images into a ZIP alongside the markdown; useful for image-heavy pages.</li>
+<li><strong>open-sync (graph -&gt; GitHub).</strong> Eligible open task blocks without an <code>issue::</code> property become GitHub issues after you confirm a candidate list. The block is stamped so re-runs cannot duplicate.</li>
+<li><strong>close-sync (GitHub -&gt; graph).</strong> Issues closed on GitHub flip their block to <code>DONE</code> and stamp <code>closed::</code>. The companion half: a tracked block you marked <code>DONE</code>/<code>CANCELED</code> in Logseq closes its issue. <strong>GitHub wins on task state</strong> - the graph never reopens an issue.</li>
 </ul>
-<p><strong>Integration note:</strong> these emit standard markdown / YAML front matter, not Logseq block syntax. Treat a clip as <em>raw</em> input: it lands in the raw side of the raw/ingested split, and <code>/wiki-ingest</code> transforms it into a proper Logseq page with provenance (<code>source-file::</code>, <code>reliability::</code>). Do not drop clipper output straight into the vault as a finished page; that bypasses the provenance and audit machinery.</p>
+<p>Idempotency is content-embedded: <code>issue::</code> is the sole link key, there is no state file, and a full re-run is always safe and always correct.</p>
 </section>
-<section id="can-markdownload-save-to-a-dedicated-folder" class="level2">
-<h2 class="anchored" data-anchor-id="can-markdownload-save-to-a-dedicated-folder">2. Can MarkDownload save to a dedicated folder?</h2>
-<p>Yes, with one boundary: it can only write <strong>inside the browser’s Downloads folder</strong>, because a browser security limit prevents saving to an arbitrary path. Within that limit:</p>
-<ul>
-<li>The <strong>Subfolder</strong> option (Options page) routes clips to a subfolder of Downloads. It requires <strong>Download Mode = Downloads API</strong>.</li>
-<li>The <strong>title template</strong> also accepts a forward slash to nest files (e.g.&nbsp;<code>wiki-raw/{title}</code>), but the dedicated Subfolder field is cleaner.</li>
-</ul>
-<p>To land clips directly in the vault (which lives outside Downloads), bridge the last hop with either:</p>
-<ul>
-<li><strong>A symlink.</strong> Point <code>~/Downloads/wiki-raw</code> at the vault’s <code>raw/</code> folder. This is the standard macOS solution.</li>
-<li><strong>A watch/move step.</strong> A script that watches <code>~/Downloads/wiki-raw/</code>, moves new <code>.md</code> files into the vault’s raw folder, and optionally triggers <code>/wiki-ingest</code>.</li>
-</ul>
-<p>The symlink is the tidiest for a git-versioned vault: the clip writes to Downloads, the symlink lands it in <code>raw/</code>, and ingest does the transform.</p>
-</section>
-<section id="step-by-step-setup-macos" class="level2">
-<h2 class="anchored" data-anchor-id="step-by-step-setup-macos">3. Step-by-step setup (macOS)</h2>
-<section id="part-a---install-and-set-the-download-mode" class="level3">
-<h3 class="anchored" data-anchor-id="part-a---install-and-set-the-download-mode">Part A - Install and set the download mode</h3>
+<section id="one-time-setup" class="level2">
+<h2 class="anchored" data-anchor-id="one-time-setup">One-time setup</h2>
 <ol type="1">
-<li>In Firefox, add MarkDownload from addons.mozilla.org.</li>
-<li>Open the extension’s <strong>Options</strong> (puzzle-piece icon, then MarkDownload, then Manage/Options).</li>
-<li>Set <strong>Download Mode</strong> to <strong>Downloads API</strong> (the Subfolder feature only works in this mode).</li>
+<li><p><strong>Create a private issues-only <code>tasks</code> repo</strong> for everything without a code repo (the GitHub personal-tracking pattern). Issues for coding projects live in the real code repo.</p></li>
+<li><p>Optionally <strong>create one user-level GitHub Project (v2)</strong> spanning all repos as the unified view.</p></li>
+<li><p>Configure the seam in <code>llm-wiki.yml</code> (config REQ-662..664):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks_repo</span><span class="kw">:</span><span class="at"> &lt;owner&gt;/tasks</span><span class="co">       # default repo for issues</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks_project</span><span class="kw">:</span><span class="at"> &lt;owner&gt;/1</span><span class="co">        # optional: Project v2 as owner/number</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>On each <code>para/projects/&lt;name&gt;</code> page that has its own code repo, add a <code>repo::</code> page property (human-set; the tool only reads it):</p>
+<pre><code>type:: project
+status:: active
+outcome:: ...
+repo:: &lt;owner&gt;/&lt;repo&gt;</code></pre>
+<p>Tasks from that project’s page (or journal tasks linking it) file there; everything else defaults to <code>tasks_repo</code>.</p></li>
 </ol>
 </section>
-<section id="part-b---point-it-at-a-wiki-raw-subfolder" class="level3">
-<h3 class="anchored" data-anchor-id="part-b---point-it-at-a-wiki-raw-subfolder">Part B - Point it at a <code>wiki-raw</code> subfolder</h3>
-<ol start="4" type="1">
-<li>In the <strong>Subfolder</strong> field, type exactly: <code>wiki-raw</code></li>
-<li>Leave <strong>Title Template</strong> as the default <code>{title}</code>.</li>
-</ol>
+<section id="the-promotion-gate" class="level2">
+<h2 class="anchored" data-anchor-id="the-promotion-gate">The promotion gate</h2>
+<p>Only these blocks are open-sync candidates - deliberate promotion, like the <code>raw/</code> seam, never silent absorption:</p>
+<ul>
+<li>any open-marker block (<code>TODO</code>/<code>DOING</code>/<code>NOW</code>/<code>LATER</code>/<code>WAITING</code>) <strong>on a <code>para/projects/</code> page</strong>, or</li>
+<li>a journal block that <strong>links a project page</strong>: <code>- TODO Draft ingest prompt v3 [[para/projects/llm-wiki]]</code>, or</li>
+<li>a journal block with the explicit <strong><code>#gh</code> tag</strong>: <code>- TODO Renew domain #gh</code>.</li>
+</ul>
+<p>An untagged, unlinked journal TODO (“buy milk”) never reaches GitHub.</p>
 </section>
-<section id="part-c---stamp-each-clip-with-its-source-provenance" class="level3">
-<h3 class="anchored" data-anchor-id="part-c---stamp-each-clip-with-its-source-provenance">Part C - Stamp each clip with its source (provenance)</h3>
-<ol start="6" type="1">
-<li>In <strong>Front/Back Templates</strong>, set the front template to:</li>
-</ol>
-<pre><code>---
-title: {pageTitle}
-source: {baseURI}
-author: {byline}
-clipped: {date:YYYY-MM-DD}
----</code></pre>
-<p><code>{baseURI}</code> is the page URL and <code>{byline}</code> is the author. The <code>source:</code> line preserves the original URL inside the clip, so the archived file in <code>ingested/</code> still records where the content came from. The wiki page’s <code>source-file::</code> is then filled with that archived file’s path (per schema REQ-585), giving web clips the same provenance treatment as Zotero papers.</p>
+<section id="what-a-synced-block-looks-like" class="level2">
+<h2 class="anchored" data-anchor-id="what-a-synced-block-looks-like">What a synced block looks like</h2>
+<p>After open-sync:</p>
+<pre><code>- TODO Draft ingest prompt v3 [[para/projects/llm-wiki]]
+  issue:: larnsce/llm-wiki#42
+  opened:: [[2026-07-16]]</code></pre>
+<p>After close-sync (the issue was closed on GitHub):</p>
+<pre><code>- DONE Draft ingest prompt v3 [[para/projects/llm-wiki]]
+  issue:: larnsce/llm-wiki#42
+  opened:: [[2026-07-16]]
+  closed:: [[2026-07-18]]</code></pre>
+<p><code>issue::</code> is written as the full <code>owner/repo#N</code> and is the stable link key - the analogue of <code>zotero-last-sync::</code> on literature pages. Edit the block text freely afterwards; the issue title is frozen at creation and GitHub is authoritative from then on (REQ-1407).</p>
 </section>
-<section id="part-d---create-the-symlink-one-time-terminal-step" class="level3">
-<h3 class="anchored" data-anchor-id="part-d---create-the-symlink-one-time-terminal-step">Part D - Create the symlink (one-time Terminal step)</h3>
-<p>First confirm the vault’s <code>raw/</code> folder exists in Finder (create it if not).</p>
-<ol start="7" type="1">
-<li>Open <strong>Terminal</strong>.</li>
-<li>Type <code>ln -s</code> (with a trailing space); do not press Enter.</li>
-<li>Drag the vault’s <strong>raw</strong> folder from Finder into Terminal (this pastes its path).</li>
-<li>Type a space, then <code>~/Downloads/wiki-raw</code>.</li>
-<li>Press <strong>Enter</strong>. The finished line looks like:</li>
-</ol>
-<pre><code>ln -s "/Users/yourname/logseq-notes/raw" ~/Downloads/wiki-raw</code></pre>
-<ol start="12" type="1">
-<li>Verify with <code>ls -la ~/Downloads/</code>; look for <code>wiki-raw -&gt; /Users/.../raw</code> (the arrow proves it is a shortcut, not a folder).</li>
-</ol>
-</section>
-<section id="part-e---test" class="level3">
-<h3 class="anchored" data-anchor-id="part-e---test">Part E - Test</h3>
-<ol start="13" type="1">
-<li>Clip any page with MarkDownload, then Download.</li>
-<li>Confirm the new <code>.md</code> appears directly in the vault’s <code>raw/</code> folder, with the source URL in its front matter.</li>
-</ol>
-</section>
-</section>
-<section id="troubleshooting-nested-symlink" class="level2">
-<h2 class="anchored" data-anchor-id="troubleshooting-nested-symlink">4. Troubleshooting: nested symlink</h2>
-<p><strong>Symptom:</strong> after running the link command, <code>Downloads/wiki-raw/raw</code> appears instead of <code>wiki-raw</code> itself being the shortcut.</p>
-<p><strong>Cause:</strong> a <code>wiki-raw</code> folder already existed in Downloads (from an earlier test clip). When the target name already exists as a directory, <code>ln -s</code> places the link <em>inside</em> it (named <code>raw</code>) rather than turning <code>wiki-raw</code> into the link.</p>
-<p><strong>Fix:</strong></p>
+<section id="daily-rhythm" class="level2">
+<h2 class="anchored" data-anchor-id="daily-rhythm">Daily rhythm</h2>
+<p>Run <code>/tasks-sync</code> standalone or as one step of your daily review:</p>
 <ol type="1">
-<li>In Finder, open <code>Downloads/wiki-raw</code> and move any <code>.md</code> test clips into the vault’s <code>raw/</code> folder so they are not lost.</li>
-<li>Drag the whole <code>wiki-raw</code> folder to the Trash. (Deleting a shortcut never deletes its target, so the vault’s real <code>raw/</code> folder stays safe.)</li>
-<li>Re-run the <code>ln -s</code> command from Part D. With <code>wiki-raw</code> gone, the command now makes <code>wiki-raw</code> <em>itself</em> the shortcut.</li>
-<li>Verify with <code>ls -la ~/Downloads/</code>; the <code>wiki-raw -&gt; /Users/.../raw</code> arrow should now appear.</li>
-<li>Test-clip a page; the <code>.md</code> lands directly in the vault’s <code>raw/</code> folder.</li>
+<li><code>open --dry-run</code> -&gt; confirm the candidate list -&gt; <code>open</code>.</li>
+<li><code>close --dry-run</code> -&gt; confirm -&gt; <code>close</code>.</li>
+<li>Commit the vault (<code>tasks: sync GitHub issues (...)</code>).</li>
 </ol>
-<p>MarkDownload settings do not change: <strong>Subfolder</strong> stays <code>wiki-raw</code>.</p>
-<p><strong>Result:</strong> working. Clips now flow Firefox to <code>~/Downloads/wiki-raw</code> (symlink) to vault <code>raw/</code> to <code>/wiki-ingest</code>.</p>
+<p><code>status</code> prints a read-only count of candidates, tracked-open blocks, and blocks awaiting an issue close. After any failure, just re-run.</p>
+</section>
+<section id="edge-cases-v0.1-stances" class="level2">
+<h2 class="anchored" data-anchor-id="edge-cases-v0.1-stances">Edge cases (v0.1 stances)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>Stance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Block text edited after the issue exists</td>
+<td>Issue title frozen; GitHub authoritative (link key still matches)</td>
+</tr>
+<tr class="even">
+<td>Issue retitled/edited on GitHub</td>
+<td>Block untouched</td>
+</tr>
+<tr class="odd">
+<td>Block edited back to <code>TODO</code> after its issue closed</td>
+<td>Reported only; the issue stays closed - never reopened</td>
+</tr>
+<tr class="even">
+<td>Issue closed on GitHub with no tracked block</td>
+<td>Orphan report only; no block is created</td>
+</tr>
+<tr class="odd">
+<td>Issue deleted</td>
+<td>Orphaned <code>issue::</code> reported; manual cleanup</td>
+</tr>
+<tr class="even">
+<td>Duplicate task captured twice</td>
+<td>Two candidates - the confirm list is the catch</td>
+</tr>
+<tr class="odd">
+<td>Obsidian vault</td>
+<td>Clean abort; tasks-sync is Logseq tier-1 (REQ-1401)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="archiving-a-project" class="level2">
+<h2 class="anchored" data-anchor-id="archiving-a-project">Archiving a project</h2>
+<p>Unchanged from the <a href="../docs/para-notes-workflow.html">manual procedure</a>: finish or cancel the open tasks (close-sync closes their issues), distill, harvest via <code>raw/para-&lt;project&gt;.md</code> if durable, move the page to <code>para/archives/</code>. On the GitHub side, close what remains and archive the Project view entry. No repo deletion involved.</p>
+</section>
+<section id="phase-2-specified-not-yet-implemented" class="level2">
+<h2 class="anchored" data-anchor-id="phase-2-specified-not-yet-implemented">Phase 2 (specified, not yet implemented)</h2>
+<p>Per spec REQ-1416: Project v2 single-select field mapping (<code>PARA</code>, <code>Project</code>), the milestone hook (issues labeled <code>milestone</code> append one line under <code>## milestones</code> on the owning <strong>para</strong> project page - never <code>wiki/projects/</code>, which would bypass ingest provenance), and a richer standing orphan report.</p>
 
 
 </section>
@@ -692,4 +742,4 @@ clipped: {date:YYYY-MM-DD}
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/web-clipper-firefox.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/tasks-sync-workflow.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

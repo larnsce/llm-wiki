@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>web-clipper-firefox – llm-wiki</title>
+<title>roadmap-v3.7-recall – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -160,22 +160,16 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos" id="toc-setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos" class="nav-link active" data-scroll-target="#setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos">Setting up a Firefox web-clipper for the LLM Wiki (MarkDownload on macOS)</a>
+  <li><a href="#roadmap-recall-v3.7---one-hop-neighbors-context-priming" id="toc-roadmap-recall-v3.7---one-hop-neighbors-context-priming" class="nav-link active" data-scroll-target="#roadmap-recall-v3.7---one-hop-neighbors-context-priming">Roadmap: Recall (v3.7) - one-hop neighbors + context priming</a>
   <ul class="collapse">
-  <li><a href="#which-firefox-extension-fits-the-pipeline" id="toc-which-firefox-extension-fits-the-pipeline" class="nav-link" data-scroll-target="#which-firefox-extension-fits-the-pipeline">1. Which Firefox extension fits the pipeline</a></li>
-  <li><a href="#can-markdownload-save-to-a-dedicated-folder" id="toc-can-markdownload-save-to-a-dedicated-folder" class="nav-link" data-scroll-target="#can-markdownload-save-to-a-dedicated-folder">2. Can MarkDownload save to a dedicated folder?</a></li>
-  <li><a href="#step-by-step-setup-macos" id="toc-step-by-step-setup-macos" class="nav-link" data-scroll-target="#step-by-step-setup-macos">3. Step-by-step setup (macOS)</a>
-  <ul class="collapse">
-  <li><a href="#part-a---install-and-set-the-download-mode" id="toc-part-a---install-and-set-the-download-mode" class="nav-link" data-scroll-target="#part-a---install-and-set-the-download-mode">Part A - Install and set the download mode</a></li>
-  <li><a href="#part-b---point-it-at-a-wiki-raw-subfolder" id="toc-part-b---point-it-at-a-wiki-raw-subfolder" class="nav-link" data-scroll-target="#part-b---point-it-at-a-wiki-raw-subfolder">Part B - Point it at a <code>wiki-raw</code> subfolder</a></li>
-  <li><a href="#part-c---stamp-each-clip-with-its-source-provenance" id="toc-part-c---stamp-each-clip-with-its-source-provenance" class="nav-link" data-scroll-target="#part-c---stamp-each-clip-with-its-source-provenance">Part C - Stamp each clip with its source (provenance)</a></li>
-  <li><a href="#part-d---create-the-symlink-one-time-terminal-step" id="toc-part-d---create-the-symlink-one-time-terminal-step" class="nav-link" data-scroll-target="#part-d---create-the-symlink-one-time-terminal-step">Part D - Create the symlink (one-time Terminal step)</a></li>
-  <li><a href="#part-e---test" id="toc-part-e---test" class="nav-link" data-scroll-target="#part-e---test">Part E - Test</a></li>
-  </ul></li>
-  <li><a href="#troubleshooting-nested-symlink" id="toc-troubleshooting-nested-symlink" class="nav-link" data-scroll-target="#troubleshooting-nested-symlink">4. Troubleshooting: nested symlink</a></li>
+  <li><a href="#context" id="toc-context" class="nav-link" data-scroll-target="#context">Context</a></li>
+  <li><a href="#design-decisions" id="toc-design-decisions" class="nav-link" data-scroll-target="#design-decisions">Design decisions</a></li>
+  <li><a href="#issues-v3.7-in-dependency-order" id="toc-issues-v3.7-in-dependency-order" class="nav-link" data-scroll-target="#issues-v3.7-in-dependency-order">Issues (v3.7, in dependency order)</a></li>
+  <li><a href="#non-goals-this-cycle-parked-with-reasons" id="toc-non-goals-this-cycle-parked-with-reasons" class="nav-link" data-scroll-target="#non-goals-this-cycle-parked-with-reasons">Non-goals this cycle (parked, with reasons)</a></li>
+  <li><a href="#verification-per-pr" id="toc-verification-per-pr" class="nav-link" data-scroll-target="#verification-per-pr">Verification per PR</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/web-clipper-firefox.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/roadmap-v3.7-recall.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -183,104 +177,83 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="setting-up-a-firefox-web-clipper-for-the-llm-wiki-markdownload-on-macos" class="level1">
-<h1>Setting up a Firefox web-clipper for the LLM Wiki (MarkDownload on macOS)</h1>
-<p>Setup notes for clipping web pages into the Logseq-based LLM Wiki’s <code>raw/</code> folder, where <code>/wiki-ingest</code> picks them up. Companion to the provenance work in the <a href="../docs/schema-reference.html">Schema Reference</a> and <a href="../docs/literature-research.html">Literature Research</a> guides.</p>
-<p>This covers choosing a Firefox extension to turn web pages into <code>.md</code> files, configuring it to drop clips into the wiki’s raw-input folder on macOS, and fixing the symlink so the hand-off is automatic.</p>
-<section id="which-firefox-extension-fits-the-pipeline" class="level2">
-<h2 class="anchored" data-anchor-id="which-firefox-extension-fits-the-pipeline">1. Which Firefox extension fits the pipeline</h2>
-<p>Goal: turn web pages into <code>.md</code> files that feed the existing file-based <code>/wiki-ingest</code> workflow, ideally carrying source metadata that maps onto the wiki’s provenance fields (<code>source-file::</code>, <code>reliability::</code>).</p>
-<p>Shortlist, sorted by fit:</p>
-<ul>
-<li><strong>MarkDownload (deathau)</strong> is the best fit. It uses Mozilla Readability + Turndown, downloads a <code>.md</code> file, and is open-source and mature. Its front/back template system stamps each clip with source URL, title, author, and date, exactly the fields the ingest step needs to populate provenance. It supports selection-only clipping and right-click context menus.</li>
-<li><strong>Get Markdown</strong> is a close second, more turnkey. Readability-based, it emits rich metadata (title, author, source, URL, save date) automatically with a one-click <code>.md</code> download. Newer and less battle-tested.</li>
-<li><strong>LLMFeeder</strong> is open-source (Readability + Turndown), with customizable metadata templates, download/ZIP/merge options, and a token counter. Clipboard-first by design, so slightly less aligned with a file-based ingest.</li>
-<li><strong>Page to Markdown</strong> is a simple one-click download with a plain-text mode that strips links and images for minimal-noise context.</li>
-<li><strong>Page to Markdown Exporter</strong> bundles images into a ZIP alongside the markdown; useful for image-heavy pages.</li>
-</ul>
-<p><strong>Integration note:</strong> these emit standard markdown / YAML front matter, not Logseq block syntax. Treat a clip as <em>raw</em> input: it lands in the raw side of the raw/ingested split, and <code>/wiki-ingest</code> transforms it into a proper Logseq page with provenance (<code>source-file::</code>, <code>reliability::</code>). Do not drop clipper output straight into the vault as a finished page; that bypasses the provenance and audit machinery.</p>
-</section>
-<section id="can-markdownload-save-to-a-dedicated-folder" class="level2">
-<h2 class="anchored" data-anchor-id="can-markdownload-save-to-a-dedicated-folder">2. Can MarkDownload save to a dedicated folder?</h2>
-<p>Yes, with one boundary: it can only write <strong>inside the browser’s Downloads folder</strong>, because a browser security limit prevents saving to an arbitrary path. Within that limit:</p>
-<ul>
-<li>The <strong>Subfolder</strong> option (Options page) routes clips to a subfolder of Downloads. It requires <strong>Download Mode = Downloads API</strong>.</li>
-<li>The <strong>title template</strong> also accepts a forward slash to nest files (e.g.&nbsp;<code>wiki-raw/{title}</code>), but the dedicated Subfolder field is cleaner.</li>
-</ul>
-<p>To land clips directly in the vault (which lives outside Downloads), bridge the last hop with either:</p>
-<ul>
-<li><strong>A symlink.</strong> Point <code>~/Downloads/wiki-raw</code> at the vault’s <code>raw/</code> folder. This is the standard macOS solution.</li>
-<li><strong>A watch/move step.</strong> A script that watches <code>~/Downloads/wiki-raw/</code>, moves new <code>.md</code> files into the vault’s raw folder, and optionally triggers <code>/wiki-ingest</code>.</li>
-</ul>
-<p>The symlink is the tidiest for a git-versioned vault: the clip writes to Downloads, the symlink lands it in <code>raw/</code>, and ingest does the transform.</p>
-</section>
-<section id="step-by-step-setup-macos" class="level2">
-<h2 class="anchored" data-anchor-id="step-by-step-setup-macos">3. Step-by-step setup (macOS)</h2>
-<section id="part-a---install-and-set-the-download-mode" class="level3">
-<h3 class="anchored" data-anchor-id="part-a---install-and-set-the-download-mode">Part A - Install and set the download mode</h3>
+<section id="roadmap-recall-v3.7---one-hop-neighbors-context-priming" class="level1">
+<h1>Roadmap: Recall (v3.7) - one-hop neighbors + context priming</h1>
+<p>Implementation plan for the two recall features adapted from <a href="https://github.com/daniloc/mnemion">daniloc/mnemion</a> (comparison session, 2026-07-21). Issue-based, following the v2.0.0/v2.2/v2.3 pattern: canon first, one PR per issue, mechanical verification per PR.</p>
+<p>Status: canon drafted and merged with this roadmap (<code>openspec/specs/prime.md</code>, <code>openspec/specs/query.md</code> REQ-480..485, both marked “v3.7, not yet implemented”). The implementation issues (#142, #143) are filed but NOT implemented; this document is the cycle plan.</p>
+<section id="context" class="level2">
+<h2 class="anchored" data-anchor-id="context">Context</h2>
+<p>mnemion solves the same problem as llm-wiki (persistent, agent-maintained memory) as a hosted service: Cloudflare Worker, SQLite, vector embeddings, MCP tools. Two of its mechanisms have no llm-wiki equivalent and transfer cleanly to the local, lexical, plain-text architecture:</p>
 <ol type="1">
-<li>In Firefox, add MarkDownload from addons.mozilla.org.</li>
-<li>Open the extension’s <strong>Options</strong> (puzzle-piece icon, then MarkDownload, then Manage/Options).</li>
-<li>Set <strong>Download Mode</strong> to <strong>Downloads API</strong> (the Subfolder feature only works in this mode).</li>
+<li><strong>Auto-associative recall</strong> (mnemion’s <code>prime</code> tool): the agent describes the conversational context; the system surfaces relevant entries without a formulated question. llm-wiki’s query path is question-driven only; a prime mode moves the wiki from “answers when asked” toward “surfaces what is relevant unprompted” - the heart of the original Karpathy pitch.</li>
+<li><strong>One-hop link expansion</strong>: recall results return with their one-hop neighbors. llm-wiki reads targeted pages but never surfaces the graph context around them; a mechanical neighbor list costs no extra page reads.</li>
 </ol>
+<p>Several other mnemion mechanisms already have llm-wiki equivalents (read-time supersession legibility = wiki-update; access-refreshed decay = Access-Log + LRU-Demote; stale surfacing = wiki-maintain status; write-time contradiction checks = the ingest checkpoint). Those need nothing this cycle.</p>
+<p>Repo ground rules that bind this plan: canon-first (specs are the single source of truth), zero external dependencies (bash, python3 stdlib, git), interactive-by-default, JIT page budget (max 3 full reads), append-only wiki, both tool modes (Logseq and Obsidian) for every change.</p>
+<hr>
 </section>
-<section id="part-b---point-it-at-a-wiki-raw-subfolder" class="level3">
-<h3 class="anchored" data-anchor-id="part-b---point-it-at-a-wiki-raw-subfolder">Part B - Point it at a <code>wiki-raw</code> subfolder</h3>
-<ol start="4" type="1">
-<li>In the <strong>Subfolder</strong> field, type exactly: <code>wiki-raw</code></li>
-<li>Leave <strong>Title Template</strong> as the default <code>{title}</code>.</li>
-</ol>
-</section>
-<section id="part-c---stamp-each-clip-with-its-source-provenance" class="level3">
-<h3 class="anchored" data-anchor-id="part-c---stamp-each-clip-with-its-source-provenance">Part C - Stamp each clip with its source (provenance)</h3>
-<ol start="6" type="1">
-<li>In <strong>Front/Back Templates</strong>, set the front template to:</li>
-</ol>
-<pre><code>---
-title: {pageTitle}
-source: {baseURI}
-author: {byline}
-clipped: {date:YYYY-MM-DD}
----</code></pre>
-<p><code>{baseURI}</code> is the page URL and <code>{byline}</code> is the author. The <code>source:</code> line preserves the original URL inside the clip, so the archived file in <code>ingested/</code> still records where the content came from. The wiki page’s <code>source-file::</code> is then filled with that archived file’s path (per schema REQ-585), giving web clips the same provenance treatment as Zotero papers.</p>
-</section>
-<section id="part-d---create-the-symlink-one-time-terminal-step" class="level3">
-<h3 class="anchored" data-anchor-id="part-d---create-the-symlink-one-time-terminal-step">Part D - Create the symlink (one-time Terminal step)</h3>
-<p>First confirm the vault’s <code>raw/</code> folder exists in Finder (create it if not).</p>
-<ol start="7" type="1">
-<li>Open <strong>Terminal</strong>.</li>
-<li>Type <code>ln -s</code> (with a trailing space); do not press Enter.</li>
-<li>Drag the vault’s <strong>raw</strong> folder from Finder into Terminal (this pastes its path).</li>
-<li>Type a space, then <code>~/Downloads/wiki-raw</code>.</li>
-<li>Press <strong>Enter</strong>. The finished line looks like:</li>
-</ol>
-<pre><code>ln -s "/Users/yourname/logseq-notes/raw" ~/Downloads/wiki-raw</code></pre>
-<ol start="12" type="1">
-<li>Verify with <code>ls -la ~/Downloads/</code>; look for <code>wiki-raw -&gt; /Users/.../raw</code> (the arrow proves it is a shortcut, not a folder).</li>
-</ol>
-</section>
-<section id="part-e---test" class="level3">
-<h3 class="anchored" data-anchor-id="part-e---test">Part E - Test</h3>
-<ol start="13" type="1">
-<li>Clip any page with MarkDownload, then Download.</li>
-<li>Confirm the new <code>.md</code> appears directly in the vault’s <code>raw/</code> folder, with the source URL in its front matter.</li>
-</ol>
-</section>
-</section>
-<section id="troubleshooting-nested-symlink" class="level2">
-<h2 class="anchored" data-anchor-id="troubleshooting-nested-symlink">4. Troubleshooting: nested symlink</h2>
-<p><strong>Symptom:</strong> after running the link command, <code>Downloads/wiki-raw/raw</code> appears instead of <code>wiki-raw</code> itself being the shortcut.</p>
-<p><strong>Cause:</strong> a <code>wiki-raw</code> folder already existed in Downloads (from an earlier test clip). When the target name already exists as a directory, <code>ln -s</code> places the link <em>inside</em> it (named <code>raw</code>) rather than turning <code>wiki-raw</code> into the link.</p>
-<p><strong>Fix:</strong></p>
+<section id="design-decisions" class="level2">
+<h2 class="anchored" data-anchor-id="design-decisions">Design decisions</h2>
 <ol type="1">
-<li>In Finder, open <code>Downloads/wiki-raw</code> and move any <code>.md</code> test clips into the vault’s <code>raw/</code> folder so they are not lost.</li>
-<li>Drag the whole <code>wiki-raw</code> folder to the Trash. (Deleting a shortcut never deletes its target, so the vault’s real <code>raw/</code> folder stays safe.)</li>
-<li>Re-run the <code>ln -s</code> command from Part D. With <code>wiki-raw</code> gone, the command now makes <code>wiki-raw</code> <em>itself</em> the shortcut.</li>
-<li>Verify with <code>ls -la ~/Downloads/</code>; the <code>wiki-raw -&gt; /Users/.../raw</code> arrow should now appear.</li>
-<li>Test-clip a page; the <code>.md</code> lands directly in the vault’s <code>raw/</code> folder.</li>
+<li><strong>Lexical, not embeddings.</strong> mnemion primes via embedding KNN (Workers AI + Vectorize). That infrastructure is excluded here by the zero-dependency rule, deliberately. Prime reuses the surfaces built for cheap recall: hub <code>### Index</code> routing lines (read breadth-first, all hubs), the optional index.db FTS plane (SELECT-only, stale-checked), and a bounded grep fallback. If lexical recall proves too weak in practice, that is evidence for a future cycle, not a reason to smuggle in a vector store now.</li>
+<li><strong>Pointers, not reads.</strong> Both features respect the JIT budget: prime fully reads at most 3 pages; everything else (further candidates, one-hop neighbors) is presented as link + routing description. The hub routing line is the unit of cheap context; nothing new is invented for this.</li>
+<li><strong>Prime is read-only.</strong> No write-back offers, no page writes; the only write is the Access-Log append for full reads (<code>matched: "prime: &lt;term&gt;"</code>). Edits surfaced during a briefing are redirected to the sanctioned verbs (/wiki-ingest, /wiki-update).</li>
+<li><strong>No auto-run.</strong> Prime never self-triggers at session start; the user wires invocation (CLAUDE.md pointer, alias, or manual call). Mirrors the prune no-self-scheduling stance (prune.md REQ-622).</li>
+<li><strong>Neighbors stay inside <code>wiki/</code>.</strong> Link extraction does not expand into <code>para/</code>, <code>notes/</code>, or <code>glossary/</code> - the ownership contract (namespaces.md) keeps machine recall on the machine-written namespace.</li>
+<li><strong>One-hop lands first.</strong> Prime consumes the neighbor machinery (query REQ-480..485), so the query-side feature is the first PR and prime builds on it.</li>
+<li><strong>Single-register briefing.</strong> Prime output is routing, not synthesis; the dual-register rule (query REQ-435..437) applies to answers, not briefings. Attribution still appears once at the end.</li>
 </ol>
-<p>MarkDownload settings do not change: <strong>Subfolder</strong> stays <code>wiki-raw</code>.</p>
-<p><strong>Result:</strong> working. Clips now flow Firefox to <code>~/Downloads/wiki-raw</code> (symlink) to vault <code>raw/</code> to <code>/wiki-ingest</code>.</p>
+</section>
+<section id="issues-v3.7-in-dependency-order" class="level2">
+<h2 class="anchored" data-anchor-id="issues-v3.7-in-dependency-order">Issues (v3.7, in dependency order)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Issue</th>
+<th>Contents</th>
+<th>Deps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R-1 (#142)</td>
+<td>implement one-hop neighbor expansion in /wiki-query</td>
+<td>query.md REQ-480..485: mechanical <code>[[wiki/...]]</code> link extraction from fully-read pages, ranked/capped <code>Related:</code> pointer list after attribution, archived flags, no neighbor reads, no Access-Log entries. <code>skills/wiki-query/SKILL.md</code> update, golden transcript, harness assertions, both tool modes. Drop the “not yet implemented” markers for the section.</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>R-2 (#143)</td>
+<td>implement /wiki-query –prime (context priming)</td>
+<td>prime.md REQ-1400..1431: context argument or derived-and-echoed context, lexical term extraction, breadth-first hub scan, optional index.db channel, bounded grep fallback, &lt;= 3 full reads + pointers, neighbor lists via R-1, L1 pass, single-register briefing, read-only contract, <code>prime:</code> Access-Log reasons. <code>skills/wiki-query/SKILL.md</code> update, golden transcript, harness assertions, both tool modes. Drop the spec’s “not yet implemented” status.</td>
+<td>R-1</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="non-goals-this-cycle-parked-with-reasons" class="level2">
+<h2 class="anchored" data-anchor-id="non-goals-this-cycle-parked-with-reasons">Non-goals this cycle (parked, with reasons)</h2>
+<ul>
+<li><strong>Per-type decay half-lives</strong> (mnemion’s continuous <code>0.5^(age/half_life)</code> relevance): LRU-Demote’s binary 6-month threshold has not yet hurt in practice; parked until prune runs on a corpus old enough to show it (evidence-before-machinery).</li>
+<li><strong>Mechanical overlap detection at ingest</strong> (mnemion’s write-time near-duplicate advisories): the interactive checkpoint (ingest REQ-025) already presents contradictions; a wiki-core candidate-overlap script is a plausible later hardening, filed separately if the checkpoint keeps missing overlaps in practice.</li>
+<li><strong>Two-phase schema evolution</strong> (mnemion’s propose/apply): wiki-migrate covers the known migrations; revisit when the next schema change is drafted.</li>
+<li><strong>Embeddings in any form</strong>: excluded by the zero-dependency rule, see design decision 1.</li>
+</ul>
+</section>
+<section id="verification-per-pr" class="level2">
+<h2 class="anchored" data-anchor-id="verification-per-pr">Verification per PR</h2>
+<ul>
+<li><code>bash skills/wiki-core/scripts/test_pipeline.sh</code> green in both tool modes</li>
+<li><code>python3 skills/wiki-core/scripts/check_canon.py</code> exit 0</li>
+<li>Golden transcript for the new behavior recorded under <code>tests/golden/</code></li>
+<li>BDD scenarios of the touched spec walked manually (prime.md Scenarios 1-4, query.md Scenario 18)</li>
+</ul>
 
 
 </section>
@@ -692,4 +665,4 @@ clipped: {date:YYYY-MM-DD}
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/web-clipper-firefox.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/roadmap-v3.7-recall.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +70,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -147,6 +173,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#phase-4-output" id="toc-phase-4-output" class="nav-link" data-scroll-target="#phase-4-output">Phase 4: Output</a></li>
   <li><a href="#two-plane-routing-v3.0-p-5" id="toc-two-plane-routing-v3.0-p-5" class="nav-link" data-scroll-target="#two-plane-routing-v3.0-p-5">Two-Plane Routing (v3.0 P-5)</a></li>
   <li><a href="#data-reads-data-package-seam" id="toc-data-reads-data-package-seam" class="nav-link" data-scroll-target="#data-reads-data-package-seam">Data Reads (data-package seam)</a></li>
+  <li><a href="#one-hop-neighbor-expansion-v3.7-not-yet-implemented" id="toc-one-hop-neighbor-expansion-v3.7-not-yet-implemented" class="nav-link" data-scroll-target="#one-hop-neighbor-expansion-v3.7-not-yet-implemented">One-Hop Neighbor Expansion (v3.7, not yet implemented)</a></li>
   </ul></li>
   <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
   <ul class="collapse">
@@ -167,6 +194,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#scenario-15-dual-register-answer-with-a-stale-source-warning" id="toc-scenario-15-dual-register-answer-with-a-stale-source-warning" class="nav-link" data-scroll-target="#scenario-15-dual-register-answer-with-a-stale-source-warning">Scenario 15: Dual-register answer with a stale-source warning</a></li>
   <li><a href="#scenario-16-entity-question-ignores-the-index-plane" id="toc-scenario-16-entity-question-ignores-the-index-plane" class="nav-link" data-scroll-target="#scenario-16-entity-question-ignores-the-index-plane">Scenario 16: Entity question ignores the index plane</a></li>
   <li><a href="#scenario-17-aggregate-question-computed-from-a-snapshot-csv" id="toc-scenario-17-aggregate-question-computed-from-a-snapshot-csv" class="nav-link" data-scroll-target="#scenario-17-aggregate-question-computed-from-a-snapshot-csv">Scenario 17: Aggregate question computed from a snapshot CSV</a></li>
+  <li><a href="#scenario-18-one-hop-neighbors-listed-after-the-answer-v3.7" id="toc-scenario-18-one-hop-neighbors-listed-after-the-answer-v3.7" class="nav-link" data-scroll-target="#scenario-18-one-hop-neighbors-listed-after-the-answer-v3.7">Scenario 18: One-hop neighbors listed after the answer (v3.7)</a></li>
   </ul></li>
   <li><a href="#acceptance-criteria" id="toc-acceptance-criteria" class="nav-link" data-scroll-target="#acceptance-criteria">Acceptance Criteria</a></li>
   <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
@@ -266,6 +294,18 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-470 (routing): Questions about a dataset’s contents (aggregates, lookups, “which rows…”) SHALL route via the <code>wiki/data</code> hub and the dataset pages’ <code>## data dictionary</code> sections; the dictionary is the routing key that picks the dataset and columns without opening any CSV.</li>
 <li>REQ-471 (snapshot compute): Row-level answers SHALL be computed from the snapshot CSVs at the dataset page’s <code>source-file::</code> paths, READ-ONLY, using python3 stdlib (csv/sqlite3). The answer SHALL attribute the computation with the file, package version, and row count, e.g.&nbsp;<code>computed from ingested/data/sanitationdata-1.2.0/ toilets.csv (1,234 rows)</code>. Dual-register output (REQ-435..437) applies to computed answers like any other.</li>
 <li>REQ-472 (no live-session sourcing): A live R session (e.g.&nbsp;via an mcptools MCP server) is NOT a query source: content answers come from snapshots so they stay reproducible from the vault alone and pinned to the version the page records. (A spec’d live plane is parked by maintainer decision, 2026-07-07.)</li>
+</ul>
+</section>
+<section id="one-hop-neighbor-expansion-v3.7-not-yet-implemented" class="level3">
+<h3 class="anchored" data-anchor-id="one-hop-neighbor-expansion-v3.7-not-yet-implemented">One-Hop Neighbor Expansion (v3.7, not yet implemented)</h3>
+<p>Extends Phases 1 and 4. After the targeted reads, the pages’ outgoing links are surfaced as a ranked neighbor list - the graph context around the answer, as pointers, not additional reads. Adapted from daniloc/mnemion’s recall shape (entries return with their one-hop links); here it is mechanical link extraction over the pages already in context, so it costs no extra page budget. Implementation is tracked in <code>docs/roadmap-v3.7-recall.md</code>.</p>
+<ul>
+<li>REQ-480 (extraction): After the Phase 1 reads, the system SHALL collect the outgoing <code>[[wiki/...]]</code> links from the bodies of the fully-read pages. Extraction is mechanical (the link text as written). Links into <code>para/</code>, <code>notes/</code>, and <code>glossary/</code> are NOT expanded - neighbor expansion stays inside the machine-written namespace (namespaces.md ownership contract).</li>
+<li>REQ-481 (pointers, not reads): Neighbors are POINTERS. The system SHALL present each with its hub routing description when one exists (<code>### Index</code> or <code>### Archive</code> line) and MUST NOT read a neighbor in full unless it was already selected by Phase 0 routing within the REQ-404 budget.</li>
+<li>REQ-482 (ranking and cap): Neighbors SHALL be ranked by the number of distinct read pages linking to them (ties: live-index pages before archived ones) and capped at 7. Already-read pages, hub pages, and the Schema/Dashboard/Access-Log pages are excluded from the list.</li>
+<li>REQ-483 (placement): The neighbor list SHALL appear once per answer, after the shared attribution block (REQ-437), under a <code>Related:</code> line. It is the primary source for the related-pages suggestion of REQ-433.</li>
+<li>REQ-484 (archived neighbors flagged): A neighbor whose page carries <code>archived::</code> SHALL be flagged as archived in the list. The re-promotion offer (REQ-452) applies only if the page is actually read in full, not to its appearance as a pointer.</li>
+<li>REQ-485 (no Access-Log entries): Neighbors are not full reads; the system MUST NOT Access-Log them (REQ-450 scope unchanged). A broken neighbor link (target page does not exist) is reported to the user as a candidate lint issue, not silently dropped.</li>
 </ul>
 <hr>
 </section>
@@ -441,6 +481,19 @@ AND both registers carry it, attributed once: "Sources:
     [[wiki/data/sanitationdata/toilets]]; computed from
     ingested/data/sanitationdata-1.2.0/toilets.csv (1,234 rows)"
 AND no live R session is consulted (REQ-472)</code></pre>
+</section>
+<section id="scenario-18-one-hop-neighbors-listed-after-the-answer-v3.7" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-18-one-hop-neighbors-listed-after-the-answer-v3.7">Scenario 18: One-hop neighbors listed after the answer (v3.7)</h3>
+<pre><code>GIVEN Wiki/Tech/Strapi links to [[wiki/tech/pm2]] and [[wiki/tech/nginx]]
+AND Wiki/Reference/Workflows also links to [[wiki/tech/pm2]]
+AND wiki/tech/legacy-foo is linked once and carries archived:: 2026-06-07
+WHEN the user runs /wiki-query "how do I deploy a new blog post?"
+AND Phase 1 fully reads Wiki/Tech/Strapi and Wiki/Reference/Workflows
+THEN the answer SHALL end, after the shared attribution, with a Related: list
+AND rank [[wiki/tech/pm2]] first (linked from 2 read pages), each neighbor
+    shown with its hub routing description
+AND flag wiki/tech/legacy-foo as archived if listed
+AND NOT read any neighbor in full, and NOT Access-Log any neighbor</code></pre>
 <hr>
 </section>
 </section>
@@ -472,6 +525,7 @@ AND no live R session is consulted (REQ-472)</code></pre>
 <li><label><input type="checkbox">(two-plane) –stale-check runs before every index.db read; no silent stale answer</label></li>
 <li><label><input type="checkbox">(two-plane) Every answer names its plane; index hits become page reads before content is quoted</label></li>
 <li><label><input type="checkbox">(data) Dataset questions route via the data dictionary; row-level answers compute read-only on snapshot CSVs with version-pinned attribution; no live R session is consulted</label></li>
+<li><label><input type="checkbox">(one-hop, v3.7) Outgoing wiki/ links of fully-read pages surface as a ranked, capped <code>Related:</code> pointer list after attribution; pointers are never read in full and never Access-Logged; archived neighbors flagged</label></li>
 </ul>
 <hr>
 </section>

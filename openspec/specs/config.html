@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +70,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -220,9 +246,12 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-626: The config MAY contain the key <code>archive_db</code> (default <code>~/archive/archive.db</code>, the convention of <code>docs/voice-pipeline.md</code>): the path to the archive.db capture database consumed by the voice ingest workflow (specs/ingest.md Voice Sources; specs/storage.md). The path is expanded like <code>wiki_path</code> (tilde to <code>$HOME</code>) and is NOT required to exist: absence of the file means the voice queue is empty, not a config error. The placement invariants of specs/storage.md REQ-1103 (outside git, or gitignored) bind whatever value is configured; validation is shape-only.</li>
 <li>REQ-627: The config MAY contain the key <code>index_db</code> (default <code>~/archive/index.db</code>): the path where <code>rebuild_index.py</code> writes the derived, disposable index database (specs/storage.md REQ-1130..1133). Expanded like <code>wiki_path</code>; not required to exist (the first rebuild creates it). The REQ-1103 placement invariants bind the value: when the path resolves inside the vault’s git-tracked tree and is not gitignored, the rebuild SHALL refuse to write.</li>
 <li>REQ-628: The config MAY contain the key <code>glossary_dir</code> (default <code>glossary</code>): the path, relative to the pages directory, naming the human-decided glossary namespace (<code>specs/glossary.md</code>, <code>specs/namespaces.md</code> REQ-960/980). Recognized by namespace-hygiene (lint rule 14) and the glossary structure check (rule 15); when absent, the default applies and the namespace is still recognized. Shape rules as for <code>para_dir</code>/<code>notes_dir</code> (REQ-625).</li>
-<li>REQ-629: The config MAY contain the key <code>journals_dir</code> (default <code>journals</code>): the path, relative to <code>wiki_path</code>, naming the journal (daily notes) directory. For Logseq this is the native <code>journals/</code> directory, a sibling of <code>pages/</code>; for Obsidian it is the daily-notes folder relative to the vault root. Consumed by the journal seam (specs/ingest.md REQ-090..095), page enumeration pruning, and the namespace classification in lint. When absent, the default applies and journal pages are still recognized. Shape rules as for <code>para_dir</code>/<code>notes_dir</code> (REQ-625). The journal namespace stays human-owned; the journal seam’s daily Ingested block is the single sanctioned machine write into it.</li>
+<li>REQ-629: The config MAY contain the key <code>journals_dir</code> (default <code>journals</code>): the path, relative to <code>wiki_path</code>, naming the journal (daily notes) directory. For Logseq this is the native <code>journals/</code> directory, a sibling of <code>pages/</code>; for Obsidian it is the daily-notes folder relative to the vault root. Consumed by the journal seam (specs/ingest.md REQ-090..095), page enumeration pruning, and the namespace classification in lint. When absent, the default applies and journal pages are still recognized. Shape rules as for <code>para_dir</code>/<code>notes_dir</code> (REQ-625). The journal namespace stays human-owned; the sanctioned machine writes into it are the journal seam’s daily Ingested block and the tasks-sync task stamps (specs/tasks-sync.md REQ-1405/1410/1411, under the namespaces REQ-969 carve-out).</li>
 <li>REQ-660: The config MAY contain the key <code>data_packages</code>: an array of GitHub slugs (<code>owner/repo</code>) naming registered R data packages consumed by the data-package seam (specs/ingest.md REQ-100..106, <code>scripts/data_pkg_sync.R</code>). When absent, the seam is inert.</li>
 <li>REQ-661: The config MAY contain the key <code>data_snapshots_keep</code> (default <code>3</code>): how many versioned snapshots per package the retention pass keeps under <code>ingested/data/</code>. A snapshot referenced by any page’s <code>cite::</code> or <code>source-file::</code> is NEVER deleted regardless of this value (ingest REQ-105). Must be a positive integer.</li>
+<li>REQ-662: The config MAY contain the key <code>tasks_repo</code>: a GitHub slug (<code>owner/repo</code>) naming the default repository for issues created by the tasks-sync seam (specs/tasks-sync.md, <code>scripts/tasks_sync.py</code>) - typically a private issues-only <code>tasks</code> repo. When absent, the seam is inert (tasks-sync REQ-1401). A <code>para/projects/</code> page’s <code>repo::</code> page property overrides it per candidate (tasks-sync REQ-1403).</li>
+<li>REQ-663: The config MAY contain the key <code>tasks_project</code>: a user-level GitHub Project v2 reference as <code>owner/number</code> (e.g.&nbsp;<code>larnsce/3</code>). When set, tasks-sync adds each created issue to the Project (tasks-sync REQ-1406); when absent, issues are created without a Project. Shape check only: <code>owner/number</code> with a numeric second segment.</li>
+<li>REQ-664: The config MAY contain the key <code>tasks_milestone_label</code> (default <code>milestone</code>): the issue label that marks a closed issue for the Phase-2 milestone hook (tasks-sync REQ-1416). Inert until that phase ships; shape check only.</li>
 </ul>
 </section>
 <section id="validation-rules" class="level3">

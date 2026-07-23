@@ -43,7 +43,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -71,6 +71,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -193,7 +219,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="phase-2---fresh-init">Phase 2 - Fresh init</h2>
 <ul>
 <li>Ask minimally: tool (logseq or obsidian), wiki path (tool-specific default), namespaces (default list from <a href="../../skills/wiki-core/references/config.html">config</a>), optional memory path.</li>
-<li>Offer the optional human layer as one question: “Also scaffold the human para/ (PARA tasks/projects) and notes/ (Zettelkasten) layer? The wiki toolchain never writes to those namespaces; see docs/para-notes-workflow.md in the repository for the workflow.” Intended for a fresh, empty graph; there is no migration for existing para/notes content. If accepted, add <code>--with-para-notes</code> to the init_wiki.py call: it scaffolds human-editable <code>para/schema</code> and <code>notes/schema</code> seed pages (plus the para/notes directory trees on Obsidian) and writes the <code>para_dir</code>/<code>notes_dir</code> keys into llm-wiki.yml (config.md REQ-625, namespaces.md REQ-980).</li>
+<li>Offer the optional human layer as one question: “Also scaffold the human para/ (PARA tasks/projects) and notes/ (Zettelkasten) layer? The wiki toolchain never writes to those namespaces; see docs/para-notes-workflow.md in the repository for the workflow.” Intended for a fresh, empty graph; there is no migration for existing para/notes content. If accepted, add <code>--with-para-notes</code> to the init_wiki.py call: it scaffolds human-editable <code>para/schema</code> and <code>notes/schema</code> seed pages and a project-page template seed (Logseq: the <code>para/templates</code> page; Obsidian: <code>para/templates/project.md</code>, plus the para/notes directory trees) and writes the <code>para_dir</code>/<code>notes_dir</code> keys into llm-wiki.yml (config.md REQ-625, namespaces.md REQ-980).</li>
 <li>Offer the optional glossary layer the same way: “Also scaffold the glossary/ terminology layer (index + one seed domain page)? Decisions stay yours; the tool structure-lints it and writes only rows you confirm; see docs/glossary-workflow.md.” If accepted, add <code>--with-glossary</code>: it scaffolds the <code>glossary</code> index and <code>glossary/tech</code> seed page and writes the <code>glossary_dir</code> key (config.md REQ-628, specs/glossary.md).</li>
 <li>Run <code>python3 ../wiki-core/scripts/init_wiki.py --wiki-path &lt;path&gt; --tool &lt;tool&gt; [--namespaces ...] [--memory-path ...] [--with-para-notes] [--with-glossary]</code>.</li>
 <li>Exit code semantics: 0 clean, 1 files were skipped because they already exist (nothing was overwritten, REQ-786; tell the user which), 2 critical (report and stop).</li>

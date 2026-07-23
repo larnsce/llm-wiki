@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -180,6 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#page-name-and-file" id="toc-page-name-and-file" class="nav-link" data-scroll-target="#page-name-and-file">Page name and file</a></li>
   <li><a href="#page-template" id="toc-page-template" class="nav-link" data-scroll-target="#page-template">Page template</a></li>
   <li><a href="#the-working-loop" id="toc-the-working-loop" class="nav-link" data-scroll-target="#the-working-loop">The working loop</a></li>
+  <li><a href="#ipad-ios-reading-and-annotating" id="toc-ipad-ios-reading-and-annotating" class="nav-link" data-scroll-target="#ipad-ios-reading-and-annotating">iPad / iOS (reading and annotating)</a></li>
   <li><a href="#citation-graph-gap" id="toc-citation-graph-gap" class="nav-link" data-scroll-target="#citation-graph-gap">Citation-graph gap</a></li>
   <li><a href="#related" id="toc-related" class="nav-link" data-scroll-target="#related">Related</a></li>
   </ul></li>
@@ -211,15 +238,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><strong>Idempotent metadata:</strong> each run rewrites only the managed properties (<code>type</code>, <code>citekey</code>, <code>authors</code>, <code>year</code>, <code>item-type</code>, <code>doi</code>, <code>zotero</code>); <code>source-file::</code> and any user-added properties are preserved.</li>
 <li><strong>Incremental annotation sync:</strong> annotations are read as children of the PDF attachments, sorted by position in the PDF, and only annotations with a Zotero version newer than the page’s <code>zotero-last-sync::</code> stamp are appended; the stamp is then updated from the library version. Re-syncing never clobbers your prose; the reading section (<code>## literature</code>; <code>## my reading</code> on pages created before the #101 rename) is never touched.</li>
-<li><strong>Skips unpinned items with a warning:</strong> the citekey is read from the item’s <code>extra</code> field (<code>Citation Key: xxx</code>, written by Better BibTeX pinning). Nothing is guessed.</li>
+<li><strong>Skips items without a citekey, with a warning:</strong> the citekey is read from Zotero’s native citation-key field (<code>citationKey</code>, kept filled by Better BibTeX’s <em>Automatically fill citation key after</em> setting; this field replaces the old <code>Citation Key: xxx</code> line in <code>extra</code>), with a fallback to <code>extra</code> for libraries BBT has not migrated yet. Nothing is guessed.</li>
 </ul>
 <p>(Obsidian users: the <strong>Zotero Integration</strong> plugin remains the equivalent there. This guide is written for the Logseq script; the property template idea transfers.)</p>
 <section id="one-time-setup" class="level3">
 <h3 class="anchored" data-anchor-id="one-time-setup">One-time setup</h3>
 <ol type="1">
 <li>Zotero → <strong>Settings → Advanced</strong> → check <em>Allow other applications on this computer to communicate with Zotero</em> (the local API returns 403 without it).</li>
-<li>Install <strong>Better BibTeX</strong>; set <em>Automatically pin citation key after</em> to <code>1</code> second (citekeys must be pinned to reach Logseq).</li>
+<li>Install <strong>Better BibTeX</strong> and configure its <strong>Citation keys</strong> section: citation key formula <code>auth.lower + year + veryshorttitle(1, 0).lower</code>, <em>Automatically fill citation key after</em> set to <code>2</code> seconds, <em>Regenerate citation key when item changes</em> left unchecked (a filled key must not change once its page exists). Filling writes the key into Zotero’s native citation-key field, which syncs across devices. Earlier versions of this guide talked about “pinning”; Better BibTeX renamed that to “filling”, so the old <em>Automatically pin citation key after</em> setting is today’s <em>Automatically fill citation key after</em>.</li>
+<li>Optional, but part of the standard setup here: in <strong>Settings → Export</strong>, set Quick Copy’s <em>Item Format</em> to <em>Better BibTeX Citation Key Quick Copy</em> and <em>Note Format</em> to <em>Markdown + Rich Text</em> with <em>Include Zotero Links</em> checked for Markdown. Cmd+Shift+C then copies a selected item’s citekey for linking <code>[[notes/literature/@&lt;citekey&gt;]]</code> while you write. The sync script itself does not need this.</li>
 </ol>
+<p>The <a href="../docs/zotero-setup-walkthrough.html">walkthrough</a> covers the same setup click by click, including installing Zotero and Better BibTeX from scratch.</p>
 </section>
 <section id="running-it" class="level3">
 <h3 class="anchored" data-anchor-id="running-it">Running it</h3>
@@ -230,13 +259,13 @@ python3 scripts/lit_sync.py --vault &lt;logseq-graph-root&gt;            # then 
 </section>
 <section id="page-name-and-file" class="level2">
 <h2 class="anchored" data-anchor-id="page-name-and-file">Page name and file</h2>
-<p>Every synced item gets the page <code>notes/literature/@&lt;citekey&gt;</code>, e.g. <code>notes/literature/@Forte2022</code> - the zoteroRoam-style proper-noun leaf (lint recognizes it; see <a href="../openspec/specs/namespaces.html"><code>namespaces.md</code></a> REQ-976). On disk the script matches the vault’s existing namespace-filename encoding (<code>___</code> by default, <code>%2F</code> if the vault already uses it), so e.g.&nbsp;<code>pages/notes___literature___@Forte2022.md</code>.</p>
+<p>Every synced item gets the page <code>notes/literature/@&lt;citekey&gt;</code>, e.g. <code>notes/literature/@forte2022building</code> - the zoteroRoam-style <code>@</code> leaf (lint recognizes it as a proper-noun leaf; see <a href="../openspec/specs/namespaces.html"><code>namespaces.md</code></a> REQ-976). On disk the script matches the vault’s existing namespace-filename encoding (<code>___</code> by default, <code>%2F</code> if the vault already uses it), so e.g.&nbsp;<code>pages/notes___literature___@forte2022building.md</code>.</p>
 </section>
 <section id="page-template" class="level2">
 <h2 class="anchored" data-anchor-id="page-template">Page template</h2>
 <p>The script writes this template on creation - full metadata is noise; the raw source lives in <code>ingested/</code> anyway:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>type:: literature</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>citekey:: Forte2022</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>citekey:: forte2022building</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>authors:: Tiago Forte</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>year:: 2022</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>item-type:: book</span>
@@ -261,8 +290,33 @@ python3 scripts/lit_sync.py --vault &lt;logseq-graph-root&gt;            # then 
 <li>Run <code>/lit-sync</code> (dry-run first, then real): new items get their <code>@citekey</code> page, new annotations append under <code>## annotations</code>.</li>
 <li>Write <code>## literature</code> in your own words - this is the literature note (tag it <code>#literature</code> yourself).</li>
 <li>When the paper feeds the wiki: export/flatten to markdown into <code>raw/</code>, run <code>/wiki-ingest</code>, and confirm at the checkpoint when it offers to set <code>source-file::</code> here to the <code>ingested/</code> path it produced (REQ-973/974) - the tool writes the path for you.</li>
-<li>Ideas that outgrow the paper get their own <code>notes/permanent/</code> page, linking back to <code>[[notes/literature/@citekey]]</code>.</li>
+<li>Ideas that outgrow the paper get their own <code>notes/permanent/</code> page, linking back to <code>[[notes/literature/@citekey]]</code>. Finished notes - one or several at once - then feed the deliberate synthesis step (permanent note for your position, wiki <code>knowledge</code> page for the cited cross-paper comparison); the procedure is in the <a href="../docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> under “From literature note to synthesis”.</li>
 </ol>
+<pre class="mermaid"><code>flowchart TD
+    READ["1 · read + annotate the PDF in Zotero"] --&gt; SYNC["2 · /lit-sync&lt;br&gt;dry-run, review, real run"]
+    SYNC --&gt; PAGE["notes/literature/@citekey&lt;br&gt;managed properties + new annotations appended"]
+    PAGE --&gt; LIT["3 · write ## literature in your own words&lt;br&gt;(tag #literature by hand - the tool never will)"]
+    LIT --&gt; FEED{"paper feeds&lt;br&gt;the wiki?"}
+    FEED -- "yes" --&gt; RAW["4 · flatten to raw/, run /wiki-ingest"]
+    RAW --&gt; SEAM["checkpoint: confirm the source-file:: write&lt;br&gt;one archived source, two readings"]
+    SEAM --&gt; WIKI[["wiki/ page cites the same ingested/ path"]]
+    FEED -- "not yet" --&gt; STAY["note stays in notes/, source-file:: blank"]
+    LIT --&gt; PERM["5 · ideas that outgrow the paper&lt;br&gt;notes/permanent/ + the synthesis step"]</code></pre>
+</section>
+<section id="ipad-ios-reading-and-annotating" class="level2">
+<h2 class="anchored" data-anchor-id="ipad-ios-reading-and-annotating">iPad / iOS (reading and annotating)</h2>
+<p>The iPad is a <strong>reading device</strong> in this loop: read and highlight PDFs in the Zotero iOS app. Importing, citekeys, and <code>/lit-sync</code> all stay on the desktop.</p>
+<ul>
+<li><strong>Setup on the iPad:</strong> install Zotero from the App Store and sign in with your zotero.org account. That is all. There are no API keys to create (the app authenticates itself; “API keys” only exist for third-party tools on the <em>web</em> API, which this setup does not use), no plugins (Better BibTeX does not exist on iOS), and no citation-key settings (keys live in Zotero’s native, syncing citation-key field, assigned by BBT on the desktop).</li>
+<li><strong>Prerequisite on the desktop:</strong> turn on Zotero sync (<strong>Settings → Sync</strong> → sign in). Data sync is free and unlimited; reading PDFs on the iPad additionally needs <strong>file syncing</strong> (attachments as stored copies, not linked files) via Zotero Storage (300 MB free, paid tiers) or WebDAV. Zotero Storage is the simplest choice and the default recommendation.</li>
+<li><strong>Scope of the cloud:</strong> this syncs your Zotero <em>library between your own devices</em>. It changes nothing about the sync into Logseq: <code>lit_sync.py</code> still talks only to the desktop’s local API and never the cloud API (issue #90, decision 1).</li>
+<li><strong>The loop with an iPad:</strong> highlight on the iPad → it syncs to zotero.org → desktop Zotero pulls it down → run <code>/lit-sync</code> on the desktop as usual. Synced annotations carry new Zotero version numbers, so the incremental <code>zotero-last-sync::</code> logic picks them up like any desktop-made highlight.</li>
+<li>Items saved on the iPad get their citekey the next time desktop Zotero (with BBT) syncs; until then <code>/lit-sync</code> skips them with a warning. If you import on the desktop only, this never comes up.</li>
+<li>The <code>## literature</code> prose is written in Logseq, not on the iPad; setting up Logseq mobile is a separate concern, out of scope here.</li>
+</ul>
+<blockquote class="blockquote">
+<p>Written against the current Zotero iOS release (2026-07); not yet verified end-to-end - fold that into the #28 verification run (annotate one paper on the iPad and confirm <code>/lit-sync</code> picks the highlight up on the desktop).</p>
+</blockquote>
 </section>
 <section id="citation-graph-gap" class="level2">
 <h2 class="anchored" data-anchor-id="citation-graph-gap">Citation-graph gap</h2>
@@ -271,6 +325,8 @@ python3 scripts/lit_sync.py --vault &lt;logseq-graph-root&gt;            # then 
 <section id="related" class="level2">
 <h2 class="anchored" data-anchor-id="related">Related</h2>
 <ul>
+<li><a href="../docs/zotero-getting-started.html">Getting started with Zotero</a> - the standalone Zotero guide (install, sync, connector, GHE-harmonized citation keys); no llm-wiki knowledge needed</li>
+<li><a href="../docs/zotero-setup-walkthrough.html">Zotero setup walkthrough</a> - the novice-friendly step-by-step install, including Quick Copy and the #28 verification run</li>
 <li><a href="../docs/literature-research.html">Literature Research</a> - the full discovery→Zotero→ingest funnel and the Semantic Scholar MCP setup</li>
 <li><a href="../docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> - the <code>notes/</code> layer this feeds</li>
 <li><a href="../openspec/specs/namespaces.html"><code>openspec/specs/namespaces.md</code></a> - the namespace contract</li>

@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -178,7 +204,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#golden-comparison-protocol" id="toc-golden-comparison-protocol" class="nav-link" data-scroll-target="#golden-comparison-protocol">Golden comparison protocol</a></li>
   <li><a href="#session-discipline" id="toc-session-discipline" class="nav-link" data-scroll-target="#session-discipline">Session discipline</a></li>
   <li><a href="#vault-side-claude.md-template" id="toc-vault-side-claude.md-template" class="nav-link" data-scroll-target="#vault-side-claude.md-template">Vault-side CLAUDE.md template</a></li>
-  <li><a href="#two-week-review-due-date-2026-07-21" id="toc-two-week-review-due-date-2026-07-21" class="nav-link" data-scroll-target="#two-week-review-due-date-2026-07-21">Two-week review (due date 2026-07-21)</a></li>
+  <li><a href="#periodic-review" id="toc-periodic-review" class="nav-link" data-scroll-target="#periodic-review">Periodic review</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/model-tiering.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -191,7 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="model-tiering-route-wiki-work-by-task-value" class="level1">
 <h1>Model tiering: route wiki work by task value</h1>
-<p>Once model usage costs real money, wiki work should run on the cheapest model whose output survives the regression net, with deliberate escalation where reasoning quality changes durable wiki truth. This page is the operating manual for that routing (issue #108, premortem-revised): the tier map, the agent definitions that implement it, the escalation triggers, the observability story, and the review checklist that decides whether it stays.</p>
+<p>Wiki work should run on the cheapest model whose output survives the regression net, with deliberate escalation where reasoning quality changes durable wiki truth. Fable is available on demand (not a scarce or expiring resource), so the deepest-reasoning automated work runs on Fable where it earns its keep, and mechanical or routine work stays on the cheaper tiers where Fable adds nothing. This page is the operating manual for that routing (issue #108): the tier map, the agent definitions that implement it, the escalation triggers, the observability story, and the review checklist that decides whether it stays.</p>
 <section id="how-the-routing-works" class="level2">
 <h2 class="anchored" data-anchor-id="how-the-routing-works">How the routing works</h2>
 <p>Routing lives in the <code>agents/</code> subagent definitions that <code>setup.sh</code> installs to <code>~/.claude/agents/</code> (or <code>&lt;project&gt;/.claude/agents/</code> with <code>--project</code>), per setup REQ-807. Shipped SKILL.md files stay model-neutral on purpose: llm-wiki is a public tool, and a <code>model:</code> key in a skill would silently change cost behavior for every user. Skills NAME the agents in their dispatch steps and degrade gracefully to generic subagents when the definitions are absent, so a user who never installs them gets exactly the old behavior.</p>
@@ -227,18 +253,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td><code>wiki-audit-judge</code></td>
-<td>opus</td>
+<td>fable</td>
 <td><code>/wiki-audit</code> Phase 3 (audit REQ-924)</td>
 <td>corroboration independence, reliability deltas, Pending Review resolutions</td>
 </tr>
 <tr class="even">
 <td><code>wiki-synthesize</code></td>
-<td>opus</td>
+<td>fable</td>
 <td><code>/wiki-ingest</code> flagged items (REQ-076)</td>
 <td>deep Phase 1-2 analysis for dense or high-stakes sources</td>
 </tr>
 </tbody>
 </table>
+<p>The two deep-reasoning agents run on Fable: their job is exactly the durable-truth work (final trust judgment, dense-source synthesis) where the strongest reasoning is worth the cost. Verification (<code>wiki-audit-verify</code>) stays on sonnet and triage stays on haiku, because volume-per-source isolated checks and mechanical classification do not improve on the cheaper model.</p>
 </section>
 <section id="tier-map" class="level2">
 <h2 class="anchored" data-anchor-id="tier-map">Tier map</h2>
@@ -264,15 +291,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>opus</td>
-<td>audit final judgment, <code>/wiki-update</code> supersessions, dense or high-stakes ingest synthesis, corroboration reasoning; every escalation trigger lands here first</td>
+<td><code>/wiki-update</code> supersessions and the middle escalation step: a routine task that trips a trigger but is not durable-truth reasoning lands here first (sonnet -&gt; opus)</td>
 </tr>
 <tr class="even">
-<td>fable (batched, deliberate sessions)</td>
-<td>schema/namespace/convention evolution, review-level cross-source synthesis pages, contested Pending-Review resolution batches; each task only after opus demonstrably falls short on the goldens</td>
+<td>fable</td>
+<td>audit final judgment, dense or high-stakes ingest synthesis, corroboration reasoning, contested Pending-Review resolution; plus the deliberate batched sessions - schema/namespace/convention evolution and review-level cross-source synthesis pages</td>
 </tr>
 </tbody>
 </table>
-<p>Opus, not Fable, is the escalation default: half the price, none of the API-side caveats. Fable is reserved for deliberate batched sessions, and promotion of a task from opus to fable happens per-task, only on evidence from the golden comparison below.</p>
+<p>Route by where the reasoning changes durable wiki truth, not by scarcity. Fable carries the deepest automated work (the two deep agents above) and the batched evolution sessions, because that is where the strongest reasoning pays off. Opus is the middle escalation tier for routine tasks that trip a trigger without being trust-level judgment. Sonnet is the default session and the verification tier; haiku does the mechanical work. Use the golden comparison below to confirm a cheaper tier is enough before demoting a task.</p>
 </section>
 <section id="escalation-triggers" class="level2">
 <h2 class="anchored" data-anchor-id="escalation-triggers">Escalation triggers</h2>
@@ -291,7 +318,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>a genuine conflict with existing claims, or a corroboration decision that would change a <code>reliability::</code> value;</li>
 <li>a cheaper model’s output failed lint or audit twice on this task, or it self-reports low confidence.</li>
 </ol>
-<p>Any trigger means: run that item’s synthesis one tier up (sonnet -&gt; opus). Fable enters only through the per-task promotion rule above.</p>
+<p>Any trigger means: run that item’s synthesis one tier up. A routine task that trips a trigger goes sonnet -&gt; opus. Durable-truth reasoning (final audit judgment, dense or high-stakes synthesis, corroboration decisions that move a <code>reliability::</code> value) is handled by the Fable agents directly - that is what <code>wiki-audit-judge</code> and <code>wiki-synthesize</code> are for.</p>
 <p>Early warning: a sustained weekly triage flag rate below 5% or above 40% means the triggers are mis-tuned; re-check them against <code>tests/golden/triage.golden.md</code>.</p>
 </section>
 <section id="observability-the-run-log-not-self-report" class="level2">
@@ -300,13 +327,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="golden-comparison-protocol" class="level2">
 <h2 class="anchored" data-anchor-id="golden-comparison-protocol">Golden comparison protocol</h2>
-<p><code>tests/golden/fable-baseline/</code> holds the frozen reference checkpoints recorded on <code>claude-fable-5</code> (2026-07-08). To evaluate a cheaper model for a task: stage the fixture per <code>tests/golden/README.md</code>, run the skill to the checkpoint on the candidate model, and diff against the baseline under the scoring rubric (a divergence fails iff it changes a <code>reliability::</code> value, gets <code>## Pending Review</code> wrong, or accepts false corroboration; cosmetics never fail). Each task defaults to the cheapest model whose output passes. NEVER regenerate a baseline on the model being evaluated. Record verdicts in the golden headers and on issue #108.</p>
+<p><code>tests/golden/fable-baseline/</code> holds the frozen reference checkpoints recorded on <code>claude-fable-5</code> (2026-07-08). These are the regression net for tiering decisions: they capture what the strongest reasoning produces on the judgment calls that matter, so a cheaper model’s output can be measured against them. They no longer exist because Fable output was scarce (Fable is available on demand now); they exist because a frozen reference is what lets a demotion be checked rather than assumed.</p>
+<p>To evaluate a cheaper model for a task: stage the fixture per <code>tests/golden/README.md</code>, run the skill to the checkpoint on the candidate model, and diff against the baseline under the scoring rubric (a divergence fails iff it changes a <code>reliability::</code> value, gets <code>## Pending Review</code> wrong, or accepts false corroboration; cosmetics never fail). A task may be demoted to the cheapest model whose output passes. NEVER regenerate a baseline on the model being evaluated - that re-baselines the net to the cheaper model’s own calibration. Record verdicts in the golden headers and on issue #108.</p>
 </section>
 <section id="session-discipline" class="level2">
 <h2 class="anchored" data-anchor-id="session-discipline">Session discipline</h2>
 <ul>
-<li>Daily driver: a sonnet session. Escalation happens per-task through the agents (a subagent MAY run a stronger model than the session).</li>
-<li>Batch the fable-tier work into deliberate sessions (weekly synthesis or audit blocks); never make fable the default <code>/model</code>.</li>
+<li>Daily driver: a sonnet session. Escalation happens per-task through the agents (a subagent MAY run a stronger model than the session), so the deep work reaches Fable without the session itself switching.</li>
+<li>The two deep agents already run on Fable per task, so most durable-truth reasoning needs no session change. Reserve a deliberate Fable <code>/model</code> session for the batched evolution work (schema or convention changes, review-level cross-source synthesis blocks) where the whole session is that kind of reasoning.</li>
 <li>Single-source interactive ingests skip triage entirely; the two-pass shape exists for queue drains.</li>
 </ul>
 </section>
@@ -315,29 +343,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Copy this block into the vault’s CLAUDE.md so the orchestrating session delegates without being asked each time:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Model routing (llm-wiki)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Default session model: sonnet. Do not change /model for wiki work.</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>/wiki-ingest with a multi-file queue: dispatch wiki-triage first</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  (haiku), route complexity-flagged items through wiki-synthesize</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  (opus), handle routine items in the session.</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>/wiki-audit: dispatch per-source verification to wiki-audit-verify</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  (sonnet) and the final reconciliation to wiki-audit-judge (opus).</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Escalate a single task to opus when it supersedes existing wiki</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  content, changes a reliability:: value, touches a hub or the Schema</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  page, or a cheaper attempt failed lint/audit twice.</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Log honestly: the run-log agents field records what was actually</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  dispatched; write "none" when no agent ran.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Default session model: sonnet. Do not change /model for routine wiki</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  work; the agents escalate per task on their own.</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>/wiki-ingest with a multi-file queue: dispatch wiki-triage first</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  (haiku), route complexity-flagged items through wiki-synthesize</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  (fable), handle routine items in the session.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>/wiki-audit: dispatch per-source verification to wiki-audit-verify</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  (sonnet) and the final reconciliation to wiki-audit-judge (fable).</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Escalate a routine task to opus when it supersedes existing wiki</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  content or a cheaper attempt failed lint/audit twice. Durable-truth</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  reasoning (reliability:: changes, corroboration judgment, dense or</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  hub/Schema-touching synthesis) is already carried by the fable agents.</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Log honestly: the run-log agents field records what was actually</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  dispatched; write "none" when no agent ran.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="two-week-review-due-date-2026-07-21" class="level2">
-<h2 class="anchored" data-anchor-id="two-week-review-due-date-2026-07-21">Two-week review (due date 2026-07-21)</h2>
-<p>Checklist, posted as a comment on issue #108:</p>
+<section id="periodic-review" class="level2">
+<h2 class="anchored" data-anchor-id="periodic-review">Periodic review</h2>
+<p>The first review was due 2026-07-21 (issue #108). Run this checklist periodically thereafter, posting the result as a comment on issue #108:</p>
 <ul class="task-list">
 <li><label><input type="checkbox">Pull the last two weeks of run-log entries; compute the agent mix and the triage flag rate.</label></li>
 <li><label><input type="checkbox">Reconcile against the billing/usage dashboard: does the model mix match what the log implies? A contradiction means the routing is fiction somewhere; find the silent fallback.</label></li>
-<li><label><input type="checkbox">Which opus/fable runs could sonnet have done? Re-run one or two on the cheaper tier against the baselines and check with the rubric.</label></li>
+<li><label><input type="checkbox">Which fable/opus runs could a cheaper tier have done? Re-run one or two on the cheaper tier against the baselines and check with the rubric; demote any task whose cheaper output passes.</label></li>
 <li><label><input type="checkbox">Flag rate outside 5-40% weekly? Re-tune the triage triggers.</label></li>
 <li><label><input type="checkbox">Post the adjusted tier map (or “unchanged”) on issue #108.</label></li>
 </ul>
-<p>Kill criteria (from the premortem, binding): if the billing model-mix contradicts the run-log counts, or the review does not happen by the due date, remove the agents and freeze at “sonnet default plus manual <code>/model</code> escalation”.</p>
+<p>Kill criterion: if the billing model-mix contradicts the run-log counts, the routing is fiction somewhere - find the silent fallback before trusting any tiering claim. (The original premortem also tied a hard kill to Fable output expiring at a due date; Fable is available on demand now, so that clock no longer applies. The regression net and the honest run-log remain the guardrails.)</p>
 
 
 </section>

@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +70,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -174,6 +200,7 @@ quarto render         # full build into _site/</code></pre>
 <li>Every rendered page derives its title from YAML frontmatter or its first <code># h1</code>; all docs, specs, and SKILL.md files carry one.</li>
 <li>Frontmatter must be strict YAML: a <code>description:</code> value containing <code>": "</code> needs quoting (Claude Code’s reader is tolerant, Quarto’s is not; the agent definitions are quoted for this reason).</li>
 <li>Relative <code>.md</code> links between rendered files are rewritten to <code>.html</code> automatically. Links INTO unrendered directories (<code>prompts/</code>, <code>templates/</code>) stay raw <code>.md</code> and 404 on the site while still working on GitHub; they only occur in archival roadmap docs, which is the accepted trade-off.</li>
+<li>Workflow diagrams are <code>```mermaid</code> fences in the markdown source. GitHub renders them natively; Quarto’s own <code>{mermaid}</code> cells only work in <code>.qmd</code> files, so for the site <code>assets/mermaid.html</code> (wired in via <code>include-in-header</code>) normalizes the <code>&lt;pre class="mermaid"&gt;</code> blocks Pandoc emits and renders them client-side with mermaid.js from the jsdelivr CDN, fetched only on pages that contain a diagram. Verify a new diagram on both surfaces; keep diagrams under ~15 nodes and free of hardcoded colors so both GitHub themes stay legible.</li>
 </ul>
 </section>
 <section id="first-time-publishing-checklist" class="level2">

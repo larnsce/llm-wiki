@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +70,32 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -141,97 +167,94 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#added" id="toc-added" class="nav-link" data-scroll-target="#added">Added</a></li>
   <li><a href="#fixed" id="toc-fixed" class="nav-link" data-scroll-target="#fixed">Fixed</a></li>
   <li><a href="#changed" id="toc-changed" class="nav-link" data-scroll-target="#changed">Changed</a></li>
-  </ul></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[3.6.0] - 2026-07-13</a>
-  <ul class="collapse">
   <li><a href="#added-1" id="toc-added-1" class="nav-link" data-scroll-target="#added-1">Added</a></li>
   </ul></li>
-  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[3.5.0] - 2026-07-08</a>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[3.5.0] - 2026-07-08</a>
   <ul class="collapse">
   <li><a href="#added-2" id="toc-added-2" class="nav-link" data-scroll-target="#added-2">Added</a></li>
   <li><a href="#fixed-1" id="toc-fixed-1" class="nav-link" data-scroll-target="#fixed-1">Fixed</a></li>
   </ul></li>
-  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">[3.4.1] - 2026-07-07</a>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[3.4.1] - 2026-07-07</a>
   <ul class="collapse">
   <li><a href="#fixed-2" id="toc-fixed-2" class="nav-link" data-scroll-target="#fixed-2">Fixed</a></li>
   </ul></li>
-  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">[3.4.0] - 2026-07-07</a>
+  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">[3.4.0] - 2026-07-07</a>
   <ul class="collapse">
   <li><a href="#added-3" id="toc-added-3" class="nav-link" data-scroll-target="#added-3">Added</a></li>
   <li><a href="#changed-1" id="toc-changed-1" class="nav-link" data-scroll-target="#changed-1">Changed</a></li>
   </ul></li>
-  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">[3.3.0] - 2026-07-07</a>
+  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">[3.3.0] - 2026-07-07</a>
   <ul class="collapse">
   <li><a href="#added-4" id="toc-added-4" class="nav-link" data-scroll-target="#added-4">Added</a></li>
   </ul></li>
-  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">[3.2.0] - 2026-07-07</a>
+  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">[3.2.0] - 2026-07-07</a>
   <ul class="collapse">
   <li><a href="#added-5" id="toc-added-5" class="nav-link" data-scroll-target="#added-5">Added</a></li>
   </ul></li>
-  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6">[3.1.0] - 2026-07-06</a>
+  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">[3.1.0] - 2026-07-06</a>
   <ul class="collapse">
   <li><a href="#added-6" id="toc-added-6" class="nav-link" data-scroll-target="#added-6">Added</a></li>
   <li><a href="#changed-2" id="toc-changed-2" class="nav-link" data-scroll-target="#changed-2">Changed</a></li>
   </ul></li>
-  <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">[3.0.0] - 2026-07-06</a>
+  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6">[3.0.0] - 2026-07-06</a>
   <ul class="collapse">
   <li><a href="#added-7" id="toc-added-7" class="nav-link" data-scroll-target="#added-7">Added</a></li>
   <li><a href="#fixed-3" id="toc-fixed-3" class="nav-link" data-scroll-target="#fixed-3">Fixed</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul></li>
-  <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">[2.3.0] - 2026-07-06</a>
+  <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">[2.3.0] - 2026-07-06</a>
   <ul class="collapse">
   <li><a href="#added-8" id="toc-added-8" class="nav-link" data-scroll-target="#added-8">Added</a></li>
   </ul></li>
-  <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">[2.2.0] - 2026-07-04</a>
+  <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">[2.2.0] - 2026-07-04</a>
   <ul class="collapse">
   <li><a href="#added-9" id="toc-added-9" class="nav-link" data-scroll-target="#added-9">Added</a></li>
   <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
   </ul></li>
-  <li><a href="#section-10" id="toc-section-10" class="nav-link" data-scroll-target="#section-10">[2.1.0] - 2026-07-04</a>
+  <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">[2.1.0] - 2026-07-04</a>
   <ul class="collapse">
   <li><a href="#added-10" id="toc-added-10" class="nav-link" data-scroll-target="#added-10">Added</a></li>
   </ul></li>
-  <li><a href="#section-11" id="toc-section-11" class="nav-link" data-scroll-target="#section-11">[2.0.0] - 2026-07-04</a>
+  <li><a href="#section-10" id="toc-section-10" class="nav-link" data-scroll-target="#section-10">[2.0.0] - 2026-07-04</a>
   <ul class="collapse">
   <li><a href="#added-11" id="toc-added-11" class="nav-link" data-scroll-target="#added-11">Added</a></li>
   <li><a href="#removed" id="toc-removed" class="nav-link" data-scroll-target="#removed">Removed</a></li>
   <li><a href="#deferred-to-v2.1" id="toc-deferred-to-v2.1" class="nav-link" data-scroll-target="#deferred-to-v2.1">Deferred to v2.1</a></li>
   </ul></li>
-  <li><a href="#section-12" id="toc-section-12" class="nav-link" data-scroll-target="#section-12">[1.5.0] - 2026-06-25</a>
+  <li><a href="#section-11" id="toc-section-11" class="nav-link" data-scroll-target="#section-11">[1.5.0] - 2026-06-25</a>
   <ul class="collapse">
   <li><a href="#added-12" id="toc-added-12" class="nav-link" data-scroll-target="#added-12">Added</a></li>
   <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
   </ul></li>
-  <li><a href="#section-13" id="toc-section-13" class="nav-link" data-scroll-target="#section-13">[1.4.0] - 2026-06-25</a>
+  <li><a href="#section-12" id="toc-section-12" class="nav-link" data-scroll-target="#section-12">[1.4.0] - 2026-06-25</a>
   <ul class="collapse">
   <li><a href="#added-13" id="toc-added-13" class="nav-link" data-scroll-target="#added-13">Added</a></li>
   <li><a href="#changed-3" id="toc-changed-3" class="nav-link" data-scroll-target="#changed-3">Changed</a></li>
   <li><a href="#notes-3" id="toc-notes-3" class="nav-link" data-scroll-target="#notes-3">Notes</a></li>
   </ul></li>
-  <li><a href="#section-14" id="toc-section-14" class="nav-link" data-scroll-target="#section-14">[1.3.0] - 2026-06-08</a>
+  <li><a href="#section-13" id="toc-section-13" class="nav-link" data-scroll-target="#section-13">[1.3.0] - 2026-06-08</a>
   <ul class="collapse">
   <li><a href="#added-14" id="toc-added-14" class="nav-link" data-scroll-target="#added-14">Added</a></li>
   <li><a href="#changed-4" id="toc-changed-4" class="nav-link" data-scroll-target="#changed-4">Changed</a></li>
   <li><a href="#notes-4" id="toc-notes-4" class="nav-link" data-scroll-target="#notes-4">Notes</a></li>
   </ul></li>
-  <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">1.2.0 - 2026-06-07</a>
+  <li><a href="#section-14" id="toc-section-14" class="nav-link" data-scroll-target="#section-14">1.2.0 - 2026-06-07</a>
   <ul class="collapse">
   <li><a href="#added-15" id="toc-added-15" class="nav-link" data-scroll-target="#added-15">Added</a></li>
   <li><a href="#changed-5" id="toc-changed-5" class="nav-link" data-scroll-target="#changed-5">Changed</a></li>
   <li><a href="#notes-5" id="toc-notes-5" class="nav-link" data-scroll-target="#notes-5">Notes</a></li>
   </ul></li>
-  <li><a href="#section-16" id="toc-section-16" class="nav-link" data-scroll-target="#section-16">1.1.1 - 2026-04-18</a>
+  <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">1.1.1 - 2026-04-18</a>
   <ul class="collapse">
   <li><a href="#added-16" id="toc-added-16" class="nav-link" data-scroll-target="#added-16">Added</a></li>
   <li><a href="#notes-6" id="toc-notes-6" class="nav-link" data-scroll-target="#notes-6">Notes</a></li>
   </ul></li>
-  <li><a href="#section-17" id="toc-section-17" class="nav-link" data-scroll-target="#section-17">1.1.0 - 2026-04-10</a>
+  <li><a href="#section-16" id="toc-section-16" class="nav-link" data-scroll-target="#section-16">1.1.0 - 2026-04-10</a>
   <ul class="collapse">
   <li><a href="#added-17" id="toc-added-17" class="nav-link" data-scroll-target="#added-17">Added</a></li>
   <li><a href="#fixed-4" id="toc-fixed-4" class="nav-link" data-scroll-target="#fixed-4">Fixed</a></li>
   </ul></li>
-  <li><a href="#section-18" id="toc-section-18" class="nav-link" data-scroll-target="#section-18">1.0.0 - 2026-04-07</a>
+  <li><a href="#section-17" id="toc-section-17" class="nav-link" data-scroll-target="#section-17">1.0.0 - 2026-04-07</a>
   <ul class="collapse">
   <li><a href="#added-18" id="toc-added-18" class="nav-link" data-scroll-target="#added-18">Added</a></li>
   <li><a href="#security" id="toc-security" class="nav-link" data-scroll-target="#security">Security</a></li>
@@ -255,15 +278,22 @@ ul.task-list li input[type="checkbox"] {
 <section id="added" class="level3">
 <h3 class="anchored" data-anchor-id="added">Added</h3>
 <ul>
+<li><p><strong>Standalone Zotero guide</strong> (<code>docs/zotero-getting-started.md</code>): install, account and sync, browser connector, library orientation, local API, Better BibTeX, citation keys, and Quick Copy, written for someone new to Zotero with no llm-wiki, Logseq, or skill references, so it can be read before the tooling is introduced. Documents the citation key formula (<code>auth.lower + year + veryshorttitle(1, 0).lower</code>) as the harmonized GHE convention: with every member generating keys the same way, references shared through the group library carry the same key in each member’s library and manuscripts cite by identical keys. Linked from the README docs list and from both llm-wiki Zotero docs as the first-time-user entry point.</p></li>
+<li><p><strong>Project-page template seed in the <code>--with-para-notes</code> scaffold</strong>: a new project page now starts from the documented skeleton (<code>type:: project</code>, <code>status:: active</code>, empty <code>outcome::</code>, a tasks section) instead of being retyped. Logseq gets a <code>para/templates</code> page carrying a native <code>para-project</code> template block (insert via <code>/Template</code>); Obsidian gets <code>para/templates/project.md</code> for the core Templates plugin. Like the schema seeds, the template is scaffolded once, is human-editable, and the toolchain never touches it again (namespaces contract unchanged). See the new “The project template” section in <code>docs/para-notes-workflow.md</code>.</p></li>
+<li><p>v3.7 recall canon (issues #142, #143 - spec only, NOT yet implemented): the two recall features adapted from daniloc/mnemion’s <code>prime</code> tool and one-hop link expansion, translated to the local lexical architecture. New <code>openspec/specs/prime.md</code> (REQ-1400..1431): <code>/wiki-query --prime</code> context priming - explicit or derived-and-echoed context, lexical-only recall (breadth-first hub scan, optional index.db FTS, bounded grep), max 3 full reads plus pointers, one-hop neighbor lists, L1 pass, single-register briefing, read-only contract, no auto-run. New One-Hop Neighbor Expansion section in <code>openspec/specs/query.md</code> (REQ-480..485, Scenario 18): ranked, capped <code>Related:</code> pointer list built from the fully-read pages’ outgoing <code>wiki/</code> links - pointers are never read in full and never Access-Logged. Cycle plan with design decisions, dependency order (#142 before #143), and parked non-goals (decay half-lives, mechanical overlap detection, schema evolution, embeddings) in <code>docs/roadmap-v3.7-recall.md</code>; both specs registered in <code>openspec/project.md</code> as “v3.7, not yet implemented”.</p></li>
+<li><p><strong>iPad / iOS section in the Zotero setup guide</strong> (issue #137): reading and annotating on a tablet. Sign in with the zotero.org account in the iOS app - no API keys, no plugins, no citation-key settings on the device; requires enabling Zotero account sync on the desktop (plus file syncing via Zotero Storage or WebDAV to read PDFs). Annotations made on the iPad flow into <code>/lit-sync</code> unchanged; <code>lit_sync.py</code> still talks only to the desktop’s local API (issue #90, decision 1).</p></li>
 <li><p><code>plain-writing</code>: vendored writing-style skill by Shreya Shankar (https://github.com/shreyashankar/plain-writing-skill, commit <code>25a5393</code>, MIT license). Plain prose rules (simple words, complete sentences, no dashes, no jargon, no filler) with an optional HTML diff view for revisions. Not wiki-specific and independent of <code>wiki-core</code>; <code>setup.sh</code> installs it alongside the <code>wiki-*</code> skills (spec: setup.md REQ-802).</p></li>
 <li><p>Worked examples in the workflow docs: the data-package guide shows a complete dataset page after a sync with the two surviving human-note spots marked (issue #135), and the PARA/Zettelkasten guide shows what each <code>type::</code> note looks like on disk plus the simple and advanced queries that filter on the property (issue #136).</p></li>
 <li><p>AI-conversation-transcript ingest route (issue #107 Part 2): the spec’d machinery for chats as sources, shipped after the maintainer waived the five-hand-ingest gate (2026-07-16; the Phase-0 hand ingests validated the route). New Transcript Sources REQ block in <code>openspec/specs/ingest.md</code>, REQ-1300..1305: file route through <code>raw/</code> with <code>chat-</code> filename type inference (REQ-1300); <code>transcripts</code> source type, sensitive by default so the bytes never enter git history, with an off-machine-copy requirement for gitignored <code>ingested/</code> subtrees before the first sensitive ingest (REQ-1301); capture-backed reliability with the confirmed-decision <code>medium</code> exception (REQ-1302, schema REQ-586b extended); interactive-only with a per-decision opt-in checkpoint variant and journal decision-log default (REQ-1303); skip content another system of record already holds (REQ-1304); curation precedes ingest (REQ-1305). Plus: config defaults updated (config REQ-623/624, <code>config.example.yml</code>), audit REQ-927 extended to give <code>ingested/transcripts/</code> refs the <code>capture-backed</code> verdict and <code>source-missing</code> for lost gitignored bytes, <code>wiki-ingest</code> skill support (prefix inference, checkpoint decision table, <code>--auto</code> exception), a frozen chat fixture with <code>tests/golden/ingest-transcript.golden.md</code> (recorded on claude-fable-5), harness assertions, and the <code>docs/source-routes.md</code> route promoted from manual protocol to spec’d machinery. Scenario 22 covers the end-to-end shape.</p></li>
 <li><p><code>SECURITY.md</code> (issue #112): private vulnerability reporting via GitHub security advisories, plus what counts as a vulnerability for a local-first tool (credential-lint bypasses, sensitive-source leaks past REQ-046, L1/L2 boundary crossings). Fixes the dangling <code>SECURITY.md</code> link in <code>docs/faq.md</code>.</p></li>
+<li><p>tasks-sync seam (issue #127): GitHub Issues (plus an optional user-level GitHub Project v2) as the canonical store for task state, with the Logseq journal as capture layer and <code>para/projects/</code> pages as the task home. Two one-way flows driven by <code>scripts/tasks_sync.py</code> and the <code>/tasks-sync</code> command: open-sync promotes confirmed open task blocks (gated on a <code>[[para/projects/...]]</code> link, the <code>#gh</code> tag, or para-page residence) into issues and stamps <code>issue::</code>/<code>opened::</code> on the block; close-sync flips tracked blocks to <code>DONE</code> with a <code>closed::</code> stamp when their issue closes, and closes issues for blocks completed in Logseq - GitHub wins on state, an issue is never reopened from the graph. Idempotency is content-embedded (<code>issue::</code> is the sole link key; no state file, per the suite convention), stamps land per issue, and an unauthenticated <code>gh</code> is a clean stop with zero graph writes. Spec: <code>openspec/specs/tasks-sync.md</code> REQ-1400..1417 (the 1300s went to transcript sources in the same release); the <code>para/</code> write carve-out is namespaces REQ-969 (the seam is a human-layer companion tool like the literature sync, not a wiki workflow); config keys <code>tasks_repo</code>/<code>tasks_project</code>/<code>tasks_milestone_label</code> (config REQ-662..664, with REQ-629 amended to name the seam’s journal stamps). Logseq tier-1; Project v2 field mapping and the para-page milestone hook are specified as Phase 2 (REQ-1416). Guide: <code>docs/tasks-sync-workflow.md</code>; harness coverage in <code>test_pipeline.sh</code> against a stubbed <code>gh</code>.</p></li>
 </ul>
 </section>
 <section id="fixed" class="level3">
 <h3 class="anchored" data-anchor-id="fixed">Fixed</h3>
 <ul>
+<li><p>Zotero setup docs match the shipped Better BibTeX settings UI and the plugin-free sync (verified against maintainer screenshots, 2026-07-23). The citation-key setting was renamed, not removed: <em>Automatically pin citation key after</em> is today’s <em>Automatically fill citation key after</em> (set to 2 seconds; <em>Regenerate citation key when item changes</em> stays unchecked so a filled key never changes under an existing page). Both Zotero docs and the <code>/lit-sync</code> command preconditions now say so, correcting the earlier “pinning is gone” claim. The walkthrough’s second half no longer installs the abandoned logseq-zoterolocal-plugin (issue #90): it now covers installing Zotero itself, the Quick Copy settings (<em>Better BibTeX Citation Key Quick Copy</em> item format, <em>Markdown + Rich Text</em> note format with Zotero links for Markdown), running <code>/lit-sync</code>, and the #28 verification loop rewritten around the script. Along the way: <code>## my reading</code> became <code>## literature</code> (issue #101), <code>source-file::</code> is documented as the confirmed checkpoint write instead of a hand paste (REQ-974), the example citekeys now match what the documented formula produces (<code>forte2022building</code>), and all inline TODOs in the walkthrough are resolved.</p></li>
+<li><p><code>lit_sync.py</code> reads Zotero’s native citation-key field (issue #137): since Better BibTeX 8 (Zotero 8/9) citekeys live in the item’s <code>citationKey</code> field and BBT migrates them out of <code>extra</code>, so the extra-only lookup would have skipped every migrated item. The native field is now preferred, with <code>extra</code> (<code>Citation Key: xxx</code>) kept as a fallback for unmigrated libraries. Docs updated to match: the autopin/pinning instructions are gone (keys are always pinned now), and the walkthrough documents the citation key formula (<code>auth.lower + year + veryshorttitle(1, 0).lower</code>).</p></li>
 <li><p>Voice capture provenance (issue #121). <code>recorded_at</code> is now stamped from the audio container’s own creation time - the m4a <code>mvhd</code> box (UTC, MP4 epoch), falling back to the <code>©day</code> atom, then to <code>st_mtime</code> only as a documented last resort - instead of trusting <code>st_mtime</code>, which AirDrop and copies rewrite (observed shifting memos onto the wrong day). Pure-stdlib MP4 box parse in the reference <code>voice_note_insert.py</code> (<code>docs/voice-pipeline.md</code> section 5.2); no new dependency. Both voice pickers (<code>wiki-chat-voice</code>, <code>wiki-ingest-voice</code>) now also show the original filename (basename of the stored <code>audio_path</code>, derived at display time - ingest REQ-1200 updated), so a row stays traceable to the phone’s recording and a suspicious timestamp can be cross-checked by eye. The six-column <code>voice_notes</code> schema is unchanged (storage REQ-1111).</p></li>
 <li><p>Stale repository URLs (issue #112): issue/reporting links in <code>docs/faq.md</code>, <code>docs/troubleshooting.md</code>, the issue-template config, <code>openspec/project.md</code>, and the CHANGELOG link definitions now point at <code>larnsce/llm-wiki</code> instead of the pre-transfer repository path.</p></li>
 <li><p>Voice transcription: whisper.cpp decoder repetition loops (issue #120). <code>voice_note_insert.py</code> now passes <code>--max-context 0</code> plus temperature fallback to <code>whisper-cli</code>, stopping decoded text from being carried across windows (which feeds the loop). The originally proposed <code>--no-context</code> blanked transcripts to zero words on this build because it also voids the <code>--prompt</code> context, so <code>--max-context 0</code> is used instead; verified on the known-bad recordings (x8/x11 sentence repeats dropped to x1). Existing archive.db rows are unchanged (storage REQ-1110); the fix is at production time only.</p></li>
@@ -272,15 +302,13 @@ ul.task-list li input[type="checkbox"] {
 <section id="changed" class="level3">
 <h3 class="anchored" data-anchor-id="changed">Changed</h3>
 <ul>
+<li><p>Model tiering adjusted now that Fable is available on demand rather than a scarce or expiring resource (issue #108): the two deep-reasoning agents <code>wiki-audit-judge</code> and <code>wiki-synthesize</code> move from opus to <code>model: fable</code>, so the durable-truth work (final audit judgment, dense or high-stakes ingest synthesis) runs on the strongest reasoning by default. Opus becomes the middle escalation tier for routine tasks that trip a trigger; sonnet stays the default session and verification tier; haiku keeps the mechanical work. <code>docs/model-tiering.md</code> reframes the fable-baseline golden set as a standing regression net (no longer “expires at midnight”), and the premortem’s hard Fable-expiry kill criterion no longer applies. <code>check_canon.py</code> exit 0, harness 204/204.</p></li>
 <li><p>Literature-note <code>source-file::</code> is now written by the tool on the human’s confirmation (issue #133, new namespaces REQ-974). When <code>/wiki-ingest</code> recognizes a promoted literature note and the <code>notes/literature/@&lt;citekey&gt;</code> page exists with the property blank, the checkpoint offers to set it to the <code>ingested/</code> path the run produced - you confirm, the tool types. The one enumerated exception to the “never write <code>notes/</code>” scope rule (REQ-966): the tool never creates the page, never overwrites a value you set, and <code>--auto</code> runs keep the old report-reminder behavior.</p></li>
 <li><p><code>docs/voice-pipeline.md</code> section 2.2 (issue #113): Google Drive backup setup now instructs creating a personal OAuth <code>client_id</code> for rclone - rclone’s shared client_id is being retired during 2026, and inheriting it would make the nightly archive.db copy (storage REQ-1120) start failing silently. Includes the reconfigure-in-place path and the verification signal (no retirement NOTICE on <code>rclone lsd</code>).</p></li>
-<li><p>index.db freshness reporting (issue #115). The dead-man status line now reads a missing or never-built index (<code>index n/a</code>) as INFORMATIONAL rather than a warning: <code>index.db</code> is rebuilt lazily at query time by design (storage REQ-1133), so its freshness follows index-plane query traffic, not edit activity (new storage REQ-1140a). To close the freshness loop for a maintainer who never runs index-plane queries, <code>wiki-maintain status</code> (Phase 2d) and <code>wiki-ingest-voice</code> now OFFER to rebuild a stale/missing index with explicit confirmation - never automatically, so the read-only status path introduces no silent write and no background rebuild (new storage REQ-1142). <code>docs/voice-pipeline.md</code> section 7.1 documents what keeps the index fresh and how to read the <code>index rebuilt</code> age.</p></li>
+<li><p>index.db freshness reporting (issue #115). The dead-man status line now reads a missing or never-built index (<code>index n/a</code>) as INFORMATIONAL rather than a warning: <code>index.db</code> is rebuilt lazily at query time by design (storage REQ-1133), so its freshness follows index-plane query traffic, not edit activity (new storage REQ-1140a). To close the freshness loop for a maintainer who never runs index-plane queries, <code>wiki-maintain status</code> (Phase 2d) and <code>wiki-ingest-voice</code> now OFFER to rebuild a stale/missing index with explicit confirmation - never automatically, so the read-only status path introduces no silent write and no background rebuild (new storage REQ-1142). <code>docs/voice-pipeline.md</code> section 7.1 documents what keeps the index fresh and how to read the <code>index rebuilt</code> age. ## [3.6.0] - 2026-07-13</p></li>
 </ul>
-</section>
-</section>
-<section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section">[3.6.0] - 2026-07-13</h2>
 <p>The documentation site goes live (issue #111) and the wiki-chat-voice skill (issue #117) ships in the same release.</p>
+</section>
 <section id="added-1" class="level3">
 <h3 class="anchored" data-anchor-id="added-1">Added</h3>
 <ul>
@@ -289,8 +317,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-1" class="level2">
-<h2 class="anchored" data-anchor-id="section-1">[3.5.0] - 2026-07-08</h2>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section">[3.5.0] - 2026-07-08</h2>
 <p>Model tiering (issue #108, premortem-revised) plus the source-routes decision record (issue #107 Part 1) and three live-vault bug fixes.</p>
 <section id="added-2" class="level3">
 <h3 class="anchored" data-anchor-id="added-2">Added</h3>
@@ -310,8 +338,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-2" class="level2">
-<h2 class="anchored" data-anchor-id="section-2">[3.4.1] - 2026-07-07</h2>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1">[3.4.1] - 2026-07-07</h2>
 <section id="fixed-2" class="level3">
 <h3 class="anchored" data-anchor-id="fixed-2">Fixed</h3>
 <ul>
@@ -319,8 +347,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-3" class="level2">
-<h2 class="anchored" data-anchor-id="section-3">[3.4.0] - 2026-07-07</h2>
+<section id="section-2" class="level2">
+<h2 class="anchored" data-anchor-id="section-2">[3.4.0] - 2026-07-07</h2>
 <p>Second live-use feedback round: person names as first-class links, and the human note sections named after their Zettelkasten note type.</p>
 <section id="added-3" class="level3">
 <h3 class="anchored" data-anchor-id="added-3">Added</h3>
@@ -335,8 +363,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-4" class="level2">
-<h2 class="anchored" data-anchor-id="section-4">[3.3.0] - 2026-07-07</h2>
+<section id="section-3" class="level2">
+<h2 class="anchored" data-anchor-id="section-3">[3.3.0] - 2026-07-07</h2>
 <section id="added-4" class="level3">
 <h3 class="anchored" data-anchor-id="added-4">Added</h3>
 <ul>
@@ -344,8 +372,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-5" class="level2">
-<h2 class="anchored" data-anchor-id="section-5">[3.2.0] - 2026-07-07</h2>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">[3.2.0] - 2026-07-07</h2>
 <p>Data enters the vault: R data packages as versioned, self-describing sources, and a plugin-free Zotero literature sync. Both follow the same pattern: an external system of record, an idempotent sync script, machine-managed regions beside untouchable human notes, and a version stamp.</p>
 <section id="added-5" class="level3">
 <h3 class="anchored" data-anchor-id="added-5">Added</h3>
@@ -358,8 +386,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-6" class="level2">
-<h2 class="anchored" data-anchor-id="section-6">[3.1.0] - 2026-07-06</h2>
+<section id="section-5" class="level2">
+<h2 class="anchored" data-anchor-id="section-5">[3.1.0] - 2026-07-06</h2>
 <p>The journal seam and dual-register answers, from first live use of the v2.3/v3.0 stack: the journal becomes the daily surface of the ingest pipeline, and query answers become readable by anyone.</p>
 <section id="added-6" class="level3">
 <h3 class="anchored" data-anchor-id="added-6">Added</h3>
@@ -377,8 +405,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-7" class="level2">
-<h2 class="anchored" data-anchor-id="section-7">[3.0.0] - 2026-07-06</h2>
+<section id="section-6" class="level2">
+<h2 class="anchored" data-anchor-id="section-6">[3.0.0] - 2026-07-06</h2>
 <p>The personal pipeline: a SQLite machine plane beside the markdown vault, voice capture as an ingest source, and two-plane query routing. Completes the v3.0 milestone (issue #61) under the 2026-07-05 gate waiver (all adoption-pacing gates dropped except the archive.db backup-before-first-note rule and the voice per-row confirmation rules, which are implemented as standing requirements, not gates).</p>
 <section id="added-7" class="level3">
 <h3 class="anchored" data-anchor-id="added-7">Added</h3>
@@ -409,8 +437,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-8" class="level2">
-<h2 class="anchored" data-anchor-id="section-8">[2.3.0] - 2026-07-06</h2>
+<section id="section-7" class="level2">
+<h2 class="anchored" data-anchor-id="section-7">[2.3.0] - 2026-07-06</h2>
 <p>The glossary layer: hand-run first (G-0), tooling under the same waiver. Completes the v2.3 milestone.</p>
 <section id="added-8" class="level3">
 <h3 class="anchored" data-anchor-id="added-8">Added</h3>
@@ -420,8 +448,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-9" class="level2">
-<h2 class="anchored" data-anchor-id="section-9">[2.2.0] - 2026-07-04</h2>
+<section id="section-8" class="level2">
+<h2 class="anchored" data-anchor-id="section-8">[2.2.0] - 2026-07-04</h2>
 <p>The human layer: PARA tasks (<code>para/</code>) and Zettelkasten notes (<code>notes/</code>) in the same graph as the machine-written <code>wiki/</code>, with a hard namespace contract and one sanctioned promotion path. Completes the v2.2 milestone (issue #30).</p>
 <section id="added-9" class="level3">
 <h3 class="anchored" data-anchor-id="added-9">Added</h3>
@@ -442,8 +470,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-10" class="level2">
-<h2 class="anchored" data-anchor-id="section-10">[2.1.0] - 2026-07-04</h2>
+<section id="section-9" class="level2">
+<h2 class="anchored" data-anchor-id="section-9">[2.1.0] - 2026-07-04</h2>
 <p>Claim-level citations and the two skills that consume them. Completes the re-authored Patch 2 (issue #8) in its block-native form.</p>
 <section id="added-10" class="level3">
 <h3 class="anchored" data-anchor-id="added-10">Added</h3>
@@ -456,8 +484,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-11" class="level2">
-<h2 class="anchored" data-anchor-id="section-11">[2.0.0] - 2026-07-04</h2>
+<section id="section-10" class="level2">
+<h2 class="anchored" data-anchor-id="section-10">[2.0.0] - 2026-07-04</h2>
 <p>The multi-skill suite. The single <code>/wiki</code> command (<code>wiki.md</code>) is removed and its workflows are re-homed across eight skills backed by a spec canon, shared scripts, and a mechanical test harness. BREAKING: the v1 command file is no longer shipped or supported; see <code>docs/migration-v2.md</code>.</p>
 <p>Tagged 2026-07-04 with the real-vault gate waived by maintainer decision; running <code>migrate_wiki.py</code> dry-run plus <code>wiki-lint</code> against the real vault remains the recommended first post-release step (issue #21 gate, <code>docs/migration.md</code>).</p>
 <section id="added-11" class="level3">
@@ -488,8 +516,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-12" class="level2">
-<h2 class="anchored" data-anchor-id="section-12">[1.5.0] - 2026-06-25</h2>
+<section id="section-11" class="level2">
+<h2 class="anchored" data-anchor-id="section-11">[1.5.0] - 2026-06-25</h2>
 <p>Fork feature (larnsce). A literature-research workflow guide and an optional Semantic-Scholar enrichment for the provenance pipeline added in 1.4.0. This is mostly documentation: how to combine Connected Papers, Semantic Scholar, Elicit, and Zotero with the wiki command so discovery stays fast and only read papers cross into the wiki. The only tool change is an optional <code>s2-metrics::</code> property, and it rides inside the existing provenance regions (sentinel comments, removed in 2.0.0), so the fork seam did not widen.</p>
 <section id="added-12" class="level3">
 <h3 class="anchored" data-anchor-id="added-12">Added</h3>
@@ -508,8 +536,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-13" class="level2">
-<h2 class="anchored" data-anchor-id="section-13">[1.4.0] - 2026-06-25</h2>
+<section id="section-12" class="level2">
+<h2 class="anchored" data-anchor-id="section-12">[1.4.0] - 2026-06-25</h2>
 <p>Fork feature (larnsce). A source-provenance pipeline and a trust layer, ported as ideas from vanillaflava/llm-wiki-skills, adapted to Logseq and this tool’s v1 wiki command. The goal is reproducibility: every synthesised claim traces back to a specific archived source, and weakly-supported pages are visibly flagged until corroborated. Implemented as additive provenance regions (sentinel comments, removed in 2.0.0) so the fork stayed rebaseable against upstream; the base <code>## Workflow: ingest (Default)</code> was left verbatim and only overlaid.</p>
 <section id="added-13" class="level3">
 <h3 class="anchored" data-anchor-id="added-13">Added</h3>
@@ -538,8 +566,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-14" class="level2">
-<h2 class="anchored" data-anchor-id="section-14">[1.3.0] - 2026-06-08</h2>
+<section id="section-13" class="level2">
+<h2 class="anchored" data-anchor-id="section-13">[1.3.0] - 2026-06-08</h2>
 <p>Routing transparency. The Access-Log already recorded which pages a query pulled; now it records <em>why</em> each was picked. Loading becomes auditable — not just what loaded, but the index description or grep term that selected it. Inspired by a reader pointing out that knowing <em>when and why</em> context loads is half the problem.</p>
 <section id="added-14" class="level3">
 <h3 class="anchored" data-anchor-id="added-14">Added</h3>
@@ -561,8 +589,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-15" class="level2">
-<h2 class="anchored" data-anchor-id="section-15"><a href="https://github.com/larnsce/llm-wiki/compare/v1.1.1...v1.2.0">1.2.0</a> - 2026-06-07</h2>
+<section id="section-14" class="level2">
+<h2 class="anchored" data-anchor-id="section-14"><a href="https://github.com/larnsce/llm-wiki/compare/v1.1.1...v1.2.0">1.2.0</a> - 2026-06-07</h2>
 <p>Two retrieval-scaling mechanisms, the CPU-cache analogy carried through to the index and eviction layers. As a wiki grows past a few dozen pages, grep-over-everything gets imprecise; these keep retrieval sharp.</p>
 <section id="added-15" class="level3">
 <h3 class="anchored" data-anchor-id="added-15">Added</h3>
@@ -591,8 +619,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-16" class="level2">
-<h2 class="anchored" data-anchor-id="section-16"><a href="https://github.com/larnsce/llm-wiki/compare/v1.1.0...v1.1.1">1.1.1</a> - 2026-04-18</h2>
+<section id="section-15" class="level2">
+<h2 class="anchored" data-anchor-id="section-15"><a href="https://github.com/larnsce/llm-wiki/compare/v1.1.0...v1.1.1">1.1.1</a> - 2026-04-18</h2>
 <section id="added-16" class="level3">
 <h3 class="anchored" data-anchor-id="added-16">Added</h3>
 <ul>
@@ -610,8 +638,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-17" class="level2">
-<h2 class="anchored" data-anchor-id="section-17"><a href="https://github.com/larnsce/llm-wiki/compare/v1.0.0...v1.1.0">1.1.0</a> - 2026-04-10</h2>
+<section id="section-16" class="level2">
+<h2 class="anchored" data-anchor-id="section-16"><a href="https://github.com/larnsce/llm-wiki/compare/v1.0.0...v1.1.0">1.1.0</a> - 2026-04-10</h2>
 <section id="added-17" class="level3">
 <h3 class="anchored" data-anchor-id="added-17">Added</h3>
 <ul>
@@ -643,8 +671,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-18" class="level2">
-<h2 class="anchored" data-anchor-id="section-18"><a href="https://github.com/larnsce/llm-wiki/releases/tag/v1.0.0">1.0.0</a> - 2026-04-07</h2>
+<section id="section-17" class="level2">
+<h2 class="anchored" data-anchor-id="section-17"><a href="https://github.com/larnsce/llm-wiki/releases/tag/v1.0.0">1.0.0</a> - 2026-04-07</h2>
 <p>First stable release.</p>
 <section id="added-18" class="level3">
 <h3 class="anchored" data-anchor-id="added-18">Added</h3>

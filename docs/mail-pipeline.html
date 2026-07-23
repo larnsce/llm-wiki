@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>mail-pipeline – llm-wiki</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">llm-wiki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/skills.html"> 
+<span class="menu-text">Skills</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/specs.html"> 
+<span class="menu-text">Specs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/agents.html"> 
+<span class="menu-text">Agents</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/articles.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../CHANGELOG.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/larnsce/llm-wiki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#mail-pipeline-daily-infomaniak-imap-capture-into-archive.db-macos" id="toc-mail-pipeline-daily-infomaniak-imap-capture-into-archive.db-macos" class="nav-link active" data-scroll-target="#mail-pipeline-daily-infomaniak-imap-capture-into-archive.db-macos">Mail pipeline: daily Infomaniak IMAP capture into archive.db (macOS)</a>
+  <ul class="collapse">
+  <li><a href="#what-this-is" id="toc-what-this-is" class="nav-link" data-scroll-target="#what-this-is">1. What this is</a></li>
+  <li><a href="#preconditions-durability-first" id="toc-preconditions-durability-first" class="nav-link" data-scroll-target="#preconditions-durability-first">2. Preconditions: durability first</a></li>
+  <li><a href="#infomaniak-account-setup" id="toc-infomaniak-account-setup" class="nav-link" data-scroll-target="#infomaniak-account-setup">3. Infomaniak account setup</a></li>
+  <li><a href="#the-capture-script" id="toc-the-capture-script" class="nav-link" data-scroll-target="#the-capture-script">4. The capture script</a></li>
+  <li><a href="#the-launchd-job" id="toc-the-launchd-job" class="nav-link" data-scroll-target="#the-launchd-job">5. The launchd job</a></li>
+  <li><a href="#full-text-search-over-captured-mail" id="toc-full-text-search-over-captured-mail" class="nav-link" data-scroll-target="#full-text-search-over-captured-mail">6. Full-text search over captured mail</a></li>
+  <li><a href="#the-sent-mail-overview-a-query-not-a-journal-block" id="toc-the-sent-mail-overview-a-query-not-a-journal-block" class="nav-link" data-scroll-target="#the-sent-mail-overview-a-query-not-a-journal-block">7. The sent-mail overview: a query, not a journal block</a></li>
+  <li><a href="#what-deliberately-does-not-happen" id="toc-what-deliberately-does-not-happen" class="nav-link" data-scroll-target="#what-deliberately-does-not-happen">8. What deliberately does NOT happen</a></li>
+  <li><a href="#related" id="toc-related" class="nav-link" data-scroll-target="#related">Related</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/mail-pipeline.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="mail-pipeline-daily-infomaniak-imap-capture-into-archive.db-macos" class="level1">
+<h1>Mail pipeline: daily Infomaniak IMAP capture into archive.db (macOS)</h1>
+<p>Maintainer-run plumbing for the personal pipeline (issue #123): a nightly, deterministic pull of new mail from an Infomaniak mailbox into <code>archive.db</code>, beside the Takeout-imported history from <a href="../docs/archive-layer.html"><code>docs/archive-layer.md</code></a>. Everything here is copy-paste and runs on one machine; the repo documents it but does not ship or test it (same rule as the rest of the archive layer).</p>
+<blockquote class="blockquote">
+<p><strong>Scope: capture only, no wiki route.</strong> Email still has NO route into wiki pages (<code>docs/source-routes.md</code>, issue #107 decision 9), and automated inbox-to-wiki ingestion stays rejected (the funnel rule). This pipeline only moves bytes onto the machine plane – <code>archive.db</code>, never the vault, never index.db (storage REQ-1132). Anything that matters enough for a page goes through <code>raw/</code> + <code>/wiki-ingest</code> with its checkpoint, by hand. The storage contract is <a href="../openspec/specs/storage.html"><code>openspec/specs/storage.md</code></a>; where this guide and the spec disagree, the spec wins.</p>
+</blockquote>
+<section id="what-this-is" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-is">1. What this is</h2>
+<pre><code>mail.infomaniak.com:993 (IMAP) --nightly launchd--&gt; archive.db
+                                                     (messages,
+                                                      imap_sync_state)
+                                                         |
+                                    SQL when a question needs it;
+                                    wiki pages only via raw/ +
+                                    /wiki-ingest, by hand</code></pre>
+<p>Three rules shape the design:</p>
+<ol type="1">
+<li><strong>Deterministic script, no LLM, no MCP in the loop.</strong> A daily fetch is mechanical; an unattended model reading arbitrary inbound mail would add cost, fragility, and a prompt-injection surface for nothing. Interactive mail work (search, triage, drafting a <code>raw/note-*.md</code> digest in-session) is the official Infomaniak Mail MCP server’s job – issue #124, separate from this pipeline on purpose.</li>
+<li><strong>Incremental and append-only.</strong> The script tracks <code>UIDVALIDITY</code> and the last-seen <code>UID</code> per folder and only appends new rows into the same <code>messages</code> table the Takeout mbox import uses (archive-layer section 5), so FTS and the lazy alias-resolution practice work unchanged across both. Nothing is ever updated or deleted.</li>
+<li><strong>Takeout stays the historical backstop.</strong> The archive layer’s “no scheduled re-import” rule is unchanged: Takeout is for bulk history a few times a year; this pipeline is the day-to-day trickle. Unlike a Takeout import, IMAP-captured rows have no export file behind them – archive.db is their primary record, which is why section 2 comes first.</li>
+</ol>
+</section>
+<section id="preconditions-durability-first" class="level2">
+<h2 class="anchored" data-anchor-id="preconditions-durability-first">2. Preconditions: durability first</h2>
+<p>IMAP-captured mail exists ONLY in archive.db (the server keeps its copy, but treat the local capture as primary data), so the standard discipline binds BEFORE the first real run:</p>
+<ul>
+<li>The <strong>nightly off-machine copy</strong> of archive.db must already run (storage REQ-1120; <a href="../docs/voice-pipeline.html"><code>docs/voice-pipeline.md</code></a> section 2 has the backup script and launchd job). No backup, no capture job.</li>
+<li>The <strong>quarterly restore drill</strong> (REQ-1121) already counts the <code>messages</code> table (archive-layer section 2); rows added by this pipeline are covered by the same drill with no changes.</li>
+<li>archive.db stays <strong>out of git</strong> (REQ-1103). Nothing in this guide touches the vault or its history.</li>
+</ul>
+</section>
+<section id="infomaniak-account-setup" class="level2">
+<h2 class="anchored" data-anchor-id="infomaniak-account-setup">3. Infomaniak account setup</h2>
+<ul>
+<li>IMAP endpoint: <code>mail.infomaniak.com</code>, port <code>993</code>, SSL/TLS. Username is the full address.</li>
+<li>With two-factor auth enabled (it should be), create an <strong>application password</strong> for IMAP in the Infomaniak Manager (Security section) instead of using the account password.</li>
+<li>The credential is L1 material: it lives in the macOS keychain, never in the vault, never in this repo.</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">security</span> add-generic-password <span class="at">-a</span> you@example.com <span class="at">-s</span> infomaniak-imap <span class="at">-w</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>(Prompts for the app password and stores it; the script reads it back with <code>security find-generic-password ... -w</code> via <code>password_cmd</code> below.)</p>
+</section>
+<section id="the-capture-script" class="level2">
+<h2 class="anchored" data-anchor-id="the-capture-script">4. The capture script</h2>
+<p>Config first. Save as <code>~/.config/imap_to_archive.json</code> (chmod 600):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"host"</span><span class="fu">:</span> <span class="st">"mail.infomaniak.com"</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"port"</span><span class="fu">:</span> <span class="dv">993</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"username"</span><span class="fu">:</span> <span class="st">"you@example.com"</span><span class="fu">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"password_cmd"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"security"</span><span class="ot">,</span> <span class="st">"find-generic-password"</span><span class="ot">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"-a"</span><span class="ot">,</span> <span class="st">"you@example.com"</span><span class="ot">,</span> <span class="st">"-s"</span><span class="ot">,</span> <span class="st">"infomaniak-imap"</span><span class="ot">,</span> <span class="st">"-w"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"folders"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"INBOX"</span><span class="ot">,</span> <span class="st">"Sent"</span><span class="ot">]</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>Sent</code> capture is what the review-time sent-mail query (section 7, issue #125) rests on. Folder names vary by account history; run the script with <code>--list-folders</code> once and adjust (some accounts use <code>Sent Messages</code>).</p>
+<p>Save as <code>~/bin/imap_to_archive.py</code> (stdlib only, same rule as the other archive-layer snippets):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">"""imap_to_archive.py - incremental IMAP capture into archive.db (stdlib only).</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">Usage:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">  python3 imap_to_archive.py ~/archive/archive.db                  # fetch new mail</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">  python3 imap_to_archive.py ~/archive/archive.db --list-folders   # inspect names</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">Config: ~/.config/imap_to_archive.json (host, port, username,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">password_cmd or password, folders). Tracks UIDVALIDITY + last UID per</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">folder in imap_sync_state and appends new messages into the same</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">`messages` table the Takeout mbox import uses; missing columns are added,</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">existing rows are never touched. Text parts only; attachments are skipped</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">(the mailbox stays the record for those).</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> email</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> email.header</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> email.utils</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> imaplib</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pathlib</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>CONFIG <span class="op">=</span> pathlib.Path.home() <span class="op">/</span> <span class="st">".config"</span> <span class="op">/</span> <span class="st">"imap_to_archive.json"</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>COLUMNS <span class="op">=</span> (<span class="st">"message_id"</span>, <span class="st">"folder"</span>, <span class="st">"uid"</span>, <span class="st">"uidvalidity"</span>, <span class="st">"date"</span>,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>           <span class="st">"from_addr"</span>, <span class="st">"to_addrs"</span>, <span class="st">"cc_addrs"</span>, <span class="st">"subject"</span>, <span class="st">"payload"</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_password(cfg):</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> cfg.get(<span class="st">"password"</span>):</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> cfg[<span class="st">"password"</span>]</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> subprocess.check_output(cfg[<span class="st">"password_cmd"</span>], text<span class="op">=</span><span class="va">True</span>).strip()</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ensure_schema(db):</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    db.execute(<span class="st">"CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY)"</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    have <span class="op">=</span> {row[<span class="dv">1</span>] <span class="cf">for</span> row <span class="kw">in</span> db.execute(<span class="st">"PRAGMA table_info(messages)"</span>)}</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> COLUMNS:</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> col <span class="kw">not</span> <span class="kw">in</span> have:</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>            db.execute(<span class="st">"ALTER TABLE messages ADD COLUMN </span><span class="sc">%s</span><span class="st"> TEXT"</span> <span class="op">%</span> col)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># NULLs compare distinct in SQLite unique indexes, so rows from the</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Takeout mbox import (no folder/uid) are unaffected by this index.</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    db.execute(<span class="st">"CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_imap"</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>               <span class="st">" ON messages (folder, uidvalidity, uid)"</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    db.execute(<span class="st">"""CREATE TABLE IF NOT EXISTS imap_sync_state (</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="st">        folder      TEXT PRIMARY KEY,</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="st">        uidvalidity INTEGER,</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="st">        last_uid    INTEGER</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="st">    )"""</span>)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    db.commit()</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decode_header(value):</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> []</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> text, enc <span class="kw">in</span> email.header.decode_header(value):</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(text, <span class="bu">bytes</span>):</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>            text <span class="op">=</span> text.decode(enc <span class="kw">or</span> <span class="st">"utf-8"</span>, <span class="st">"replace"</span>)</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>        out.append(text)</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">""</span>.join(out)</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> body_text(msg):</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""All text/plain parts joined; text/html only as a fallback."""</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    plain, html <span class="op">=</span> [], []</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> part <span class="kw">in</span> msg.walk():</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> part.get_content_maintype() <span class="op">!=</span> <span class="st">"text"</span> <span class="kw">or</span> part.get_filename():</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>        payload <span class="op">=</span> part.get_payload(decode<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> payload <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> payload.decode(part.get_content_charset() <span class="kw">or</span> <span class="st">"utf-8"</span>,</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"replace"</span>)</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>        (plain <span class="cf">if</span> part.get_content_subtype() <span class="op">==</span> <span class="st">"plain"</span> <span class="cf">else</span> html).append(text)</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(plain) <span class="kw">or</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(html)</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> iso_date(msg):</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> email.utils.parsedate_to_datetime(msg.get(<span class="st">"Date"</span>))</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dt.astimezone().isoformat(timespec<span class="op">=</span><span class="st">"seconds"</span>)</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> (<span class="pp">TypeError</span>, <span class="pp">ValueError</span>):</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> msg.get(<span class="st">"Date"</span>)</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fetch_folder(imap, db, folder):</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    status, data <span class="op">=</span> imap.select(<span class="st">'"</span><span class="sc">%s</span><span class="st">"'</span> <span class="op">%</span> folder, readonly<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> status <span class="op">!=</span> <span class="st">"OK"</span>:</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"skip </span><span class="sc">%s</span><span class="st">: </span><span class="sc">%s</span><span class="st">"</span> <span class="op">%</span> (folder, data))</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    uv_data <span class="op">=</span> imap.response(<span class="st">"UIDVALIDITY"</span>)[<span class="dv">1</span>]</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>    uidvalidity <span class="op">=</span> <span class="bu">int</span>(uv_data[<span class="dv">0</span>]) <span class="cf">if</span> uv_data <span class="kw">and</span> uv_data[<span class="dv">0</span>] <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    row <span class="op">=</span> db.execute(<span class="st">"SELECT uidvalidity, last_uid FROM imap_sync_state"</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>                     <span class="st">" WHERE folder = ?"</span>, (folder,)).fetchone()</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    <span class="co"># A changed UIDVALIDITY means the server renumbered the folder:</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># start over from UID 0 (the unique index absorbs true re-runs).</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    last_uid <span class="op">=</span> row[<span class="dv">1</span>] <span class="cf">if</span> row <span class="kw">and</span> row[<span class="dv">0</span>] <span class="op">==</span> uidvalidity <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>    status, data <span class="op">=</span> imap.uid(<span class="st">"search"</span>, <span class="va">None</span>, <span class="st">"UID </span><span class="sc">%d</span><span class="st">:*"</span> <span class="op">%</span> (last_uid <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> status <span class="op">!=</span> <span class="st">"OK"</span>:</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"skip </span><span class="sc">%s</span><span class="st">: search failed"</span> <span class="op">%</span> folder)</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    <span class="co"># IMAP quirk: "UID n:*" returns the last message even when its UID &lt; n.</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>    uids <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">int</span>(u) <span class="cf">for</span> u <span class="kw">in</span> data[<span class="dv">0</span>].split() <span class="cf">if</span> <span class="bu">int</span>(u) <span class="op">&gt;</span> last_uid)</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>    added <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> uid <span class="kw">in</span> uids:</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>        status, data <span class="op">=</span> imap.uid(<span class="st">"fetch"</span>, <span class="bu">str</span>(uid), <span class="st">"(RFC822)"</span>)</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> status <span class="op">!=</span> <span class="st">"OK"</span> <span class="kw">or</span> <span class="kw">not</span> data <span class="kw">or</span> data[<span class="dv">0</span>] <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>        msg <span class="op">=</span> email.message_from_bytes(data[<span class="dv">0</span>][<span class="dv">1</span>])</span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> db.execute(</span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>            <span class="st">"INSERT OR IGNORE INTO messages (message_id, folder, uid,"</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>            <span class="st">" uidvalidity, date, from_addr, to_addrs, cc_addrs, subject,"</span></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>            <span class="st">" payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"</span>,</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>            (msg.get(<span class="st">"Message-ID"</span>), folder, uid, uidvalidity, iso_date(msg),</span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>             decode_header(msg.get(<span class="st">"From"</span>)), decode_header(msg.get(<span class="st">"To"</span>)),</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>             decode_header(msg.get(<span class="st">"Cc"</span>)), decode_header(msg.get(<span class="st">"Subject"</span>)),</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>             body_text(msg)))</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>        added <span class="op">+=</span> <span class="bu">max</span>(cur.rowcount, <span class="dv">0</span>)</span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>        db.execute(</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>            <span class="st">"INSERT INTO imap_sync_state (folder, uidvalidity, last_uid)"</span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>            <span class="st">" VALUES (?, ?, ?) ON CONFLICT(folder) DO UPDATE SET"</span></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>            <span class="st">" uidvalidity = excluded.uidvalidity,"</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>            <span class="st">" last_uid = excluded.last_uid"</span>, (folder, uidvalidity, uid))</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Commit per message: the cursor only advances together with the</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>        <span class="co"># row it covers, so a crash mid-run never skips mail.</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>        db.commit()</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> added</span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&lt;</span> <span class="dv">2</span>:</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>        sys.exit(<span class="st">"usage: imap_to_archive.py DB [--list-folders]"</span>)</span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>    cfg <span class="op">=</span> json.loads(CONFIG.read_text())</span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>    imap <span class="op">=</span> imaplib.IMAP4_SSL(cfg[<span class="st">"host"</span>], cfg.get(<span class="st">"port"</span>, <span class="dv">993</span>))</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>    imap.login(cfg[<span class="st">"username"</span>], get_password(cfg))</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">"--list-folders"</span> <span class="kw">in</span> sys.argv:</span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> line <span class="kw">in</span> imap.<span class="bu">list</span>()[<span class="dv">1</span>]:</span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(line.decode())</span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>        imap.logout()</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>    db <span class="op">=</span> sqlite3.<span class="ex">connect</span>(sys.argv[<span class="dv">1</span>])</span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>    ensure_schema(db)</span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> folder <span class="kw">in</span> cfg.get(<span class="st">"folders"</span>, [<span class="st">"INBOX"</span>, <span class="st">"Sent"</span>]):</span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>        count <span class="op">=</span> fetch_folder(imap, db, folder)</span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="sc">%s</span><span class="st">: </span><span class="sc">%d</span><span class="st"> new"</span> <span class="op">%</span> (folder, count))</span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> count</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>    imap.logout()</span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"captured </span><span class="sc">%d</span><span class="st"> new message(s)"</span> <span class="op">%</span> total)</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>First run: <code>--list-folders</code>, fix the config, then a real run. The first real run fetches the whole mailbox (everything is “new” to an empty sync state); with a Takeout mbox import already in the table you will hold the same historical mail twice under different rows – that is fine (different provenance, same FTS), or start the sync state from a recent date by deleting older UIDs’ worth manually if it bothers you.</p>
+<p>A rare <code>UIDVALIDITY</code> change (server-side folder rebuild) triggers a full refetch under the new validity value; if that ever produces duplicates, they are identifiable by <code>message_id</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite-utils</span> ~/archive/archive.db <span class="st">"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT message_id, count(*) FROM messages</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">  WHERE message_id IS NOT NULL</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">  GROUP BY message_id HAVING count(*) &gt; 1"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="the-launchd-job" class="level2">
+<h2 class="anchored" data-anchor-id="the-launchd-job">5. The launchd job</h2>
+<p>Capture at 02:30, BEFORE the 03:00 archive backup (<a href="../docs/voice-pipeline.html"><code>docs/voice-pipeline.md</code></a> section 2.2), so every nightly snapshot already contains that night’s capture. Save as <code>~/Library/LaunchAgents/local.imap-to-archive.plist</code>, replacing <code>YOU</code> (launchd does not expand <code>$HOME</code> in paths):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode xml code-with-copy"><code class="sourceCode xml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;?xml</span> <span class="ot">version=</span><span class="st">"1.0"</span> <span class="ot">encoding=</span><span class="st">"UTF-8"</span><span class="fu">?&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;!DOCTYPE</span> <span class="dt">plist</span> PUBLIC "-//Apple//DTD PLIST 1.0//EN"</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  "http://www.apple.com/DTDs/PropertyList-1.0.dtd"<span class="dt">&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">plist</span> <span class="ot">version=</span><span class="st">"1.0"</span>&gt;</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dict</span>&gt;</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">key</span>&gt;Label&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">string</span>&gt;local.imap-to-archive&lt;/<span class="kw">string</span>&gt;</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">key</span>&gt;ProgramArguments&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">array</span>&gt;</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">string</span>&gt;/usr/bin/python3&lt;/<span class="kw">string</span>&gt;</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">string</span>&gt;/Users/YOU/bin/imap_to_archive.py&lt;/<span class="kw">string</span>&gt;</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">string</span>&gt;/Users/YOU/archive/archive.db&lt;/<span class="kw">string</span>&gt;</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">array</span>&gt;</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">key</span>&gt;StartCalendarInterval&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">dict</span>&gt;</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">key</span>&gt;Hour&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">integer</span>&gt;2&lt;/<span class="kw">integer</span>&gt;</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">key</span>&gt;Minute&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">integer</span>&gt;30&lt;/<span class="kw">integer</span>&gt;</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">dict</span>&gt;</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">key</span>&gt;StandardOutPath&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">string</span>&gt;/Users/YOU/archive/imap.log&lt;/<span class="kw">string</span>&gt;</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">key</span>&gt;StandardErrorPath&lt;/<span class="kw">key</span>&gt;</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">string</span>&gt;/Users/YOU/archive/imap.log&lt;/<span class="kw">string</span>&gt;</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dict</span>&gt;</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">plist</span>&gt;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Load it and run it once now:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">launchctl</span> bootstrap gui/<span class="va">$(</span><span class="fu">id</span> <span class="at">-u</span><span class="va">)</span> ~/Library/LaunchAgents/local.imap-to-archive.plist</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">launchctl</span> kickstart <span class="at">-k</span> gui/<span class="va">$(</span><span class="fu">id</span> <span class="at">-u</span><span class="va">)</span>/local.imap-to-archive</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Same laptop note as the backup job: launchd runs a missed <code>StartCalendarInterval</code> once on wake; cron would silently skip it.</p>
+</section>
+<section id="full-text-search-over-captured-mail" class="level2">
+<h2 class="anchored" data-anchor-id="full-text-search-over-captured-mail">6. Full-text search over captured mail</h2>
+<p>The archive-layer FTS setup carries over; for a table that now grows nightly, create the triggers so new rows are indexed as they land:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite-utils</span> enable-fts ~/archive/archive.db messages subject payload <span class="at">--create-triggers</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If FTS was already enabled without triggers (the archive-layer one-shot setup), disable and re-enable it once:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite-utils</span> disable-fts ~/archive/archive.db messages</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite-utils</span> enable-fts ~/archive/archive.db messages subject payload <span class="at">--create-triggers</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="the-sent-mail-overview-a-query-not-a-journal-block" class="level2">
+<h2 class="anchored" data-anchor-id="the-sent-mail-overview-a-query-not-a-journal-block">7. The sent-mail overview: a query, not a journal block</h2>
+<p>Decision record (issue #125, 2026-07-16, Option B): the daily overview of sent mail is a <strong>review-time query with zero writes</strong>. Nothing is materialized into the journal – no second machine writer on a human-owned, git-tracked surface, no people-naming metadata entering git unattended. Run it as part of the morning review (issue #65):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite-utils</span> ~/archive/archive.db <span class="st">"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT substr(date, 12, 5) AS at, to_addrs, subject</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM messages</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st">  WHERE folder = 'Sent'</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">    AND substr(date, 1, 10) = date('now', '-1 day')</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY date"</span> <span class="at">-t</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Plain-sqlite3 form of the same query:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlite3</span> <span class="at">-column</span> <span class="at">-header</span> ~/archive/archive.db <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT substr(date, 12, 5) AS at, to_addrs, subject</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM messages</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">   WHERE folder = 'Sent' AND substr(date, 1, 10) = date('now', '-1 day')</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">   ORDER BY date"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Revisit trigger: promote this to a materialized journal block (the rejected Option A) only on evidence the morning review would actually read it – and then as a new decision with the metadata-only and append-only constraints from issue #125, not as a default.</p>
+</section>
+<section id="what-deliberately-does-not-happen" class="level2">
+<h2 class="anchored" data-anchor-id="what-deliberately-does-not-happen">8. What deliberately does NOT happen</h2>
+<ul>
+<li><strong>No wiki or <code>raw/</code> writes from mail.</strong> The funnel rule and #107 decision 9 stay in force; promotion is manual, through the normal <code>raw/note-*.md</code> seam, ideally after interactive triage (issue #124, the official Infomaniak Mail MCP server – interactive sessions only, never cron).</li>
+<li><strong>No LLM in the daily loop</strong> (rule 1 above).</li>
+<li><strong>No journal writes</strong> (section 7; issue #125 Option B).</li>
+<li><strong>No calendar or contacts sync.</strong> Takeout remains the answer for both (archive-layer sections 7-8).</li>
+<li><strong>No change to the Takeout rules.</strong> Bulk historical re-import stays occasional and manual; the export files stay the raw record for what they cover.</li>
+</ul>
+</section>
+<section id="related" class="level2">
+<h2 class="anchored" data-anchor-id="related">Related</h2>
+<ul>
+<li><a href="../docs/archive-layer.html"><code>docs/archive-layer.md</code></a> – the staging ground this extends; <code>messages</code> table, FTS, alias resolution</li>
+<li><a href="../docs/voice-pipeline.html"><code>docs/voice-pipeline.md</code></a> – backup script, restore drill, launchd patterns reused here</li>
+<li><a href="../docs/source-routes.html"><code>docs/source-routes.md</code></a> – why email has no wiki route; the capture carve-out recorded there</li>
+<li><a href="../openspec/specs/storage.html"><code>openspec/specs/storage.md</code></a> – the two-plane contract (REQ-1100..1141)</li>
+<li>Issues #123 (this pipeline), #124 (interactive MCP leg), #125 (sent-mail overview decision)</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/larnsce\.github\.io\/llm-wiki\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/mail-pipeline.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

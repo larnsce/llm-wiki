@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-c77c9138bec0b7f87654b70582999a87.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fe16a1d53e537998fa48ddc5ec098236.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Render ```mermaid fences on the Quarto site (docs/website.md documents this).
+     GitHub renders these fences natively; Quarto's own {mermaid} cells only work in
+     .qmd files, and this site renders plain .md in place. Pandoc emits the fence as
+     <pre class="mermaid"><code>...</code></pre> with HTML-escaped entities, so each
+     block is normalized to plain text before mermaid processes it. The mermaid
+     library is only fetched on pages that contain at least one diagram. -->
+<script type="module">
+  const normalize = (pre) => {
+    const clean = document.createElement("pre");
+    clean.className = "mermaid";
+    clean.textContent = pre.textContent;
+    pre.replaceWith(clean);
+    return clean;
+  };
+  const blocks = [
+    ...document.querySelectorAll("pre.mermaid"),
+    ...[...document.querySelectorAll("pre > code.mermaid")].map((c) => c.parentElement),
+  ];
+  if (blocks.length) {
+    const { default: mermaid } = await import(
+      "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+    );
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+    await mermaid.run({ nodes: [...new Set(blocks)].map(normalize) });
+  }
+</script>
 
 
 </head>
@@ -293,6 +319,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Voice pipeline</strong> (<code>docs/voice-pipeline.md</code> + <code>/wiki-ingest-voice</code>): phone memo to whisper.cpp transcript to a journal summary with provenance (<code>archive.db:voice_notes/&lt;id&gt;</code>). Journal-only by default; anything touching a wiki page or naming a person is confirmed per row; assessments of people never leave the transcript.</li>
 <li><strong>Two-plane query</strong>: aggregate, temporal, and full-text questions route to <code>index.db</code> SQL (FTS5, stdlib sqlite3) with a staleness check before every read; entity questions stay on pages. Every answer names its plane.</li>
 <li><strong>Archive layer</strong> (<code>docs/archive-layer.md</code>): Google Takeout (mail, calendar, contacts) into archive.db, documented copy-paste importers, lazy alias resolution.</li>
+<li><strong>Mail pipeline</strong> (<code>docs/mail-pipeline.md</code>): nightly deterministic Infomaniak IMAP capture into archive.db – capture only, no wiki route, no LLM in the loop; the sent-mail overview is a review-time SQL query, never a journal write.</li>
 </ul>
 <p>Zero external dependencies still holds: sqlite3 and FTS5 come with python3.</p>
 </section>
@@ -382,6 +409,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="./docs/literature-research.html">Literature Research</a> - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit</li>
 <li><a href="./docs/web-clipper-firefox.html">Firefox Web-Clipper</a> - Clip web pages into the <code>raw/</code> queue with MarkDownload on macOS</li>
 <li><a href="./docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> - Run <code>para/</code> and <code>notes/</code> in the same graph; the promotion seam into <code>wiki/</code></li>
+<li><a href="./docs/tasks-sync-workflow.html">Tasks-sync workflow</a> - GitHub Issues as canonical task state: journal/<code>para/</code> TODOs to issues via <code>/tasks-sync</code>, closed issues back as <code>DONE</code></li>
+<li><a href="./docs/zotero-getting-started.html">Getting started with Zotero</a> - Standalone Zotero install and configuration guide (GHE-harmonized citation keys); no llm-wiki knowledge needed</li>
 <li><a href="./docs/zotero-setup.html">Zotero setup</a> - Wire Zotero so literature notes are born as <code>notes/literature/@citekey</code></li>
 <li><a href="./docs/roadmap-v2.2-para-notes-zotero.html">Roadmap: v2.2</a> - The para/notes/Zotero assessment and issue breakdown</li>
 </ul>
