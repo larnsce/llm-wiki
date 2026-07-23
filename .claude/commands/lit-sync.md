@@ -8,9 +8,10 @@ local HTTP API. Plugin-free: this replaces the logseq-zoterolocal-plugin
 
 1. Zotero is running, with Settings -> Advanced -> "Allow other
    applications on this computer to communicate with Zotero" enabled.
-2. Better BibTeX is installed (BBT 8+ keeps Zotero's native citation-key
-   field filled; no pinning setting to configure). Items without a citekey
-   are skipped with a warning, never guessed.
+2. Better BibTeX is installed with "Automatically fill citation key
+   after" set (2 seconds; see docs/zotero-setup.md), so keys land in
+   Zotero's native citation-key field. Items without a citekey are
+   skipped with a warning, never guessed.
 3. The vault path: resolve the Logseq graph root from `llm-wiki.yml`
    (`wiki_path`), or ask if no config is discoverable.
 
@@ -48,5 +49,6 @@ local HTTP API. Plugin-free: this replaces the logseq-zoterolocal-plugin
   writes a `#tag`.
 - Annotations append incrementally: only Zotero versions newer than the
   page's `zotero-last-sync::` stamp, sorted by position in the PDF.
-- `source-file::` stays blank at creation; it is filled by hand when the
-  paper goes through `/wiki-ingest` (the "one source, two readings" seam).
+- `source-file::` stays blank at creation; it is filled at the
+  `/wiki-ingest` checkpoint after the user confirms (REQ-974; the
+  "one source, two readings" seam).

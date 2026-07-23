@@ -41,8 +41,8 @@ Zotero cloud API, no BBT export file.
   page's `zotero-last-sync::` stamp are appended; the stamp is then updated from the library
   version. Re-syncing never clobbers your prose; the reading section (`## literature`; `## my reading` on pages created before the #101 rename) is never touched.
 - **Skips items without a citekey, with a warning:** the citekey is read from Zotero's native
-  citation-key field (`citationKey`, kept filled by Better BibTeX; since BBT 8 / Zotero 8 every
-  key is pinned automatically and this field replaces the old `Citation Key: xxx` line in
+  citation-key field (`citationKey`, kept filled by Better BibTeX's *Automatically fill
+  citation key after* setting; this field replaces the old `Citation Key: xxx` line in
   `extra`), with a fallback to `extra` for libraries BBT has not migrated yet. Nothing is
   guessed.
 
@@ -53,10 +53,21 @@ written for the Logseq script; the property template idea transfers.)
 
 1. Zotero → **Settings → Advanced** → check *Allow other applications on this computer to
    communicate with Zotero* (the local API returns 403 without it).
-2. Install **Better BibTeX**. Since BBT 8 (Zotero 8/9) there is no pinning setting to configure:
-   every key is written into Zotero's native citation-key field as soon as it is generated, and
-   that field syncs across devices. (Earlier versions of this guide said to set *Automatically
-   pin citation key after* to `1` second; that setting is gone.)
+2. Install **Better BibTeX** and configure its **Citation keys** section: citation key formula
+   `auth.lower + year + veryshorttitle(1, 0).lower`, *Automatically fill citation key after* set
+   to `2` seconds, *Regenerate citation key when item changes* left unchecked (a filled key must
+   not change once its page exists). Filling writes the key into Zotero's native citation-key
+   field, which syncs across devices. Earlier versions of this guide talked about "pinning";
+   Better BibTeX renamed that to "filling", so the old *Automatically pin citation key after*
+   setting is today's *Automatically fill citation key after*.
+3. Optional, but part of the standard setup here: in **Settings → Export**, set Quick Copy's
+   *Item Format* to *Better BibTeX Citation Key Quick Copy* and *Note Format* to
+   *Markdown + Rich Text* with *Include Zotero Links* checked for Markdown. Cmd+Shift+C then
+   copies a selected item's citekey for linking `[[notes/literature/@<citekey>]]` while you
+   write. The sync script itself does not need this.
+
+The [walkthrough](zotero-setup-walkthrough.md) covers the same setup click by click, including
+installing Zotero and Better BibTeX from scratch.
 
 ### Running it
 
@@ -71,10 +82,10 @@ connection fails, **stop**: fix the Zotero side; do not work around it with the 
 ## Page name and file
 
 Every synced item gets the page `notes/literature/@<citekey>`, e.g.
-`notes/literature/@Forte2022` - the zoteroRoam-style proper-noun leaf (lint recognizes it; see
-[`namespaces.md`](../openspec/specs/namespaces.md) REQ-976). On disk the script matches the
-vault's existing namespace-filename encoding (`___` by default, `%2F` if the vault already uses
-it), so e.g. `pages/notes___literature___@Forte2022.md`.
+`notes/literature/@forte2022building` - the zoteroRoam-style `@` leaf (lint recognizes it as a
+proper-noun leaf; see [`namespaces.md`](../openspec/specs/namespaces.md) REQ-976). On disk the
+script matches the vault's existing namespace-filename encoding (`___` by default, `%2F` if the
+vault already uses it), so e.g. `pages/notes___literature___@forte2022building.md`.
 
 ## Page template
 
@@ -83,7 +94,7 @@ The script writes this template on creation - full metadata is noise; the raw so
 
 ```markdown
 type:: literature
-citekey:: Forte2022
+citekey:: forte2022building
 authors:: Tiago Forte
 year:: 2022
 item-type:: book
@@ -179,6 +190,8 @@ Cover it with the Semantic Scholar MCP already documented in
 
 ## Related
 
+- [Zotero setup walkthrough](zotero-setup-walkthrough.md) - the novice-friendly step-by-step
+  install, including Quick Copy and the #28 verification run
 - [Literature Research](literature-research.md) - the full discovery→Zotero→ingest funnel and the
   Semantic Scholar MCP setup
 - [PARA + Zettelkasten workflow](para-notes-workflow.md) - the `notes/` layer this feeds

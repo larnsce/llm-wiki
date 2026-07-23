@@ -102,6 +102,26 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Zotero setup docs match the shipped Better BibTeX settings UI and the
+  plugin-free sync (verified against maintainer screenshots, 2026-07-23).
+  The citation-key setting was renamed, not removed: *Automatically pin
+  citation key after* is today's *Automatically fill citation key after*
+  (set to 2 seconds; *Regenerate citation key when item changes* stays
+  unchecked so a filled key never changes under an existing page). Both
+  Zotero docs and the `/lit-sync` command preconditions now say so,
+  correcting the earlier "pinning is gone" claim. The walkthrough's
+  second half no longer installs the abandoned logseq-zoterolocal-plugin
+  (issue #90): it now covers installing Zotero itself, the Quick Copy
+  settings (*Better BibTeX Citation Key Quick Copy* item format,
+  *Markdown + Rich Text* note format with Zotero links for Markdown),
+  running `/lit-sync`, and the #28 verification loop rewritten around
+  the script. Along the way: `## my reading` became `## literature`
+  (issue #101), `source-file::` is documented as the confirmed
+  checkpoint write instead of a hand paste (REQ-974), the example
+  citekeys now match what the documented formula produces
+  (`forte2022building`), and all inline TODOs in the walkthrough are
+  resolved.
+
 - `lit_sync.py` reads Zotero's native citation-key field (issue #137):
   since Better BibTeX 8 (Zotero 8/9) citekeys live in the item's
   `citationKey` field and BBT migrates them out of `extra`, so the

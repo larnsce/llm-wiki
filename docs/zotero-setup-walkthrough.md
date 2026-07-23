@@ -8,29 +8,42 @@ tracks.
 ## What you are building
 
 At the end of this setup, every paper you save in Zotero can become a page in Logseq named like
-`notes/literature/@Forte2022`, pre-filled with the paper's metadata, and your PDF highlights can be
-synced onto that page with one click. Four pieces need to cooperate:
+`notes/literature/@forte2022building`, pre-filled with the paper's metadata, and your PDF
+highlights can be synced onto that page with one command. Four pieces need to cooperate:
 
 - **Zotero** (the desktop app), which stores your papers and PDF annotations.
 - **Better BibTeX**, a Zotero plugin whose job here is to give every paper a stable short ID called
-  a *citekey* (for example `Forte2022`). The Logseq page names are built from these citekeys.
+  a *citekey* (for example `forte2022building`). The Logseq page names are built from these
+  citekeys.
 - **Zotero's local API**, a setting that lets other apps on the same computer read your Zotero
   library. Nothing leaves your machine.
-- **logseq-zoterolocal-plugin**, a Logseq plugin that reads your library through that local API and
-  creates or updates the pages.
+- **`scripts/lit_sync.py`**, the sync script in this repository, run through the `/lit-sync`
+  command. It reads your library through the local API and creates or updates the pages. No
+  Logseq plugin is involved; the plugin that earlier versions of this walkthrough recommended
+  did not work in practice and was abandoned (issue
+  [#90](https://github.com/larnsce/llm-wiki/issues/90), see the status note in
+  [Zotero setup](zotero-setup.md)).
 
-## Step 1: Let other apps talk to Zotero (TODO: Add a another step to actually download the latest version of Zotero)
+## Step 1: Install Zotero
+
+1. Download the installer for your platform from
+   [zotero.org/download](https://www.zotero.org/download/) and install it.
+2. If Zotero is already installed, update it first: **Zotero → Check for Updates** on macOS,
+   **Help → Check for Updates** on Windows/Linux. The local API used below needs Zotero 7 or
+   newer; this guide is written against Zotero 9.
+
+## Step 2: Let other apps talk to Zotero
 
 1. Open the Zotero desktop app.
 2. Go to **Zotero → Settings** (on macOS; **Edit → Preferences** on Windows/Linux).
 3. Open the **Advanced** tab.
 4. Check the box **Allow other applications on this computer to communicate with Zotero**.
 
-This switch is what "local API access" means. Without it, the Logseq plugin cannot see your
+This switch is what "local API access" means. Without it, the sync script cannot see your
 library at all. It only allows apps on your own computer; it does not expose anything to the
 internet.
 
-## Step 2: Install Better BibTeX and set the citation key formula
+## Step 3: Install Better BibTeX
 
 Better BibTeX is not in a built-in plugin store; you install it from a downloaded file.
 
@@ -43,79 +56,79 @@ Better BibTeX is not in a built-in plugin store; you install it from a downloade
 3. Click the gear icon, choose **Install Plugin From File**, and select the `.xpi` you downloaded.
 4. Restart Zotero when prompted.
 
-Now configure the one setting that matters here:
+## Step 4: Configure the citation keys
 
-1. Go back to **Zotero → Settings** and open the **Better BibTeX** tab.
-2. Under **Citation keys**, set the citation key formula to:
+Go back to **Zotero → Settings**, open the **Better BibTeX** tab, and work through the
+**Citation keys** section:
+
+1. Set the citation key formula to:
 
    ```
    auth.lower + year + veryshorttitle(1, 0).lower
    ```
 
-A note on "pinning", in case you read older guides: Better BibTeX used to compute citekeys on
-the fly (so they could silently change, for example if you fixed a typo in an author name), and
-you had to "pin" a key to freeze it - older versions of this walkthrough said to set
-*Automatically pin citation key after* to 1 second. That setting is gone: since Better BibTeX 8
-(Zotero 8/9), every key is written into Zotero's native citation-key field as soon as it is
-generated, and that field syncs across your devices. You never have to think about pinning.
+   The formula builds lowercase keys from the first author, the year, and the first meaningful
+   word of the title. For example, Tiago Forte's 2022 book "Building a Second Brain" gets the
+   key `forte2022building`.
 
-Since your Logseq page names are built from citekeys, a key must never change once its page
-exists. For papers already in your library that you want recomputed with the formula above, do
-it **before** creating their pages: select them, right-click, and choose
+2. Set **Automatically fill citation key after** to `2` seconds. Filling writes the generated
+   key into Zotero's native citation-key field, which syncs across your devices. The sync
+   script reads exactly this field, and it skips any item whose key is not filled yet.
+3. Keep **Force citation key to plain text** checked.
+4. Keep **Regenerate citation key when item changes** unchecked. Your Logseq page names are
+   built from citekeys, so a key must never change once its page exists. With the box
+   unchecked, a filled key stays put even when you later fix a typo in the item's metadata.
+5. The defaults under **Keeping citation keys unique** are fine: comparison ignores
+   upper/lowercase, and keys are kept unique within each library.
+
+A note on "pinning", in case you read older guides: earlier Better BibTeX versions called a
+stored key "pinned", and the setting in point 2 was named *Automatically pin citation key
+after*. The mechanism is the same, only the wording changed.
+
+For papers already in your library that you want recomputed with the formula above, do it
+**before** creating their pages: select them, right-click, and choose
 **Better BibTeX → Regenerate citation key**.
 
-TODO: I have old instructions here: https://ds4owd-002.github.io/website/content/guide/#zotero-reference-management find guidance on all steps and add them
-TODO: This guide is more up to date, but still doesn't get there fully: https://unlimited.ethz.ch/spaces/ghestudents/pages/182077770/Reference+management the export quick copy step is still there.
+## Step 5: Set up Quick Copy
 
-## Step 3: Install the Logseq plugin
+Quick Copy is how you get a citekey out of Zotero while you write, so you can link
+`[[notes/literature/@<citekey>]]` from any other page. Go to **Zotero → Settings**, open the
+**Export** tab, and under **Quick Copy**:
 
-1. In Logseq, first make sure plugins are enabled: **Settings → Advanced → Plug-in system** must
-   be on (restart Logseq if you just turned it on). TODO: hard to find. point out it's at the three dot menu in the top-right. Also: don't have that option under advanced. plug-ins are already there
-2. Click the three-dot menu (top right) → **Plugins** → **Marketplace** tab.
-3. Search for **zoterolocal** and install **logseq-zoterolocal-plugin** (author: benjypng).
-4. Open the plugin's settings (gear icon on its card in the Plugins list) and confirm the
-   **connection to Zotero** check passes. Zotero must be running for this to work; it must also be
-   running any time you import or sync later.
+1. Set **Item Format** to **Better BibTeX Citation Key Quick Copy**.
+2. Set **Note Format** to **Markdown + Rich Text**, and check **Include Zotero Links** on the
+   Markdown line (leave the Rich Text/HTML line unchecked). A Zotero note copied out as
+   markdown then keeps a link back to the item it came from.
 
-One caution (see the status note in [Zotero setup](zotero-setup.md)): community plugins change
-over time. Note down which plugin version you installed, and avoid blind updates; if the
-marketplace offers an update, check its changelog before accepting. Your provenance chain depends
-on the plugin producing the same properties it produces today.
+With that in place, selecting an item and pressing **Cmd+Shift+C** (**Ctrl+Shift+C** on
+Windows/Linux) copies its citekey, and dragging an item into a text field pastes it.
 
-## Step 4: Set the page-name template
+## Step 6: Run the sync
 
-In the plugin's settings, find the page-name template field and set it to exactly:
+Zotero must be running, now and any time you sync later. Run `/lit-sync` in Claude Code. It
+resolves your graph location from `llm-wiki.yml`, shows a dry-run for review, then does the real
+run and the commit. To run the script by hand instead:
 
 ```
-notes/literature/@<% citeKey %>
+python3 scripts/lit_sync.py --vault <logseq-graph-root> --dry-run   # review first
+python3 scripts/lit_sync.py --vault <logseq-graph-root>            # then for real
 ```
 
-Reading this template left to right: every imported item becomes a page inside the
-`notes/literature/` namespace, and the page's own name is `@` followed by the citekey. So the
-paper with citekey `Forte2022` becomes the page `notes/literature/@Forte2022`.
-
-This matters for the vault's rules: `notes/` is the human-owned namespace that the wiki toolchain
-never writes to, and the `@citekey` leaf is explicitly recognized by lint as a proper noun
-([`namespaces.md`](../openspec/specs/namespaces.md) REQ-976), so these pages will not show up as
-naming violations.
-
-## Step 5: Set the page template
-
-The plugin also has a template for the page *content* (what gets pre-filled when an item is
-imported). Run its **Insert Zotero template** command once to see the default, then replace the
-generated block with this trimmed version:
+Every item with a filled citekey gets a page named `notes/literature/@<citekey>`, created from
+this template:
 
 ```markdown
 type:: literature
-citekey:: <% citeKey %>
-authors:: <% creators %>
-year:: <% date %>
-item-type:: <% itemType %>
-doi:: <% DOI %>
-zotero:: <% libraryLink %>
+citekey:: forte2022building
+authors:: Tiago Forte
+year:: 2022
+item-type:: book
+doi::
+zotero:: zotero://select/library/items/<KEY>
 source-file::
+zotero-last-sync:: <library version>
 
-- ## my reading
+- ## literature
 	-
 - ## annotations
 	- (synced from Zotero below this line)
@@ -123,36 +136,48 @@ source-file::
 
 What each part is for:
 
-- The `key:: value` lines at the top are Logseq page properties; they hold just enough metadata to
-  identify the paper. The full record stays in Zotero, and the archived full text lives in
-  `ingested/`, so copying every metadata field here would only add noise.
-- `source-file::` is deliberately left empty at import time. You fill it in later, only when the
-  paper actually goes through the wiki pipeline: after `/wiki-ingest` archives the paper to
-  `ingested/papers/<file>.md`, you paste that path here by hand. That shared path is what makes
-  your reading auditable against the same source the wiki cites ("one archived source, two
-  readings", REQ-973). The tool never writes this for you.
-- `## my reading` is where your own words go. Nothing automated ever touches it.
-- `## annotations` is where the plugin appends your synced PDF highlights. The sync is incremental
-  (tracked via a `zotero-last-sync` property), so re-syncing adds only new highlights and never
-  clobbers what is already on the page.
+- The `key:: value` lines at the top are Logseq page properties; they hold just enough metadata
+  to identify the paper. The full record stays in Zotero, and the archived full text lives in
+  `ingested/`, so copying every metadata field here would only add noise. On later runs the
+  script rewrites only these managed properties; `source-file::` and anything you add yourself
+  survive.
+- `source-file::` starts empty. It gets filled when the paper goes through the wiki pipeline:
+  after `/wiki-ingest` archives the paper to `ingested/papers/<file>.md`, it offers at its
+  checkpoint to set the property to that path, and you confirm the write (REQ-974). That shared
+  path is what makes your reading auditable against the same source the wiki cites ("one
+  archived source, two readings", REQ-973).
+- `## literature` is where your own words go - your literature note in the Zettelkasten sense.
+  Nothing automated ever touches it. Add the `#literature` tag by hand when you write the note;
+  the tooling never writes tags.
+- `## annotations` is where the script appends your synced PDF highlights, sorted by their
+  position in the PDF. The sync is incremental (tracked through the `zotero-last-sync::`
+  property), so re-syncing adds only new highlights and never clobbers what is already on the
+  page.
 
-## Step 6: Run the loop once, end to end
+Items whose citekey is not filled yet are skipped with a warning and picked up on a later run;
+nothing is guessed. If the script cannot reach Zotero, fix the Zotero side (is Zotero running,
+is the Step 2 box checked); do not work around it with the Zotero cloud API.
+
+The page name also fits the vault's rules: `notes/` is the human-owned namespace, and lint
+recognizes the `@citekey` leaf ([`namespaces.md`](../openspec/specs/namespaces.md) REQ-976), so
+these pages will not show up as naming violations.
+
+## Step 7: Run the loop once, end to end
 
 This is the verification [#28](https://github.com/larnsce/llm-wiki/issues/28) asks for. Pick one
 real paper and walk it through:
 
 1. In Zotero, open the paper's PDF and add at least one highlight.
-2. In Logseq, import the item via the plugin and confirm the page appears as
-   `notes/literature/@<citekey>` with the properties filled in.
-3. Right-click the page title → **Zotero: Sync annotations** (or use the command palette →
-   *Sync all annotations*) and confirm your highlight appears under `## annotations`.
-4. Write a sentence or two under `## my reading`.
-5. Export or flatten the paper to markdown into `raw/`, run `/wiki-ingest`, and when the ingest
-   report shows the `ingested/papers/...` path, paste it into `source-file::` on the literature
-   note.
+2. Run `/lit-sync`; confirm the dry-run lists the item, then let the real run create the page.
+3. In Logseq, confirm the page appears as `notes/literature/@<citekey>` with the properties
+   filled in and your highlight under `## annotations`.
+4. Write a sentence or two under `## literature`.
+5. Export or flatten the paper to markdown into `raw/`, run `/wiki-ingest`, and confirm at the
+   checkpoint when it offers to set `source-file::` on the literature note to the
+   `ingested/papers/...` path it produced.
 
-If all five steps work, the setup is done and #28 can be closed with a note recording the plugin
-version you pinned.
+If all five steps work, the setup is done. Close #28 and stamp [Zotero setup](zotero-setup.md)
+with the Zotero and Better BibTeX versions the run used.
 
 ## Related
 
