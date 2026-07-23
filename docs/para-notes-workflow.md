@@ -15,8 +15,8 @@ same graph as your machine-written `wiki/`, without the two ever colliding.
 > [`openspec/specs/namespaces.md`](../openspec/specs/namespaces.md)) it never writes to them (sole
 > enumerated exception: the human-confirmed literature-note `source-file::` write, REQ-974). The
 > pages, queries, and task markers below are things **you** create and maintain in Logseq/Obsidian
-> (the opt-in scaffold only creates the directories and seed schema pages; after that they are
-> yours). The tool's only involvement is the promotion seam at the end: durable content you
+> (the opt-in scaffold only creates the directories, the seed schema pages, and a project-page
+> template seed; after that they are yours). The tool's only involvement is the promotion seam at the end: durable content you
 > deliberately copy into `raw/` and run through `/wiki-ingest`.
 
 ## The namespace contract
@@ -62,8 +62,9 @@ para/archives/<project-name>     completed/inactive projects
 ```
 
 `init_wiki.py --with-para-notes` (or `setup.sh --init --with-para-notes`) scaffolds these
-directories, the `notes/` layout, and seed `para/schema` / `notes/schema` pages. The scaffold is
-opt-in and one-time; the pages it seeds are human-editable references, not tool-managed files.
+directories, the `notes/` layout, seed `para/schema` / `notes/schema` pages, and a project-page
+template seed. The scaffold is opt-in and one-time; the pages it seeds are human-editable
+references, not tool-managed files.
 
 ### Conventions
 
@@ -88,6 +89,25 @@ tool does not read it):
 in `wiki/` (as a proper page, or a `canonical-url::` stub if it lives elsewhere — see
 [`docs/literature-research.md`](literature-research.md)); anything that is your own thinking belongs
 in `notes/`.
+
+### The project template (scaffolded, then yours)
+
+The scaffold seeds a project-page template so a new `para/projects/` page starts with exactly the
+skeleton above (`type:: project`, `status:: active`, an empty `outcome::`, and a `## tasks`
+section) instead of being retyped each time. Like the schema seeds, it is created once and never
+touched by the toolchain again; edit it freely and add your own templates beside it (an area
+template, a journal template, whatever your practice settles on - those stay vault-side by
+design).
+
+- **Logseq**: the `para/templates` page carries a native template block named `para-project`.
+  On a new project page, type `/Template` on the first empty block and pick `para-project`; the
+  inserted property block becomes the page properties. Add `repo:: owner/repo` to it if the
+  project's tasks should sync to GitHub issues (tasks-sync, above).
+- **Obsidian**: the skeleton lives at `para/templates/project.md`. Point the core Templates
+  plugin's folder setting at `para/templates/`, or copy the file by hand.
+
+If you skipped the scaffold, create the template yourself from the skeleton above; the tool does
+not read it.
 
 ### Roam → Logseq task conversion (one-time, on import)
 

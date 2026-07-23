@@ -21,6 +21,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   the README docs list and from both llm-wiki Zotero docs as the
   first-time-user entry point.
 
+- **Project-page template seed in the `--with-para-notes` scaffold**: a new
+  project page now starts from the documented skeleton (`type:: project`,
+  `status:: active`, empty `outcome::`, a tasks section) instead of being
+  retyped. Logseq gets a `para/templates` page carrying a native
+  `para-project` template block (insert via `/Template`); Obsidian gets
+  `para/templates/project.md` for the core Templates plugin. Like the
+  schema seeds, the template is scaffolded once, is human-editable, and the
+  toolchain never touches it again (namespaces contract unchanged). See
+  the new "The project template" section in `docs/para-notes-workflow.md`.
+
 - v3.7 recall canon (issues #142, #143 - spec only, NOT yet implemented):
   the two recall features adapted from daniloc/mnemion's `prime` tool and
   one-hop link expansion, translated to the local lexical architecture.

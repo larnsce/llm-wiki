@@ -75,10 +75,11 @@ requires explicit confirmation.
   docs/para-notes-workflow.md in the repository for the workflow." Intended
   for a fresh, empty graph; there is no migration for existing para/notes
   content. If accepted, add `--with-para-notes` to the init_wiki.py call: it
-  scaffolds human-editable `para/schema` and `notes/schema` seed pages (plus
-  the para/notes directory trees on Obsidian) and writes the
-  `para_dir`/`notes_dir` keys into llm-wiki.yml (config.md REQ-625,
-  namespaces.md REQ-980).
+  scaffolds human-editable `para/schema` and `notes/schema` seed pages and a
+  project-page template seed (Logseq: the `para/templates` page; Obsidian:
+  `para/templates/project.md`, plus the para/notes directory trees) and
+  writes the `para_dir`/`notes_dir` keys into llm-wiki.yml (config.md
+  REQ-625, namespaces.md REQ-980).
 - Offer the optional glossary layer the same way: "Also scaffold the
   glossary/ terminology layer (index + one seed domain page)? Decisions
   stay yours; the tool structure-lints it and writes only rows you confirm;
