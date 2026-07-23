@@ -13,8 +13,11 @@ Creates, for either tool mode:
   --overwrite-config)
 - with --with-para-notes: the opt-in human layer (specs/namespaces.md,
   specs/config.md REQ-625, issue #29): human-editable para/schema and
-  notes/schema seed pages; in Obsidian mode also the PARA and Zettelkasten
-  directory trees (para/{projects,areas,resources,archives}/,
+  notes/schema seed pages, plus a project-page template seed (Logseq: a
+  para/templates page carrying a native para-project template block;
+  Obsidian: para/templates/project.md for the core Templates plugin); in
+  Obsidian mode also the PARA and Zettelkasten directory trees
+  (para/{projects,areas,resources,archives,templates}/,
   notes/{literature,permanent}/). In Logseq mode the namespaces are
   page-name prefixes, so no directories are needed. The config then gains
   para_dir/notes_dir keys. Without the flag, behavior is unchanged.
@@ -92,6 +95,7 @@ last-updated:: {date}
 	- Human-authored. No `source-file::`, no citations, no `reliability::`.
 	- Tasks are native Logseq markers (`TODO` / `DOING` / `NOW` / `DONE` / `CANCELED`) on blocks inside the owning project or area page.
 	- Every project page starts with `type:: project`, `status:: active | paused | archived`, and `outcome::` (one line: what "done" looks like).
+	- New project page: insert the `para-project` template from [[para/templates]] (type `/Template` on the first empty block); it seeds exactly that property block plus a tasks section.
 	- Link freely into `[[wiki/...]]` and `[[notes/...]]` pages; that is the point of one graph.
 	- `para/resources/` is a waiting room, not a destination: source-backed and stable content belongs in `wiki/`; your own thinking belongs in `notes/`.
 - ## promotion into wiki/
@@ -116,6 +120,28 @@ last-updated:: {date}
 	- Anything not promoted within about two weeks: delete without guilt.
 	- notes to wiki (deliberate only): copy the note into `raw/note-<name>.md` and run /wiki-ingest. It arrives at `reliability:: medium`.
 - See `docs/para-notes-workflow.md` for the full workflow: the `notes/fleeting-inbox` query page and the Zotero funnel.
+"""
+
+# Project-page template seed. The template body carries exactly the
+# documented project-page skeleton (docs/para-notes-workflow.md: type::,
+# status::, outcome:: plus a tasks section); anything more would be inserted
+# into every new project page. Like the schema seeds, the page is
+# human-editable and the toolchain never touches it again.
+PARA_TEMPLATES_LOGSEQ = """\
+type:: schema
+last-updated:: {date}
+
+- ## para/ templates
+	- Native Logseq templates for `para/` pages. This page is yours: the wiki toolchain never edits it again (see `docs/para-notes-workflow.md` in the llm-wiki repository). Add your own templates as sibling blocks.
+	- To use: create the page (for example `para/projects/<project-name>`), put the cursor on its first empty block, type `/Template`, and pick `para-project`. The property block becomes the page properties.
+	- Optional: add `repo:: owner/repo` to the inserted property block to route the project's tasks to GitHub issues via /tasks-sync (see `docs/tasks-sync-workflow.md`).
+- para-project
+  template:: para-project
+  template-including-parent:: false
+	- type:: project
+	  status:: active
+	  outcome::
+	- ## tasks
 """
 
 PARA_SCHEMA_OBSIDIAN = """\
@@ -143,6 +169,9 @@ llm-wiki repository). Edit this page freely; the tool does not read it.
 - Every project page starts with `type: project`, `status: active | paused |
   archived`, and `outcome` (one line: what "done" looks like) in its
   frontmatter.
+- A project-page skeleton is scaffolded at `para/templates/project.md`:
+  point the core Templates plugin's folder setting at `para/templates/`,
+  or copy the file by hand when creating a project page.
 - Link freely into `[[wiki/...]]` and `[[notes/...]]` pages; that is the
   point of one graph.
 - `para/resources/` is a waiting room, not a destination: source-backed and
@@ -197,6 +226,21 @@ Properties, not tags, carry the note type; queries filter on them.
 See `docs/para-notes-workflow.md` for the full workflow and the Zotero
 funnel. The query pages described there are Logseq tier-1; the Dataview
 equivalent on Obsidian is experimental.
+"""
+
+# Obsidian counterpart of PARA_TEMPLATES_LOGSEQ: a plain file the user
+# points the core Templates plugin at (template folder: para/templates/)
+# or copies by hand. Pure template body, no explanatory prose: the plugin
+# inserts the file verbatim, so any commentary would land in every new
+# project page. Usage notes live on the para/schema seed page instead.
+PARA_PROJECT_TEMPLATE_OBSIDIAN = """\
+---
+type: project
+status: active
+outcome: ""
+---
+
+## tasks
 """
 
 GLOSSARY_CONFIG_BLOCK = """\
@@ -444,15 +488,20 @@ def ensure_logseq_hidden(scaffold, wiki_path, hidden_dirs):
 def scaffold_para_notes(scaffold, tool, pages_path, today):
     """Opt-in human layer (issue #29; specs/namespaces.md).
 
-    Logseq: namespaces are page-name prefixes, so only the two seed pages
-    are needed. Obsidian: the PARA and Zettelkasten directory trees (with
-    .gitkeep, mirroring scaffold_pipeline) plus the two seed pages. The
-    seed pages are human-editable; the toolchain never touches them again.
+    Logseq: namespaces are page-name prefixes, so only the seed pages are
+    needed (the two schema pages plus the para/templates page). Obsidian:
+    the PARA and Zettelkasten directory trees (with .gitkeep, mirroring
+    scaffold_pipeline) plus the seed pages, with the project template at
+    para/templates/project.md for the core Templates plugin. The seed
+    pages are human-editable; the toolchain never touches them again.
     """
     if tool == "logseq":
         scaffold.write_file(os.path.join(pages_path, "para___schema.md"),
                             PARA_SCHEMA_LOGSEQ.format(date=today),
                             "para/schema")
+        scaffold.write_file(os.path.join(pages_path, "para___templates.md"),
+                            PARA_TEMPLATES_LOGSEQ.format(date=today),
+                            "para/templates")
         scaffold.write_file(os.path.join(pages_path, "notes___schema.md"),
                             NOTES_SCHEMA_LOGSEQ.format(date=today),
                             "notes/schema")
@@ -475,6 +524,9 @@ def scaffold_para_notes(scaffold, tool, pages_path, today):
     scaffold.write_file(os.path.join(para_root, "schema.md"),
                         PARA_SCHEMA_OBSIDIAN.format(date=today),
                         "para/schema.md")
+    scaffold.write_file(os.path.join(para_root, "templates", "project.md"),
+                        PARA_PROJECT_TEMPLATE_OBSIDIAN,
+                        "para/templates/project.md")
     scaffold.write_file(os.path.join(notes_root, "schema.md"),
                         NOTES_SCHEMA_OBSIDIAN.format(date=today),
                         "notes/schema.md")

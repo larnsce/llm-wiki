@@ -80,6 +80,15 @@ ground is the archive layer (`docs/archive-layer.md`); nothing enters the
 wiki from there until that question is decided. Adding a route here without
 that decision would hard-code an answer to the harder question by accident.
 
+Update 2026-07-16 (issues #123/#124/#125): the staging half is now decided
+and running -- email is captured daily into archive.db by a deterministic
+IMAP job (`docs/mail-pipeline.md`, capture only), and the sent-mail
+overview is a review-time SQL query with zero journal writes (#125,
+Option B). The wiki half stays blocked exactly as above: nothing enters
+pages or the journal from mail. Interactive triage uses the official
+Infomaniak Mail MCP server (#124) and promotes only by hand through the
+normal `raw/note-*.md` seam.
+
 ## AI conversation transcripts: the spec'd route
 
 Status: SPEC'D machinery (ingest REQ-1300..1305, issue #107 Part 2). The
@@ -135,7 +144,8 @@ provenance, deliberately distinct from `reliability:: low` (audit REQ-927).
 - Bulk import of unread backlogs (same rule; drain read material in
   reviewable batches).
 - Messaging and calendar data (blocked on the people/meetings/email
-  question, see above).
+  question, see above; the daily archive.db mail capture of
+  `docs/mail-pipeline.md` is staging, not a route).
 - Automated AI-transcript capture into archive.db (the file route,
   ingest REQ-1300, is deliberately manual and selective; revisit only if
   its volume demands bulk capture).

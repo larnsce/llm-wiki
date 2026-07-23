@@ -96,6 +96,8 @@ These are two different kinds of note.
 
 Zotero notes are about one document. Wiki notes are about your understanding across documents. If a note only makes sense next to the paper it is attached to, it is a Zotero note. If it would still be useful to a future-you who never re-opens that paper, it is a wiki page. The Zotero annotation is the input; the wiki synthesis is the output. Do not put synthesis in Zotero (it gets buried per-document) and do not put per-passage highlights in the wiki (they crowd it with detail you will never query).
 
+If you run the `notes/` Zettelkasten layer, the right-hand side of this split has one more fork: synthesis that is *your position* becomes a human-written `notes/permanent/` page, synthesis that is a *cited cross-paper comparison* becomes a wiki `knowledge` page. The step-by-step procedure - including synthesizing across several finished literature notes in one session - is in the [PARA + Zettelkasten workflow](para-notes-workflow.md) under "From literature note to synthesis".
+
 ## The full loop
 
 1. **`/wiki-query`** asks your wiki what you already know, and finds the gap.
@@ -104,6 +106,20 @@ Zotero notes are about one document. Wiki notes are about your understanding acr
 4. **Screen.** The keepers go into Zotero.
 5. **Read and annotate.** Export the highlights to markdown (Better BibTeX, a Zotero-to-markdown export, or a Logseq-Zotero plugin), and drop the result into `raw/`.
 6. **`/wiki-ingest`** synthesizes the page, stamps `reliability::`, and moves the source into `ingested/papers/`.
+
+```mermaid
+flowchart TD
+    Q["1 · /wiki-query<br>what do I already know? find the gap"] --> CP["2 · Connected Papers<br>map the cluster from seed papers"]
+    CP --> S2["3 · Semantic Scholar MCP<br>chase citations, build the candidate list"]
+    S2 --> SCREEN{"4 · screen"}
+    SCREEN -- "keepers" --> Z[("Zotero<br>citation source of truth")]
+    SCREEN -- "the rest" --> DROP["discard - discovery is transient"]
+    Z --> READ["5 · read + annotate,<br>export highlights into raw/"]
+    READ --> INGEST["6 · /wiki-ingest<br>synthesize, stamp reliability::"]
+    INGEST --> WIKI[["wiki/ page<br>source archived in ingested/papers/"]]
+```
+
+Only read papers cross the line from Zotero into the wiki - the funnel narrows at every arrow.
 
 ## Semantic Scholar MCP setup
 

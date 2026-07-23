@@ -89,6 +89,17 @@ sensitive_source_types:
 #   - owner/repo
 # data_snapshots_keep: 3
 
+# Tasks-sync seam (optional; openspec/specs/config.md REQ-662..664,
+# specs/tasks-sync.md): GitHub Issues as the canonical task state,
+# driven by the /tasks-sync command (scripts/tasks_sync.py). tasks_repo
+# is the default repo for issues (a para/projects/ page's repo::
+# property overrides it per task); tasks_project is a user-level
+# GitHub Project v2 as owner/number; tasks_milestone_label gates the
+# Phase-2 milestone hook. Remove tasks_repo to disable the seam.
+# tasks_repo: owner/tasks
+# tasks_project: owner/1
+# tasks_milestone_label: milestone
+
 # Glossary namespace (openspec/specs/config.md REQ-628, specs/glossary.md):
 # human-decided EN-DE terminology; the tool scaffolds and structure-lints it
 # (lint rule 15) and writes only rows confirmed at the /wiki-glossary

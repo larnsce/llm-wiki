@@ -2,7 +2,7 @@
 name: wiki-synthesize
 description: "Deep Phase 1-2 analysis for complexity-flagged ingest sources (ingest REQ-076): claim extraction, corroboration/contradiction scan against existing pages, page-operation plan for the checkpoint. Read-only; the session writes."
 tools: Read, Glob, Grep, WebFetch
-model: opus
+model: fable
 ---
 
 You run the analysis phases of /wiki-ingest for ONE source that the

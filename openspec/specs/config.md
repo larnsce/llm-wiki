@@ -98,8 +98,10 @@ All downstream behavior depends on this file being valid.
   namespace classification in lint. When absent, the default applies and
   journal pages are still recognized. Shape rules as for
   `para_dir`/`notes_dir` (REQ-625). The journal namespace stays
-  human-owned; the journal seam's daily Ingested block is the single
-  sanctioned machine write into it.
+  human-owned; the sanctioned machine writes into it are the journal
+  seam's daily Ingested block and the tasks-sync task stamps
+  (specs/tasks-sync.md REQ-1405/1410/1411, under the namespaces
+  REQ-969 carve-out).
 - REQ-660: The config MAY contain the key `data_packages`: an array of
   GitHub slugs (`owner/repo`) naming registered R data packages consumed
   by the data-package seam (specs/ingest.md REQ-100..106,
@@ -109,6 +111,21 @@ All downstream behavior depends on this file being valid.
   under `ingested/data/`. A snapshot referenced by any page's `cite::` or
   `source-file::` is NEVER deleted regardless of this value (ingest
   REQ-105). Must be a positive integer.
+- REQ-662: The config MAY contain the key `tasks_repo`: a GitHub slug
+  (`owner/repo`) naming the default repository for issues created by the
+  tasks-sync seam (specs/tasks-sync.md, `scripts/tasks_sync.py`) -
+  typically a private issues-only `tasks` repo. When absent, the seam is
+  inert (tasks-sync REQ-1401). A `para/projects/` page's `repo::` page
+  property overrides it per candidate (tasks-sync REQ-1403).
+- REQ-663: The config MAY contain the key `tasks_project`: a user-level
+  GitHub Project v2 reference as `owner/number` (e.g. `larnsce/3`). When
+  set, tasks-sync adds each created issue to the Project (tasks-sync
+  REQ-1406); when absent, issues are created without a Project. Shape
+  check only: `owner/number` with a numeric second segment.
+- REQ-664: The config MAY contain the key `tasks_milestone_label`
+  (default `milestone`): the issue label that marks a closed issue for
+  the Phase-2 milestone hook (tasks-sync REQ-1416). Inert until that
+  phase ships; shape check only.
 
 ### Validation Rules
 

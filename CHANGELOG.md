@@ -9,6 +9,53 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Standalone Zotero guide** (`docs/zotero-getting-started.md`): install,
+  account and sync, browser connector, library orientation, local API,
+  Better BibTeX, citation keys, and Quick Copy, written for someone new to
+  Zotero with no llm-wiki, Logseq, or skill references, so it can be read
+  before the tooling is introduced. Documents the citation key formula
+  (`auth.lower + year + veryshorttitle(1, 0).lower`) as the harmonized
+  GHE convention: with every member generating keys the same way,
+  references shared through the group library carry the same key in each
+  member's library and manuscripts cite by identical keys. Linked from
+  the README docs list and from both llm-wiki Zotero docs as the
+  first-time-user entry point.
+
+- **Project-page template seed in the `--with-para-notes` scaffold**: a new
+  project page now starts from the documented skeleton (`type:: project`,
+  `status:: active`, empty `outcome::`, a tasks section) instead of being
+  retyped. Logseq gets a `para/templates` page carrying a native
+  `para-project` template block (insert via `/Template`); Obsidian gets
+  `para/templates/project.md` for the core Templates plugin. Like the
+  schema seeds, the template is scaffolded once, is human-editable, and the
+  toolchain never touches it again (namespaces contract unchanged). See
+  the new "The project template" section in `docs/para-notes-workflow.md`.
+
+- v3.7 recall canon (issues #142, #143 - spec only, NOT yet implemented):
+  the two recall features adapted from daniloc/mnemion's `prime` tool and
+  one-hop link expansion, translated to the local lexical architecture.
+  New `openspec/specs/prime.md` (REQ-1400..1431): `/wiki-query --prime`
+  context priming - explicit or derived-and-echoed context, lexical-only
+  recall (breadth-first hub scan, optional index.db FTS, bounded grep),
+  max 3 full reads plus pointers, one-hop neighbor lists, L1 pass,
+  single-register briefing, read-only contract, no auto-run. New
+  One-Hop Neighbor Expansion section in `openspec/specs/query.md`
+  (REQ-480..485, Scenario 18): ranked, capped `Related:` pointer list
+  built from the fully-read pages' outgoing `wiki/` links - pointers are
+  never read in full and never Access-Logged. Cycle plan with design
+  decisions, dependency order (#142 before #143), and parked non-goals
+  (decay half-lives, mechanical overlap detection, schema evolution,
+  embeddings) in `docs/roadmap-v3.7-recall.md`; both specs registered in
+  `openspec/project.md` as "v3.7, not yet implemented".
+
+- **iPad / iOS section in the Zotero setup guide** (issue #137): reading
+  and annotating on a tablet. Sign in with the zotero.org account in the
+  iOS app - no API keys, no plugins, no citation-key settings on the
+  device; requires enabling Zotero account sync on the desktop (plus file
+  syncing via Zotero Storage or WebDAV to read PDFs). Annotations made on
+  the iPad flow into `/lit-sync` unchanged; `lit_sync.py` still talks only
+  to the desktop's local API (issue #90, decision 1).
+
 - `plain-writing`: vendored writing-style skill by Shreya Shankar
   (https://github.com/shreyashankar/plain-writing-skill, commit `25a5393`,
   MIT license). Plain prose rules (simple words, complete sentences, no
@@ -50,7 +97,62 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   boundary crossings). Fixes the dangling `SECURITY.md` link in
   `docs/faq.md`.
 
+- tasks-sync seam (issue #127): GitHub Issues (plus an optional
+  user-level GitHub Project v2) as the canonical store for task state,
+  with the Logseq journal as capture layer and `para/projects/` pages
+  as the task home. Two one-way flows driven by `scripts/tasks_sync.py`
+  and the `/tasks-sync` command: open-sync promotes confirmed open task
+  blocks (gated on a `[[para/projects/...]]` link, the `#gh` tag, or
+  para-page residence) into issues and stamps `issue::`/`opened::` on
+  the block; close-sync flips tracked blocks to `DONE` with a
+  `closed::` stamp when their issue closes, and closes issues for
+  blocks completed in Logseq - GitHub wins on state, an issue is never
+  reopened from the graph. Idempotency is content-embedded (`issue::`
+  is the sole link key; no state file, per the suite convention),
+  stamps land per issue, and an unauthenticated `gh` is a clean stop
+  with zero graph writes. Spec: `openspec/specs/tasks-sync.md`
+  REQ-1400..1417 (the 1300s went to transcript sources in the same
+  release); the `para/` write carve-out is namespaces REQ-969 (the
+  seam is a human-layer companion tool like the literature sync, not a
+  wiki workflow); config keys
+  `tasks_repo`/`tasks_project`/`tasks_milestone_label` (config
+  REQ-662..664, with REQ-629 amended to name the seam's journal
+  stamps). Logseq tier-1; Project v2 field mapping and the para-page
+  milestone hook are specified as Phase 2 (REQ-1416). Guide:
+  `docs/tasks-sync-workflow.md`; harness coverage in
+  `test_pipeline.sh` against a stubbed `gh`.
+
 ### Fixed
+
+- Zotero setup docs match the shipped Better BibTeX settings UI and the
+  plugin-free sync (verified against maintainer screenshots, 2026-07-23).
+  The citation-key setting was renamed, not removed: *Automatically pin
+  citation key after* is today's *Automatically fill citation key after*
+  (set to 2 seconds; *Regenerate citation key when item changes* stays
+  unchecked so a filled key never changes under an existing page). Both
+  Zotero docs and the `/lit-sync` command preconditions now say so,
+  correcting the earlier "pinning is gone" claim. The walkthrough's
+  second half no longer installs the abandoned logseq-zoterolocal-plugin
+  (issue #90): it now covers installing Zotero itself, the Quick Copy
+  settings (*Better BibTeX Citation Key Quick Copy* item format,
+  *Markdown + Rich Text* note format with Zotero links for Markdown),
+  running `/lit-sync`, and the #28 verification loop rewritten around
+  the script. Along the way: `## my reading` became `## literature`
+  (issue #101), `source-file::` is documented as the confirmed
+  checkpoint write instead of a hand paste (REQ-974), the example
+  citekeys now match what the documented formula produces
+  (`forte2022building`), and all inline TODOs in the walkthrough are
+  resolved.
+
+- `lit_sync.py` reads Zotero's native citation-key field (issue #137):
+  since Better BibTeX 8 (Zotero 8/9) citekeys live in the item's
+  `citationKey` field and BBT migrates them out of `extra`, so the
+  extra-only lookup would have skipped every migrated item. The native
+  field is now preferred, with `extra` (`Citation Key: xxx`) kept as a
+  fallback for unmigrated libraries. Docs updated to match: the
+  autopin/pinning instructions are gone (keys are always pinned now), and
+  the walkthrough documents the citation key formula
+  (`auth.lower + year + veryshorttitle(1, 0).lower`).
 
 - Voice capture provenance (issue #121). `recorded_at` is now stamped from
   the audio container's own creation time - the m4a `mvhd` box (UTC, MP4
@@ -81,6 +183,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Model tiering adjusted now that Fable is available on demand rather
+  than a scarce or expiring resource (issue #108): the two deep-reasoning
+  agents `wiki-audit-judge` and `wiki-synthesize` move from opus to
+  `model: fable`, so the durable-truth work (final audit judgment, dense
+  or high-stakes ingest synthesis) runs on the strongest reasoning by
+  default. Opus becomes the middle escalation tier for routine tasks that
+  trip a trigger; sonnet stays the default session and verification tier;
+  haiku keeps the mechanical work. `docs/model-tiering.md` reframes the
+  fable-baseline golden set as a standing regression net (no longer
+  "expires at midnight"), and the premortem's hard Fable-expiry kill
+  criterion no longer applies. `check_canon.py` exit 0, harness 204/204.
+
 - Literature-note `source-file::` is now written by the tool on the
   human's confirmation (issue #133, new namespaces REQ-974). When
   `/wiki-ingest` recognizes a promoted literature note and the
@@ -108,7 +222,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   status path introduces no silent write and no background rebuild (new
   storage REQ-1142). `docs/voice-pipeline.md` section 7.1 documents what keeps
   the index fresh and how to read the `index rebuilt` age.
-
 ## [3.6.0] - 2026-07-13
 
 The documentation site goes live (issue #111) and the wiki-chat-voice

@@ -53,6 +53,9 @@ KNOWN_KEYS = set(REQUIRED_KEYS) | set(PIPELINE_KEYS) | {
     "index_db",
     "data_packages",
     "data_snapshots_keep",
+    "tasks_repo",
+    "tasks_project",
+    "tasks_milestone_label",
 }
 
 PIPELINE_SNIPPET = """raw_dir: raw
@@ -199,6 +202,25 @@ def check(config, config_path, skip_path_checks=False):
             criticals.append(
                 "'data_snapshots_keep' must be a positive integer, got "
                 "'%s' (REQ-661)." % keep
+            )
+
+    # Tasks-sync seam keys (REQ-662..664): shape-only checks.
+    if "tasks_repo" in config:
+        slug = config.get("tasks_repo")
+        if not (isinstance(slug, str) and slug.count("/") == 1
+                and all(part for part in slug.split("/"))):
+            criticals.append(
+                "'tasks_repo' must be a GitHub slug ('owner/repo'), got "
+                "'%s' (REQ-662)." % slug
+            )
+    if "tasks_project" in config:
+        project = config.get("tasks_project")
+        if not (isinstance(project, str) and project.count("/") == 1
+                and project.split("/")[0]
+                and project.split("/")[1].isdigit()):
+            criticals.append(
+                "'tasks_project' must be 'owner/number' (a user-level "
+                "GitHub Project v2), got '%s' (REQ-663)." % project
             )
 
     unknown = sorted(set(config) - KNOWN_KEYS)

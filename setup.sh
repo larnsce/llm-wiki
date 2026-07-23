@@ -50,7 +50,8 @@ Options:
                        Content Projects People Learning Reference)
   --memory-path <path> Claude Code memory directory (optional)
   --with-para-notes    with --init: also scaffold the human para/ + notes/
-                       layer (PARA + Zettelkasten seed pages) and add
+                       layer (PARA + Zettelkasten seed pages and a
+                       project-page template seed) and add
                        para_dir/notes_dir to the config; intended for a
                        fresh graph (see docs/para-notes-workflow.md)
   --with-glossary      with --init: also scaffold the glossary layer

@@ -40,8 +40,11 @@ Zotero cloud API, no BBT export file.
   sorted by position in the PDF, and only annotations with a Zotero version newer than the
   page's `zotero-last-sync::` stamp are appended; the stamp is then updated from the library
   version. Re-syncing never clobbers your prose; the reading section (`## literature`; `## my reading` on pages created before the #101 rename) is never touched.
-- **Skips unpinned items with a warning:** the citekey is read from the item's `extra` field
-  (`Citation Key: xxx`, written by Better BibTeX pinning). Nothing is guessed.
+- **Skips items without a citekey, with a warning:** the citekey is read from Zotero's native
+  citation-key field (`citationKey`, kept filled by Better BibTeX's *Automatically fill
+  citation key after* setting; this field replaces the old `Citation Key: xxx` line in
+  `extra`), with a fallback to `extra` for libraries BBT has not migrated yet. Nothing is
+  guessed.
 
 (Obsidian users: the **Zotero Integration** plugin remains the equivalent there. This guide is
 written for the Logseq script; the property template idea transfers.)
@@ -50,8 +53,21 @@ written for the Logseq script; the property template idea transfers.)
 
 1. Zotero → **Settings → Advanced** → check *Allow other applications on this computer to
    communicate with Zotero* (the local API returns 403 without it).
-2. Install **Better BibTeX**; set *Automatically pin citation key after* to `1` second (citekeys
-   must be pinned to reach Logseq).
+2. Install **Better BibTeX** and configure its **Citation keys** section: citation key formula
+   `auth.lower + year + veryshorttitle(1, 0).lower`, *Automatically fill citation key after* set
+   to `2` seconds, *Regenerate citation key when item changes* left unchecked (a filled key must
+   not change once its page exists). Filling writes the key into Zotero's native citation-key
+   field, which syncs across devices. Earlier versions of this guide talked about "pinning";
+   Better BibTeX renamed that to "filling", so the old *Automatically pin citation key after*
+   setting is today's *Automatically fill citation key after*.
+3. Optional, but part of the standard setup here: in **Settings → Export**, set Quick Copy's
+   *Item Format* to *Better BibTeX Citation Key Quick Copy* and *Note Format* to
+   *Markdown + Rich Text* with *Include Zotero Links* checked for Markdown. Cmd+Shift+C then
+   copies a selected item's citekey for linking `[[notes/literature/@<citekey>]]` while you
+   write. The sync script itself does not need this.
+
+The [walkthrough](zotero-setup-walkthrough.md) covers the same setup click by click, including
+installing Zotero and Better BibTeX from scratch.
 
 ### Running it
 
@@ -66,10 +82,10 @@ connection fails, **stop**: fix the Zotero side; do not work around it with the 
 ## Page name and file
 
 Every synced item gets the page `notes/literature/@<citekey>`, e.g.
-`notes/literature/@Forte2022` - the zoteroRoam-style proper-noun leaf (lint recognizes it; see
-[`namespaces.md`](../openspec/specs/namespaces.md) REQ-976). On disk the script matches the
-vault's existing namespace-filename encoding (`___` by default, `%2F` if the vault already uses
-it), so e.g. `pages/notes___literature___@Forte2022.md`.
+`notes/literature/@forte2022building` - the zoteroRoam-style `@` leaf (lint recognizes it as a
+proper-noun leaf; see [`namespaces.md`](../openspec/specs/namespaces.md) REQ-976). On disk the
+script matches the vault's existing namespace-filename encoding (`___` by default, `%2F` if the
+vault already uses it), so e.g. `pages/notes___literature___@forte2022building.md`.
 
 ## Page template
 
@@ -78,7 +94,7 @@ The script writes this template on creation - full metadata is noise; the raw so
 
 ```markdown
 type:: literature
-citekey:: Forte2022
+citekey:: forte2022building
 authors:: Tiago Forte
 year:: 2022
 item-type:: book
@@ -115,7 +131,55 @@ zotero-last-sync:: <library version>
    confirm at the checkpoint when it offers to set `source-file::` here to the `ingested/` path it
    produced (REQ-973/974) - the tool writes the path for you.
 5. Ideas that outgrow the paper get their own `notes/permanent/` page, linking back to
-   `[[notes/literature/@citekey]]`.
+   `[[notes/literature/@citekey]]`. Finished notes - one or several at once - then feed the
+   deliberate synthesis step (permanent note for your position, wiki `knowledge` page for the
+   cited cross-paper comparison); the procedure is in the
+   [PARA + Zettelkasten workflow](para-notes-workflow.md) under "From literature note to
+   synthesis".
+
+```mermaid
+flowchart TD
+    READ["1 · read + annotate the PDF in Zotero"] --> SYNC["2 · /lit-sync<br>dry-run, review, real run"]
+    SYNC --> PAGE["notes/literature/@citekey<br>managed properties + new annotations appended"]
+    PAGE --> LIT["3 · write ## literature in your own words<br>(tag #literature by hand - the tool never will)"]
+    LIT --> FEED{"paper feeds<br>the wiki?"}
+    FEED -- "yes" --> RAW["4 · flatten to raw/, run /wiki-ingest"]
+    RAW --> SEAM["checkpoint: confirm the source-file:: write<br>one archived source, two readings"]
+    SEAM --> WIKI[["wiki/ page cites the same ingested/ path"]]
+    FEED -- "not yet" --> STAY["note stays in notes/, source-file:: blank"]
+    LIT --> PERM["5 · ideas that outgrow the paper<br>notes/permanent/ + the synthesis step"]
+```
+
+## iPad / iOS (reading and annotating)
+
+The iPad is a **reading device** in this loop: read and highlight PDFs in the Zotero iOS app.
+Importing, citekeys, and `/lit-sync` all stay on the desktop.
+
+- **Setup on the iPad:** install Zotero from the App Store and sign in with your zotero.org
+  account. That is all. There are no API keys to create (the app authenticates itself; "API
+  keys" only exist for third-party tools on the *web* API, which this setup does not use), no
+  plugins (Better BibTeX does not exist on iOS), and no citation-key settings (keys live in
+  Zotero's native, syncing citation-key field, assigned by BBT on the desktop).
+- **Prerequisite on the desktop:** turn on Zotero sync (**Settings → Sync** → sign in). Data
+  sync is free and unlimited; reading PDFs on the iPad additionally needs **file syncing**
+  (attachments as stored copies, not linked files) via Zotero Storage (300 MB free, paid tiers)
+  or WebDAV. Zotero Storage is the simplest choice and the default recommendation.
+- **Scope of the cloud:** this syncs your Zotero *library between your own devices*. It changes
+  nothing about the sync into Logseq: `lit_sync.py` still talks only to the desktop's local API
+  and never the cloud API (issue #90, decision 1).
+- **The loop with an iPad:** highlight on the iPad → it syncs to zotero.org → desktop Zotero
+  pulls it down → run `/lit-sync` on the desktop as usual. Synced annotations carry new Zotero
+  version numbers, so the incremental `zotero-last-sync::` logic picks them up like any
+  desktop-made highlight.
+- Items saved on the iPad get their citekey the next time desktop Zotero (with BBT) syncs;
+  until then `/lit-sync` skips them with a warning. If you import on the desktop only, this
+  never comes up.
+- The `## literature` prose is written in Logseq, not on the iPad; setting up Logseq mobile is a
+  separate concern, out of scope here.
+
+> Written against the current Zotero iOS release (2026-07); not yet verified end-to-end - fold
+> that into the #28 verification run (annotate one paper on the iPad and confirm `/lit-sync`
+> picks the highlight up on the desktop).
 
 ## Citation-graph gap
 
@@ -126,6 +190,10 @@ Cover it with the Semantic Scholar MCP already documented in
 
 ## Related
 
+- [Getting started with Zotero](zotero-getting-started.md) - the standalone Zotero guide
+  (install, sync, connector, GHE-harmonized citation keys); no llm-wiki knowledge needed
+- [Zotero setup walkthrough](zotero-setup-walkthrough.md) - the novice-friendly step-by-step
+  install, including Quick Copy and the #28 verification run
 - [Literature Research](literature-research.md) - the full discovery→Zotero→ingest funnel and the
   Semantic Scholar MCP setup
 - [PARA + Zettelkasten workflow](para-notes-workflow.md) - the `notes/` layer this feeds
