@@ -5,6 +5,11 @@ settings; this one walks through the installation for someone doing it for the f
 including the end-to-end verification run that [#28](https://github.com/larnsce/llm-wiki/issues/28)
 tracks.
 
+If you are entirely new to Zotero, start with
+[Getting started with Zotero](zotero-getting-started.md) instead. It covers the same install
+and settings without assuming llm-wiki, plus the account, sync, and browser-connector basics;
+Steps 1 to 5 below overlap with it, and Step 6 onward is the llm-wiki-specific part.
+
 ## What you are building
 
 At the end of this setup, every paper you save in Zotero can become a page in Logseq named like
@@ -181,6 +186,8 @@ with the Zotero and Better BibTeX versions the run used.
 
 ## Related
 
+- [Getting started with Zotero](zotero-getting-started.md) - the standalone Zotero guide for
+  first-time users (install, sync, connector, GHE-harmonized citation keys)
 - [Zotero setup](zotero-setup.md) - the design rationale, page-name contract, and status;
   includes the **iPad / iOS** section if you also read and annotate on a tablet
 - [Literature Research](literature-research.md) - the full discovery→Zotero→ingest funnel

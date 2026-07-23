@@ -190,6 +190,8 @@ Cover it with the Semantic Scholar MCP already documented in
 
 ## Related
 
+- [Getting started with Zotero](zotero-getting-started.md) - the standalone Zotero guide
+  (install, sync, connector, GHE-harmonized citation keys); no llm-wiki knowledge needed
 - [Zotero setup walkthrough](zotero-setup-walkthrough.md) - the novice-friendly step-by-step
   install, including Quick Copy and the #28 verification run
 - [Literature Research](literature-research.md) - the full discovery→Zotero→ingest funnel and the

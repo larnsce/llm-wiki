@@ -129,6 +129,7 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`
 - [Tasks-sync workflow](docs/tasks-sync-workflow.md) - GitHub Issues as canonical task state: journal/`para/` TODOs to issues via `/tasks-sync`, closed issues back as `DONE`
+- [Getting started with Zotero](docs/zotero-getting-started.md) - Standalone Zotero install and configuration guide (GHE-harmonized citation keys); no llm-wiki knowledge needed
 - [Zotero setup](docs/zotero-setup.md) - Wire Zotero so literature notes are born as `notes/literature/@citekey`
 - [Roadmap: v2.2](docs/roadmap-v2.2-para-notes-zotero.md) - The para/notes/Zotero assessment and issue breakdown
 

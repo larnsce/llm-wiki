@@ -9,6 +9,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Standalone Zotero guide** (`docs/zotero-getting-started.md`): install,
+  account and sync, browser connector, library orientation, local API,
+  Better BibTeX, citation keys, and Quick Copy, written for someone new to
+  Zotero with no llm-wiki, Logseq, or skill references, so it can be read
+  before the tooling is introduced. Documents the citation key formula
+  (`auth.lower + year + veryshorttitle(1, 0).lower`) as the harmonized
+  GHE convention: with every member generating keys the same way,
+  references shared through the group library carry the same key in each
+  member's library and manuscripts cite by identical keys. Linked from
+  the README docs list and from both llm-wiki Zotero docs as the
+  first-time-user entry point.
+
 - v3.7 recall canon (issues #142, #143 - spec only, NOT yet implemented):
   the two recall features adapted from daniloc/mnemion's `prime` tool and
   one-hop link expansion, translated to the local lexical architecture.
