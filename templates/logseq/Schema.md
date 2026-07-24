@@ -138,7 +138,7 @@ type:: schema
 	- **Rule 13 Naming Hygiene** (REQ-230): structural name segments with spaces, uppercase, underscores, or en/em dashes; hyphen (U+002D) is the only separator. Leaves are only flagged mechanically for separator violations; proper-noun leaves (`wiki/tools/Claude Code`) and citekey leaves (`notes/literature/@forte2022building`) are a wiki-lint judgment call, never auto-fixed
 	- **Rule 14 Namespace Hygiene** (REQ-240): pages outside wiki/, para/, notes/, glossary/, journals, and the recognized root pages; para/, notes/, and glossary/ pages are accepted here and exempt from all wiki-only rules, never auto-fixed
 	- **Rule 15 Glossary Hygiene** (REQ-250): glossary/ table shape (| EN | DE | Rule | Note |), the rule enum (keep-en | translate | context), undecided rows on domain pages, and source::/status:: on imported staging pages; structure only, decisions are human and never auto-fixed
-	- **Rule 16 Paper-Hub Hygiene** (REQ-260): wiki/papers/<slug> hubs carry type:: paper-hub, the six sections (Manuscript, Literature drawn on, Data, Open questions, Draft decisions, AI use), and link every child page (the export-walk guarantee); structure and reachability only, content is editorial and never auto-fixed
+	- **Rule 16 Paper-Hub Hygiene** (REQ-260): wiki/papers/<slug> hubs carry type:: paper-hub, the six sections (Manuscript, Literature drawn on, Data, Open questions, Draft decisions, AI use), and link every child page (the export-walk guarantee); the agent-log child keeps the canonical six-column table header; structure and reachability only, content is editorial and never auto-fixed
 - <!-- canon:lint-rules end -->
 - ## Conventions
 	- Language: English (customize per project)

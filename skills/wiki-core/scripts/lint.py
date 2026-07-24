@@ -21,7 +21,7 @@ Mechanical rules covered here:
   Rule 13  Naming Hygiene              REQ-230 / REQ-231 (structural names)
   Rule 14  Namespace Hygiene           REQ-240 (pages outside the contract)
   Rule 15  Glossary Hygiene            REQ-250..253 (structure, never decisions)
-  Rule 16  Paper-Hub Hygiene           REQ-260..262 (structure, reachability)
+  Rule 16  Paper-Hub Hygiene           REQ-260..263 (structure, reachability)
 
   Schema-level mechanical checks: date format (REQ-560, REQ-563),
   completed project without completed date (REQ-522, info),
@@ -778,6 +778,8 @@ class Linter:
 
     PAPER_HUB_SECTIONS = ("Manuscript", "Literature drawn on", "Data",
                           "Open questions", "Draft decisions", "AI use")
+    AGENT_LOG_HEADER = ["Date", "Skill", "Model", "Sources touched",
+                        "Pages written", "Human confirmations"]
 
     def check_paper_hubs(self):
         """Rule 16 (REQ-260..262): structure of wiki/papers/ hub pages
@@ -832,6 +834,42 @@ class Linter:
                          fix="link the child from the matching hub "
                              "section; no auto-fix (linking is "
                              "editorial)")
+            if parts[3] == "agent-log" and len(parts) == 4:
+                self.check_agent_log(page)
+
+    def check_agent_log(self, page):
+        """REQ-263: the agent-log's first table carries the canonical
+        header and consistent column counts (specs/paper.md REQ-1514).
+        Row content is never judged; no auto-fix (the log is an
+        append-only transparency record)."""
+        rows = []
+        for raw in page["stripped"].splitlines():
+            line = raw.strip().lstrip("-").strip()
+            if line.startswith("|"):
+                rows.append(line)
+            elif rows:
+                break
+        if not rows:
+            return
+        cells = [c.strip() for c in rows[0].strip("|").split("|")]
+        if cells != self.AGENT_LOG_HEADER:
+            self.add(page, "REQ-263", "paper-hub-hygiene", "warning",
+                     "agent-log table header is off-canon "
+                     "(specs/paper.md REQ-1514)",
+                     fix="use | %s |; no auto-fix"
+                         % " | ".join(self.AGENT_LOG_HEADER))
+            return
+        for line in rows[1:]:
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if all(set(c) <= {"-", " ", ":"} for c in cells):
+                continue
+            if len(cells) != len(self.AGENT_LOG_HEADER):
+                self.add(page, "REQ-263", "paper-hub-hygiene", "warning",
+                         "agent-log row has %d columns, header has %d "
+                         "(specs/paper.md REQ-1514)"
+                         % (len(cells), len(self.AGENT_LOG_HEADER)),
+                         fix="align the row with the header; no "
+                             "auto-fix")
 
     def check_hubs(self, hubs, hub_entries, names):
         # Rule 10a: orphaned routing lines + Rule 10c: empty descriptions.

@@ -24,6 +24,14 @@ a link to the right section, again shown as a change first. A read-only
 status mode reports how complete the anchor page is, including any page in
 the paper's folder that the anchor does not link yet.
 
+Each paper also gets a log page, created together with the anchor page.
+Every time a skill touches the paper's material, one row is added: the
+date, which skill ran, which model the user confirmed, what was read, what
+was written, and what the user approved. Journals increasingly ask authors
+to disclose how AI was used, and the disclosure statement for submission
+can be generated from these rows instead of being reconstructed from
+memory. The rows are never edited or deleted.
+
 The anchor page matters beyond the wiki. When a paper is published as a
 public site, the anchor page becomes the site's homepage and table of
 contents, and only pages reachable from it are exported. A link missing

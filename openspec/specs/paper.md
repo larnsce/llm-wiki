@@ -14,7 +14,7 @@ so hub completeness IS the publish boundary. The wiki-paper skill
 scaffolds and maintains hubs; lint rule 16 checks their structure.
 
 > Spec version: introduced for v3.8 (issue #146). Uses the globally
-> unique REQ-1500..1512 range. Lint rule 16 uses REQ-260..262
+> unique REQ-1500..1518 range. Lint rule 16 uses REQ-260..263
 > (specs/lint.md). `wiki/papers/` sits inside the machine-written
 > `wiki/` namespace, so the REQ-960 namespace contract is unchanged.
 
@@ -43,8 +43,8 @@ scaffolds and maintains hubs; lint rule 16 checks their structure.
   `Draft decisions`; a decision that supersedes an earlier one follows
   the wiki-update supersede convention rather than deleting the bullet.
 - REQ-1504: The `AI use` section links the paper's agent-use log page
-  once one exists (`wiki/papers/<slug>/agent-log`, issue #147); until
-  then it states how AI was used in prose.
+  (`wiki/papers/<slug>/agent-log`, REQ-1513, scaffolded with the hub);
+  prose there stays welcome, the link is the requirement.
 
 ### Reachability (the export guarantee)
 
@@ -90,6 +90,45 @@ scaffolds and maintains hubs; lint rule 16 checks their structure.
   content and the skill SHALL NOT write under `para/` (namespaces
   REQ-966; the promotion seam stays the only crossing).
 
+### The Agent Log (AI-transparency; issue #147)
+
+- REQ-1513 (log page): Each paper MAY carry the child page
+  `wiki/papers/<slug>/agent-log`, scaffolded by `wiki-paper new`
+  together with the hub. The page is the SOURCE OF TRUTH for the
+  paper's AI use: append-only, human-legible markdown, renderable by
+  the #145 viewer and shipped in the #148 bundle. A queryable
+  `index.db` mirror is parked (the two-plane pattern would allow one,
+  rebuildable from the page) until a real query need appears.
+- REQ-1514 (entry format): One markdown table under the page's h1 with
+  the EXACT header
+  `| Date | Skill | Model | Sources touched | Pages written | Human confirmations |`
+  (lint REQ-263). One row per skill invocation. The `Model` value is
+  the session model AS THE HUMAN CONFIRMS IT at the checkpoint, or
+  `session` when unstated; it is NEVER introspected or guessed by the
+  executing model (the REQ-053 dispatch-record lesson survives the
+  tiering removal). Read-only invocations record `- (read-only)` under
+  Pages written.
+- REQ-1515 (append discipline): A skill invocation SHALL append exactly
+  one row when it writes a page under `wiki/papers/<slug>/`, and SHOULD
+  append one when it writes or updates a page the paper's hub links.
+  Read paths (wiki-query) append their row without a per-query commit,
+  mirroring the Access-Log discipline (query REQ-450 scope unchanged).
+  Rows are never edited or deleted.
+- REQ-1516 (disclosure statement): The log page MAY carry a
+  `## Disclosure statement (generated)` section. It SHALL be
+  regenerable from the table rows alone (no memory reconstruction);
+  regenerating that marked section is the only sanctioned rewrite on
+  the page, and the rows themselves stay append-only.
+- REQ-1517 (supersession cross-reference): When a wiki-update run on a
+  paper-linked page supersedes a claim, the log row's Pages written
+  cell links that page, and the page-level supersede marker and the
+  log row carry the same date, so the two artifacts reference each
+  other.
+- REQ-1518 (publishable content): The log is written to be published:
+  rows carry page links, source titles, and citekeys, NEVER prompt
+  fragments or local filesystem paths. The page passes the shared
+  publish gate (`secret_scan.py`) like any exported page.
+
 ---
 
 ## Scenarios
@@ -125,4 +164,17 @@ GIVEN wiki/papers/cbs-adoption/agent-log exists but the hub does not
 WHEN the user runs /wiki-lint
 THEN rule 16 SHALL report REQ-262 on the hub (child not reachable)
 AND propose no auto-fix (linking is editorial)
+```
+
+### Scenario 4: Ingest run appends one log row
+
+```
+GIVEN wiki/papers/cbs-adoption exists with its agent-log child
+WHEN /wiki-ingest writes notes/literature/@tilley2024 and links it
+     from the cbs-adoption hub at the checkpoint
+THEN the run SHALL append exactly one row to
+     wiki/papers/cbs-adoption/agent-log (date, skill wiki-ingest,
+     human-confirmed model, source title, pages written,
+     confirmations given)
+AND the row rides the run's atomic commit
 ```

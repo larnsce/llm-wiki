@@ -13,8 +13,8 @@ completeness is the publish boundary. Shared material (literature
 notes, concept pages, datasets) stays where it lives and is linked,
 never copied.
 
-Spec: openspec/specs/paper.md REQ-1500..1512; hub structure is linted
-by rule 16 (specs/lint.md REQ-260..262).
+Spec: openspec/specs/paper.md REQ-1500..1518; hub and agent-log
+structure are linted by rule 16 (specs/lint.md REQ-260..263).
 
 Shared conventions (read before executing):
 
@@ -45,13 +45,19 @@ rewrite the pages a paper draws on.
     `## Manuscript` (working title, status line),
     `## Literature drawn on`, `## Data`, `## Open questions`,
     `## Draft decisions` (dated, append-only bullets; supersede via
-    wiki-update, never delete), `## AI use` (link the paper's
-    agent-log page once one exists; until then one prose line).
+    wiki-update, never delete), `## AI use` (links the agent-log page
+    scaffolded below).
+- Draft the agent-log child `wiki/papers/<slug>/agent-log`
+  (REQ-1513/1514): the canonical six-column table header
+  (`| Date | Skill | Model | Sources touched | Pages written | Human confirmations |`)
+  with the scaffold itself as the first row (skill wiki-paper, Model as
+  the human confirms it or `session`, Pages written = hub scaffold),
+  plus an empty `## Disclosure statement (generated)` section.
 - Draft the `wiki/papers` namespace hub if it does not exist
   (`type:: hub`, `### Index`), and add one routing line for the new
   paper (REQ-1506). Suggest adding `papers` to the config `namespaces`
   list for query routing; never edit the config yourself.
-- Show both diffs, write only after confirmation, git commit the
+- Show all diffs, write only after confirmation, git commit the
   scaffold as one commit.
 
 ## Mode: attach <slug> <page>... (append links; REQ-1508)
@@ -68,7 +74,10 @@ rewrite the pages a paper draws on.
 - APPEND-ONLY on both sides: the hub gains bullets, and the attached
   page is NEVER rewritten (no back-link is forced onto it; provenance
   and cross-references stay ingest's job).
-- Show the hub diff, write only after confirmation, commit.
+- Append the run's row to the paper's agent-log (REQ-1515): skill
+  wiki-paper, the attached page links under Sources touched, the hub
+  under Pages written.
+- Show the hub and log diffs, write only after confirmation, commit.
 
 ## Mode: status <slug> (read-only; REQ-1509)
 

@@ -9,6 +9,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Per-paper agent-use log** (issue #147, second of the paper-capture
+  trio): `wiki/papers/<slug>/agent-log`, scaffolded with the hub, is
+  the source of truth for a paper's AI use - an append-only six-column
+  table (`Date | Skill | Model | Sources touched | Pages written |
+  Human confirmations`, paper.md REQ-1513..1518) that every skill
+  touching the paper's material appends one row to (ingest and update
+  rows ride the run's commit; query and read-only audit rows follow
+  the Access-Log no-commit discipline). The `Model` value is what the
+  human confirms at the checkpoint, never introspected (the REQ-053
+  dispatch-record lesson). A `Disclosure statement (generated)`
+  section is regenerable from the rows alone, so the journal
+  AI-disclosure statement needs no memory reconstruction; a
+  supersession row and the page-level strike-through marker reference
+  each other. Lint rule 16 gains REQ-263 (canonical table header and
+  column counts, content never judged); the log renders in the #145
+  viewer and ships in the #148 bundle, passing the same publish gate.
+
 - **wiki-paper: per-manuscript hub pages** (issue #146, first of the
   paper-capture trio with #147/#148). New skill scaffolding and
   maintaining `wiki/papers/<slug>` anchors: six-section skeleton

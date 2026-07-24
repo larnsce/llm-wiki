@@ -254,6 +254,12 @@ and links are writing decisions.
   SHALL be linked from its hub (specs/paper.md REQ-1505); an orphaned
   child is a warning on the hub, because it silently drops out of the
   issue #148 export walk.
+- REQ-263 (agent-log table): On `wiki/papers/<slug>/agent-log`, the
+  first markdown table SHALL carry the exact header
+  `| Date | Skill | Model | Sources touched | Pages written | Human confirmations |`
+  (specs/paper.md REQ-1514); a deviating header or a row with a
+  different column count is a warning. Row content (models, sources,
+  confirmations) is never judged.
 
 ### Reporting
 

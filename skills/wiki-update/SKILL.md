@@ -112,6 +112,12 @@ Only after approval, in the tool-specific format from
 - Append the log entry
   `## [YYYY-MM-DD] update | <page> | <one-line reason>` to the Dashboard
   page.
+- Paper agent-log (paper.md REQ-1515/1517): when the edited page lives
+  under `wiki/papers/<slug>/` or a paper hub links it, append one row
+  to that paper's agent-log (format paper.md REQ-1514); on a
+  supersession, the row's Pages written cell links the page and the
+  row's date matches the page-level supersede marker, so the two
+  artifacts reference each other.
 - Git commit referencing the source, e.g.
   `wiki: update <page> (<reason>, source <ref>)` (REQ-954; commit discipline
   in [architecture](../wiki-core/references/architecture.md)).

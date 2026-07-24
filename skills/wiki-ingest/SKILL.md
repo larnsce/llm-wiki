@@ -438,6 +438,12 @@ blocking failure (REQ-026).
   to the Dashboard page. Legacy entries with a trailing `agents <...>`
   field stay valid; the field is retired. The entry feeds the success
   signal below
+- Paper agent-log (paper.md REQ-1515): when this run wrote a page under
+  `wiki/papers/<slug>/`, or wrote/updated a page that a paper hub
+  links, append ONE row to that paper's
+  `wiki/papers/<slug>/agent-log` (format: paper.md REQ-1514; Model is
+  what the human confirmed at the checkpoint, or `session`). The row
+  rides the run's atomic commit
 
 ## Success signal: track the --auto share
 

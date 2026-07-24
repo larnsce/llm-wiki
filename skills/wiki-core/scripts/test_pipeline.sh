@@ -905,7 +905,10 @@ cat >"$PAPERDEFECT/pages/wiki___papers___good-paper___agent-log.md" <<'EOF'
 schema-spec-version:: 2.0.0
 type:: reference
 
-- fixture agent log, linked from its hub
+- # Agent-use log
+	- | Date | Skill | Model | Sources touched | Pages written | Human confirmations |
+	  | --- | --- | --- | --- | --- | --- |
+	  | 2026-07-24 | wiki-paper | session | - | hub scaffold | scaffold approved |
 EOF
 cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper.md" <<'EOF'
 schema-spec-version:: 2.0.0
@@ -928,6 +931,15 @@ schema-spec-version:: 2.0.0
 type:: reference
 
 - orphaned child: the hub does not link this page
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper___agent-log.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- # Agent-use log
+	- | Date | Skill | Model tier | Sources | Pages | Confirmations |
+	  | --- | --- | --- | --- | --- | --- |
+	  | 2026-07-24 | wiki-ingest | opus | x | y | z |
 EOF
 cat >"$PAPERDEFECT/pages/wiki___papers___stray.md" <<'EOF'
 schema-spec-version:: 2.0.0
@@ -954,6 +966,9 @@ assert_report "lint(logseq): bad-paper misses exactly Data and AI use (REQ-261)"
   "len([f for f in r['findings'] if f['id'] == 'REQ-261' and f['page'] == 'wiki/papers/bad-paper']) == 2"
 assert_report "lint(logseq): hub-less child reported on the child (REQ-260)" \
   "len([f for f in r['findings'] if f['id'] == 'REQ-260' and f['page'] == 'wiki/papers/lost/child']) == 1"
+assert_lint_finding "lint(logseq): off-canon agent-log header reports REQ-263" REQ-263
+assert_report "lint(logseq): canonical agent-log has no REQ-263 finding" \
+  "not [f for f in r['findings'] if f['id'] == 'REQ-263' and f['page'] == 'wiki/papers/good-paper/agent-log']"
 assert_report "lint(logseq): complete hub has no rule-16 findings" \
   "not [f for f in r['findings'] if f['page'] == 'wiki/papers/good-paper' and f['id'] in ('REQ-260', 'REQ-261', 'REQ-262')]"
 
