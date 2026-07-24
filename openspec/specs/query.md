@@ -169,14 +169,15 @@ REQ-100..106). Without them, every requirement below is inert.
   the version the page records. (A spec'd live plane is parked by
   maintainer decision, 2026-07-07.)
 
-### One-Hop Neighbor Expansion (v3.7, not yet implemented)
+### One-Hop Neighbor Expansion (v3.7)
 
 Extends Phases 1 and 4. After the targeted reads, the pages' outgoing links
 are surfaced as a ranked neighbor list - the graph context around the answer,
 as pointers, not additional reads. Adapted from daniloc/mnemion's recall
 shape (entries return with their one-hop links); here it is mechanical link
 extraction over the pages already in context, so it costs no extra page
-budget. Implementation is tracked in `docs/roadmap-v3.7-recall.md`.
+budget. Implemented in skills/wiki-query (2026-07-24); the cycle
+plan is `docs/roadmap-v3.7-recall.md`.
 
 - REQ-480 (extraction): After the Phase 1 reads, the system SHALL collect the
   outgoing `[[wiki/...]]` links from the bodies of the fully-read pages.

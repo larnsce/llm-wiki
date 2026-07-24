@@ -11,7 +11,8 @@ storage plane is configured, aggregate, temporal, and full-text questions
 route to index.db SQL (the second plane); entity questions stay on pages.
 
 Spec: openspec/specs/query.md REQ-400..452 (dual-register output
-REQ-435..437), two-plane routing REQ-460..464
+REQ-435..437), two-plane routing REQ-460..464, one-hop neighbor
+expansion REQ-480..485
 
 Shared conventions (read before executing):
 
@@ -110,6 +111,28 @@ access log that makes retrieval auditable.
   `### Archive` back into the `### Index`, drop the archived:: property (and reset
   status:: where it was set)
 
+## Phase 1c - One-hop neighbors (pointers only, REQ-480..485)
+
+- After the Phase 1 reads, collect the outgoing `[[wiki/...]]` links from the
+  BODIES of the fully-read pages. Extraction is mechanical (the link text as
+  written). Links into `para/`, `notes/`, and `glossary/` are NOT expanded:
+  neighbor expansion stays inside the machine-written namespace (REQ-480)
+- Neighbors are POINTERS, never additional reads (REQ-481): do not read a
+  neighbor in full unless Phase 0 routing already selected it within the
+  page budget. Present each neighbor with its hub routing description when
+  one exists; the `### Index` or `### Archive` lines are already in context
+  from the Phase 0 hub reads, so this costs nothing extra
+- Rank by the number of DISTINCT read pages linking to the neighbor; break
+  ties with live-index pages before archived ones. Cap the list at 7.
+  Exclude already-read pages, hub pages, and the Schema, Dashboard, and
+  Access-Log pages (REQ-482)
+- Flag a neighbor whose page carries `archived::` as archived (REQ-484).
+  The re-promotion offer (Phase 1b) applies only when a page is actually
+  read in full, not to its appearance as a pointer
+- Never Access-Log a neighbor; they are not full reads (REQ-485). A broken
+  neighbor link (the target page does not exist) is reported to the user as
+  a candidate lint issue, not silently dropped
+
 ## Phase 2 - Synthesize
 
 - Combine information from multiple wiki pages
@@ -151,7 +174,10 @@ access log that makes retrieval auditable.
   or both, e.g. "Sources: [[wiki/tech/deployment]]; index.db (meetings,
   12 rows)". Include the staleness warning here when answering from a stale
   index (REQ-461)
-- Suggest related pages
+- After the shared attribution, ONCE per answer: the Phase 1c neighbor list
+  under a `Related:` line, each pointer with its routing description and
+  archived flag where applicable (REQ-483). This list IS the related-pages
+  suggestion; do not add a second, improvised one
 - If no relevant pages are found, state clearly: "No information found in the wiki
   for this topic." and offer write-back (Phase 3); the plain register
   restates that the wiki has no answer (REQ-435)
