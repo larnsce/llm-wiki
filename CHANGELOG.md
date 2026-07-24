@@ -9,6 +9,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Paper workflow guide** (`docs/paper-workflow.md`): the whole paper
+  arc in plain language for humans, prompted by the maintainer's "I
+  still don't know what I am supposed to do here". The problem (paper
+  material spread across the wiki; journals asking for AI disclosure;
+  reviewers wanting the knowledge base), the anchor page, the log and
+  the generated disclosure statement, the export and its manifest,
+  what never leaves the vault, the six conversational steps (only the
+  privacy read is genuinely the human's), and the shipped fictional
+  example. Linked from the README and cross-linked from
+  `docs/publish-wiki.md`.
+
 - **`/wiki-query --prime`** (issue #143, v3.7 R-2, prime.md
   REQ-1400..1431): the proactive read path. Describe the session's
   context (or let it derive one from the conversation and echo it
