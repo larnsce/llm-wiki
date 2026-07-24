@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`/wiki-query --prime`** (issue #143, v3.7 R-2, prime.md
+  REQ-1400..1431): the proactive read path. Describe the session's
+  context (or let it derive one from the conversation and echo it
+  back) and get a read-only context briefing: at most 3 fully-read
+  pages with 1-3 lines each, up to 5 unread routing pointers, one-hop
+  neighbors per the R-1 machinery, and relevant L1 rules. Recall is
+  breadth-first over EVERY hub index (plus optional index.db FTS and
+  a bounded 3x3 grep fallback) and strictly lexical - no embeddings,
+  no vector store, no network calls. Single register, attribution
+  once at the end, flags carried inline, full reads Access-Logged as
+  `prime: <term>`. Prime never writes (the Access-Log append is the
+  only exception), never offers write-back, and never self-triggers;
+  the v3.7 recall cycle is complete.
+
 ## [3.8.0] - 2026-07-24
 
 ### Changed

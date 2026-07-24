@@ -21,8 +21,8 @@ Prime is a mode of the query skill (`/wiki-query --prime`), not a separate
 skill: it shares Phase 0 routing, the JIT page budget, Access-Logging, and the
 one-hop neighbor machinery (query.md REQ-480..485).
 
-Status: v3.7, not yet implemented. Canon drafted 2026-07-21; implementation is
-tracked in the v3.7 recall roadmap (`docs/roadmap-v3.7-recall.md`).
+Status: implemented in skills/wiki-query (2026-07-24). Canon drafted
+2026-07-21; the cycle plan is `docs/roadmap-v3.7-recall.md`.
 
 ---
 

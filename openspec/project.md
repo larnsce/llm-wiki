@@ -61,5 +61,5 @@ inspired by CPU memory hierarchies.
 | specs/citations.md | Block-native citations (v2.1, not yet implemented) |
 | specs/audit.md | wiki-audit claim verification (v2.1, not yet implemented) |
 | specs/update.md | wiki-update sanctioned non-append edits (v2.1, not yet implemented) |
-| specs/prime.md | /wiki-query --prime context priming / auto-associative recall (v3.7, not yet implemented) |
+| specs/prime.md | /wiki-query --prime context priming / auto-associative recall (v3.7) |
 | specs/paper.md | wiki-paper per-manuscript hubs (wiki/papers/<slug>), reachability as the publish boundary, lint rule 16 |
