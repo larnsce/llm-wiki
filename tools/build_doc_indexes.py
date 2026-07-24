@@ -9,7 +9,7 @@ metadata, so the indexes can never drift from the content:
 - reference/skills.md   one row per skills/*/SKILL.md (frontmatter name +
                         first sentence of description), with a link to the
                         skill's plain/ page when one exists
-- reference/skills-plain.md  one row per plain/*.md (frontmatter title +
+- reference/plain-language.md  one row per plain/*.md (frontmatter title +
                         first sentence of description), linking back to the
                         matching SKILL.md; a skill without a plain page (or
                         a plain page without a skill) is warned on stderr
@@ -154,7 +154,10 @@ def build_skills_plain():
             name, filename,
             escape_cell(first_sentence(meta.get("description", ""))),
             name))
-    write("reference/skills-plain.md", page(
+    # Not "skills-plain.md": Quarto reserves <stem>-plain.md as the markdown
+    # engine's intermediate name for an input <stem>.md and silently drops
+    # such files from the project inputs, so that name would never render.
+    write("reference/plain-language.md", page(
         "Skills in plain language",
         "Every skill explained in plain language, one page per skill. "
         "The pages in the Skill column are written for people. The last "

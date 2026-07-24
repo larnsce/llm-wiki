@@ -27,7 +27,7 @@ with a pointer to its standard page.
   generates the pkgdown-style index pages from metadata that already
   lives in the sources: `reference/skills.md` and `reference/agents.md`
   from SKILL.md / agent frontmatter (`name`, `description`, `model`),
-  `reference/skills-plain.md` from the `plain/*.md` frontmatter
+  `reference/plain-language.md` from the `plain/*.md` frontmatter
   (`title`, `description`), `reference/specs.md` from each spec's h1 and
   Description paragraph, `reference/articles.md` from the `docs/*.md`
   h1s, and `index.md` as a copy of the README. All six outputs plus
