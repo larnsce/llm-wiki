@@ -15,7 +15,7 @@ The wiki skills read this file before every operation.
 
 ## Page Types
 
-The schema defines five page types. Every wiki page must declare exactly one type via the `type::` property.
+The schema defines six page types. Every wiki page must declare exactly one type via the `type::` property.
 
 ### 1. Entity
 
@@ -26,7 +26,7 @@ Represents a person, client, tool, service, or technology. Anything that has ide
 | Property | Values | Description |
 |----------|--------|-------------|
 | `type::` | `entity` | Page type identifier |
-| `entity-type::` | `person` \| `client` \| `tool` \| `service` \| `technology` | What kind of entity |
+| `entity-type::` | `person` \| `client` \| `tool` \| `service` \| `technology` \| `dataset` | What kind of entity |
 | `created::` | `YYYY-MM-DD` | When the page was created |
 | `updated::` | `YYYY-MM-DD` | Last modification date |
 | `status::` | `active` \| `inactive` \| `archived` | Current state |
@@ -250,6 +250,21 @@ namespace:: wiki/tech
     - [[wiki/projects]] -- Project-specific tech decisions
     - [[wiki/reference]] -- Workflow documentation
 ```
+
+### 6. Paper Hub
+
+The anchor page of one manuscript, at `wiki/papers/<slug>` (issue #146; the full workflow is `docs/paper-workflow.md`). It links the paper's material rather than holding it, and it doubles as the homepage of a published paper site.
+
+**Required Properties:**
+
+| Property | Values | Description |
+|----------|--------|-------------|
+| `type::` | `paper-hub` | Page type identifier |
+| `status::` | `drafting` \| `submitted` \| `published` (recommended, not enum-enforced) | Manuscript state |
+| `created::` | `YYYY-MM-DD` | When the page was created |
+| `updated::` | `YYYY-MM-DD` | Last modification date |
+
+The hub carries six sections (Manuscript, Literature drawn on, Data, Open questions, Draft decisions, AI use) and links every page under its own namespace, including the paper's agent-use log at `wiki/papers/<slug>/agent-log`. Lint rule 16 checks the type, the sections, the child reachability, and the log's table header (specs/paper.md, specs/lint.md REQ-260..263).
 
 ## Namespace Conventions
 

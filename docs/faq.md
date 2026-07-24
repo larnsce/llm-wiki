@@ -64,7 +64,7 @@ Porting to other CLI-based LLM coding tools is on the roadmap but requires signi
 
 Karpathy's gist is a concept essay. It describes *what* an LLM wiki should do (ingest, query, lint) and why it matters. It does not specify tools, file formats, schemas, or workflows.
 
-llm-wiki is an implementation. It picks Claude Code as the LLM, Logseq or Obsidian as the wiki UI, defines a concrete schema with 5 page types, specifies 11 lint rules with auto-fix behavior, and adds the L1/L2 cache layer — with two-stage hub-index routing and LRU eviction — that the gist does not mention. Setup takes 5 minutes with `./setup.sh`; the gist is 100% design, 0% code.
+llm-wiki is an implementation. It picks Claude Code as the LLM, Logseq or Obsidian as the wiki UI, defines a concrete schema with 6 page types, specifies 16 lint rules with auto-fix behavior, and adds the L1/L2 cache layer — with two-stage hub-index routing and LRU eviction — that the gist does not mention. Setup takes 5 minutes with `./setup.sh`; the gist is 100% design, 0% code.
 
 If you want the pure concept, read the gist. If you want a working system, use llm-wiki.
 
@@ -95,6 +95,16 @@ Three checks before your first push:
 3. **Review the first commit diff manually.** One-time sanity check that no API tokens or personal notes made it into tracked files.
 
 After the first push, the L1/L2 boundary enforces itself. The lint runs catch drift before it reaches GitHub.
+
+## Can I publish my wiki, or part of it?
+
+Yes, as a static markdown site with no build step. The viewer template
+and the publish boundary are documented in `docs/publish-wiki.md`. For
+the material behind a scientific article there is a dedicated path: one
+anchor page per manuscript, an AI-use log, and an export that walks the
+anchor page's links, gates every file for secrets, and produces a
+deployable folder with a manifest of what went in and what stayed out
+(`docs/paper-workflow.md`). Personal tiers never leave the vault.
 
 ## Where do I report bugs or request features?
 

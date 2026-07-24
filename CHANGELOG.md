@@ -7,6 +7,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- **Documentation staleness sweep** (after the 2026-07-24 releases):
+  the README intro no longer claims "eight skills" (the table is the
+  count); the wiki-query row and the Quickstart show `--prime`;
+  `docs/schema-reference.md` documents six page types including
+  `paper-hub` and adds `dataset` to the entity-type enum it had
+  missed since v3.2; the FAQ gains a "Can I publish my wiki?" entry
+  and corrects its page-type and lint-rule counts, as does
+  `docs/logseq-vs-obsidian.md`; `docs/design-vs-karpathy.md` gains an
+  addendum on the public-site half of the pattern now shipped;
+  `docs/roadmap-v3.7-recall.md` records the recall cycle as complete
+  with its one deviation (no query-class goldens exist yet); and the
+  `openspec/project.md` registry drops "not yet implemented" from the
+  long-shipped v2.1 specs (citations, audit, update) and corrects the
+  lint spec's rule count.
+
 ### Added
 
 - **Paper workflow guide** (`docs/paper-workflow.md`): the whole paper

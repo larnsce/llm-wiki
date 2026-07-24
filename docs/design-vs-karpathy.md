@@ -59,3 +59,19 @@ Claim-level citations (`cite::`, openspec/specs/citations.md) and claim-by-claim
 | Eviction | Not addressed | LRU-Demote (added in 1.2.0) | Same, spec-canonical (REQ-600..622) |
 | Loading transparency | Not addressed | Access-Log with matched-reason (added in 1.3.0) | Same, spec-canonical (REQ-450b) |
 | Provenance and trust | Not addressed | Source pipeline (added in 1.4.0) | Same plus secret gate (REQ-045/046); citations and audit in v2.1 |
+
+## Addendum (2026-07-24): the public-site half
+
+The site that popularized the gist, andrej-karpathy.com, added a second
+half to the pattern: the wiki published as a markdown-first website,
+where humans read rendered pages and agents fetch the identical raw
+`.md` at the same paths. llm-wiki now ships that half natively. The
+single-file viewer (`templates/site/index.html`) renders both page
+flavors with hash routes over raw markdown and no build step,
+`docs/publish-wiki.md` documents the publish boundary and the
+`secret_scan.py` gate, and the paper workflow (`docs/paper-workflow.md`)
+derives a public supplementary site from a manuscript's hub page, with
+the link walk as the boundary and a manifest instead of silent
+exclusions. The prior-art check on the cognee front end that runs
+andrej-karpathy.com found a built React bundle entangled with its
+backend, so the viewer here is a from-scratch single file (issue #145).
