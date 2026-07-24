@@ -204,7 +204,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Prime is the proactive read path. Instead of answering a question, it takes a description of what the session is about (“I’m drafting the sanitation course module with Anna this week”) and surfaces the wiki pages, routing pointers, one-hop neighbors, and L1 rules that are relevant to that context - before anyone has formulated a precise question. The output is a context briefing, not an answer.</p>
 <p>The design is adapted from the <code>prime</code> tool in daniloc/mnemion (auto-associative recall: describe the conversational context, get relevant entries plus their one-hop links back). mnemion implements it with embeddings and KNN search; llm-wiki implements the same recall shape lexically, on the existing two-stage routing machinery (hub indexes, optional index.db FTS, bounded grep), because the zero-dependency constraint (bash, python3 stdlib, git) excludes embedding models and vector stores.</p>
 <p>Prime is a mode of the query skill (<code>/wiki-query --prime</code>), not a separate skill: it shares Phase 0 routing, the JIT page budget, Access-Logging, and the one-hop neighbor machinery (query.md REQ-480..485).</p>
-<p>Status: v3.7, not yet implemented. Canon drafted 2026-07-21; implementation is tracked in the v3.7 recall roadmap (<code>docs/roadmap-v3.7-recall.md</code>).</p>
+<p>Status: implemented in skills/wiki-query (2026-07-24). Canon drafted 2026-07-21; the cycle plan is <code>docs/roadmap-v3.7-recall.md</code>.</p>
 <hr>
 </section>
 <section id="requirements" class="level2">

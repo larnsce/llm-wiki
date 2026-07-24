@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/github/license/larnsce/llm-wiki)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/larnsce/llm-wiki)](https://github.com/larnsce/llm-wiki/commits)
 
-Build [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) with Claude Code: a suite of eight skills that maintain a structured, cross-referenced knowledge base in Logseq or Obsidian, on a two-layer cache architecture (L1/L2) with a source-provenance and trust layer.
+Build [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) with Claude Code: a suite of skills that maintain a structured, cross-referenced knowledge base in Logseq or Obsidian, on a two-layer cache architecture (L1/L2) with a source-provenance and trust layer.
 
 ## What is this?
 
@@ -20,7 +20,7 @@ llm-wiki is an implementation of that idea. Claude Code is the LLM brain; Logseq
 |-------|--------------|
 | `wiki-setup` | Initialize or upgrade a wiki: config discovery and validation, fresh scaffolding, legacy v1 detection, Schema-page upgrade |
 | `wiki-ingest` | The write path: process a source (URL, file, text, or the `raw/` queue), update pages append-only with provenance; interactive by default, `--auto` for queue draining, `--import` for existing notes |
-| `wiki-query` | The read path: two-stage retrieval via hub indexes, targeted page reads, Access-Log update, synthesized answer with sources |
+| `wiki-query` | The read path: two-stage retrieval via hub indexes, targeted page reads, Access-Log update, synthesized answer with sources; `--prime` turns a context description into a read-only session briefing instead of an answer |
 | `wiki-lint` | Two-layer health check: mechanical rules via `lint.py` and `check_canon.py`, judgment rules on top; fixes only with confirmation |
 | `wiki-maintain` | Status report (read-only metrics, hot/cold cache profile) and prune (LRU-Demote eviction of cold pages from the live index) |
 | `wiki-migrate` | One-time, interactive corpus migrations driving `migrate_wiki.py`: the v1-to-v2 schema pass and the lowercase rename pass (`Wiki/` to `wiki/`, `--lowercase`) |
@@ -54,6 +54,7 @@ Requirements: bash, python3, git. No npm, no pip.
 /wiki-setup                        # scaffold or validate the wiki
 /wiki-ingest "your first source"   # write path: source -> pages
 /wiki-query "what do I know about X?"
+/wiki-query --prime "what I am working on today"   # read-only context briefing
 /wiki-lint                         # health check, fixes on confirmation
 /wiki-maintain                     # status report; "prune" to evict cold pages
 ```
@@ -128,6 +129,7 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Source Routes](docs/source-routes.md) - Every source kind, its capture mechanism, pipeline entry, and trust defaults; includes the manual AI-transcript protocol
 - [Website](docs/website.md) - How the documentation site builds and publishes (Quarto, generated reference indexes, GitHub Pages)
 - [Publishing a wiki](docs/publish-wiki.md) - Publish wiki content as a static markdown-first site: the `templates/site/index.html` viewer, the publish boundary, the secret-scan gate; working example in `examples/paper-site/`
+- [Writing a paper on the wiki](docs/paper-workflow.md) - The paper workflow in plain language: one anchor page per manuscript, the AI-use log and generated disclosure statement, the export to a public supplementary site, and what never leaves the vault
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`

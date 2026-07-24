@@ -212,6 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#knowledge" id="toc-knowledge" class="nav-link" data-scroll-target="#knowledge">3. Knowledge</a></li>
   <li><a href="#feedback" id="toc-feedback" class="nav-link" data-scroll-target="#feedback">4. Feedback</a></li>
   <li><a href="#hub" id="toc-hub" class="nav-link" data-scroll-target="#hub">5. Hub</a></li>
+  <li><a href="#paper-hub" id="toc-paper-hub" class="nav-link" data-scroll-target="#paper-hub">6. Paper Hub</a></li>
   </ul></li>
   <li><a href="#namespace-conventions" id="toc-namespace-conventions" class="nav-link" data-scroll-target="#namespace-conventions">Namespace Conventions</a>
   <ul class="collapse">
@@ -295,7 +296,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="page-types" class="level2">
 <h2 class="anchored" data-anchor-id="page-types">Page Types</h2>
-<p>The schema defines five page types. Every wiki page must declare exactly one type via the <code>type::</code> property.</p>
+<p>The schema defines six page types. Every wiki page must declare exactly one type via the <code>type::</code> property.</p>
 <section id="entity" class="level3">
 <h3 class="anchored" data-anchor-id="entity">1. Entity</h3>
 <p>Represents a person, client, tool, service, or technology. Anything that has identity and persistence.</p>
@@ -321,7 +322,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td><code>entity-type::</code></td>
-<td><code>person</code> | <code>client</code> | <code>tool</code> | <code>service</code> | <code>technology</code></td>
+<td><code>person</code> | <code>client</code> | <code>tool</code> | <code>service</code> | <code>technology</code> | <code>dataset</code></td>
 <td>What kind of entity</td>
 </tr>
 <tr class="odd">
@@ -716,6 +717,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>### Related Hubs</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/projects</span><span class="co">]</span>] -- Project-specific tech decisions</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>[<span class="co">[</span><span class="ot">wiki/reference</span><span class="co">]</span>] -- Workflow documentation</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="paper-hub" class="level3">
+<h3 class="anchored" data-anchor-id="paper-hub">6. Paper Hub</h3>
+<p>The anchor page of one manuscript, at <code>wiki/papers/&lt;slug&gt;</code> (issue #146; the full workflow is <code>docs/paper-workflow.md</code>). It links the paper’s material rather than holding it, and it doubles as the homepage of a published paper site.</p>
+<p><strong>Required Properties:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 25%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>type::</code></td>
+<td><code>paper-hub</code></td>
+<td>Page type identifier</td>
+</tr>
+<tr class="even">
+<td><code>status::</code></td>
+<td><code>drafting</code> | <code>submitted</code> | <code>published</code> (recommended, not enum-enforced)</td>
+<td>Manuscript state</td>
+</tr>
+<tr class="odd">
+<td><code>created::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>When the page was created</td>
+</tr>
+<tr class="even">
+<td><code>updated::</code></td>
+<td><code>YYYY-MM-DD</code></td>
+<td>Last modification date</td>
+</tr>
+</tbody>
+</table>
+<p>The hub carries six sections (Manuscript, Literature drawn on, Data, Open questions, Draft decisions, AI use) and links every page under its own namespace, including the paper’s agent-use log at <code>wiki/papers/&lt;slug&gt;/agent-log</code>. Lint rule 16 checks the type, the sections, the child reachability, and the log’s table header (specs/paper.md, specs/lint.md REQ-260..263).</p>
 </section>
 </section>
 <section id="namespace-conventions" class="level2">

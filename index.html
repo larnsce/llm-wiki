@@ -232,7 +232,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="llm-wiki" class="level1">
 <h1>llm-wiki</h1>
 <p><a href="LICENSE"><img src="https://img.shields.io/github/license/larnsce/llm-wiki.png" class="img-fluid" alt="License: MIT"></a> <a href="https://github.com/larnsce/llm-wiki/commits"><img src="https://img.shields.io/github/last-commit/larnsce/llm-wiki.png" class="img-fluid" alt="Last Commit"></a></p>
-<p>Build <a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Karpathy’s LLM Wiki</a> with Claude Code: a suite of eight skills that maintain a structured, cross-referenced knowledge base in Logseq or Obsidian, on a two-layer cache architecture (L1/L2) with a source-provenance and trust layer.</p>
+<p>Build <a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Karpathy’s LLM Wiki</a> with Claude Code: a suite of skills that maintain a structured, cross-referenced knowledge base in Logseq or Obsidian, on a two-layer cache architecture (L1/L2) with a source-provenance and trust layer.</p>
 <section id="what-is-this" class="level2">
 <h2 class="anchored" data-anchor-id="what-is-this">What is this?</h2>
 <p><img src="docs/graph-view.png" class="img-fluid" alt="Wiki graph view after setup"> <em>Your wiki after a few ingests: interconnected knowledge pages in Logseq’s graph view.</em></p>
@@ -259,7 +259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td><code>wiki-query</code></td>
-<td>The read path: two-stage retrieval via hub indexes, targeted page reads, Access-Log update, synthesized answer with sources</td>
+<td>The read path: two-stage retrieval via hub indexes, targeted page reads, Access-Log update, synthesized answer with sources; <code>--prime</code> turns a context description into a read-only session briefing instead of an answer</td>
 </tr>
 <tr class="even">
 <td><code>wiki-lint</code></td>
@@ -319,6 +319,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>/wiki-setup                        # scaffold or validate the wiki
 /wiki-ingest "your first source"   # write path: source -&gt; pages
 /wiki-query "what do I know about X?"
+/wiki-query --prime "what I am working on today"   # read-only context briefing
 /wiki-lint                         # health check, fixes on confirmation
 /wiki-maintain                     # status report; "prune" to evict cold pages</code></pre>
 <p>The wiki starts sparse and gets denser with every ingest. Ingest is interactive by default: it presents a consolidated plan (pages to create and update, reliability ratings) and waits for your approval before writing anything.</p>
@@ -418,6 +419,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="./docs/source-routes.html">Source Routes</a> - Every source kind, its capture mechanism, pipeline entry, and trust defaults; includes the manual AI-transcript protocol</li>
 <li><a href="./docs/website.html">Website</a> - How the documentation site builds and publishes (Quarto, generated reference indexes, GitHub Pages)</li>
 <li><a href="./docs/publish-wiki.html">Publishing a wiki</a> - Publish wiki content as a static markdown-first site: the <code>templates/site/index.html</code> viewer, the publish boundary, the secret-scan gate; working example in <code>examples/paper-site/</code></li>
+<li><a href="./docs/paper-workflow.html">Writing a paper on the wiki</a> - The paper workflow in plain language: one anchor page per manuscript, the AI-use log and generated disclosure statement, the export to a public supplementary site, and what never leaves the vault</li>
 <li><a href="./docs/literature-research.html">Literature Research</a> - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit</li>
 <li><a href="./docs/web-clipper-firefox.html">Firefox Web-Clipper</a> - Clip web pages into the <code>raw/</code> queue with MarkDownload on macOS</li>
 <li><a href="./docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> - Run <code>para/</code> and <code>notes/</code> in the same graph; the promotion seam into <code>wiki/</code></li>

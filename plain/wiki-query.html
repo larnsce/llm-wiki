@@ -217,10 +217,11 @@ Note
 <section id="what-it-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-it-does">What it does</h2>
 <p>wiki-query answers a question from what the wiki already knows. It does not read every page. Each section of the wiki has a hub page with one routing line per page, and the skill reads those lines first to pick the three to five pages most likely to hold the answer. It reads only the pages it picked and then writes an answer that names its sources. The answer always comes in two versions. The first is precise and keeps the technical vocabulary. The second, under the heading “In plain terms”, carries the same facts and the same warnings in everyday words. The skill also notes which pages it read in an access log, and the maintenance skill later uses that log to tell busy pages from cold ones.</p>
+<p>The skill has a second mode for starting a work session. With the –prime option you describe what you are about to work on instead of asking a question, and the skill returns a short briefing: the few pages that bear on the work, pointers to further candidates it did not open, each read page’s linked neighbors, and any standing rules from memory. If you give no description, it derives one from the conversation and shows you exactly what it primed on. The briefing reads at most three pages, changes nothing, and never runs by itself; you invoke it when you want it.</p>
 </section>
 <section id="when-to-use-it" class="level2">
 <h2 class="anchored" data-anchor-id="when-to-use-it">When to use it</h2>
-<p>Use it when you want to know what the wiki says about a topic, e.g., “what do we know about deployment” or “who works on the parser”.</p>
+<p>Use it when you want to know what the wiki says about a topic, e.g., “what do we know about deployment” or “who works on the parser”. Use –prime at the start of a work session, before you have a precise question.</p>
 </section>
 <section id="what-it-never-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-it-never-does">What it never does</h2>

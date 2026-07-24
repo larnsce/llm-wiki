@@ -183,6 +183,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#provenance-and-trust-layer" id="toc-provenance-and-trust-layer" class="nav-link" data-scroll-target="#provenance-and-trust-layer">Provenance and trust layer</a></li>
   </ul></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#addendum-2026-07-24-the-public-site-half" id="toc-addendum-2026-07-24-the-public-site-half" class="nav-link" data-scroll-target="#addendum-2026-07-24-the-public-site-half">Addendum (2026-07-24): the public-site half</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/design-vs-karpathy.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -296,6 +297,10 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+</section>
+<section id="addendum-2026-07-24-the-public-site-half" class="level2">
+<h2 class="anchored" data-anchor-id="addendum-2026-07-24-the-public-site-half">Addendum (2026-07-24): the public-site half</h2>
+<p>The site that popularized the gist, andrej-karpathy.com, added a second half to the pattern: the wiki published as a markdown-first website, where humans read rendered pages and agents fetch the identical raw <code>.md</code> at the same paths. llm-wiki now ships that half natively. The single-file viewer (<code>templates/site/index.html</code>) renders both page flavors with hash routes over raw markdown and no build step, <code>docs/publish-wiki.md</code> documents the publish boundary and the <code>secret_scan.py</code> gate, and the paper workflow (<code>docs/paper-workflow.md</code>) derives a public supplementary site from a manuscript’s hub page, with the link walk as the boundary and a manifest instead of silent exclusions. The prior-art check on the cognee front end that runs andrej-karpathy.com found a built React bundle entangled with its backend, so the viewer here is a from-scratch single file (issue #145).</p>
 
 
 </section>

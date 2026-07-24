@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>roadmap-v3.7-recall – llm-wiki</title>
+<title>paper-workflow – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -167,16 +167,19 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#roadmap-recall-v3.7---one-hop-neighbors-context-priming" id="toc-roadmap-recall-v3.7---one-hop-neighbors-context-priming" class="nav-link active" data-scroll-target="#roadmap-recall-v3.7---one-hop-neighbors-context-priming">Roadmap: Recall (v3.7) - one-hop neighbors + context priming</a>
+  <li><a href="#writing-a-paper-on-the-wiki" id="toc-writing-a-paper-on-the-wiki" class="nav-link active" data-scroll-target="#writing-a-paper-on-the-wiki">Writing a paper on the wiki</a>
   <ul class="collapse">
-  <li><a href="#context" id="toc-context" class="nav-link" data-scroll-target="#context">Context</a></li>
-  <li><a href="#design-decisions" id="toc-design-decisions" class="nav-link" data-scroll-target="#design-decisions">Design decisions</a></li>
-  <li><a href="#issues-v3.7-in-dependency-order" id="toc-issues-v3.7-in-dependency-order" class="nav-link" data-scroll-target="#issues-v3.7-in-dependency-order">Issues (v3.7, in dependency order)</a></li>
-  <li><a href="#non-goals-this-cycle-parked-with-reasons" id="toc-non-goals-this-cycle-parked-with-reasons" class="nav-link" data-scroll-target="#non-goals-this-cycle-parked-with-reasons">Non-goals this cycle (parked, with reasons)</a></li>
-  <li><a href="#verification-per-pr" id="toc-verification-per-pr" class="nav-link" data-scroll-target="#verification-per-pr">Verification per PR</a></li>
+  <li><a href="#the-problem-the-workflow-solves" id="toc-the-problem-the-workflow-solves" class="nav-link" data-scroll-target="#the-problem-the-workflow-solves">The problem the workflow solves</a></li>
+  <li><a href="#the-anchor-page" id="toc-the-anchor-page" class="nav-link" data-scroll-target="#the-anchor-page">The anchor page</a></li>
+  <li><a href="#the-log-and-the-disclosure-statement" id="toc-the-log-and-the-disclosure-statement" class="nav-link" data-scroll-target="#the-log-and-the-disclosure-statement">The log and the disclosure statement</a></li>
+  <li><a href="#making-the-material-public" id="toc-making-the-material-public" class="nav-link" data-scroll-target="#making-the-material-public">Making the material public</a></li>
+  <li><a href="#what-never-leaves-the-vault" id="toc-what-never-leaves-the-vault" class="nav-link" data-scroll-target="#what-never-leaves-the-vault">What never leaves the vault</a></li>
+  <li><a href="#how-you-use-it" id="toc-how-you-use-it" class="nav-link" data-scroll-target="#how-you-use-it">How you use it</a></li>
+  <li><a href="#a-worked-example" id="toc-a-worked-example" class="nav-link" data-scroll-target="#a-worked-example">A worked example</a></li>
+  <li><a href="#where-the-details-live" id="toc-where-the-details-live" class="nav-link" data-scroll-target="#where-the-details-live">Where the details live</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/roadmap-v3.7-recall.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/paper-workflow.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -184,82 +187,65 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="roadmap-recall-v3.7---one-hop-neighbors-context-priming" class="level1">
-<h1>Roadmap: Recall (v3.7) - one-hop neighbors + context priming</h1>
-<p>Implementation plan for the two recall features adapted from <a href="https://github.com/daniloc/mnemion">daniloc/mnemion</a> (comparison session, 2026-07-21). Issue-based, following the v2.0.0/v2.2/v2.3 pattern: canon first, one PR per issue, mechanical verification per PR.</p>
-<p>Status: COMPLETE. R-1 (#142) shipped in v3.7.0 and R-2 (#143) shipped on 2026-07-24 right after v3.8.0; both spec sections dropped their “not yet implemented” markers. One deviation from the plan below: no golden transcripts were recorded, because no query-class goldens exist yet as a category (noted on both issues). This document remains as the cycle’s plan and design record.</p>
-<section id="context" class="level2">
-<h2 class="anchored" data-anchor-id="context">Context</h2>
-<p>mnemion solves the same problem as llm-wiki (persistent, agent-maintained memory) as a hosted service: Cloudflare Worker, SQLite, vector embeddings, MCP tools. Two of its mechanisms have no llm-wiki equivalent and transfer cleanly to the local, lexical, plain-text architecture:</p>
-<ol type="1">
-<li><strong>Auto-associative recall</strong> (mnemion’s <code>prime</code> tool): the agent describes the conversational context; the system surfaces relevant entries without a formulated question. llm-wiki’s query path is question-driven only; a prime mode moves the wiki from “answers when asked” toward “surfaces what is relevant unprompted” - the heart of the original Karpathy pitch.</li>
-<li><strong>One-hop link expansion</strong>: recall results return with their one-hop neighbors. llm-wiki reads targeted pages but never surfaces the graph context around them; a mechanical neighbor list costs no extra page reads.</li>
-</ol>
-<p>Several other mnemion mechanisms already have llm-wiki equivalents (read-time supersession legibility = wiki-update; access-refreshed decay = Access-Log + LRU-Demote; stale surfacing = wiki-maintain status; write-time contradiction checks = the ingest checkpoint). Those need nothing this cycle.</p>
-<p>Repo ground rules that bind this plan: canon-first (specs are the single source of truth), zero external dependencies (bash, python3 stdlib, git), interactive-by-default, JIT page budget (max 3 full reads), append-only wiki, both tool modes (Logseq and Obsidian) for every change.</p>
-<hr>
+<section id="writing-a-paper-on-the-wiki" class="level1">
+<h1>Writing a paper on the wiki</h1>
+<p>How the wiki supports writing a scientific article, from the first source to the public supplementary site. The tooling behind each step is the wiki-paper skill, the agent-use log, and the export bundle (issues #146, #147, #148); the exact rules live in <code>openspec/specs/paper.md</code>. You do not need to know the rules to use the workflow, and every command below is a sentence you say in a Claude Code session inside your vault.</p>
+<section id="the-problem-the-workflow-solves" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem-the-workflow-solves">The problem the workflow solves</h2>
+<p>While you write an article, the material behind it piles up in the wiki. The literature notes arrive through Zotero, the concept pages grow during ingest sessions, a dataset gets its own page, and the decisions you take while drafting end up in journal entries. The wiki holds all of it, but spread out, with no view that belongs to the paper. Two outside pressures meet that pile. Journals increasingly ask authors to state how AI was used in preparing a manuscript, and reviewers or readers may want to inspect the knowledge base behind a paper. Without a per-paper view, you would answer both questions from memory.</p>
 </section>
-<section id="design-decisions" class="level2">
-<h2 class="anchored" data-anchor-id="design-decisions">Design decisions</h2>
-<ol type="1">
-<li><strong>Lexical, not embeddings.</strong> mnemion primes via embedding KNN (Workers AI + Vectorize). That infrastructure is excluded here by the zero-dependency rule, deliberately. Prime reuses the surfaces built for cheap recall: hub <code>### Index</code> routing lines (read breadth-first, all hubs), the optional index.db FTS plane (SELECT-only, stale-checked), and a bounded grep fallback. If lexical recall proves too weak in practice, that is evidence for a future cycle, not a reason to smuggle in a vector store now.</li>
-<li><strong>Pointers, not reads.</strong> Both features respect the JIT budget: prime fully reads at most 3 pages; everything else (further candidates, one-hop neighbors) is presented as link + routing description. The hub routing line is the unit of cheap context; nothing new is invented for this.</li>
-<li><strong>Prime is read-only.</strong> No write-back offers, no page writes; the only write is the Access-Log append for full reads (<code>matched: "prime: &lt;term&gt;"</code>). Edits surfaced during a briefing are redirected to the sanctioned verbs (/wiki-ingest, /wiki-update).</li>
-<li><strong>No auto-run.</strong> Prime never self-triggers at session start; the user wires invocation (CLAUDE.md pointer, alias, or manual call). Mirrors the prune no-self-scheduling stance (prune.md REQ-622).</li>
-<li><strong>Neighbors stay inside <code>wiki/</code>.</strong> Link extraction does not expand into <code>para/</code>, <code>notes/</code>, or <code>glossary/</code> - the ownership contract (namespaces.md) keeps machine recall on the machine-written namespace.</li>
-<li><strong>One-hop lands first.</strong> Prime consumes the neighbor machinery (query REQ-480..485), so the query-side feature is the first PR and prime builds on it.</li>
-<li><strong>Single-register briefing.</strong> Prime output is routing, not synthesis; the dual-register rule (query REQ-435..437) applies to answers, not briefings. Attribution still appears once at the end.</li>
-</ol>
-</section>
-<section id="issues-v3.7-in-dependency-order" class="level2">
-<h2 class="anchored" data-anchor-id="issues-v3.7-in-dependency-order">Issues (v3.7, in dependency order)</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>#</th>
-<th>Issue</th>
-<th>Contents</th>
-<th>Deps</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>R-1 (#142)</td>
-<td>implement one-hop neighbor expansion in /wiki-query</td>
-<td>query.md REQ-480..485: mechanical <code>[[wiki/...]]</code> link extraction from fully-read pages, ranked/capped <code>Related:</code> pointer list after attribution, archived flags, no neighbor reads, no Access-Log entries. <code>skills/wiki-query/SKILL.md</code> update, golden transcript, harness assertions, both tool modes. Drop the “not yet implemented” markers for the section.</td>
-<td>-</td>
-</tr>
-<tr class="even">
-<td>R-2 (#143)</td>
-<td>implement /wiki-query –prime (context priming)</td>
-<td>prime.md REQ-1400..1431: context argument or derived-and-echoed context, lexical term extraction, breadth-first hub scan, optional index.db channel, bounded grep fallback, &lt;= 3 full reads + pointers, neighbor lists via R-1, L1 pass, single-register briefing, read-only contract, <code>prime:</code> Access-Log reasons. <code>skills/wiki-query/SKILL.md</code> update, golden transcript, harness assertions, both tool modes. Drop the spec’s “not yet implemented” status.</td>
-<td>R-1</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="non-goals-this-cycle-parked-with-reasons" class="level2">
-<h2 class="anchored" data-anchor-id="non-goals-this-cycle-parked-with-reasons">Non-goals this cycle (parked, with reasons)</h2>
+<section id="the-anchor-page" class="level2">
+<h2 class="anchored" data-anchor-id="the-anchor-page">The anchor page</h2>
+<p>Each manuscript gets one anchor page in the wiki, at <code>wiki/papers/&lt;slug&gt;</code> (the spec calls it the paper hub). The anchor page has six sections:</p>
 <ul>
-<li><strong>Per-type decay half-lives</strong> (mnemion’s continuous <code>0.5^(age/half_life)</code> relevance): LRU-Demote’s binary 6-month threshold has not yet hurt in practice; parked until prune runs on a corpus old enough to show it (evidence-before-machinery).</li>
-<li><strong>Mechanical overlap detection at ingest</strong> (mnemion’s write-time near-duplicate advisories): the interactive checkpoint (ingest REQ-025) already presents contradictions; a wiki-core candidate-overlap script is a plausible later hardening, filed separately if the checkpoint keeps missing overlaps in practice.</li>
-<li><strong>Two-phase schema evolution</strong> (mnemion’s propose/apply): wiki-migrate covers the known migrations; revisit when the next schema change is drafted.</li>
-<li><strong>Embeddings in any form</strong>: excluded by the zero-dependency rule, see design decision 1.</li>
+<li>Manuscript (working title and status)</li>
+<li>Literature drawn on</li>
+<li>Data</li>
+<li>Open questions</li>
+<li>Draft decisions (dated, and never deleted; a changed decision is marked as superseded so the history stays readable)</li>
+<li>AI use</li>
 </ul>
+<p>Everything in the anchor page is a link to pages you already have. Nothing moves and nothing is copied. A literature note stays at <code>notes/literature/@&lt;citekey&gt;</code>, a dataset page stays under <code>wiki/data/</code>, and the anchor page points at them. The health check warns when a page in the paper’s own folder is not linked from the anchor, because an unlinked page would silently miss the public export later.</p>
 </section>
-<section id="verification-per-pr" class="level2">
-<h2 class="anchored" data-anchor-id="verification-per-pr">Verification per PR</h2>
+<section id="the-log-and-the-disclosure-statement" class="level2">
+<h2 class="anchored" data-anchor-id="the-log-and-the-disclosure-statement">The log and the disclosure statement</h2>
+<p>Alongside the anchor page lives a log page, created together with it. Whenever a skill touches the paper’s material, one row lands in the log with the date, the skill, the model you confirmed, what was read, what was written, and what you approved. The rows are never edited or deleted. When you submit the paper, the disclosure statement that journals ask for is generated from the rows, so you never reconstruct your AI use from memory. The model column deserves one note. The executing model cannot report its own name honestly, so the column records what you confirmed at the checkpoint, and “session” when nothing was stated.</p>
+</section>
+<section id="making-the-material-public" class="level2">
+<h2 class="anchored" data-anchor-id="making-the-material-public">Making the material public</h2>
+<p>When you want the material public, say so and the export runs. The export starts at the anchor page and follows its links. Only pages the walk can reach are included, so the anchor page is also the table of contents of the public artifact. Before a single file is written, every included page is scanned for secrets, and one blocking finding stops the whole export with nothing on disk. The result is a folder that is a complete small website with no build step. A reviewer reads the rendered pages in a browser, and an AI tool fetches the identical raw markdown at the same addresses. Publishing is pushing the folder to a public GitHub repository and turning on Pages.</p>
+<p>The folder also contains a manifest. The manifest lists every included page with its source, every linked page that was kept out and the reason, and every link that pointed at a page that does not exist. Nothing leaves your vault silently, and nothing is dropped silently either.</p>
+</section>
+<section id="what-never-leaves-the-vault" class="level2">
+<h2 class="anchored" data-anchor-id="what-never-leaves-the-vault">What never leaves the vault</h2>
+<p>The export refuses your personal tiers. Pages under <code>para/</code>, journal pages, glossary pages, and notes outside <code>notes/literature/</code> are never included, even when the anchor page links them. Source files under <code>ingested/</code> never ship either, because they may be copyrighted PDFs or sensitive captures; the citations on the exported pages remain as written provenance. When a page deliberately keeps something private, say so in the page itself, e.g., “the household microdata stays private, consent covers aggregates only”. A stated exclusion reads as provenance. A bare gap reads as an oversight.</p>
+</section>
+<section id="how-you-use-it" class="level2">
+<h2 class="anchored" data-anchor-id="how-you-use-it">How you use it</h2>
+<p>You talk to a Claude Code session in your vault, and you confirm diffs. The session runs the scripts.</p>
+<ol type="1">
+<li>“Start a paper hub for <manuscript>”. The skill shows you the anchor page and the log page before writing, and you say yes.</manuscript></li>
+<li>“Attach @<citekey> and the survey dataset to it”. Links are appended to the right sections, again shown first.</citekey></li>
+<li>Keep working normally. Ingest sources, query while drafting, correct claims. The log fills itself as a side effect.</li>
+<li>“Export it and start a preview”. The session runs the export, relays the manifest, and hands you a local address to click through.</li>
+<li>Read the included pages once with the privacy question in mind. Ratings and open review sections publish as they stand, and that is the point, but claims about people deserve a deliberate look before they leave the vault.</li>
+<li>“Publish it”. The session creates the public repository and turns on Pages.</li>
+</ol>
+<p>Step 5 is the only step that is genuinely yours. Everything else is one sentence and a confirmation.</p>
+</section>
+<section id="a-worked-example" class="level2">
+<h2 class="anchored" data-anchor-id="a-worked-example">A worked example</h2>
+<p>The repo ships a complete fictional example at <code>examples/paper-site/</code>, a made-up sanitation paper with an anchor page, a filled agent log with a generated disclosure statement, literature notes, concept pages, and a data page. Serve it locally to see what a published paper site looks and feels like:</p>
+<pre><code>cd examples/paper-site
+python3 -m http.server 8123
+# open http://localhost:8123/</code></pre>
+</section>
+<section id="where-the-details-live" class="level2">
+<h2 class="anchored" data-anchor-id="where-the-details-live">Where the details live</h2>
 <ul>
-<li><code>bash skills/wiki-core/scripts/test_pipeline.sh</code> green in both tool modes</li>
-<li><code>python3 skills/wiki-core/scripts/check_canon.py</code> exit 0</li>
-<li>Golden transcript for the new behavior recorded under <code>tests/golden/</code></li>
-<li>BDD scenarios of the touched spec walked manually (prime.md Scenarios 1-4, query.md Scenario 18)</li>
+<li><code>openspec/specs/paper.md</code> holds the normative rules (REQ-1500..1526)</li>
+<li><code>docs/publish-wiki.md</code> covers the viewer, the publish boundary, and the gate for publishing wiki content in general</li>
+<li>the wiki-paper skill page and its plain-language twin describe the skill itself</li>
 </ul>
 
 
@@ -672,4 +658,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/roadmap-v3.7-recall.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/docs/paper-workflow.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
