@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../../reference/articles.html"> 
@@ -250,7 +257,7 @@ For each claim return exactly:
 <h2 class="anchored" data-anchor-id="dispatch">Dispatch</h2>
 <ul>
 <li>One subagent per cited SOURCE, not per claim (REQ-922): a source cited by three claims gets one subagent judging all three.</li>
-<li>Dispatch all subagents in parallel (a single message with one Task tool call per source). Use the <code>wiki-audit-verify</code> agent definition when installed (setup REQ-807); a generic subagent with this same prompt template is the fallback.</li>
+<li>Dispatch all subagents in parallel (a single message with one Task tool call per source), as generic subagents with this prompt template; they inherit the session model.</li>
 <li>Same underlying work exported twice (citations.md REQ-903) still means two subagents here; the ONE-source de-duplication applies to corroboration counting in reconciliation, not to verification dispatch.</li>
 </ul>
 

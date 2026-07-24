@@ -118,17 +118,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -230,7 +237,6 @@ ul.task-list li input[type="checkbox"] {
 <li>Git log for wiki changes (last 7 days, last 30 days)</li>
 <li>Most recently updated pages</li>
 <li>Pages with most incoming links</li>
-<li>Agent mix (issue #108): over the last 10 Dashboard run-log entries (ingest and audit), count runs by their <code>agents</code> field (ingest REQ-053) and report one summary line, e.g. <code>agent mix (last 10 runs): wiki-triage 4 | wiki-synthesize 1 | none 5</code>. The field records observable dispatches, not self-reported models; a log with NO <code>none</code> entries at all is an anomaly worth checking against the billing dashboard (a silent fallback logs the plan, not the execution). Skip the line when no run-log entry carries the field yet</li>
 </ul>
 <p>Phase 4 - Output:</p>
 <ul>

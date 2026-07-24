@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -173,7 +180,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#phase-4-output" id="toc-phase-4-output" class="nav-link" data-scroll-target="#phase-4-output">Phase 4: Output</a></li>
   <li><a href="#two-plane-routing-v3.0-p-5" id="toc-two-plane-routing-v3.0-p-5" class="nav-link" data-scroll-target="#two-plane-routing-v3.0-p-5">Two-Plane Routing (v3.0 P-5)</a></li>
   <li><a href="#data-reads-data-package-seam" id="toc-data-reads-data-package-seam" class="nav-link" data-scroll-target="#data-reads-data-package-seam">Data Reads (data-package seam)</a></li>
-  <li><a href="#one-hop-neighbor-expansion-v3.7-not-yet-implemented" id="toc-one-hop-neighbor-expansion-v3.7-not-yet-implemented" class="nav-link" data-scroll-target="#one-hop-neighbor-expansion-v3.7-not-yet-implemented">One-Hop Neighbor Expansion (v3.7, not yet implemented)</a></li>
+  <li><a href="#one-hop-neighbor-expansion-v3.7" id="toc-one-hop-neighbor-expansion-v3.7" class="nav-link" data-scroll-target="#one-hop-neighbor-expansion-v3.7">One-Hop Neighbor Expansion (v3.7)</a></li>
   </ul></li>
   <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
   <ul class="collapse">
@@ -296,9 +303,9 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-472 (no live-session sourcing): A live R session (e.g.&nbsp;via an mcptools MCP server) is NOT a query source: content answers come from snapshots so they stay reproducible from the vault alone and pinned to the version the page records. (A spec’d live plane is parked by maintainer decision, 2026-07-07.)</li>
 </ul>
 </section>
-<section id="one-hop-neighbor-expansion-v3.7-not-yet-implemented" class="level3">
-<h3 class="anchored" data-anchor-id="one-hop-neighbor-expansion-v3.7-not-yet-implemented">One-Hop Neighbor Expansion (v3.7, not yet implemented)</h3>
-<p>Extends Phases 1 and 4. After the targeted reads, the pages’ outgoing links are surfaced as a ranked neighbor list - the graph context around the answer, as pointers, not additional reads. Adapted from daniloc/mnemion’s recall shape (entries return with their one-hop links); here it is mechanical link extraction over the pages already in context, so it costs no extra page budget. Implementation is tracked in <code>docs/roadmap-v3.7-recall.md</code>.</p>
+<section id="one-hop-neighbor-expansion-v3.7" class="level3">
+<h3 class="anchored" data-anchor-id="one-hop-neighbor-expansion-v3.7">One-Hop Neighbor Expansion (v3.7)</h3>
+<p>Extends Phases 1 and 4. After the targeted reads, the pages’ outgoing links are surfaced as a ranked neighbor list - the graph context around the answer, as pointers, not additional reads. Adapted from daniloc/mnemion’s recall shape (entries return with their one-hop links); here it is mechanical link extraction over the pages already in context, so it costs no extra page budget. Implemented in skills/wiki-query (2026-07-24); the cycle plan is <code>docs/roadmap-v3.7-recall.md</code>.</p>
 <ul>
 <li>REQ-480 (extraction): After the Phase 1 reads, the system SHALL collect the outgoing <code>[[wiki/...]]</code> links from the bodies of the fully-read pages. Extraction is mechanical (the link text as written). Links into <code>para/</code>, <code>notes/</code>, and <code>glossary/</code> are NOT expanded - neighbor expansion stays inside the machine-written namespace (namespaces.md ownership contract).</li>
 <li>REQ-481 (pointers, not reads): Neighbors are POINTERS. The system SHALL present each with its hub routing description when one exists (<code>### Index</code> or <code>### Archive</code> line) and MUST NOT read a neighbor in full unless it was already selected by Phase 0 routing within the REQ-404 budget.</li>

@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/articles.html"> 
@@ -178,12 +185,13 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="the-documentation-website" class="level1">
 <h1>The documentation website</h1>
-<p>The repo publishes its markdown tree as a Quarto website on GitHub Pages, structured like a pkgdown site: Home (the README), a Skills reference, a Specs reference, an Agents reference, Articles (this <code>docs/</code> directory), and News (the CHANGELOG). Nothing is duplicated for the site; the pages ARE the repo files, rendered in place.</p>
+<p>The repo publishes its markdown tree as a Quarto website on GitHub Pages, structured like a pkgdown site: Home (the README), a Skills reference, a Specs reference, Articles (this <code>docs/</code> directory), and News (the CHANGELOG). Nothing is duplicated for the site; the pages ARE the repo files, rendered in place.</p>
+<p>The Skills navbar entry is a dropdown with two entries. “Standard (SKILL.md)” lists the skills’ own SKILL.md files, the instructions the model runs, published word for word. “In plain language” lists the <code>plain/&lt;skill&gt;.md</code> companion pages, which explain each skill in everyday words for human readers, written to the plain-writing skill’s rules. The two generated indexes cross-link each pair, and every plain page opens with a pointer to its standard page.</p>
 <section id="how-it-fits-together" class="level2">
 <h2 class="anchored" data-anchor-id="how-it-fits-together">How it fits together</h2>
 <ul>
-<li><code>_quarto.yml</code> at the repo root defines the website project. Its <code>render:</code> list is an allowlist: only the README-derived homepage, CHANGELOG, CONTRIBUTING, <code>docs/*.md</code>, <code>openspec/specs/*.md</code>, <code>skills/*/SKILL.md</code>, <code>skills/*/references/*.md</code>, <code>agents/*.md</code>, and the generated <code>reference/*.md</code> index pages are rendered. <code>templates/</code>, <code>tests/</code>, <code>prompts/</code>, and <code>examples/</code> are deliberately excluded (Logseq-syntax templates and fixture content are not human docs).</li>
-<li><code>tools/build_doc_indexes.py</code> runs as the Quarto pre-render step and generates the pkgdown-style index pages from metadata that already lives in the sources: <code>reference/skills.md</code> and <code>reference/agents.md</code> from SKILL.md / agent frontmatter (<code>name</code>, <code>description</code>, <code>model</code>), <code>reference/specs.md</code> from each spec’s h1 and Description paragraph, <code>reference/articles.md</code> from the <code>docs/*.md</code> h1s, and <code>index.md</code> as a copy of the README. All five outputs plus <code>_site/</code> and <code>.quarto/</code> are gitignored: edit the sources, never the generated files.</li>
+<li><code>_quarto.yml</code> at the repo root defines the website project. Its <code>render:</code> list is an allowlist: only the README-derived homepage, CHANGELOG, CONTRIBUTING, SECURITY, <code>docs/*.md</code>, <code>plain/*.md</code>, <code>openspec/specs/*.md</code>, <code>skills/*/SKILL.md</code>, <code>skills/*/references/*.md</code>, and the generated <code>reference/*.md</code> index pages are rendered. <code>templates/</code>, <code>tests/</code>, <code>prompts/</code>, and <code>examples/</code> are deliberately excluded (Logseq-syntax templates and fixture content are not human docs).</li>
+<li><code>tools/build_doc_indexes.py</code> runs as the Quarto pre-render step and generates the pkgdown-style index pages from metadata that already lives in the sources: <code>reference/skills.md</code> from SKILL.md frontmatter (<code>name</code>, <code>description</code>), <code>reference/plain-language.md</code> from the <code>plain/*.md</code> frontmatter (<code>title</code>, <code>description</code>), <code>reference/specs.md</code> from each spec’s h1 and Description paragraph, <code>reference/articles.md</code> from the <code>docs/*.md</code> h1s, and <code>index.md</code> as a copy of the README. All five outputs plus <code>_site/</code> and <code>.quarto/</code> are gitignored: edit the sources, never the generated files.</li>
 <li><code>.github/workflows/publish-site.yml</code> renders and publishes to the <code>gh-pages</code> branch on every push to <code>main</code> (and on manual dispatch), via <code>quarto-dev/quarto-actions</code>. GitHub Pages serves that branch. The site URL is <code>https://larnsce.github.io/llm-wiki/</code>.</li>
 </ul>
 </section>
@@ -198,7 +206,7 @@ quarto render         # full build into _site/</code></pre>
 <h2 class="anchored" data-anchor-id="conventions-the-site-relies-on">Conventions the site relies on</h2>
 <ul>
 <li>Every rendered page derives its title from YAML frontmatter or its first <code># h1</code>; all docs, specs, and SKILL.md files carry one.</li>
-<li>Frontmatter must be strict YAML: a <code>description:</code> value containing <code>": "</code> needs quoting (Claude Code’s reader is tolerant, Quarto’s is not; the agent definitions are quoted for this reason).</li>
+<li>Frontmatter must be strict YAML: a <code>description:</code> value containing <code>": "</code> needs quoting (Claude Code’s reader is tolerant, Quarto’s is not).</li>
 <li>Relative <code>.md</code> links between rendered files are rewritten to <code>.html</code> automatically. Links INTO unrendered directories (<code>prompts/</code>, <code>templates/</code>) stay raw <code>.md</code> and 404 on the site while still working on GitHub; they only occur in archival roadmap docs, which is the accepted trade-off.</li>
 <li>Workflow diagrams are <code>```mermaid</code> fences in the markdown source. GitHub renders them natively; Quarto’s own <code>{mermaid}</code> cells only work in <code>.qmd</code> files, so for the site <code>assets/mermaid.html</code> (wired in via <code>include-in-header</code>) normalizes the <code>&lt;pre class="mermaid"&gt;</code> blocks Pandoc emits and renders them client-side with mermaid.js from the jsdelivr CDN, fetched only on pages that contain a diagram. Verify a new diagram on both surfaces; keep diagrams under ~15 nodes and free of hardcoded colors so both GitHub themes stay legible.</li>
 </ul>
@@ -209,6 +217,7 @@ quarto render         # full build into _site/</code></pre>
 <li>Merge the site config to <code>main</code>; the workflow creates <code>gh-pages</code> on its first run.</li>
 <li>In the repo settings, set Pages to serve from the <code>gh-pages</code> branch (root). One-time step; <code>gh api repos/larnsce/llm-wiki/pages -X POST -f 'source[branch]=gh-pages' -f 'source[path]=/'</code> does the same from the CLI once the branch exists.</li>
 <li>Check the rendered site against this page’s conventions after structural changes (new top-level directories need a <code>render:</code> entry; a new skill or spec appears in its index automatically).</li>
+<li>Every skill ships with a <code>plain/&lt;skill&gt;.md</code> companion page. A new skill without one still renders and is still indexed, but its plain-language cell stays empty and the pre-render script prints a warning; write the plain page (following the plain-writing skill’s rules) to clear it.</li>
 </ol>
 
 

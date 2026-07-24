@@ -118,17 +118,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -225,7 +232,7 @@ for id_, rec, dur, proc, audio, t in rows:
         len(words), " ".join(words[:12])))
 PY</code></pre>
 <p>Flags adjust the query, nothing else: <code>--since &lt;date&gt;</code> adds <code>WHERE recorded_at &gt;= ?</code>, <code>--grep &lt;term&gt;</code> adds <code>WHERE transcript LIKE ?</code> (<code>%term%</code>), <code>--unprocessed</code> adds <code>WHERE processed = 0</code>; combine with AND. More than 20 matches: paginate on request (<code>LIMIT 20 OFFSET n</code>), never dump the whole archive.</p></li>
-<li><p>Enrich the deterministic rows into the picker table: one-line description and 3-5 keywords per row shown. Dispatch the digest batch to the <code>wiki-triage</code> agent when installed (setup REQ-807; the haiku tier fits one-line summarization) - hand it only id + transcript, get back <code>id | description | keywords</code>; without the agent, digest inline. Digests are ephemeral: never written to any file or database (REQ-1200).</p></li>
+<li><p>Enrich the deterministic rows into the picker table: one-line description and 3-5 keywords per row shown, digested inline. Digests are ephemeral: never written to any file or database (REQ-1200).</p></li>
 <li><p>Present the picker (<code>file</code> is the original filename, the basename of <code>audio_path</code> derived at display time - the human-recognizable handle back to the phone’s recording, and the cross-check when a <code>recorded_at</code> looks wrong; issue #121):</p>
 <table class="caption-top">
 <thead>
@@ -343,7 +350,7 @@ db.commit()
 PY</code></pre>
 <p>A failed or aborted run flips nothing; declined flips leave the note for the normal <code>wiki-ingest-voice</code> drain.</p></li>
 <li><p>Report: notes discussed (ids), journal synthesis written, wiki offers confirmed vs declined (page names), journal-only conclusions count, retained-in-transcript count (categories only, never the content), TODOs handed over, flips applied vs declined, gate findings.</p></li>
-<li><p>Run log entry on the Dashboard page: <code>## [YYYY-MM-DD] chat-voice | &lt;n&gt; notes discussed -&gt; journal + &lt;m&gt; pages | mode interactive | agents &lt;names|none&gt;</code> (the <code>agents</code> field records dispatched agent definitions per ingest REQ-053, e.g.&nbsp;<code>wiki-triage</code> when it generated the digests, or <code>none</code>). </p></li>
+<li><p>Run log entry on the Dashboard page: <code>## [YYYY-MM-DD] chat-voice | &lt;n&gt; notes discussed -&gt; journal + &lt;m&gt; pages | mode interactive</code> (legacy entries with a trailing <code>agents &lt;...&gt;</code> field stay valid; the field is retired, ingest REQ-053). </p></li>
 </ul>
 
 

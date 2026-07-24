@@ -118,17 +118,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -208,7 +215,7 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li>Read <code>raw_dir</code>, <code>ingested_dir</code>, <code>source_types</code>, <code>default_source_type</code> from <code>llm-wiki.yml</code> (<a href="../../skills/wiki-core/references/config.html">config</a>)</li>
 <li>No argument -&gt; scan <code>raw_dir</code> and process every file there oldest first (drain the queue) (REQ-070)</li>
-<li>Queue triage delegation (REQ-076): when the queue holds MORE THAN ONE file and the <code>wiki-triage</code> agent is installed (setup REQ-807), dispatch ONE triage subagent for the whole queue: hand it the queue file paths, the hub-index routing lines, and the Schema page list. It returns per file the proposed slug, inferred type, priority, and a complexity flag (queue-decidable triggers only: length, dense type, same topic elsewhere in queue or hub index, hub/Schema blast radius, its own low confidence). Use its slugs and types for the steps below; route flagged items’ Phase 1-2 analysis to the <code>wiki-synthesize</code> agent when installed. Wiki-state judgments (supersedes, conflicts) stay at the checkpoint, which reads the wiki. No agent installed -&gt; classify inline exactly as before; single-source runs are unchanged. Record which agents were dispatched for the Phase 5 run log</li>
+<li>Queue classification is inline (REQ-076 retired): propose each file’s slug and inferred type in-session while scanning the queue. Wiki-state judgments (supersedes, conflicts) stay at the checkpoint, which reads the wiki</li>
 <li>A path/URL argument -&gt; that single source. A local file outside <code>raw_dir</code> is copied into <code>raw_dir</code> first so the lifecycle is consistent (REQ-070)</li>
 <li>Slugify filenames at intake (REQ-070a): when a file entering processing from <code>raw_dir</code> has a name containing spaces, commas, <code>#</code>, or other non-kebab characters (web clippings arrive with page titles as filenames), RENAME it to a kebab-case slug – lowercase, hyphens, keep the extension, drop or transliterate everything else – and rename any companion asset folder the same way, BEFORE planning. <code>source-file::</code> and <code>cite::</code> refs are born valid this way: the citation checker rejects paths with whitespace, and refs are comma-separated so a comma in a filename breaks parsing. Truncate to something readable (~60 chars); on a name collision in <code>raw_dir</code> or <code>ingested/&lt;type&gt;/</code>, append <code>-2</code>, <code>-3</code>, …</li>
 <li>Infer each source’s type (one of <code>source_types</code>): paper/PDF/Zotero export -&gt; <code>papers</code>; web clip -&gt; <code>clippings</code>; news/blog -&gt; <code>articles</code>; dataset/CSV -&gt; <code>data</code>; personal note -&gt; <code>notes</code>; image/binary -&gt; <code>assets</code>; AI-chat export -&gt; <code>transcripts</code>. Fall back to <code>default_source_type</code>; ask only if genuinely ambiguous (REQ-071)</li>
@@ -268,7 +275,6 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <ul>
 <li>Page touches: create/update/hub counts plus the page names; (source pipeline) each create/update entry carries its planned cite targets (the <code>ingested/</code> paths, with locators where known) so the row shows what the claims will cite (REQ-033b)</li>
-<li>When a triage pass ran (REQ-076), the table gains a <code>Complexity</code> column: the flag with its one-line reason, and whether the row’s analysis was produced by <code>wiki-synthesize</code>. Flags are advisory routing, not verdicts; the human overrides them like any other cell</li>
 <li>Reliability: the Phase 1 rating with its one-line rationale (omit this column when the source pipeline is not configured)</li>
 <li>Contradictions: count plus one line each, or “none”</li>
 <li>(source pipeline) Below the table, ONE summary line for the journal seam (REQ-092): the journal page that will receive the daily Ingested block and the number of bullets to append, e.g. <code>Journal: journals/2026_07_06 &lt;- 3 bullets in the Ingested block</code></li>
@@ -345,7 +351,7 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Report summary: pages created (with types), pages updated, cross-references added, hub pages updated (REQ-050); the journal page that received the Ingested bullets (REQ-092); all warnings (page-touch count, L1 candidates found, skipped items) with their reasons (REQ-051); Pending Review flags raised or resolved</p></li>
 <li><p>(source pipeline) Literature-note seam (namespaces REQ-973/974): when a processed source is recognizably a literature note (filename <code>raw/note-@&lt;citekey&gt;.md</code>, or metadata with <code>citekey::</code> or <code>type:: literature</code>) and the <code>notes/literature/@&lt;citekey&gt;</code> page exists with a blank <code>source-file::</code>, OFFER at the checkpoint to set it to the SAME <code>ingested/</code> path the wiki pages cite (one archived source, two readings); on explicit confirmation write EXACTLY that one property value - the only sanctioned write into <code>notes/</code> (REQ-966 exception, issue #133). Otherwise (page missing, value already set, or <code>--auto</code>) fall back to a report reminder and write nothing; details in <a href="../../skills/wiki-ingest/references/promotion-seam.html">promotion-seam</a></p></li>
 <li><p><code>--auto</code> runs: include the FULL checkpoint plan table (the same table the checkpoint would have shown) in the report, one row per source with reliability rationale and contradictions (REQ-026)</p></li>
-<li><p>Run log entry (REQ-053): append <code>## [YYYY-MM-DD] ingest | &lt;filename or n sources&gt; -&gt; &lt;n&gt; pages | reliability &lt;level&gt; | mode &lt;interactive|auto&gt; | agents &lt;names|none&gt;</code> to the Dashboard page. <code>agents</code> lists the agent definitions actually DISPATCHED this run (e.g.&nbsp;<code>wiki-triage, wiki-synthesize</code>), or <code>none</code>; it is an observable dispatch record, never a self-reported model id (issue #108). This extends the legacy ingest log entry; it feeds the success signal below and the /wiki-maintain agent-mix summary</p></li>
+<li><p>Run log entry (REQ-053): append <code>## [YYYY-MM-DD] ingest | &lt;filename or n sources&gt; -&gt; &lt;n&gt; pages | reliability &lt;level&gt; | mode &lt;interactive|auto&gt;</code> to the Dashboard page. Legacy entries with a trailing <code>agents &lt;...&gt;</code> field stay valid; the field is retired. The entry feeds the success signal below</p></li>
 </ul>
 </section>
 <section id="success-signal-track-the-auto-share" class="level2">

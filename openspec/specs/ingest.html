@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -286,7 +293,7 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-050: The system SHALL output a summary listing: pages created (with types), pages updated, cross-references added, hub pages updated.</li>
 <li>REQ-051: The system SHALL list any warnings (low page-touch count, L1 candidates found, skipped items) and their reasons.</li>
 <li>REQ-052: The system SHOULD recommend a git commit after structural changes.</li>
-<li>REQ-053 (run log): The system SHALL append a run-log entry to the Dashboard page: <code>## [YYYY-MM-DD] ingest | &lt;filename or n sources&gt; -&gt; &lt;n&gt; pages | reliability &lt;level&gt; | mode &lt;interactive|auto&gt; | agents &lt;names|none&gt;</code>. The <code>agents</code> field records which installed agent definitions (specs/setup.md REQ-807) were actually DISPATCHED during the run (comma-separated names, e.g.&nbsp;<code>wiki-triage, wiki-synthesize</code>), or <code>none</code>. It is an observable dispatch record, NEVER a self-reported model id: the executing model cannot introspect its own id, and a silent fallback (agents not installed, allowlist, inherit) would log the plan instead of the execution (issue #108). The field is additive; legacy entries without it stay valid.</li>
+<li>REQ-053 (run log): The system SHALL append a run-log entry to the Dashboard page: <code>## [YYYY-MM-DD] ingest | &lt;filename or n sources&gt; -&gt; &lt;n&gt; pages | reliability &lt;level&gt; | mode &lt;interactive|auto&gt;</code>. The former trailing <code>agents &lt;names|none&gt;</code> field was retired with the model-tiering machinery (issue #108, removed 2026-07-24); legacy entries that carry it stay valid.</li>
 </ul>
 </section>
 <section id="cross-cutting" class="level3">
@@ -310,7 +317,7 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-073a (Phase 1, optional enrichment): When a Semantic Scholar MCP is configured, the system MAY resolve the source (by DOI, else title + first author + year) and record its metrics verbatim as <code>s2-metrics::</code> (per schema REQ-586a). These metrics INFORM the qualitative <code>reliability::</code> judgment but MUST NOT determine it by formula or citation-count threshold. The enrichment is OPTIONAL: when no S2 MCP is present the system SHALL skip it and judge <code>reliability::</code> from the source alone. Absence of the MCP MUST NOT block ingest.</li>
 <li>REQ-074: If a page rests on a SINGLE source and <code>reliability::</code> is not <code>high</code>, the system SHALL append a <code>## Pending Review</code> section listing the specific claims needing corroboration. If this ingest corroborates an existing flagged page, the system SHALL re-check each flagged claim, remove resolved ones, delete the section if all resolve, and raise <code>reliability::</code>.</li>
 <li>REQ-075 (Phase 5 addition): Only after the Quality Gate passes, the system SHALL MOVE each processed source from <code>raw_dir</code> to <code>ingested_dir/&lt;type&gt;/&lt;filename&gt;</code>. The new location MUST match what <code>source-file::</code> records. The page edits AND the file move SHALL be staged and committed as ONE atomic commit.</li>
-<li>REQ-076 (Phase 0, queue triage delegation): When draining a MULTI-file queue AND the <code>wiki-triage</code> agent definition is installed (specs/setup.md REQ-807), the system SHOULD delegate per-file classification to it: the proposed intake slug (REQ-070a), the inferred type (REQ-071), and a COMPLEXITY FLAG with a one-line reason. The caller SHALL hand the agent the hub-index routing lines and the Schema page list as context; the flag SHALL rest only on QUEUE-DECIDABLE triggers (source length, source type, another queue item or <code>ingested/</code> source on the same topic, the topic mapping to a hub or Schema page itself, or the agent’s own low confidence). Wiki-state judgments (supersedes existing content, conflicts with existing claims) stay at the checkpoint, which reads the wiki (issue #108 premortem). Flagged items SHOULD route their Phase 1-2 analysis to the <code>wiki-synthesize</code> agent when installed. Single-source runs are unchanged, and a missing agent definition degrades to inline classification; the triage pass never writes.</li>
+<li>REQ-076 (retired 2026-07-24): queue triage delegation to installed agent definitions (<code>wiki-triage</code> classification, <code>wiki-synthesize</code> analysis routing) was removed with the model-tiering machinery (issue #108 kill criterion). Queue drains classify inline: the proposed intake slug (REQ-070a) and the inferred type (REQ-071) are produced in-session, and wiki-state judgments stay at the checkpoint, which reads the wiki. The number is retired, not reused.</li>
 </ul>
 </section>
 <section id="journal-seam" class="level3">
@@ -356,7 +363,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="voice-conversation-sessions">Voice Conversation Sessions</h3>
 <p>This extends the Voice Sources section for <code>/wiki-chat-voice</code> (issue #117): a conversational session over STORED voice notes - browse the archive, talk about selected notes in the session, and close with one ingest. Where Voice Sources (REQ-080..087) drains the unprocessed queue note by note, this section covers REVISITING notes (processed or not) as conversation material. The Voice Sources rules apply unchanged wherever this section is silent. STAGING: this section takes effect with the wiki-chat-voice skill (issue #117).</p>
 <ul>
-<li>REQ-1200 (browse is read-only): The session SHALL open with a picker over <code>voice_notes</code> rows - processed AND unprocessed, marked which is which - read via python3’s stdlib sqlite3 (storage REQ-1104) in read-only mode, newest first, bounded by default (last ~20 rows, paginated on request) and filterable by date (<code>--since</code>), transcript substring (<code>--grep</code>, SQL LIKE), and <code>--unprocessed</code>. Each picker row carries: id, recorded date, duration, the original filename (the basename of <code>audio_path</code>, derived at display time - a human-recognizable handle and a cross-check when a <code>recorded_at</code> looks wrong, issue #121), a one-line description, and 3-5 keywords. Descriptions and keywords are generated AT RUN TIME for the rows shown, and only those; they MUST NOT be persisted anywhere: <code>voice_notes</code> is frozen at six columns (storage REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db admits nothing without a markdown source (REQ-1132). Digest generation SHOULD dispatch to the haiku-tier triage agent when installed (setup REQ-807) and degrades to inline generation without it.</li>
+<li>REQ-1200 (browse is read-only): The session SHALL open with a picker over <code>voice_notes</code> rows - processed AND unprocessed, marked which is which - read via python3’s stdlib sqlite3 (storage REQ-1104) in read-only mode, newest first, bounded by default (last ~20 rows, paginated on request) and filterable by date (<code>--since</code>), transcript substring (<code>--grep</code>, SQL LIKE), and <code>--unprocessed</code>. Each picker row carries: id, recorded date, duration, the original filename (the basename of <code>audio_path</code>, derived at display time - a human-recognizable handle and a cross-check when a <code>recorded_at</code> looks wrong, issue #121), a one-line description, and 3-5 keywords. Descriptions and keywords are generated AT RUN TIME for the rows shown, and only those; they MUST NOT be persisted anywhere: <code>voice_notes</code> is frozen at six columns (storage REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db admits nothing without a markdown source (REQ-1132). Digests are generated inline in the session.</li>
 <li>REQ-1201 (interactive only): A conversation session is interactive by nature; there is NO <code>--auto</code> path (mirroring REQ-081). When <code>--auto</code> is passed the system SHALL state that and continue interactively.</li>
 <li>REQ-1202 (the conversation writes nothing): Between note selection and the closing checkpoint the system MUST NOT write: no journal edits, no page edits, no <code>processed</code> flips, no archive.db mutation of any kind. Candidate insights (journal lines, wiki claims, TODOs, contradictions with existing pages) are tracked in-session only. The conversation ends only on the user’s explicit signal, never on the system’s initiative.</li>
 <li>REQ-1203 (one closing checkpoint): On the end signal the system SHALL run ONE consolidated checkpoint (REQ-025 discipline) presenting: the journal synthesis (the default destination, REQ-082 discipline; the block opens with the pipeline status line per storage REQ-1140), each wiki offer with the full sentence(s) (REQ-083), retained sensitive items (REQ-085, listed by category only), the TODO hand-over (REQ-087), and the processed-flip offers (REQ-1205). All writes happen after this checkpoint or not at all.</li>

@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -316,7 +323,7 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-804 (command installation): The install SHALL copy each repo <code>.claude/commands/*.md</code> slash command into the matching commands directory (<code>~/.claude/commands/</code> for a user install, <code>&lt;project&gt;/.claude/commands/</code> for a project install), rewriting relative <code>scripts/</code> and <code>docs/</code> references to absolute paths under the checkout at install time, so commands like <code>/lit-sync</code> and <code>/data-sync</code> work from any directory. Commands are ALWAYS copied, even in symlink mode: the path substitution is per-install. This is the single exception to the REQ-802 no-patching rule, and it patches only the installed copy, never the repo.</li>
 <li>REQ-805: The system SHALL offer to write the global pointer file <code>~/.config/llm-wiki/config.yml</code> (specs/config.md REQ-653) so the skills work from any project directory.</li>
 <li>REQ-806: The system SHALL detect a legacy v1 install (<code>.claude/commands/wiki.md</code>) and offer to remove it, explaining that the file keeps working but is unsupported.</li>
-<li>REQ-807 (agent installation): The install SHALL copy (or symlink, in symlink mode) each repo <code>agents/*.md</code> subagent definition into the matching agents directory (<code>~/.claude/agents/</code> for a user install, <code>&lt;project&gt;/.claude/agents/</code> for a project install), replacing existing files of the same name. The agent definitions carry the model-tier routing (frontmatter <code>model:</code>, issue #108); shipped SKILL.md files stay model-neutral, so a user who never installs the agents gets unchanged cost behavior, and skills that name an agent degrade gracefully to a generic subagent when the definition is absent.</li>
+<li>REQ-807 (retired 2026-07-24): agent installation was removed with the model-tiering machinery (issue #108 kill criterion: freeze at the session model plus manual <code>/model</code> escalation). No <code>agents/</code> directory ships; skills dispatch generic subagents that inherit the session model. The number is retired, not reused.</li>
 </ul>
 </section>
 <section id="step-11-initial-git-commit" class="level3">

@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Deep Phase 1-2 analysis for complexity-flagged ingest sources (ingest REQ-076): claim extraction, corroboration/contradiction scan against existing pages, page-operation plan for the checkpoint. Read-only; the session writes.">
+<meta name="description" content="Answers a question from what the wiki knows, names its sources, and says so plainly when the wiki has no answer.">
 
-<title>wiki-synthesize – llm-wiki</title>
+<title>wiki-query in plain language – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -118,17 +118,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/articles.html"> 
@@ -156,32 +163,71 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-it-does" id="toc-what-it-does" class="nav-link active" data-scroll-target="#what-it-does">What it does</a></li>
+  <li><a href="#when-to-use-it" id="toc-when-to-use-it" class="nav-link" data-scroll-target="#when-to-use-it">When to use it</a></li>
+  <li><a href="#what-it-never-does" id="toc-what-it-never-does" class="nav-link" data-scroll-target="#what-it-never-does">What it never does</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/plain/wiki-query.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">wiki-query in plain language</h1>
+</div>
+
+<div>
+  <div class="description">
+    Answers a question from what the wiki knows, names its sources, and says so plainly when the wiki has no answer.
+  </div>
+</div>
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<p>You run the analysis phases of /wiki-ingest for ONE source that the triage pass flagged complex (specs/ingest.md REQ-076): long, dense, multi-source, or high blast radius. You produce the checkpoint-ready plan; you never write pages, move files, or commit. The session presents your plan at the batch checkpoint and executes it only after the human confirms.</p>
-<p>The caller gives you the source path, the vault’s <code>llm-wiki.yml</code>, and the Schema page. Then:</p>
-<ol type="1">
-<li>ANALYZE the source (ingest REQ-010..014): entities, facts, relationships, dates, decisions; authors where identifiable (never guess); classify the domain; L1/L2 check (quick gotchas -&gt; Memory, deep knowledge -&gt; wiki); flag credentials (they never reach pages).</li>
-<li>RATE the source per the reliability rubric (schema REQ-586) with a one-line rationale: peer-reviewed primary = high, preprint or expert post = medium, speculative/anecdotal/model-only = low. Rate per CLAIM; the page takes the minimum.</li>
-<li>SCAN the wiki (REQ-020..024): glob for pages matching the extracted topics, read the targets (max 3 loaded at once), record EVERY contradiction (existing claim vs source claim) BEFORE planning any generation. If <code>ingested/</code> already holds a source on the same topic, this is corroboration territory: plan UPDATES to the existing page, and test independence (same team, shared codebase or dataset = NOT independent, no upgrade, Pending Review items stay open).</li>
-<li>PLAN the page operations (REQ-024, REQ-033b): pages to create (all required properties, born cited with per-claim <code>cite::</code> targets), pages to update append-only, hub routing lines, cross-references, <code>## Pending Review</code> sections (required for single-source non-high pages, REQ-588), author recurrence person pages (REQ-024a).</li>
-</ol>
-<p>Return the standard checkpoint material and nothing else:</p>
-<ul>
-<li>the plan-table row: <code>| &lt;source&gt; | &lt;page touches&gt; | &lt;reliability + one-line rationale&gt; | &lt;contradictions count + one line each&gt; |</code></li>
-<li>the expanded plan (pages to create/update with properties, claims with their planned cite targets, hub lines, cross-references, Pending Review content),</li>
-<li>explicit judgment notes: corroboration independence calls, skipped conjecture or trivia, anything you chose not to record and why.</li>
-</ul>
-<p>Your final message is consumed by the ingest workflow, not shown to a human as prose.</p>
+</header>
 
 
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A skill is a set of instructions the model follows. The page you are reading explains the wiki-query skill in plain language. The model itself runs the <a href="../skills/wiki-query/SKILL.html">standard version</a>, which the site publishes word for word.</p>
+</div>
+</div>
+<section id="what-it-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-it-does">What it does</h2>
+<p>wiki-query answers a question from what the wiki already knows. It does not read every page. Each section of the wiki has a hub page with one routing line per page, and the skill reads those lines first to pick the three to five pages most likely to hold the answer. It reads only the pages it picked and then writes an answer that names its sources. The answer always comes in two versions. The first is precise and keeps the technical vocabulary. The second, under the heading “In plain terms”, carries the same facts and the same warnings in everyday words. The skill also notes which pages it read in an access log, and the maintenance skill later uses that log to tell busy pages from cold ones.</p>
+</section>
+<section id="when-to-use-it" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-it">When to use it</h2>
+<p>Use it when you want to know what the wiki says about a topic, e.g., “what do we know about deployment” or “who works on the parser”.</p>
+</section>
+<section id="what-it-never-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-it-never-does">What it never does</h2>
+<p>The skill never invents an answer. If the wiki holds nothing on the topic, it says so plainly and offers to save what you tell it instead. Answering is a read activity, so apart from the access log line it writes to the wiki only when you ask it to.</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -589,4 +635,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/agents/wiki-synthesize.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/plain/wiki-query.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

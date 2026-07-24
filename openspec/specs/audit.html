@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -214,14 +221,14 @@ ul.task-list li input[type="checkbox"] {
 <section id="phase-2-verification-parallel" class="level3">
 <h3 class="anchored" data-anchor-id="phase-2-verification-parallel">Phase 2: Verification (parallel)</h3>
 <ul>
-<li>REQ-922: The system SHALL dispatch ONE verification subagent per cited source, in parallel. Each subagent sees ONLY its own claim(s) and source; verdicts from one source MUST NOT leak into another’s judgment. When the <code>wiki-audit-verify</code> agent definition is installed (specs/setup.md REQ-807), dispatch SHOULD use it (it pins the verification model tier, issue #108); a missing definition degrades to a generic subagent with the same prompt and isolation rules.</li>
+<li>REQ-922: The system SHALL dispatch ONE verification subagent per cited source, in parallel. Each subagent sees ONLY its own claim(s) and source; verdicts from one source MUST NOT leak into another’s judgment. Subagents are generic and inherit the session model (the model-tiering agent definitions were removed 2026-07-24, issue #108 kill criterion).</li>
 <li>REQ-923: Each subagent SHALL resolve its source (an <code>ingested/</code> path is read from disk; a <code>url:</code> ref is fetched) and judge ONLY whether the source supports the specific claim(s) citing it: verdict is one of <code>supported | partial | unsupported</code>, or <code>source-missing</code> when the target does not resolve. The verdict carries a one-line paraphrased justification, not long quotes.</li>
 </ul>
 </section>
 <section id="phase-3-reconciliation" class="level3">
 <h3 class="anchored" data-anchor-id="phase-3-reconciliation">Phase 3: Reconciliation</h3>
 <ul>
-<li>REQ-924: The system SHALL reconcile verdicts with the trust layer per schema REQ-586/588: all cited claims <code>supported</code> with independent corroboration MAY raise claim ratings (and thus the page minimum); any <code>unsupported</code>, <code>source-missing</code>, or UNCITED claim caps the page at <code>medium</code> (<code>low</code> when central claims fail) and MUST appear under <code>## Pending Review</code>. When the <code>wiki-audit-judge</code> agent definition is installed (specs/setup.md REQ-807), the reconciliation judgment (corroboration independence, <code>reliability::</code> deltas, Pending Review resolutions) SHOULD be dispatched to it; a missing definition degrades to reconciling in the session (issue #108).</li>
+<li>REQ-924: The system SHALL reconcile verdicts with the trust layer per schema REQ-586/588: all cited claims <code>supported</code> with independent corroboration MAY raise claim ratings (and thus the page minimum); any <code>unsupported</code>, <code>source-missing</code>, or UNCITED claim caps the page at <code>medium</code> (<code>low</code> when central claims fail) and MUST appear under <code>## Pending Review</code>. The reconciliation judgment (corroboration independence, <code>reliability::</code> deltas, Pending Review resolutions) happens in the session; escalate the session model manually (<code>/model</code>) for contested batches.</li>
 </ul>
 </section>
 <section id="phase-4-report" class="level3">
@@ -239,7 +246,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="fix-mode" class="level3">
 <h3 class="anchored" data-anchor-id="fix-mode">Fix Mode</h3>
 <ul>
-<li>REQ-926: With <code>--fix</code> and after confirmation, the system SHALL: add <code>cite::</code> stubs to uncited claims (ref left for the user to fill), move unsupported/uncited claims under <code>## Pending Review</code> (NEVER silently delete prose), update <code>reliability::</code> and <code>updated::</code>, append a log entry (<code>## [YYYY-MM-DD] audit | &lt;page&gt; | &lt;n&gt; verified, &lt;n&gt; flagged | agents &lt;names|none&gt;</code>), and git commit. The <code>agents</code> field mirrors specs/ingest.md REQ-053: the agent definitions actually dispatched this run, or <code>none</code>; additive, never a self-reported model id.</li>
+<li>REQ-926: With <code>--fix</code> and after confirmation, the system SHALL: add <code>cite::</code> stubs to uncited claims (ref left for the user to fill), move unsupported/uncited claims under <code>## Pending Review</code> (NEVER silently delete prose), update <code>reliability::</code> and <code>updated::</code>, append a log entry (<code>## [YYYY-MM-DD] audit | &lt;page&gt; | &lt;n&gt; verified, &lt;n&gt; flagged</code>), and git commit. The former trailing <code>agents &lt;names|none&gt;</code> field was retired with the model-tiering machinery (specs/ingest.md REQ-053); legacy entries that carry it stay valid.</li>
 </ul>
 <hr>
 </section>

@@ -118,17 +118,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../reference/articles.html"> 
@@ -216,7 +223,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="phase-2---verification-parallel-subagents-req-922923" class="level2">
 <h2 class="anchored" data-anchor-id="phase-2---verification-parallel-subagents-req-922923">Phase 2 - Verification (parallel subagents; REQ-922/923)</h2>
 <ul>
-<li>Group the map by SOURCE: one verification subagent per cited source, dispatched IN PARALLEL (REQ-922). Dispatch each to the <code>wiki-audit-verify</code> agent when it is installed (setup REQ-807; it pins the verification model tier); absent, use a generic subagent with the same prompt and isolation rules. Record which agents were dispatched for the fix-mode log entry.</li>
+<li>Group the map by SOURCE: one verification subagent per cited source, dispatched IN PARALLEL (REQ-922). Use a generic subagent (it inherits the session model) with the prompt and isolation rules below.</li>
 <li>Isolation is the point: each subagent receives ONLY its own claim text(s) and its own source (an <code>ingested/</code> path is read from disk; a <code>url:</code> ref is fetched), never the page, the other claims, the other sources, or the other verdicts. Verdicts from one source MUST NOT leak into another’s judgment (REQ-922). Prompt template and full rules: <a href="../../skills/wiki-audit/references/verdicts.html">verdicts</a>.</li>
 <li>Each subagent judges ONLY whether its source supports the specific claim(s) citing it and returns per claim one verdict from the closed set <code>supported | partial | unsupported | source-missing</code>, plus a one-line paraphrased justification, not long quotes (REQ-923).</li>
 </ul>
@@ -224,7 +231,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="phase-3---reconciliation-trust-layer-req-924" class="level2">
 <h2 class="anchored" data-anchor-id="phase-3---reconciliation-trust-layer-req-924">Phase 3 - Reconciliation (trust layer; REQ-924)</h2>
 <ul>
-<li>Dispatch the reconciliation judgment to the <code>wiki-audit-judge</code> agent when it is installed (REQ-924, setup REQ-807: independence of corroboration, <code>reliability::</code> deltas, Pending Review resolutions); absent, reconcile in the session. Either way the rules are:</li>
+<li>Reconcile in the session (REQ-924); for a contested batch, escalate the session model manually (<code>/model</code>) before running. The rules are:</li>
 <li>Reconcile the verdicts with <code>reliability::</code> per schema REQ-586/588 (rubric summary in <a href="../../skills/wiki-core/references/trust.html">trust</a>):
 <ul>
 <li>All cited claims <code>supported</code> with independent corroboration (citations.md REQ-903: different authors, publishers, or datasets) MAY raise claim ratings and thus the page minimum.</li>
@@ -252,7 +259,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Add <code>cite::</code> stubs to UNCITED claims with the ref left for the user to fill.</li>
 <li>Move unsupported and uncited claims under <code>## Pending Review</code>; NEVER silently delete prose, and never rewrite the claim text itself.</li>
 <li>Update <code>reliability::</code> per the Phase 3 reconciliation and set <code>updated::</code> to today.</li>
-<li>Append the log entry <code>## [YYYY-MM-DD] audit | &lt;page&gt; | &lt;n&gt; verified, &lt;n&gt; flagged | agents &lt;names|none&gt;</code> to the Dashboard page (the <code>agents</code> field mirrors ingest REQ-053: definitions actually dispatched, never a self-reported model id).</li>
+<li>Append the log entry <code>## [YYYY-MM-DD] audit | &lt;page&gt; | &lt;n&gt; verified, &lt;n&gt; flagged</code> to the Dashboard page (legacy entries with a trailing <code>agents &lt;...&gt;</code> field stay valid; the field is retired, REQ-053).</li>
 <li>Git commit the changes (commit discipline in <a href="../../skills/wiki-core/references/architecture.html">architecture</a>).</li>
 </ul></li>
 <li>Claim-text corrections are out of scope even in fix mode: revising a wrong claim is wiki-update’s job (the only sanctioned non-append edit path, openspec/specs/update.md REQ-950). </li>

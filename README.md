@@ -31,6 +31,8 @@ llm-wiki is an implementation of that idea. Claude Code is the LLM brain; Logseq
 | `wiki-chat-voice` | Personal tier (issue #117, `--with-personal` only): a conversation with your recorded voice notes - browse the archive (read-only, runtime digests), talk about selected notes in-session, close with one confirmed ingest: journal synthesis by default, per-claim wiki offers citing the note ids |
 | `plain-writing` | Vendored writing-style skill by [Shreya Shankar](https://github.com/shreyashankar/plain-writing-skill) (MIT): plain prose rules (simple words, complete sentences, no dashes, no jargon, no filler) applied whenever the agent drafts or revises prose; not wiki-specific, installed alongside the suite |
 
+Every skill also has a plain language page under `plain/`, written for people rather than for the model. On the [documentation site](https://larnsce.github.io/llm-wiki/) the Skills menu offers both versions: the standard SKILL.md pages, published word for word, and the plain language pages beside them.
+
 `skills/wiki-core/` is not a skill; it is the shared library the suite runs on: the scripts (`init_wiki.py`, `lint.py`, `check_canon.py`, `secret_scan.py`, `migrate_wiki.py`, config discovery) and the shared reference docs (config, architecture, formats, trust).
 
 ## Install
@@ -41,7 +43,7 @@ cd llm-wiki
 ./setup.sh
 ```
 
-`setup.sh` copies (or, with `--symlink`, links) the skills into `~/.claude/skills/` (or `<project>/.claude/skills/` with `--project`) and the `agents/` subagent definitions into `~/.claude/agents/` (model-tier routing, see [docs/model-tiering.md](docs/model-tiering.md); skills fall back to generic subagents without them), optionally scaffolds a wiki via `init_wiki.py` (`--init --tool logseq --wiki-path ~/notes`, with `--with-para-notes` and `--with-glossary` for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run `./setup.sh --help` for all options.
+`setup.sh` copies (or, with `--symlink`, links) the skills into `~/.claude/skills/` (or `<project>/.claude/skills/` with `--project`), optionally scaffolds a wiki via `init_wiki.py` (`--init --tool logseq --wiki-path ~/notes`, with `--with-para-notes` and `--with-glossary` for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run `./setup.sh --help` for all options.
 
 Requirements: bash, python3, git. No npm, no pip.
 
@@ -122,9 +124,9 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Migration from v1 (command)](docs/migration-v2.md) - Single command to skill suite
 - [Migration from v1 (corpus)](docs/migration.md) - Grandfather mode and the converter
 - [Testing](docs/testing.md) - Harness, golden transcripts, manual protocol
-- [Source Routes](docs/source-routes.md) - Every source kind, its capture mechanism, pipeline entry, and trust/model-tier defaults; includes the manual AI-transcript protocol
-- [Model Tiering](docs/model-tiering.md) - Route wiki work by task value: tier map, the four agents, escalation triggers, run-log observability, review checklist
+- [Source Routes](docs/source-routes.md) - Every source kind, its capture mechanism, pipeline entry, and trust defaults; includes the manual AI-transcript protocol
 - [Website](docs/website.md) - How the documentation site builds and publishes (Quarto, generated reference indexes, GitHub Pages)
+- [Publishing a wiki](docs/publish-wiki.md) - Publish wiki content as a static markdown-first site: the `templates/site/index.html` viewer, the publish boundary, the secret-scan gate; working example in `examples/paper-site/`
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`

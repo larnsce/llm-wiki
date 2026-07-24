@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../reference/articles.html" aria-current="page"> 
@@ -223,10 +230,10 @@ ul.task-list li input[type="checkbox"] {
 <td><a href="../docs/migration.html">Migrating an Existing Wiki to v2</a></td>
 </tr>
 <tr class="even">
-<td><a href="../docs/model-tiering.html">Model tiering: route wiki work by task value</a></td>
+<td><a href="../docs/para-notes-workflow.html">PARA + Zettelkasten in the same graph as the wiki</a></td>
 </tr>
 <tr class="odd">
-<td><a href="../docs/para-notes-workflow.html">PARA + Zettelkasten in the same graph as the wiki</a></td>
+<td><a href="../docs/publish-wiki.html">Publishing a wiki as a static site</a></td>
 </tr>
 <tr class="even">
 <td><a href="../docs/roadmap-glossary-personal-pipeline.html">Roadmap: Glossary (v2.3) + Personal Pipeline (v3.0)</a></td>

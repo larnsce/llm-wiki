@@ -152,17 +152,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="./reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./reference/articles.html"> 
@@ -292,6 +299,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+<p>Every skill also has a plain language page under <code>plain/</code>, written for people rather than for the model. On the <a href="https://larnsce.github.io/llm-wiki/">documentation site</a> the Skills menu offers both versions: the standard SKILL.md pages, published word for word, and the plain language pages beside them.</p>
 <p><code>skills/wiki-core/</code> is not a skill; it is the shared library the suite runs on: the scripts (<code>init_wiki.py</code>, <code>lint.py</code>, <code>check_canon.py</code>, <code>secret_scan.py</code>, <code>migrate_wiki.py</code>, config discovery) and the shared reference docs (config, architecture, formats, trust).</p>
 </section>
 <section id="install" class="level2">
@@ -299,7 +307,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/larnsce/llm-wiki.git</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> llm-wiki</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./setup.sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>setup.sh</code> copies (or, with <code>--symlink</code>, links) the skills into <code>~/.claude/skills/</code> (or <code>&lt;project&gt;/.claude/skills/</code> with <code>--project</code>) and the <code>agents/</code> subagent definitions into <code>~/.claude/agents/</code> (model-tier routing, see <a href="./docs/model-tiering.html">docs/model-tiering.md</a>; skills fall back to generic subagents without them), optionally scaffolds a wiki via <code>init_wiki.py</code> (<code>--init --tool logseq --wiki-path ~/notes</code>, with <code>--with-para-notes</code> and <code>--with-glossary</code> for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run <code>./setup.sh --help</code> for all options.</p>
+<p><code>setup.sh</code> copies (or, with <code>--symlink</code>, links) the skills into <code>~/.claude/skills/</code> (or <code>&lt;project&gt;/.claude/skills/</code> with <code>--project</code>), optionally scaffolds a wiki via <code>init_wiki.py</code> (<code>--init --tool logseq --wiki-path ~/notes</code>, with <code>--with-para-notes</code> and <code>--with-glossary</code> for the human layers), and optionally writes a global pointer file so the skills find your wiki from any directory. It patches no files; config is discovered at runtime. Run <code>./setup.sh --help</code> for all options.</p>
 <p>Requirements: bash, python3, git. No npm, no pip.</p>
 </section>
 <section id="quickstart" class="level2">
@@ -403,9 +411,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="./docs/migration-v2.html">Migration from v1 (command)</a> - Single command to skill suite</li>
 <li><a href="./docs/migration.html">Migration from v1 (corpus)</a> - Grandfather mode and the converter</li>
 <li><a href="./docs/testing.html">Testing</a> - Harness, golden transcripts, manual protocol</li>
-<li><a href="./docs/source-routes.html">Source Routes</a> - Every source kind, its capture mechanism, pipeline entry, and trust/model-tier defaults; includes the manual AI-transcript protocol</li>
-<li><a href="./docs/model-tiering.html">Model Tiering</a> - Route wiki work by task value: tier map, the four agents, escalation triggers, run-log observability, review checklist</li>
+<li><a href="./docs/source-routes.html">Source Routes</a> - Every source kind, its capture mechanism, pipeline entry, and trust defaults; includes the manual AI-transcript protocol</li>
 <li><a href="./docs/website.html">Website</a> - How the documentation site builds and publishes (Quarto, generated reference indexes, GitHub Pages)</li>
+<li><a href="./docs/publish-wiki.html">Publishing a wiki</a> - Publish wiki content as a static markdown-first site: the <code>templates/site/index.html</code> viewer, the publish boundary, the secret-scan gate; working example in <code>examples/paper-site/</code></li>
 <li><a href="./docs/literature-research.html">Literature Research</a> - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit</li>
 <li><a href="./docs/web-clipper-firefox.html">Firefox Web-Clipper</a> - Clip web pages into the <code>raw/</code> queue with MarkDownload on macOS</li>
 <li><a href="./docs/para-notes-workflow.html">PARA + Zettelkasten workflow</a> - Run <code>para/</code> and <code>notes/</code> in the same graph; the promotion seam into <code>wiki/</code></li>

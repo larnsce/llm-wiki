@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Classify raw/ queue items for /wiki-ingest queue drains (ingest REQ-076). Proposes an intake slug and source type per file and stamps a complexity flag from queue-decidable triggers only. Read-only; never writes pages, never judges wiki state.">
 
-<title>wiki-triage – llm-wiki</title>
+<title>Skills in plain language – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -118,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/articles.html"> 
@@ -160,35 +166,100 @@ ul.task-list li input[type="checkbox"] {
         
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Skills in plain language</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<p>You classify files waiting in an llm-wiki <code>raw/</code> queue. You are the cheap first pass of a two-pass ingest (specs/ingest.md REQ-076): your output decides which items the session handles routinely and which get escalated to a stronger synthesis model. You never write anything.</p>
-<p>The caller gives you:</p>
-<ol type="1">
-<li>the list of queue file paths (read each one),</li>
-<li>the hub-index routing lines of the vault (one line per existing page),</li>
-<li>the Schema page list (the vault’s page-type contract).</li>
-</ol>
-<p>For EACH queue file return one row:</p>
-<ul>
-<li><code>slug</code>: proposed kebab-case intake filename (specs/ingest.md REQ-070a): lowercase, hyphens, keep the extension, about 60 chars max.</li>
-<li><code>type</code>: one of the vault’s source types (paper/PDF -&gt; papers; web clip -&gt; clippings; news/blog -&gt; articles; dataset/CSV -&gt; data; personal note -&gt; notes; image/binary -&gt; assets). <code>note-</code> and <code>para-</code> prefixed files are promoted personal notes -&gt; notes. Say <code>ask</code> when genuinely ambiguous.</li>
-<li><code>priority</code>: 1-3 (1 = ingest first; older and smaller first is a fine default).</li>
-<li><code>flag</code>: <code>complex</code> or <code>routine</code>, plus a one-line reason.</li>
-</ul>
-<p>Flag <code>complex</code> when ANY queue-decidable trigger fires:</p>
-<ol type="1">
-<li>LENGTH: the source is long (roughly 10k+ words or hundreds of dense lines); synthesis will need real reading, not skimming.</li>
-<li>DENSE TYPE: a paper (type <code>papers</code>) with many distinct findings, methods, and limitation sections.</li>
-<li>MULTI-SOURCE TOPIC: another file in this queue, or a routing line in the provided hub index, covers the same topic; corroboration and contradiction decisions are likely at the checkpoint.</li>
-<li>HIGH BLAST RADIUS: the source’s topic maps to a hub page or the Schema page ITSELF in the provided context (not merely a leaf under a hub).</li>
-<li>LOW CONFIDENCE: you are unsure what the source is or what it claims; say so and flag it.</li>
-</ol>
-<p>Everything else is <code>routine</code>. Do NOT try to judge whether the source supersedes or conflicts with existing wiki CONTENT; you only see the routing lines, not the pages, and that judgment belongs to the checkpoint (issue #108 premortem). Do not read any vault page; only the queue files and the context you were handed.</p>
-<p>Return a markdown table, one row per file, columns: <code>| file | slug | type | priority | flag | reason |</code> and nothing else. Your final message is consumed by the ingest workflow, not shown to a human as prose.</p>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- GENERATED by tools/build_doc_indexes.py (quarto pre-render); edit the sources, not this file -->
+<p>Every skill explained in plain language, one page per skill. The pages in the Skill column are written for people. The last column links the standard page, the exact instructions the model runs.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Skill</th>
+<th>What it does</th>
+<th>Standard page</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="../plain/plain-writing.html">plain-writing</a></td>
+<td>Makes the model write prose in a plain style, with simple words, complete sentences, no dashes, no jargon, and no filler.</td>
+<td><a href="../skills/plain-writing/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="even">
+<td><a href="../plain/wiki-audit.html">wiki-audit</a></td>
+<td>Fact-checks one page against the sources it cites and reports which claims are supported, doubtful, or missing their source.</td>
+<td><a href="../skills/wiki-audit/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="odd">
+<td><a href="../plain/wiki-chat-voice.html">wiki-chat-voice</a></td>
+<td>A conversation with your recorded voice notes.</td>
+<td><a href="../skills/wiki-chat-voice/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="even">
+<td><a href="../plain/wiki-glossary.html">wiki-glossary</a></td>
+<td>Collects your open terminology questions into one review table and writes only the rows you confirm.</td>
+<td><a href="../skills/wiki-glossary/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="odd">
+<td><a href="../plain/wiki-ingest-voice.html">wiki-ingest-voice</a></td>
+<td>Turns your recorded voice notes into short journal summaries and offers wiki updates one at a time, with strict protection for what you said about other people.</td>
+<td><a href="../skills/wiki-ingest-voice/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="even">
+<td><a href="../plain/wiki-ingest.html">wiki-ingest</a></td>
+<td>Reads a source, shows you a plan, and writes what it learned onto wiki pages with a note saying where each fact came from.</td>
+<td><a href="../skills/wiki-ingest/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="odd">
+<td><a href="../plain/wiki-lint.html">wiki-lint</a></td>
+<td>Checks the health of the wiki, reports every finding with a suggested fix, and changes nothing without your confirmation.</td>
+<td><a href="../skills/wiki-lint/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="even">
+<td><a href="../plain/wiki-maintain.html">wiki-maintain</a></td>
+<td>Reports how the wiki is doing, and on request retires pages nobody reads from the search index without deleting anything.</td>
+<td><a href="../skills/wiki-maintain/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="odd">
+<td><a href="../plain/wiki-migrate.html">wiki-migrate</a></td>
+<td>Upgrades an old wiki to the current page format, one time, with a preview of every change and nothing applied without your confirmation.</td>
+<td><a href="../skills/wiki-migrate/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="even">
+<td><a href="../plain/wiki-query.html">wiki-query</a></td>
+<td>Answers a question from what the wiki knows, names its sources, and says so plainly when the wiki has no answer.</td>
+<td><a href="../skills/wiki-query/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="odd">
+<td><a href="../plain/wiki-setup.html">wiki-setup</a></td>
+<td>Creates a new wiki or upgrades an old one, and never overwrites your content.</td>
+<td><a href="../skills/wiki-setup/SKILL.html">SKILL.md</a></td>
+</tr>
+<tr class="even">
+<td><a href="../plain/wiki-update.html">wiki-update</a></td>
+<td>The one sanctioned way to change existing wiki content.</td>
+<td><a href="../skills/wiki-update/SKILL.html">SKILL.md</a></td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -598,4 +669,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/agents/wiki-triage.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/reference/plain-language.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

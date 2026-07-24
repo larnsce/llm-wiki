@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/articles.html"> 
@@ -164,7 +171,7 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#what-does-llm-wiki-actually-do-that-a-plain-logseq-or-obsidian-setup-doesnt" id="toc-what-does-llm-wiki-actually-do-that-a-plain-logseq-or-obsidian-setup-doesnt" class="nav-link" data-scroll-target="#what-does-llm-wiki-actually-do-that-a-plain-logseq-or-obsidian-setup-doesnt">What does llm-wiki actually do that a plain Logseq or Obsidian setup doesn’t?</a></li>
   <li><a href="#do-i-need-a-paid-claude-plan" id="toc-do-i-need-a-paid-claude-plan" class="nav-link" data-scroll-target="#do-i-need-a-paid-claude-plan">Do I need a paid Claude plan?</a></li>
-  <li><a href="#what-are-the-agents-files-and-do-i-need-them" id="toc-what-are-the-agents-files-and-do-i-need-them" class="nav-link" data-scroll-target="#what-are-the-agents-files-and-do-i-need-them">What are the agents/ files, and do I need them?</a></li>
+  <li><a href="#which-model-should-sessions-run-on" id="toc-which-model-should-sessions-run-on" class="nav-link" data-scroll-target="#which-model-should-sessions-run-on">Which model should sessions run on?</a></li>
   <li><a href="#why-two-layers-l1-and-l2-isnt-one-enough" id="toc-why-two-layers-l1-and-l2-isnt-one-enough" class="nav-link" data-scroll-target="#why-two-layers-l1-and-l2-isnt-one-enough">Why two layers (L1 and L2)? Isn’t one enough?</a></li>
   <li><a href="#logseq-or-obsidian-which-should-i-choose" id="toc-logseq-or-obsidian-which-should-i-choose" class="nav-link" data-scroll-target="#logseq-or-obsidian-which-should-i-choose">Logseq or Obsidian — which should I choose?</a></li>
   <li><a href="#can-i-ingest-my-existing-notes" id="toc-can-i-ingest-my-existing-notes" class="nav-link" data-scroll-target="#can-i-ingest-my-existing-notes">Can I ingest my existing notes?</a></li>
@@ -198,9 +205,9 @@ ul.task-list li input[type="checkbox"] {
 <p>Yes. llm-wiki assumes you are using <a href="https://claude.ai/code">Claude Code</a>, which requires an Anthropic account and a paid plan (Pro or higher). All wiki skills run through Claude Code - there are no external API calls, no vector databases, no separate ingest servers.</p>
 <p>Claude Code itself is the only dependency. There is no additional cost for llm-wiki beyond your existing Claude plan.</p>
 </section>
-<section id="what-are-the-agents-files-and-do-i-need-them" class="level2">
-<h2 class="anchored" data-anchor-id="what-are-the-agents-files-and-do-i-need-them">What are the agents/ files, and do I need them?</h2>
-<p>Optional subagent definitions that <code>setup.sh</code> installs to <code>~/.claude/agents/</code>. They pin cheap models to mechanical work (queue triage on haiku, audit verification on sonnet) and stronger models to judgment work (audit reconciliation and dense-source synthesis on opus), so a default sonnet session escalates per-task instead of running everything on one tier. Nothing depends on them: every skill that names an agent falls back to a generic subagent when the definition is absent, and shipped skills carry no <code>model:</code> keys, so skipping the agents means unchanged cost behavior. Details and the tier map: <code>docs/model-tiering.md</code>.</p>
+<section id="which-model-should-sessions-run-on" class="level2">
+<h2 class="anchored" data-anchor-id="which-model-should-sessions-run-on">Which model should sessions run on?</h2>
+<p>Whatever model you pick for the session; the skills carry no <code>model:</code> keys and subagents inherit the session model. Escalate manually with <code>/model</code> for judgment-heavy work (audit reconciliation, dense-source synthesis, contested Pending Review batches). An earlier model-tiering layer (installed agent definitions pinning tiers per task, issue #108) was removed in 2026-07; sessions are deliberately single-tier now.</p>
 </section>
 <section id="why-two-layers-l1-and-l2-isnt-one-enough" class="level2">
 <h2 class="anchored" data-anchor-id="why-two-layers-l1-and-l2-isnt-one-enough">Why two layers (L1 and L2)? Isn’t one enough?</h2>

@@ -117,17 +117,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/articles.html"> 
@@ -210,9 +217,9 @@ ul.task-list li input[type="checkbox"] {
 <p>To land clips directly in the vault (which lives outside Downloads), bridge the last hop with either:</p>
 <ul>
 <li><strong>A symlink.</strong> Point <code>~/Downloads/wiki-raw</code> at the vault’s <code>raw/</code> folder. This is the standard macOS solution.</li>
-<li><strong>A watch/move step.</strong> A script that watches <code>~/Downloads/wiki-raw/</code>, moves new <code>.md</code> files into the vault’s raw folder, and optionally triggers <code>/wiki-ingest</code>.</li>
+<li><strong>A sweep job.</strong> The shipped <code>scripts/wiki-sweep.sh</code> plus its launchd job <code>scripts/com.wiki.sweep.plist</code> watch <code>~/Downloads/wiki-raw/</code> as a real folder and move new clips into the vault’s <code>raw/</code>. On the way in it kebab-cases filenames (so downstream cite refs never contain spaces), moves an article’s companion image folder along with it, and also sweeps the iPhone shortcut’s iCloud capture folder with the same logic. Each file has <code>&gt;&gt;&gt; EDIT THIS &lt;&lt;&lt;</code> markers for the paths; install steps are in the plist’s comment header.</li>
 </ul>
-<p>The symlink is the tidiest for a git-versioned vault: the clip writes to Downloads, the symlink lands it in <code>raw/</code>, and ingest does the transform.</p>
+<p>The symlink is the lighter option when clips are plain single <code>.md</code> files and their names are already tidy: the clip writes to Downloads, the symlink lands it in <code>raw/</code>, and ingest does the transform. Pick the sweep job when clip titles carry spaces and punctuation, when clips come with image folders, or when a phone capture route should feed the same queue.</p>
 </section>
 <section id="step-by-step-setup-macos" class="level2">
 <h2 class="anchored" data-anchor-id="step-by-step-setup-macos">3. Step-by-step setup (macOS)</h2>

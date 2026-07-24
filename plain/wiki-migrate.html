@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Per-source claim verification for /wiki-audit (audit REQ-922/923). Receives claims and ONE source, returns a verdict per claim from the closed set. Isolated by design; read-only.">
+<meta name="description" content="Upgrades an old wiki to the current page format, one time, with a preview of every change and nothing applied without your confirmation.">
 
-<title>wiki-audit-verify – llm-wiki</title>
+<title>wiki-migrate in plain language – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -118,17 +118,24 @@ ul.task-list li input[type="checkbox"] {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/skills.html"> 
-<span class="menu-text">Skills</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-skills" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Skills</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-skills">    
+        <li>
+    <a class="dropdown-item" href="../reference/skills.html">
+ <span class="dropdown-text">Standard (SKILL.md)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference/plain-language.html">
+ <span class="dropdown-text">In plain language</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../reference/specs.html"> 
 <span class="menu-text">Specs</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference/agents.html"> 
-<span class="menu-text">Agents</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/articles.html"> 
@@ -156,28 +163,71 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-it-does" id="toc-what-it-does" class="nav-link active" data-scroll-target="#what-it-does">What it does</a></li>
+  <li><a href="#when-to-use-it" id="toc-when-to-use-it" class="nav-link" data-scroll-target="#when-to-use-it">When to use it</a></li>
+  <li><a href="#what-it-never-does" id="toc-what-it-never-does" class="nav-link" data-scroll-target="#what-it-never-does">What it never does</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/plain/wiki-migrate.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">wiki-migrate in plain language</h1>
+</div>
+
+<div>
+  <div class="description">
+    Upgrades an old wiki to the current page format, one time, with a preview of every change and nothing applied without your confirmation.
+  </div>
+</div>
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<p>You verify claims against ONE source for an llm-wiki audit (specs/audit.md REQ-922/923). Judge ONLY whether this source supports each claim you were given; do not judge whether a claim is true in general, well written, or supported elsewhere.</p>
-<p>The caller gives you the claim text(s) verbatim with block locations, and exactly one source: an <code>ingested/</code> file path to Read, or a <code>url:</code> ref to fetch. Read or fetch NOTHING else: not the wiki page, not other claims, not other sources. Isolation is the point; a well-supported neighbor claim must not launder an unsupported one.</p>
-<p>For each claim return exactly one verdict from the closed set:</p>
-<ul>
-<li><code>supported</code>: the source states the claim’s fact (same substance; wording may differ). Numbers, dates, and directions match.</li>
-<li><code>partial</code>: the source supports part of the claim, supports it only with material hedging the claim drops, or supports a weaker version.</li>
-<li><code>unsupported</code>: the source does not state the fact, or contradicts it; a contradiction is <code>unsupported</code> with the contradiction named.</li>
-</ul>
-<p>(<code>source-missing</code> is assigned by the orchestrator when the target does not resolve; you will not be dispatched for such a source.)</p>
-<p>Justification: one line per claim, paraphrased, no long quotes. Name the locator region you checked when the ref carries one (<code>#p12</code>, <code>#sec-3.2</code>); a locator is advisory: if the fact sits elsewhere in the source, the claim is still <code>supported</code>; note the actual location.</p>
-<p>Return only the verdict lines, numbered to match the claims: <code>N. verdict | justification</code> Your final message is consumed by the audit workflow, not shown to a human as prose.</p>
+</header>
 
 
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A skill is a set of instructions the model follows. The page you are reading explains the wiki-migrate skill in plain language. The model itself runs the <a href="../skills/wiki-migrate/SKILL.html">standard version</a>, which the site publishes word for word.</p>
+</div>
+</div>
+<section id="what-it-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-it-does">What it does</h2>
+<p>wiki-migrate upgrades an old wiki to the current page format, one time. It runs a converter in preview mode first and shows you a report of every change it would make, page by page. Nothing is applied until you confirm, and you can apply everything at once, go page by page, or stop. After applying, the skill commits the changes in git and compares the health check results from before and after, so you can see what the migration fixed and what is left for you to decide. A second pass renames the old capitalized folder names, e.g.&nbsp;Wiki/, to lowercase and repairs every link the rename touches.</p>
+</section>
+<section id="when-to-use-it" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-it">When to use it</h2>
+<p>Use it once, when your wiki was built before the version 2 page format, or when it still uses the old capitalized folder names.</p>
+</section>
+<section id="what-it-never-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-it-never-does">What it never does</h2>
+<p>The converter never deletes or rewrites your content lines. It only adds and normalizes page properties. Where a quality rating is missing, it never guesses one. It marks the page for your review instead, because ratings are a human call. It also refuses to run while the wiki has uncommitted changes, so a bad run can always be undone with git.</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -585,4 +635,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/agents/wiki-audit-verify.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/plain/wiki-migrate.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
