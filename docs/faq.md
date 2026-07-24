@@ -46,13 +46,13 @@ See [docs/logseq-vs-obsidian.md](logseq-vs-obsidian.md) for the full comparison.
 
 ## Can I ingest my existing notes?
 
-Yes, but not with a single command yet. For now:
-
-1. Run `./setup.sh` to create the schema and namespace structure in a fresh wiki location.
-2. Use `/wiki-ingest <path-to-existing-note>` to process notes one at a time. The LLM extracts entities, fits them into your schema, and creates cross-references.
-3. Iterate — Claude will ask clarifying questions for ambiguous content.
-
-Bulk migration tooling is on the roadmap. For now, ingesting 20-50 notes manually is the common path.
+Yes. `/wiki-ingest --import <path>` pulls notes already written in your
+graph, or a directory of existing markdown notes, into wiki format: same
+write path and quality gate as a normal ingest, but no file move and no
+`source-file::` (your own notes are not external sources). For material
+from outside the graph, `/wiki-ingest <path-or-url>` processes one
+source at a time through the interactive checkpoint. Drain a large
+backlog in batches you can actually review rather than all at once.
 
 ## Can I use this with ChatGPT or Gemini instead of Claude?
 
@@ -64,7 +64,7 @@ Porting to other CLI-based LLM coding tools is on the roadmap but requires signi
 
 Karpathy's gist is a concept essay. It describes *what* an LLM wiki should do (ingest, query, lint) and why it matters. It does not specify tools, file formats, schemas, or workflows.
 
-llm-wiki is an implementation. It picks Claude Code as the LLM, Logseq or Obsidian as the wiki UI, defines a concrete schema with 5 page types, specifies 11 lint rules with auto-fix behavior, and adds the L1/L2 cache layer — with two-stage hub-index routing and LRU eviction — that the gist does not mention. Setup takes 5 minutes with `./setup.sh`; the gist is 100% design, 0% code.
+llm-wiki is an implementation. It picks Claude Code as the LLM, Logseq or Obsidian as the wiki UI, defines a concrete schema with 6 page types, specifies 16 lint rules with auto-fix behavior, and adds the L1/L2 cache layer — with two-stage hub-index routing and LRU eviction — that the gist does not mention. Setup takes 5 minutes with `./setup.sh`; the gist is 100% design, 0% code.
 
 If you want the pure concept, read the gist. If you want a working system, use llm-wiki.
 
@@ -95,6 +95,16 @@ Three checks before your first push:
 3. **Review the first commit diff manually.** One-time sanity check that no API tokens or personal notes made it into tracked files.
 
 After the first push, the L1/L2 boundary enforces itself. The lint runs catch drift before it reaches GitHub.
+
+## Can I publish my wiki, or part of it?
+
+Yes, as a static markdown site with no build step. The viewer template
+and the publish boundary are documented in `docs/publish-wiki.md`. For
+the material behind a scientific article there is a dedicated path: one
+anchor page per manuscript, an AI-use log, and an export that walks the
+anchor page's links, gates every file for secrets, and produces a
+deployable folder with a manifest of what went in and what stayed out
+(`docs/paper-workflow.md`). Personal tiers never leave the vault.
 
 ## Where do I report bugs or request features?
 

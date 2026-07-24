@@ -23,10 +23,20 @@ facts and the same warnings in everyday words. The skill also notes which
 pages it read in an access log, and the maintenance skill later uses that
 log to tell busy pages from cold ones.
 
+The skill has a second mode for starting a work session. With the --prime
+option you describe what you are about to work on instead of asking a
+question, and the skill returns a short briefing: the few pages that bear
+on the work, pointers to further candidates it did not open, each read
+page's linked neighbors, and any standing rules from memory. If you give
+no description, it derives one from the conversation and shows you exactly
+what it primed on. The briefing reads at most three pages, changes
+nothing, and never runs by itself; you invoke it when you want it.
+
 ## When to use it
 
 Use it when you want to know what the wiki says about a topic, e.g., "what
-do we know about deployment" or "who works on the parser".
+do we know about deployment" or "who works on the parser". Use --prime at
+the start of a work session, before you have a precise question.
 
 ## What it never does
 

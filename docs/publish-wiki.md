@@ -10,7 +10,9 @@ path. No build step, no framework, no dependencies.
 
 This is distinct from the Quarto documentation site (`docs/website.md`),
 which publishes this tool's own documentation. This page is about
-publishing wiki content.
+publishing wiki content. For the paper case from start to finish
+(anchor page, AI-use log, export, disclosure), read
+`docs/paper-workflow.md`; this page covers the shared machinery.
 
 ## The viewer template
 

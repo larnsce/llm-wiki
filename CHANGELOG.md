@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.0] - 2026-07-24
+
+### Fixed
+
+- **Documentation staleness sweep** (after the 2026-07-24 releases):
+  the README intro no longer claims "eight skills" (the table is the
+  count); the wiki-query row and the Quickstart show `--prime`;
+  `docs/schema-reference.md` documents six page types including
+  `paper-hub` and adds `dataset` to the entity-type enum it had
+  missed since v3.2; the FAQ gains a "Can I publish my wiki?" entry
+  and corrects its page-type and lint-rule counts, as does
+  `docs/logseq-vs-obsidian.md`; `docs/design-vs-karpathy.md` gains an
+  addendum on the public-site half of the pattern now shipped;
+  `docs/roadmap-v3.7-recall.md` records the recall cycle as complete
+  with its one deviation (no query-class goldens exist yet); and the
+  `openspec/project.md` registry drops "not yet implemented" from the
+  long-shipped v2.1 specs (citations, audit, update) and corrects the
+  lint spec's rule count.
+
+### Added
+
+- **Paper workflow guide** (`docs/paper-workflow.md`): the whole paper
+  arc in plain language for humans, prompted by the maintainer's "I
+  still don't know what I am supposed to do here". The problem (paper
+  material spread across the wiki; journals asking for AI disclosure;
+  reviewers wanting the knowledge base), the anchor page, the log and
+  the generated disclosure statement, the export and its manifest,
+  what never leaves the vault, the six conversational steps (only the
+  privacy read is genuinely the human's), and the shipped fictional
+  example. Linked from the README and cross-linked from
+  `docs/publish-wiki.md`.
+
+- **`/wiki-query --prime`** (issue #143, v3.7 R-2, prime.md
+  REQ-1400..1431): the proactive read path. Describe the session's
+  context (or let it derive one from the conversation and echo it
+  back) and get a read-only context briefing: at most 3 fully-read
+  pages with 1-3 lines each, up to 5 unread routing pointers, one-hop
+  neighbors per the R-1 machinery, and relevant L1 rules. Recall is
+  breadth-first over EVERY hub index (plus optional index.db FTS and
+  a bounded 3x3 grep fallback) and strictly lexical - no embeddings,
+  no vector store, no network calls. Single register, attribution
+  once at the end, flags carried inline, full reads Access-Logged as
+  `prime: <term>`. Prime never writes (the Access-Log append is the
+  only exception), never offers write-back, and never self-triggers;
+  the v3.7 recall cycle is complete.
+
 ## [3.8.0] - 2026-07-24
 
 ### Changed

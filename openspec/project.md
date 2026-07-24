@@ -51,15 +51,15 @@ inspired by CPU memory hierarchies.
 |------|--------|
 | specs/ingest.md | /wiki-ingest - source processing pipeline, interactive checkpoint, source pipeline, secret gate |
 | specs/query.md | /wiki-query - two-stage retrieval, synthesis, write-back, Access-Log; one-hop neighbor section (v3.7) |
-| specs/lint.md | /wiki-lint - 12 automated health checks with auto-fix |
+| specs/lint.md | /wiki-lint - 16 lint rules, mechanical layer plus judgment layer, fixes on confirmation |
 | specs/prune.md | /wiki-maintain prune - LRU-Demote index eviction |
 | specs/schema.md | Page types, properties, validation, format rules, provenance |
 | specs/config.md | llm-wiki.yml loading, validation, error handling |
 | specs/setup.md | wiki-setup and installer behavior |
 | specs/l1-l2-routing.md | L1/L2 boundary decision logic |
 | specs/namespaces.md | Namespace scope rules (wiki/ vs para/ and notes/) |
-| specs/citations.md | Block-native citations (v2.1, not yet implemented) |
-| specs/audit.md | wiki-audit claim verification (v2.1, not yet implemented) |
-| specs/update.md | wiki-update sanctioned non-append edits (v2.1, not yet implemented) |
-| specs/prime.md | /wiki-query --prime context priming / auto-associative recall (v3.7, not yet implemented) |
+| specs/citations.md | Block-native citations (v2.1) |
+| specs/audit.md | wiki-audit claim verification (v2.1) |
+| specs/update.md | wiki-update sanctioned non-append edits (v2.1) |
+| specs/prime.md | /wiki-query --prime context priming / auto-associative recall (v3.7) |
 | specs/paper.md | wiki-paper per-manuscript hubs (wiki/papers/<slug>), reachability as the publish boundary, lint rule 16 |

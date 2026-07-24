@@ -5,10 +5,12 @@ Implementation plan for the two recall features adapted from
 2026-07-21). Issue-based, following the v2.0.0/v2.2/v2.3 pattern: canon first,
 one PR per issue, mechanical verification per PR.
 
-Status: canon drafted and merged with this roadmap (`openspec/specs/prime.md`,
-`openspec/specs/query.md` REQ-480..485, both marked "v3.7, not yet
-implemented"). The implementation issues (#142, #143) are filed but NOT
-implemented; this document is the cycle plan.
+Status: COMPLETE. R-1 (#142) shipped in v3.7.0 and R-2 (#143) shipped on
+2026-07-24 right after v3.8.0; both spec sections dropped their "not yet
+implemented" markers. One deviation from the plan below: no golden
+transcripts were recorded, because no query-class goldens exist yet as a
+category (noted on both issues). This document remains as the cycle's
+plan and design record.
 
 ## Context
 

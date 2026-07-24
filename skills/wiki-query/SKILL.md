@@ -1,6 +1,6 @@
 ---
 name: wiki-query
-description: Search the wiki for an answer to a question. Two-stage retrieval via hub indexes, targeted page reads with an L3 grep fallback, Access-Log update, and a synthesized answer with source attribution. Use when the user asks what the wiki knows about a topic.
+description: Search the wiki for an answer to a question. Two-stage retrieval via hub indexes, targeted page reads with an L3 grep fallback, Access-Log update, and a synthesized answer with source attribution. With --prime, no question is needed - describe the session's context and get a read-only briefing of relevant pages, pointers, neighbors, and L1 rules. Use when the user asks what the wiki knows about a topic, or wants context loaded for a work session.
 ---
 
 # wiki-query
@@ -12,7 +12,8 @@ route to index.db SQL (the second plane); entity questions stay on pages.
 
 Spec: openspec/specs/query.md REQ-400..452 (dual-register output
 REQ-435..437), two-plane routing REQ-460..464, one-hop neighbor
-expansion REQ-480..485
+expansion REQ-480..485; --prime mode openspec/specs/prime.md
+REQ-1400..1431
 
 Shared conventions (read before executing):
 
@@ -186,4 +187,49 @@ access log that makes retrieval auditable.
 - If no relevant pages are found, state clearly: "No information found in the wiki
   for this topic." and offer write-back (Phase 3); the plain register
   restates that the wiki has no answer (REQ-435)
+## Mode: --prime (context briefing; prime.md REQ-1400..1431)
+
+Prime is the proactive read path: no question, just a context. Output
+is a briefing of what the wiki holds that bears on the session, not an
+answer. It reuses this skill's machinery with these deltas:
+
+- Context (REQ-1401): use the argument verbatim. Without one, derive
+  the context from the conversation so far and ECHO it back at the top
+  of the briefing (`Priming on: "..."`); never prime on an invisible
+  context. Extract entities, topics, and project names as lexical
+  terms (REQ-1402): routing-line matching, FTS, grep only - no
+  embeddings, no vector store, no network model call, ever.
+- Recall breadth, not routing depth (REQ-1403): read the `### Index`
+  of EVERY hub (not just candidate namespaces) and match all routing
+  lines against the terms. No full page opens in this phase. When
+  `index_db` is configured, the Phase 0b channel MAY add FTS hits
+  (stale-check first, SELECT-only, pointers never quoted content;
+  REQ-1404). Terms with no routing or index hit MAY get a BOUNDED L3
+  grep: at most the 3 strongest terms, at most 3 matches each
+  (REQ-1405). Also check L1 Memory for topically relevant rules and
+  gotchas; include matches as pointers (REQ-1406).
+- Budget (REQ-1410): rank candidates by match strength and
+  cross-channel agreement; read AT MOST 3 pages in full, no batching
+  loop. Up to 5 further candidates are listed as pointers only (link
+  plus hub routing description), unread. Each full read gets its
+  one-hop neighbor list per Phase 1c (REQ-1411), is Access-Logged with
+  `matched: "prime: <term>"` (REQ-1412; hubs, pointers, and neighbors
+  are never logged; no per-run commit), and an `archived::` hit gets
+  the Phase 1b re-promotion offer (REQ-1413).
+- Briefing (REQ-1420..1424): per fully-read page, 1-3 lines on what
+  the wiki knows and why it matched; then the unread pointers; then
+  the neighbors; then the L1 pointers. No raw dumps, no answering
+  unasked questions. Staleness, low confidence, and archived flags are
+  inline and compact (REQ-1421). Every line traces to a page, routing
+  line, index row, or L1 file; a term with no wiki presence gets one
+  line saying so (REQ-1422). SINGLE register - the dual-register rule
+  does not apply; source and plane attribution appear once at the end
+  (REQ-1423). A fully empty result is exactly: "Nothing in the wiki
+  bears on this context yet." - then stop; no write-back offer, no
+  widened search (REQ-1424).
+- Read-only contract (REQ-1430/1431): prime NEVER writes or offers
+  write-back; the Access-Log append is the only write. Edit requests
+  surfacing mid-run are redirected to /wiki-update or /wiki-ingest.
+  Never self-trigger at session start or on a schedule; the user wires
+  invocation themselves.
 </workflow>
