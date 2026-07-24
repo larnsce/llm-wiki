@@ -213,7 +213,7 @@ python3 -m http.server 8123
 <p>The boundary is the file set you copy. The viewer renders whatever markdown is present and shows a “not part of the published set” page for anything else, so an unpublished page fails visibly and gracefully. Two boundary models, from issues #145 and #148:</p>
 <ul>
 <li><strong>Whole-wiki publishing</strong>: copy the wiki tiers you consider public (for example <code>wiki/</code> and its hub pages). Personal tiers stay out by default: journals, voice material, <code>para/</code>, <code>notes/</code> are never copied unless you decide otherwise deliberately.</li>
-<li><strong>Paper bundles</strong> (#148, planned): the export walks a paper hub’s link graph and collects only reachable pages, with this viewer vendored into the bundle root. The boundary is the walk.</li>
+<li><strong>Paper bundles</strong> (#148): <code>python3 skills/wiki-core/scripts/export_paper.py --config &lt;llm-wiki.yml&gt; --slug &lt;slug&gt; --out &lt;dir&gt;</code> (or <code>/wiki-paper export &lt;slug&gt;</code>) walks the paper hub’s link graph and collects only reachable pages, vendors this viewer into the bundle root, and writes <code>export-manifest.md</code> listing every included page and every excluded or unresolvable link target with its reason. The boundary is the walk; personal tiers never export, and the gate below runs on every included file before anything is written. Encourage the excluded-content narrative: a page saying “microdata stays private, consent covers aggregates only” turns an exclusion into documented provenance.</li>
 </ul>
 </section>
 <section id="the-publish-gate" class="level2">
@@ -221,7 +221,7 @@ python3 -m http.server 8123
 <p>Nothing goes public without a secret scan. Before the first push, and after any content update, run the scanner over every file in the publish directory:</p>
 <pre><code>find &lt;publish-dir&gt; -name "*.md" -print0 | \
   xargs -0 -n1 python3 skills/wiki-core/scripts/secret_scan.py</code></pre>
-<p>A blocking finding (exit 2) means the file does not get published until the secret is redacted. This is the same gate the ingest pipeline uses before archiving sources (ingest REQ-045/046), applied at the publish seam.</p>
+<p>A blocking finding (exit 2) means the file does not get published until the secret is redacted. This is the same gate the ingest pipeline uses before archiving sources (ingest REQ-045/046), applied at the publish seam; the paper exporter calls the identical script on every included file and aborts with nothing written on a blocking finding (paper.md REQ-1522) - one implementation, both paths.</p>
 <p>Also review the content itself before publishing: reliability ratings, <code>## Pending Review</code> sections, and provenance notes are published as they stand, which is the point (the trust layer is part of the public record), but claims about other people deserve a deliberate read before they leave the vault.</p>
 </section>
 <section id="privacy-model" class="level2">
@@ -234,7 +234,7 @@ python3 -m http.server 8123
 </section>
 <section id="install-path-status" class="level2">
 <h2 class="anchored" data-anchor-id="install-path-status">Install path status</h2>
-<p>There is deliberately no <code>wiki-publish</code> skill yet: the manual path above is the install path until the #148 export bundle exists, which will own the mechanical walk-and-copy (the repo rule is not to formalize a verb prematurely). The cognee front end that motivated the prior-art check (see #145) was evaluated 2026-07-24 and rejected for reuse: the demo site is a built React bundle, not a vendorable static file, and cognee’s frontend (Apache-2.0) is a full application entangled with its backend. The from-scratch single-file viewer is the implementation.</p>
+<p>There is deliberately no <code>wiki-publish</code> skill: for paper bundles the mechanical walk-and-copy is owned by <code>/wiki-paper export</code> (the #148 exporter above), and for whole-wiki publishing the manual path stands until it hurts (the repo rule is not to formalize a verb prematurely). The cognee front end that motivated the prior-art check (see #145) was evaluated 2026-07-24 and rejected for reuse: the demo site is a built React bundle, not a vendorable static file, and cognee’s frontend (Apache-2.0) is a full application entangled with its backend. The from-scratch single-file viewer is the implementation.</p>
 
 
 </section>

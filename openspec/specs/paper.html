@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Search the wiki for an answer to a question. Two-stage retrieval via hub indexes, targeted page reads with an L3 grep fallback, Access-Log update, and a synthesized answer with source attribution. Use when the user asks what the wiki knows about a topic.">
 
-<title>skill – llm-wiki</title>
+<title>paper – llm-wiki</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -168,18 +167,29 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#wiki-query" id="toc-wiki-query" class="nav-link active" data-scroll-target="#wiki-query">wiki-query</a>
+  <li><a href="#spec-paper-hubs---per-manuscript-anchor-pages" id="toc-spec-paper-hubs---per-manuscript-anchor-pages" class="nav-link active" data-scroll-target="#spec-paper-hubs---per-manuscript-anchor-pages">Spec: Paper Hubs - Per-Manuscript Anchor Pages</a>
   <ul class="collapse">
-  <li><a href="#phase-0b---index-plane-only-when-routed-there-req-460..462" id="toc-phase-0b---index-plane-only-when-routed-there-req-460..462" class="nav-link" data-scroll-target="#phase-0b---index-plane-only-when-routed-there-req-460..462">Phase 0b - Index plane (only when routed there, REQ-460..462)</a></li>
-  <li><a href="#phase-1---targeted-read-stage-2-only-the-chosen-pages" id="toc-phase-1---targeted-read-stage-2-only-the-chosen-pages" class="nav-link" data-scroll-target="#phase-1---targeted-read-stage-2-only-the-chosen-pages">Phase 1 - Targeted Read (Stage 2, only the chosen pages)</a></li>
-  <li><a href="#phase-1b---access-logging-lru-signal-routing-transparency" id="toc-phase-1b---access-logging-lru-signal-routing-transparency" class="nav-link" data-scroll-target="#phase-1b---access-logging-lru-signal-routing-transparency">Phase 1b - Access Logging (LRU signal + routing transparency)</a></li>
-  <li><a href="#phase-1c---one-hop-neighbors-pointers-only-req-480..485" id="toc-phase-1c---one-hop-neighbors-pointers-only-req-480..485" class="nav-link" data-scroll-target="#phase-1c---one-hop-neighbors-pointers-only-req-480..485">Phase 1c - One-hop neighbors (pointers only, REQ-480..485)</a></li>
-  <li><a href="#phase-2---synthesize" id="toc-phase-2---synthesize" class="nav-link" data-scroll-target="#phase-2---synthesize">Phase 2 - Synthesize</a></li>
-  <li><a href="#phase-3---optional-write-back" id="toc-phase-3---optional-write-back" class="nav-link" data-scroll-target="#phase-3---optional-write-back">Phase 3 - Optional Write-Back</a></li>
-  <li><a href="#phase-4---output" id="toc-phase-4---output" class="nav-link" data-scroll-target="#phase-4---output">Phase 4 - Output</a></li>
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a>
+  <ul class="collapse">
+  <li><a href="#namespace-and-hub-page" id="toc-namespace-and-hub-page" class="nav-link" data-scroll-target="#namespace-and-hub-page">Namespace and Hub Page</a></li>
+  <li><a href="#reachability-the-export-guarantee" id="toc-reachability-the-export-guarantee" class="nav-link" data-scroll-target="#reachability-the-export-guarantee">Reachability (the export guarantee)</a></li>
+  <li><a href="#the-wiki-paper-skill" id="toc-the-wiki-paper-skill" class="nav-link" data-scroll-target="#the-wiki-paper-skill">The wiki-paper Skill</a></li>
+  <li><a href="#lifecycle-and-seams" id="toc-lifecycle-and-seams" class="nav-link" data-scroll-target="#lifecycle-and-seams">Lifecycle and Seams</a></li>
+  <li><a href="#the-agent-log-ai-transparency-issue-147" id="toc-the-agent-log-ai-transparency-issue-147" class="nav-link" data-scroll-target="#the-agent-log-ai-transparency-issue-147">The Agent Log (AI-transparency; issue #147)</a></li>
+  <li><a href="#the-export-bundle-issue-148" id="toc-the-export-bundle-issue-148" class="nav-link" data-scroll-target="#the-export-bundle-issue-148">The Export Bundle (issue #148)</a></li>
+  </ul></li>
+  <li><a href="#scenarios" id="toc-scenarios" class="nav-link" data-scroll-target="#scenarios">Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-scaffold-a-new-paper-hub" id="toc-scenario-1-scaffold-a-new-paper-hub" class="nav-link" data-scroll-target="#scenario-1-scaffold-a-new-paper-hub">Scenario 1: Scaffold a new paper hub</a></li>
+  <li><a href="#scenario-2-attach-existing-pages" id="toc-scenario-2-attach-existing-pages" class="nav-link" data-scroll-target="#scenario-2-attach-existing-pages">Scenario 2: Attach existing pages</a></li>
+  <li><a href="#scenario-3-orphaned-child-flagged" id="toc-scenario-3-orphaned-child-flagged" class="nav-link" data-scroll-target="#scenario-3-orphaned-child-flagged">Scenario 3: Orphaned child flagged</a></li>
+  <li><a href="#scenario-4-ingest-run-appends-one-log-row" id="toc-scenario-4-ingest-run-appends-one-log-row" class="nav-link" data-scroll-target="#scenario-4-ingest-run-appends-one-log-row">Scenario 4: Ingest run appends one log row</a></li>
+  <li><a href="#scenario-5-export-walks-gates-and-manifests" id="toc-scenario-5-export-walks-gates-and-manifests" class="nav-link" data-scroll-target="#scenario-5-export-walks-gates-and-manifests">Scenario 5: Export walks, gates, and manifests</a></li>
+  </ul></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-query/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/paper.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -187,109 +197,131 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="wiki-query" class="level1">
-<h1>wiki-query</h1>
-<p>Search the wiki (two-stage via hub index) and synthesize an answer. This is the primary read path; the counterpart to wiki-ingest (write path). When the storage plane is configured, aggregate, temporal, and full-text questions route to index.db SQL (the second plane); entity questions stay on pages.</p>
-<p>Spec: openspec/specs/query.md REQ-400..452 (dual-register output REQ-435..437), two-plane routing REQ-460..464, one-hop neighbor expansion REQ-480..485</p>
-<p>Shared conventions (read before executing):</p>
+<section id="spec-paper-hubs---per-manuscript-anchor-pages" class="level1">
+<h1>Spec: Paper Hubs - Per-Manuscript Anchor Pages</h1>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>One namespace per manuscript: <code>wiki/papers/&lt;slug&gt;/</code>. The hub page <code>wiki/papers/&lt;slug&gt;</code> is the single anchor for everything the wiki holds about one paper - the literature drawn on, the datasets, the open questions, and the dated draft decisions - so that material stops being spread across literature pages, concept pages, and journal entries with no per-manuscript view. The hub doubles as the homepage of a published paper site (issue #145: the static viewer opens a hub as its default route), and the export bundle (issue #148) walks the hub’s link graph, so hub completeness IS the publish boundary. The wiki-paper skill scaffolds and maintains hubs; lint rule 16 checks their structure.</p>
+<blockquote class="blockquote">
+<p>Spec version: introduced for v3.8 (issue #146). Uses the globally unique REQ-1500..1526 range. Lint rule 16 uses REQ-260..263 (specs/lint.md). <code>wiki/papers/</code> sits inside the machine-written <code>wiki/</code> namespace, so the REQ-960 namespace contract is unchanged.</p>
+</blockquote>
+<hr>
+</section>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
+<section id="namespace-and-hub-page" class="level3">
+<h3 class="anchored" data-anchor-id="namespace-and-hub-page">Namespace and Hub Page</h3>
 <ul>
-<li><a href="../../skills/wiki-core/references/config.html">config</a>: discover and read <code>llm-wiki.yml</code> FIRST (tool, wiki_path, pages_dir, memory_path, namespaces; optional <code>index_db</code>, config REQ-627, enables the index plane).</li>
-<li><a href="../../skills/wiki-core/references/architecture.html">architecture</a>: L1/L2 boundary, two-stage routing, L3 fallback, LRU-Demote, retrieval and commit discipline, namespace scope rule.</li>
-<li><a href="../../skills/wiki-core/references/formats.html">formats</a>: tool-specific formats, routing-line format, Access-Log format and rules.</li>
-</ul>
-<p><role> Wiki maintainer for a personal or team knowledge base. You retrieve knowledge through the hub routing index, synthesize answers from multiple pages, and keep the access log that makes retrieval auditable. </role></p>
-<p><workflow> ## Phase 0 - Routing (Stage 1, cheap index read)</workflow></p>
-<ul>
-<li>Plane decision first (REQ-460), only when <code>index_db</code> is configured AND the file exists; otherwise skip straight to hub routing:
-<ul>
-<li>Entity/topic questions (“what do we know about X”, “how do I Y”) -&gt; markdown plane (below), the default. When in doubt, the markdown plane wins.</li>
-<li>Aggregate (counts/lists across many pages), temporal (date ranges over journals and meetings), or needle-in-haystack full-text (“which page mentions X”) -&gt; the index plane (Phase 0b)</li>
-</ul></li>
-<li>Parse the question -&gt; identify candidate namespaces (Business, Tech, Content, Projects, People, Learning, Reference, Careers, plus any configured in llm-wiki.yml)</li>
-<li>Read ONLY the hub page for each candidate namespace, NOT every full page</li>
-<li>Match the routing lines in the hub’s <code>### Index</code> (routing-line format: <a href="../../skills/wiki-core/references/formats.html">formats</a>) against the question</li>
-<li>Pick the 3 most relevant child pages (max 5). This is the “page table”: index, not full scan</li>
-</ul>
-<section id="phase-0b---index-plane-only-when-routed-there-req-460..462" class="level2">
-<h2 class="anchored" data-anchor-id="phase-0b---index-plane-only-when-routed-there-req-460..462">Phase 0b - Index plane (only when routed there, REQ-460..462)</h2>
-<ul>
-<li><p>Staleness first (REQ-461, storage REQ-1133): run</p>
-<pre><code>python3 skills/wiki-core/scripts/rebuild_index.py --config &lt;llm-wiki.yml&gt; --stale-check</code></pre>
-<p>Exit 1 (stale): either rebuild now (same script without the flag) and answer fresh, or answer from the stale index with an EXPLICIT staleness warning in the output. Never answer from a stale index silently.</p></li>
-<li><p>Read with python3 stdlib <code>sqlite3</code>, SELECT-only against the frozen schema (storage REQ-1130). Starting shapes:</p>
-<ul>
-<li>people: <code>SELECT page, name, aliases FROM people WHERE name LIKE ? OR aliases LIKE ?</code></li>
-<li>meetings: <code>SELECT page, date, text FROM meetings WHERE date BETWEEN ? AND ? ORDER BY date, page</code></li>
-<li>full-text: <code>SELECT page FROM page_text WHERE page_text MATCH ? ORDER BY rank</code></li>
-</ul></li>
-<li><p>Index results are pointers, not sources (REQ-464): aggregate answers (counts, page-name or date lists) may come from SQL alone; anything quoted as content routes a Phase 1 read of the hit’s <code>page</code> instead. Never write to index.db from this workflow.</p></li>
+<li>REQ-1500: A manuscript’s anchor is the page <code>wiki/papers/&lt;slug&gt;</code> (the namespace page itself; lowercase structural slug per schema REQ-580). Material belonging to exactly one manuscript MAY live under <code>wiki/papers/&lt;slug&gt;/&lt;child&gt;</code>; shared material (literature notes, concept pages, datasets) stays where it lives and is LINKED, never copied.</li>
+<li>REQ-1501: The hub page SHALL carry <code>type:: paper-hub</code> (schema REQ-500) with required properties <code>status::</code>, <code>created::</code>, and <code>updated::</code> (lint REQ-260). <code>status::</code> SHOULD be one of <code>drafting</code>, <code>submitted</code>, or <code>published</code>; the value is not enum-enforced. A hub MAY carry <code>target::</code> (the venue) as free text.</li>
+<li>REQ-1502: The hub SHALL contain these sections, each as a heading: <code>Manuscript</code>, <code>Literature drawn on</code>, <code>Data</code>, <code>Open questions</code>, <code>Draft decisions</code>, and <code>AI use</code> (lint REQ-261). Section content is editorial and never linted.</li>
+<li>REQ-1503: Draft decisions are dated, append-only bullets under <code>Draft decisions</code>; a decision that supersedes an earlier one follows the wiki-update supersede convention rather than deleting the bullet.</li>
+<li>REQ-1504: The <code>AI use</code> section links the paper’s agent-use log page (<code>wiki/papers/&lt;slug&gt;/agent-log</code>, REQ-1513, scaffolded with the hub); prose there stays welcome, the link is the requirement.</li>
 </ul>
 </section>
-<section id="phase-1---targeted-read-stage-2-only-the-chosen-pages" class="level2">
-<h2 class="anchored" data-anchor-id="phase-1---targeted-read-stage-2-only-the-chosen-pages">Phase 1 - Targeted Read (Stage 2, only the chosen pages)</h2>
+<section id="reachability-the-export-guarantee" class="level3">
+<h3 class="anchored" data-anchor-id="reachability-the-export-guarantee">Reachability (the export guarantee)</h3>
 <ul>
-<li>Read ONLY the 3-5 pages chosen in Phase 0, JIT, respecting the simultaneous-read cap in <a href="../../skills/wiki-core/references/architecture.html">architecture</a>; batch if needed</li>
-<li>L3 fallback when routing yields nothing useful (namespace unclear, hub index missing/empty, no routing line matches): classic grep across all wiki pages -&gt; top 3-5. This is the slow backing-store scan and should be the exception, not the default</li>
-<li>Data reads (REQ-470..472, only when dataset pages exist): a question about a dataset’s CONTENTS routes via the wiki/data hub; the dataset page’s <code>## data dictionary</code> picks the dataset and columns; row-level answers are computed READ-ONLY from the snapshot CSVs at the page’s <code>source-file::</code> (python3 stdlib csv/sqlite3). Attribute the computation with file, package version, and row count, e.g. <code>computed from ingested/data/&lt;pkg&gt;-&lt;version&gt;/&lt;file&gt;.csv (n rows)</code>. Never consult a live R session for content answers (REQ-472)</li>
-<li>If needed, also read L1 Memory for the complete picture</li>
+<li>REQ-1505: Every page under <code>wiki/papers/&lt;slug&gt;/</code> SHALL be reachable from its hub: the hub links every child page (lint REQ-262). This is what the issue #148 export walk and the issue #145 publish boundary rely on; an orphaned child would silently drop out of the published artifact.</li>
+<li>REQ-1506: The <code>wiki/papers</code> namespace hub (created on the first scaffold, <code>type:: hub</code>) carries one routing line per paper hub in its <code>### Index</code>, like any namespace hub. Users MAY add <code>papers</code> to the config <code>namespaces</code> list for Phase-0 query routing.</li>
 </ul>
 </section>
-<section id="phase-1b---access-logging-lru-signal-routing-transparency" class="level2">
-<h2 class="anchored" data-anchor-id="phase-1b---access-logging-lru-signal-routing-transparency">Phase 1b - Access Logging (LRU signal + routing transparency)</h2>
+<section id="the-wiki-paper-skill" class="level3">
+<h3 class="anchored" data-anchor-id="the-wiki-paper-skill">The wiki-paper Skill</h3>
 <ul>
-<li>For each page ACTUALLY read in full (not the Phase 0 hub-index reads), append one line with the verb <code>query</code> to the Access-Log page (wiki/reference/access-log), in the Access-Log line format from <a href="../../skills/wiki-core/references/formats.html">formats</a></li>
-<li>The <code>matched:</code> reason = the “and why” of the routing (loading transparency): on index routing (Phase 0) the hub <code>### Index</code> routing description / #tag that matched the question; on the L3 fallback the grep term that found the page; on an index-plane hit (Phase 0b) the index route, e.g.&nbsp;<code>fts: &lt;term&gt;</code> or <code>meetings: &lt;range&gt;</code> (REQ-464) (length and quoting rules: <a href="../../skills/wiki-core/references/formats.html">formats</a>). The log then shows not just WHICH page loaded but WHY it was picked for this question; surfaced via the wiki-maintain status report (cache profile)</li>
-<li>The append is non-structural; the Access-Log commit rules in <a href="../../skills/wiki-core/references/formats.html">formats</a> apply (no per-query git commit)</li>
-<li>Paper agent-log (paper.md REQ-1515): when a fully-read page is a paper hub or lives under <code>wiki/papers/&lt;slug&gt;/</code>, also append one read-only row to that paper’s agent-log (<code>- (read-only)</code> under Pages written, paper.md REQ-1514); same commit discipline as the Access-Log append</li>
-<li>If the L3 fallback hits an archived page (<code>archived::</code> set), a re-hit on an evicted page: offer to re-promote it; move its routing line from the hub <code>### Archive</code> back into the <code>### Index</code>, drop the archived:: property (and reset status:: where it was set)</li>
+<li>REQ-1507 (scaffold): <code>wiki-paper new &lt;slug&gt;</code> SHALL scaffold the hub page with the REQ-1501 properties and REQ-1502 sections in the configured tool’s format, create the <code>wiki/papers</code> namespace hub if absent, and add the paper’s routing line to it. The scaffold is shown as a diff and written only after confirmation, then committed.</li>
+<li>REQ-1508 (attach): <code>wiki-paper attach &lt;slug&gt; &lt;page&gt;...</code> SHALL append links for the given pages to the matching hub section (literature pages to <code>Literature drawn on</code>, <code>wiki/data/</code> pages to <code>Data</code>, anything else offered with a section choice). Attaching NEVER rewrites the attached page (append-only is respected on both sides); a page already linked is skipped, not duplicated.</li>
+<li>REQ-1509 (status): <code>wiki-paper status &lt;slug&gt;</code> is read-only: it reports the hub’s sections, linked pages, children not yet linked (REQ-262 candidates), and <code>status::</code>/<code>updated::</code>.</li>
+<li>REQ-1510: The skill SHALL NOT write outside <code>wiki/papers/</code> and the <code>wiki/papers</code> hub’s routing lines. Literature, concept, and data pages are linked in place.</li>
 </ul>
 </section>
-<section id="phase-1c---one-hop-neighbors-pointers-only-req-480..485" class="level2">
-<h2 class="anchored" data-anchor-id="phase-1c---one-hop-neighbors-pointers-only-req-480..485">Phase 1c - One-hop neighbors (pointers only, REQ-480..485)</h2>
+<section id="lifecycle-and-seams" class="level3">
+<h3 class="anchored" data-anchor-id="lifecycle-and-seams">Lifecycle and Seams</h3>
 <ul>
-<li>After the Phase 1 reads, collect the outgoing <code>[[wiki/...]]</code> links from the BODIES of the fully-read pages. Extraction is mechanical (the link text as written). Links into <code>para/</code>, <code>notes/</code>, and <code>glossary/</code> are NOT expanded: neighbor expansion stays inside the machine-written namespace (REQ-480)</li>
-<li>Neighbors are POINTERS, never additional reads (REQ-481): do not read a neighbor in full unless Phase 0 routing already selected it within the page budget. Present each neighbor with its hub routing description when one exists; the <code>### Index</code> or <code>### Archive</code> lines are already in context from the Phase 0 hub reads, so this costs nothing extra</li>
-<li>Rank by the number of DISTINCT read pages linking to the neighbor; break ties with live-index pages before archived ones. Cap the list at 7. Exclude already-read pages, hub pages, and the Schema, Dashboard, and Access-Log pages (REQ-482)</li>
-<li>Flag a neighbor whose page carries <code>archived::</code> as archived (REQ-484). The re-promotion offer (Phase 1b) applies only when a page is actually read in full, not to its appearance as a pointer</li>
-<li>Never Access-Log a neighbor; they are not full reads (REQ-485). A broken neighbor link (the target page does not exist) is reported to the user as a candidate lint issue, not silently dropped</li>
+<li>REQ-1511 (cold papers): A finished paper’s hub demotes like any cold page (prune.md LRU-Demote); demotion MUST NOT break the hub or its children, and a re-hit re-promotes it per query REQ-452. Nothing in this spec exempts paper pages from pruning.</li>
+<li>REQ-1512 (PARA seam, issue #140): a paper is also a project in the human layer. The hub MAY link to a <code>para/</code> project page and a <code>para/</code> project page may link back, but the hub SHALL NOT duplicate para/ content and the skill SHALL NOT write under <code>para/</code> (namespaces REQ-966; the promotion seam stays the only crossing).</li>
 </ul>
 </section>
-<section id="phase-2---synthesize" class="level2">
-<h2 class="anchored" data-anchor-id="phase-2---synthesize">Phase 2 - Synthesize</h2>
+<section id="the-agent-log-ai-transparency-issue-147" class="level3">
+<h3 class="anchored" data-anchor-id="the-agent-log-ai-transparency-issue-147">The Agent Log (AI-transparency; issue #147)</h3>
 <ul>
-<li>Combine information from multiple wiki pages</li>
-<li>Note confidence levels (from page properties)</li>
-<li>Check staleness (updated dates)</li>
-<li>Formulate a comprehensive answer with source attribution</li>
-<li>When sources contradict each other, present both perspectives; never silently pick one (REQ-413)</li>
-<li>Never fabricate information that is not in the wiki or L1 memory; if the wiki has no answer, say so (REQ-414)</li>
+<li>REQ-1513 (log page): Each paper MAY carry the child page <code>wiki/papers/&lt;slug&gt;/agent-log</code>, scaffolded by <code>wiki-paper new</code> together with the hub. The page is the SOURCE OF TRUTH for the paper’s AI use: append-only, human-legible markdown, renderable by the #145 viewer and shipped in the #148 bundle. A queryable <code>index.db</code> mirror is parked (the two-plane pattern would allow one, rebuildable from the page) until a real query need appears.</li>
+<li>REQ-1514 (entry format): One markdown table under the page’s h1 with the EXACT header <code>| Date | Skill | Model | Sources touched | Pages written | Human confirmations |</code> (lint REQ-263). One row per skill invocation. The <code>Model</code> value is the session model AS THE HUMAN CONFIRMS IT at the checkpoint, or <code>session</code> when unstated; it is NEVER introspected or guessed by the executing model (the REQ-053 dispatch-record lesson survives the tiering removal). Read-only invocations record <code>- (read-only)</code> under Pages written.</li>
+<li>REQ-1515 (append discipline): A skill invocation SHALL append exactly one row when it writes a page under <code>wiki/papers/&lt;slug&gt;/</code>, and SHOULD append one when it writes or updates a page the paper’s hub links. Read paths (wiki-query) append their row without a per-query commit, mirroring the Access-Log discipline (query REQ-450 scope unchanged). Rows are never edited or deleted.</li>
+<li>REQ-1516 (disclosure statement): The log page MAY carry a <code>## Disclosure statement (generated)</code> section. It SHALL be regenerable from the table rows alone (no memory reconstruction); regenerating that marked section is the only sanctioned rewrite on the page, and the rows themselves stay append-only.</li>
+<li>REQ-1517 (supersession cross-reference): When a wiki-update run on a paper-linked page supersedes a claim, the log row’s Pages written cell links that page, and the page-level supersede marker and the log row carry the same date, so the two artifacts reference each other.</li>
+<li>REQ-1518 (publishable content): The log is written to be published: rows carry page links, source titles, and citekeys, NEVER prompt fragments or local filesystem paths. The page passes the shared publish gate (<code>secret_scan.py</code>) like any exported page.</li>
 </ul>
 </section>
-<section id="phase-3---optional-write-back" class="level2">
-<h2 class="anchored" data-anchor-id="phase-3---optional-write-back">Phase 3 - Optional Write-Back</h2>
+<section id="the-export-bundle-issue-148" class="level3">
+<h3 class="anchored" data-anchor-id="the-export-bundle-issue-148">The Export Bundle (issue #148)</h3>
 <ul>
-<li>If the query reveals a wiki gap -&gt; offer to create/update pages</li>
-<li>If the synthesis produces a useful summary -&gt; offer to file it as a new page</li>
-<li>The user must confirm before any writes (write-back is opt-in, never automatic)</li>
-<li>Write-back follows the ingest page-operation rules: required properties per the Schema, append-only, cross-references, hub routing line (openspec/specs/query.md REQ-423, openspec/specs/ingest.md Phase 3)</li>
+<li>REQ-1519 (surface): <code>wiki-paper export &lt;slug&gt;</code> runs <code>skills/wiki-core/scripts/export_paper.py</code> (stdlib only), which emits a self-contained markdown bundle plus manifest into a target directory; the directory is a deployable static site once the viewer is vendored (REQ-1524).</li>
+<li>REQ-1520 (the walk is the boundary): The exporter walks wikilinks breadth-first from the hub; ONLY reachable pages are exported. The rule-16 reachability guarantee (REQ-262) is what makes the walk complete for the paper’s own children.</li>
+<li>REQ-1521 (no silent exclusions): Personal tiers are never exported: <code>para/</code>, <code>glossary/</code>, journal pages, and <code>notes/</code> outside <code>notes/literature/</code> (literature notes are the citation layer and share-intended). Every excluded linked target and every unresolvable target SHALL appear in the manifest with its reason; the viewer’s boundary page is how such links fail in the served bundle.</li>
+<li>REQ-1522 (shared gate): Before anything is written, every included file SHALL pass <code>secret_scan.py</code>; one blocking finding (exit 2) aborts the whole export with nothing written. The gate implementation is shared with the whole-wiki publish path (<code>docs/publish-wiki.md</code>); it exists once, in wiki-core.</li>
+<li>REQ-1523 (layout, agent-readable): Bundle files land at viewer-resolvable paths (Obsidian: the nested route itself; Logseq: the flat <code>pages/</code> layout verbatim, resolved by the viewer’s <code>___</code> fallback - no outline transform). The raw <code>.md</code> behind every rendered page is fetchable at the path the viewer routes.</li>
+<li>REQ-1524 (vendored viewer): The exporter vendors <code>templates/site/index.html</code> into the bundle root with the SITE block pointed at the hub (and the agent-log in the nav when present). When no template is found, the manifest says so and the bundle stays a valid markdown tree.</li>
+<li>REQ-1525 (manifest): <code>export-manifest.md</code> in the bundle lists the included pages with their source paths, the exclusions with reasons, the unresolvable targets, and the gate result.</li>
+<li>REQ-1526 (sources stay home): Bytes under <code>ingested/</code> are NEVER exported (copyright and sensitivity); <code>cite::</code> refs remain textual provenance, and content SHOULD narrate deliberate exclusions (the “microdata stays private” pattern) so absence reads as provenance, not as a gap.</li>
 </ul>
+<hr>
 </section>
-<section id="phase-4---output" class="level2">
-<h2 class="anchored" data-anchor-id="phase-4---output">Phase 4 - Output</h2>
-<ul>
-<li>Two registers, always both, in this order (REQ-435):
-<ol type="1">
-<li><strong>Precise register:</strong> the Phase 2 synthesis as-is; technical vocabulary intact</li>
-<li><strong>Plain register</strong>, under the marker heading <code>In plain terms</code>: the SAME facts and caveats rewritten so a non-specialist can follow them. No unexplained jargon (an unavoidable technical term is explained in the sentence that uses it) and NO new claims; the no-fabrication rule (REQ-414) binds both registers (REQ-436)</li>
-</ol></li>
-<li>Flag stale sources (updated:: more than 90 days ago) and low-confidence sources with an explicit warning, in BOTH registers, phrased for each; the plain register never drops a warning (REQ-436). Contradictions (REQ-413) appear in both registers too</li>
-<li>After both registers, ONCE (REQ-437): source pages, “Sources: [[wiki/tech/deployment]], [[wiki/reference/gotchas]]”</li>
-<li>Plane attribution (REQ-463), part of the same shared attribution: state which plane answered: pages, index.db, or both, e.g.&nbsp;“Sources: [[wiki/tech/deployment]]; index.db (meetings, 12 rows)”. Include the staleness warning here when answering from a stale index (REQ-461)</li>
-<li>After the shared attribution, ONCE per answer: the Phase 1c neighbor list under a <code>Related:</code> line, each pointer with its routing description and archived flag where applicable (REQ-483). This list IS the related-pages suggestion; do not add a second, improvised one</li>
-<li>If no relevant pages are found, state clearly: “No information found in the wiki for this topic.” and offer write-back (Phase 3); the plain register restates that the wiki has no answer (REQ-435) </li>
-</ul>
+</section>
+<section id="scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios">Scenarios</h2>
+<section id="scenario-1-scaffold-a-new-paper-hub" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-scaffold-a-new-paper-hub">Scenario 1: Scaffold a new paper hub</h3>
+<pre><code>GIVEN a configured wiki with no wiki/papers namespace
+WHEN the user runs /wiki-paper new cbs-adoption
+THEN the system SHALL show the hub page diff (properties + six sections)
+AND on confirmation create wiki/papers/cbs-adoption and the wiki/papers
+    namespace hub with one routing line
+AND commit both in one commit</code></pre>
+</section>
+<section id="scenario-2-attach-existing-pages" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-attach-existing-pages">Scenario 2: Attach existing pages</h3>
+<pre><code>GIVEN literature page notes/literature/@tilley2024 and dataset page
+      wiki/data/household-survey-2026 exist
+WHEN the user runs /wiki-paper attach cbs-adoption @tilley2024
+     wiki/data/household-survey-2026
+THEN the hub gains a link under "Literature drawn on" and one under
+     "Data", shown as a diff first
+AND neither attached page is modified</code></pre>
+</section>
+<section id="scenario-3-orphaned-child-flagged" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-3-orphaned-child-flagged">Scenario 3: Orphaned child flagged</h3>
+<pre><code>GIVEN wiki/papers/cbs-adoption/agent-log exists but the hub does not
+      link it
+WHEN the user runs /wiki-lint
+THEN rule 16 SHALL report REQ-262 on the hub (child not reachable)
+AND propose no auto-fix (linking is editorial)</code></pre>
+</section>
+<section id="scenario-4-ingest-run-appends-one-log-row" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-4-ingest-run-appends-one-log-row">Scenario 4: Ingest run appends one log row</h3>
+<pre><code>GIVEN wiki/papers/cbs-adoption exists with its agent-log child
+WHEN /wiki-ingest writes notes/literature/@tilley2024 and links it
+     from the cbs-adoption hub at the checkpoint
+THEN the run SHALL append exactly one row to
+     wiki/papers/cbs-adoption/agent-log (date, skill wiki-ingest,
+     human-confirmed model, source title, pages written,
+     confirmations given)
+AND the row rides the run's atomic commit</code></pre>
+</section>
+<section id="scenario-5-export-walks-gates-and-manifests" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-5-export-walks-gates-and-manifests">Scenario 5: Export walks, gates, and manifests</h3>
+<pre><code>GIVEN wiki/papers/cbs-adoption links a concept page, a literature note,
+      and a para/ project page, and one link target does not exist
+WHEN the user runs /wiki-paper export cbs-adoption
+THEN the bundle contains the hub, the concept page, the literature
+     note, and the agent-log, each fetchable at its viewer route
+AND the para/ page is NOT exported and appears in export-manifest.md
+    with its reason, alongside the unresolvable target
+AND a blocking secret_scan.py finding on any included page would have
+    aborted the export with nothing written</code></pre>
 
 
+</section>
 </section>
 </section>
 
@@ -699,4 +731,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/skills/wiki-query/SKILL.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larnsce/llm-wiki/blob/main/openspec/specs/paper.md" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/larnsce/llm-wiki/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -188,6 +188,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#rule-13-naming-hygiene-structural-names" id="toc-rule-13-naming-hygiene-structural-names" class="nav-link" data-scroll-target="#rule-13-naming-hygiene-structural-names">Rule 13: Naming Hygiene (structural names)</a></li>
   <li><a href="#rule-14-namespace-hygiene-pages-outside-the-contract" id="toc-rule-14-namespace-hygiene-pages-outside-the-contract" class="nav-link" data-scroll-target="#rule-14-namespace-hygiene-pages-outside-the-contract">Rule 14: Namespace Hygiene (pages outside the contract)</a></li>
   <li><a href="#rule-15-glossary-hygiene-structure-only-never-the-decisions" id="toc-rule-15-glossary-hygiene-structure-only-never-the-decisions" class="nav-link" data-scroll-target="#rule-15-glossary-hygiene-structure-only-never-the-decisions">Rule 15: Glossary Hygiene (structure only, never the decisions)</a></li>
+  <li><a href="#rule-16-paper-hub-hygiene-structure-and-reachability-never-content" id="toc-rule-16-paper-hub-hygiene-structure-and-reachability-never-content" class="nav-link" data-scroll-target="#rule-16-paper-hub-hygiene-structure-and-reachability-never-content">Rule 16: Paper-Hub Hygiene (structure and reachability, never content)</a></li>
   <li><a href="#reporting" id="toc-reporting" class="nav-link" data-scroll-target="#reporting">Reporting</a></li>
   <li><a href="#dashboard" id="toc-dashboard" class="nav-link" data-scroll-target="#dashboard">Dashboard</a></li>
   </ul></li>
@@ -224,7 +225,7 @@ ul.task-list li input[type="checkbox"] {
 <h1>Spec: /wiki-lint - Automated Health Checks</h1>
 <section id="description" class="level2">
 <h2 class="anchored" data-anchor-id="description">Description</h2>
-<p>The lint command scans all wiki pages for structural issues, data quality problems, and security concerns. It reports findings grouped by severity and can auto-fix certain issues when run with the <code>--fix</code> flag. There are 15 lint rules.</p>
+<p>The lint command scans all wiki pages for structural issues, data quality problems, and security concerns. It reports findings grouped by severity and can auto-fix certain issues when run with the <code>--fix</code> flag. There are 16 lint rules.</p>
 <hr>
 </section>
 <section id="requirements" class="level2">
@@ -350,7 +351,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="rule-13-naming-hygiene-structural-names">Rule 13: Naming Hygiene (structural names)</h3>
 <ul>
 <li>REQ-230: The system SHALL flag any page whose STRUCTURAL (non-leaf) name segments contain spaces, uppercase characters, underscores, en dashes (<code>U+2013</code>), or em dashes (<code>U+2014</code>); the only word separator inside a structural segment is the ASCII hyphen <code>U+002D</code> (specs/schema.md REQ-580/580a/581). Severity: warning on <code>wiki/</code> pages; info on <code>para/</code> and <code>notes/</code> pages, whose content is human-owned and exempt from the wiki conventions but whose namespace STRUCTURE is shared graph territory (specs/namespaces.md REQ-961).</li>
-<li>REQ-231: A LEAF segment SHALL be flagged mechanically ONLY when it violates the hyphen rule (underscore, en dash, or em dash). Uppercase characters, <code>@</code> prefixes, or spaces in a leaf MAY be a proper noun (<code>wiki/tools/Claude Code</code>, <code>notes/literature/@Forte2022</code>, specs/schema.md REQ-580b) and that judgment stays in the wiki-lint skill: it reviews naming-hygiene leaf findings and dismisses proper-noun leaves (specs/namespaces.md REQ-976).</li>
+<li>REQ-231: A LEAF segment SHALL be flagged mechanically ONLY when it violates the hyphen rule (underscore, en dash, or em dash). Uppercase characters, <code>@</code> prefixes, or spaces in a leaf MAY be a proper noun (<code>wiki/tools/Claude Code</code>, <code>notes/literature/@forte2022building</code>, specs/schema.md REQ-580b) and that judgment stays in the wiki-lint skill: it reviews naming-hygiene leaf findings and dismisses proper-noun leaves (specs/namespaces.md REQ-976).</li>
 <li>REQ-232: No auto-fix: a rename changes page identity (links are by page name) and runs through the migration converter (specs/schema.md REQ-580c) or by hand, never by lint.</li>
 </ul>
 </section>
@@ -371,6 +372,16 @@ ul.task-list li input[type="checkbox"] {
 <li>REQ-251 (rule enum): A non-empty Rule cell SHALL be one of <code>keep-en | translate | context</code>; any other value is a warning. An EMPTY Rule cell is a warning on a domain page (an undecided row belongs on staging) and accepted on a <code>glossary/imported/</code> staging page (specs/glossary.md REQ-1010).</li>
 <li>REQ-252 (staging hygiene): A page under <code>glossary/imported/</code> SHALL carry <code>source::</code> (attribution) and <code>status::</code>; a missing property is a warning.</li>
 <li>REQ-253 (term pages): A term page (<code>glossary/&lt;domain&gt;/&lt;term&gt;</code>, not under <code>glossary/imported/</code>) SHALL carry <code>rule::</code> with a REQ-251 enum value; a missing or invalid value is a warning. No auto-fix anywhere in rule 15: every fix is a terminology decision, and those are human (specs/glossary.md REQ-1000).</li>
+</ul>
+</section>
+<section id="rule-16-paper-hub-hygiene-structure-and-reachability-never-content" class="level3">
+<h3 class="anchored" data-anchor-id="rule-16-paper-hub-hygiene-structure-and-reachability-never-content">Rule 16: Paper-Hub Hygiene (structure and reachability, never content)</h3>
+<p>Mechanical enforcement of specs/paper.md; runs on pages under <code>wiki/papers/</code>. Section content and which pages a paper draws on are editorial and never judged. No auto-fix anywhere in rule 16: sections and links are writing decisions.</p>
+<ul>
+<li>REQ-260 (hub type): The page <code>wiki/papers/&lt;slug&gt;</code> SHALL carry <code>type:: paper-hub</code> (specs/paper.md REQ-1501); a missing or different <code>type::</code> at that depth is a warning, as is a paper child page whose hub does not exist. The required properties (<code>status::</code>, <code>created::</code>, <code>updated::</code>) are enforced by rule 3 (REQ-132 via the paper-hub required-property set).</li>
+<li>REQ-261 (hub sections): The hub SHALL contain the six section headings <code>Manuscript</code>, <code>Literature drawn on</code>, <code>Data</code>, <code>Open questions</code>, <code>Draft decisions</code>, and <code>AI use</code> (specs/paper.md REQ-1502, matched case-insensitively); each missing section is a warning.</li>
+<li>REQ-262 (child reachability): Every page <code>wiki/papers/&lt;slug&gt;/&lt;child&gt;</code> SHALL be linked from its hub (specs/paper.md REQ-1505); an orphaned child is a warning on the hub, because it silently drops out of the issue #148 export walk.</li>
+<li>REQ-263 (agent-log table): On <code>wiki/papers/&lt;slug&gt;/agent-log</code>, the first markdown table SHALL carry the exact header <code>| Date | Skill | Model | Sources touched | Pages written | Human confirmations |</code> (specs/paper.md REQ-1514); a deviating header or a row with a different column count is a warning. Row content (models, sources, confirmations) is never judged.</li>
 </ul>
 </section>
 <section id="reporting" class="level3">
@@ -535,7 +546,7 @@ AND para/projects/secret-plan is NOT flagged by any wiki-only rule (REQ-242)</co
 <section id="acceptance-criteria" class="level2">
 <h2 class="anchored" data-anchor-id="acceptance-criteria">Acceptance Criteria</h2>
 <ul class="task-list">
-<li><label><input type="checkbox">All 15 rules execute during a lint run</label></li>
+<li><label><input type="checkbox">All 16 rules execute during a lint run</label></li>
 <li><label><input type="checkbox">Findings grouped by severity: critical &gt; warning &gt; info</label></li>
 <li><label><input type="checkbox">Report includes totals (pages scanned, healthy, issues by rule)</label></li>
 <li><label><input type="checkbox">Auto-fix (–fix) only modifies rules 1, 2, 4, 5, 8, 10, 11 (the 7 auto-fixable rules)</label></li>

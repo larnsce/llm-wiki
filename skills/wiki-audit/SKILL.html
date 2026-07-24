@@ -260,6 +260,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Move unsupported and uncited claims under <code>## Pending Review</code>; NEVER silently delete prose, and never rewrite the claim text itself.</li>
 <li>Update <code>reliability::</code> per the Phase 3 reconciliation and set <code>updated::</code> to today.</li>
 <li>Append the log entry <code>## [YYYY-MM-DD] audit | &lt;page&gt; | &lt;n&gt; verified, &lt;n&gt; flagged</code> to the Dashboard page (legacy entries with a trailing <code>agents &lt;...&gt;</code> field stay valid; the field is retired, REQ-053).</li>
+<li>Paper agent-log (paper.md REQ-1515): when the audited page lives under <code>wiki/papers/&lt;slug&gt;/</code> or a paper hub links it, append one row to that paper’s agent-log (format paper.md REQ-1514; in default read-only mode the row records <code>- (read-only)</code> under Pages written and rides no commit).</li>
 <li>Git commit the changes (commit discipline in <a href="../../skills/wiki-core/references/architecture.html">architecture</a>).</li>
 </ul></li>
 <li>Claim-text corrections are out of scope even in fix mode: revising a wrong claim is wiki-update’s job (the only sanctioned non-append edit path, openspec/specs/update.md REQ-950). </li>

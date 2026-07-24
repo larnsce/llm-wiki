@@ -289,7 +289,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Structure is <strong>lowercase-hyphenated</strong>; proper nouns keep their natural casing.</p>
 <ul>
 <li><strong>Structural segments</strong> (namespaces, note types, workflow pages, properties): all lowercase, hyphen <code>-</code> (U+002D) between words, no spaces. <code>para/</code>, <code>notes/</code>, <code>live-list</code>, <code>fleeting-inbox</code>, <code>type::</code>.</li>
-<li><strong>Proper-noun leaves</strong> (people, tools, papers, citekeys): written as the world writes them. <code>[[Claude Code]]</code>, <code>notes/literature/@Forte2022</code>.</li>
+<li><strong>Proper-noun leaves</strong> (people, tools, papers, citekeys): written as the world writes them. <code>[[Claude Code]]</code>, <code>notes/literature/@forte2022building</code>.</li>
 <li>Hyphen <code>-</code> only — never en dash <code>–</code> (U+2013) or em dash <code>—</code> (U+2014) in page names; they are invisible grep traps. No underscores in structural names.</li>
 </ul>
 <hr>
@@ -415,7 +415,7 @@ para/archives/&lt;project-name&gt;     completed/inactive projects</code></pre>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>A <span class="in">`type::`</span> property holds exactly one value per page, so a query can filter on it like a</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      column. Tags accumulate and carry no constraint - good for workflow states (<span class="in">`#fleeting`</span>),</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      wrong for classification.</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Sparked by [<span class="co">[</span><span class="ot">notes/literature/@Forte2022</span><span class="co">]</span>]; the wiki side makes the same choice in</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Sparked by [<span class="co">[</span><span class="ot">notes/literature/@forte2022building</span><span class="co">]</span>]; the wiki side makes the same choice in</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      [<span class="co">[</span><span class="ot">wiki/architecture</span><span class="co">]</span>].</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A <strong>literature</strong> note is a page under <code>notes/literature/@&lt;citekey&gt;</code> with <code>type:: literature</code> in the template <code>/lit-sync</code> writes - see <a href="../docs/zotero-setup.html"><code>docs/zotero-setup.md</code></a> for the full template and the working loop.</p>
 </section>

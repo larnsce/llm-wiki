@@ -224,7 +224,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="page-types-mutually-exclusive" class="level3">
 <h3 class="anchored" data-anchor-id="page-types-mutually-exclusive">Page Types (Mutually Exclusive)</h3>
 <ul>
-<li>REQ-500: Every wiki page MUST declare exactly one <code>type</code> property. Valid values: <code>entity</code>, <code>project</code>, <code>knowledge</code>, <code>feedback</code>, <code>hub</code>.</li>
+<li>REQ-500: Every wiki page MUST declare exactly one <code>type</code> property. Valid values: <code>entity</code>, <code>project</code>, <code>knowledge</code>, <code>feedback</code>, <code>hub</code>, <code>paper-hub</code>.</li>
 <li>REQ-501: A page MUST NOT have multiple types. The type is immutable after creation.</li>
 <li>REQ-502: A page with an unrecognized type value SHALL be flagged by lint as “unknown type”.</li>
 </ul>
@@ -359,7 +359,7 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li>REQ-580: Structural namespace names MUST be lowercase: <code>wiki/tech</code>, not <code>Wiki/Tech</code> or <code>wiki/Tech</code>. This applies to every structural segment of a page name (the namespace levels and any non-proper-noun leaf).</li>
 <li>REQ-580a: The word separator inside a structural segment is the ASCII hyphen <code>U+002D</code> ONLY. Structural segments MUST NOT contain spaces, underscores, en dashes (<code>U+2013</code>), or em dashes (<code>U+2014</code>); lookalike dashes are invisible grep traps.</li>
-<li>REQ-580b: Proper-noun-leaf exemption: a LEAF segment that names a person, tool, paper, or <code>@citekey</code> keeps its natural casing and spelling, written as the world writes it: <code>wiki/tools/Claude Code</code>, <code>notes/literature/@Forte2022</code>. The exemption applies to the leaf only; the structural segments before it stay lowercase.</li>
+<li>REQ-580b: Proper-noun-leaf exemption: a LEAF segment that names a person, tool, paper, or <code>@citekey</code> keeps its natural casing and spelling, written as the world writes it: <code>wiki/tools/Claude Code</code>. A citekey leaf is written exactly as the citation-key formula emits it (<code>notes/literature/@forte2022building</code>; the documented Better BibTeX formula produces all-lowercase keys). The exemption applies to the leaf only; the structural segments before it stay lowercase.</li>
 <li>REQ-580c: The corpus rename <code>Wiki/</code> → <code>wiki/</code> is executed by the migration converter (<code>migrate_wiki.py</code>, issue #25), not by hand. Pre-migration corpora that still use Title Case names are covered by the grandfather floor (pages without the current <code>schema-spec-version</code> are reported one severity tier lower); their names are not a blocking failure.</li>
 <li>REQ-581: Multi-word structural names MUST use hyphens: <code>wiki/projects/blog-series</code>, not <code>wiki/projects/blog_series</code> or <code>wiki/projects/blog series</code>.</li>
 <li>REQ-582: Namespace depth MUST NOT exceed 3 levels. <code>wiki/business/clients/Acme</code> (3 levels) is the maximum. A 4th level is not allowed.</li>
