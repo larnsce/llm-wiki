@@ -629,7 +629,7 @@ class Linter:
         underscores, and en/em dashes (U+2013/U+2014; hyphen U+002D is
         the only separator) are always flagged there (REQ-230). A LEAF
         segment may be a proper noun (wiki/tools/Claude Code,
-        notes/literature/@Forte2022), so mechanically it is flagged ONLY
+        notes/literature/@forte2022building), so mechanically it is flagged ONLY
         when it violates the hyphen rule (underscore, en/em dash,
         REQ-231); leaf uppercase and spaces stay a judgment call in the
         wiki-lint skill, which reviews leaf findings and dismisses

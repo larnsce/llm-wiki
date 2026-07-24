@@ -177,10 +177,13 @@ AND it SHALL NOT modify the note or add a routing line for it
 ### Scenario 6: literature citekey is a valid name
 
 ```
-GIVEN a page named notes/literature/@Forte2022
+GIVEN a page named notes/literature/@forte2022building
+AND a page named wiki/tools/Claude Code
 WHEN /wiki-lint runs the naming-hygiene check
-THEN the @Forte2022 leaf SHALL be accepted (proper-noun exemption)
-AND SHALL NOT be flagged for the capital letter or the @ character
+THEN the @forte2022building leaf SHALL be accepted
+AND SHALL NOT be flagged for the @ character
+AND the Claude Code leaf SHALL be accepted (proper-noun casing
+    exemption) and NOT flagged for the capitals or the space
 ```
 
 ### Scenario 7: stray page outside the namespace contract

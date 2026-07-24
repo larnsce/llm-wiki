@@ -171,7 +171,7 @@ certain issues when run with the `--fix` flag. There are 16 lint rules.
 - REQ-231: A LEAF segment SHALL be flagged mechanically ONLY when it violates
   the hyphen rule (underscore, en dash, or em dash). Uppercase characters,
   `@` prefixes, or spaces in a leaf MAY be a proper noun
-  (`wiki/tools/Claude Code`, `notes/literature/@Forte2022`, specs/schema.md
+  (`wiki/tools/Claude Code`, `notes/literature/@forte2022building`, specs/schema.md
   REQ-580b) and that judgment stays in the wiki-lint skill: it reviews
   naming-hygiene leaf findings and dismisses proper-noun leaves
   (specs/namespaces.md REQ-976).

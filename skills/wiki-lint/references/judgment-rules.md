@@ -30,7 +30,7 @@ Judgment (agent, this layer):
   violations. Review the leaf findings and DISMISS proper-noun leaves
   (REQ-580b, namespaces REQ-976): a capitalized or `@`-prefixed leaf naming
   a person, tool, paper, or citekey (`wiki/tools/Claude Code`,
-  `notes/literature/@Forte2022`) keeps natural casing and is NOT a
+  `notes/literature/@forte2022building`) keeps natural casing and is NOT a
   violation. Flag the inverse case the mechanical layer skips: an uppercase
   or spaced leaf that is NOT a proper noun (`wiki/tech/My Notes`).
 - Naming quality: lowercase structural segments, hyphens for multi-word

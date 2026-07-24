@@ -274,7 +274,7 @@ The default schema defines 8 top-level namespaces. Customize these to match your
 |------|---------|
 | Lowercase structural segments | `wiki/tech`, not `Wiki/Tech` |
 | Hyphen (U+002D) for multi-word | `wiki/projects/blog-series` (not `blog_series`, `blog series`, or an en/em dash) |
-| Proper-noun leaves keep natural casing | `wiki/tools/Claude Code`, `notes/literature/@Forte2022` |
+| Proper-noun leaves keep natural casing | `wiki/tools/Claude Code`; citekeys as the formula emits them: `notes/literature/@forte2022building` |
 | Max depth: 3 levels | `wiki/business/clients/Acme` is the deepest allowed |
 | Hub at each level | `wiki/tech` is the hub for all `wiki/tech/*` pages |
 
