@@ -9,6 +9,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Paper export bundle** (issue #148, closing the paper-capture trio
+  and the #145 gate wiring): `/wiki-paper export <slug>` runs the new
+  `skills/wiki-core/scripts/export_paper.py` (stdlib only), which
+  walks wikilinks breadth-first from the hub - the walk IS the publish
+  boundary (paper.md REQ-1519..1526) - gates every included file
+  through the shared `secret_scan.py` (one blocking finding aborts
+  with nothing written; one implementation for both publish paths),
+  and emits a self-contained bundle: pages at viewer-resolvable paths
+  (Logseq exports verbatim via the viewer's `pages/___` fallback, no
+  outline transform), the #145 viewer vendored into the bundle root
+  with the SITE block pointed at the hub, and `export-manifest.md`
+  listing every included page plus every excluded (personal tiers;
+  `notes/literature/` is the share-intended carve-out) or unresolvable
+  target with its reason - no silent drops. `ingested/` bytes never
+  export; citations stay textual provenance. Harness covers the walk,
+  the layout, the manifest, and the blocked-export case.
+
 - **Per-paper agent-use log** (issue #147, second of the paper-capture
   trio): `wiki/papers/<slug>/agent-log`, scaffolded with the hub, is
   the source of truth for a paper's AI use - an append-only six-column

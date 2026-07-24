@@ -13,7 +13,7 @@ completeness is the publish boundary. Shared material (literature
 notes, concept pages, datasets) stays where it lives and is linked,
 never copied.
 
-Spec: openspec/specs/paper.md REQ-1500..1518; hub and agent-log
+Spec: openspec/specs/paper.md REQ-1500..1526; hub and agent-log
 structure are linted by rule 16 (specs/lint.md REQ-260..263).
 
 Shared conventions (read before executing):
@@ -87,6 +87,25 @@ rewrite the pages a paper draws on.
   does not exist (broken anchor).
 - Write nothing; suggest `/wiki-lint` for the mechanical pass and
   `/wiki-paper attach` for gaps.
+
+## Mode: export <slug> [--out DIR] (bundle; REQ-1519..1526)
+
+- Run the exporter (walk, gate, bundle, manifest in one pass):
+
+  ```
+  python3 skills/wiki-core/scripts/export_paper.py \
+      --config <llm-wiki.yml> --slug <slug> --out <dir> [--force]
+  ```
+
+- Exit 2 with a gate finding means NOTHING was exported: relay the
+  finding and stop (redaction is the human's call, same as the ingest
+  gate). Exit 1 means the bundle exists with excluded or unresolvable
+  targets listed in `export-manifest.md`: walk the user through that
+  list; exclusions should read as documented provenance, not silent
+  absence (REQ-1526).
+- Suggest the preview (`python3 -m http.server` in the bundle) and the
+  deploy path from `docs/publish-wiki.md`. Append the run's row to the
+  paper's agent-log (REQ-1515).
 
 ## Boundaries (always)
 

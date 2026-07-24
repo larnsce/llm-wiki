@@ -973,6 +973,147 @@ assert_report "lint(logseq): complete hub has no rule-16 findings" \
   "not [f for f in r['findings'] if f['page'] == 'wiki/papers/good-paper' and f['id'] in ('REQ-260', 'REQ-261', 'REQ-262')]"
 
 # ---------------------------------------------------------------------------
+# Paper export bundle (specs/paper.md REQ-1519..1526): walk, gate,
+# layout, manifest; shared publish gate blocks with nothing written.
+# ---------------------------------------------------------------------------
+PAPEREXP="$WORK/paper-export"
+make_wiki "$PAPEREXP" logseq
+cat >"$PAPEREXP/pages/wiki___papers___demo.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: paper-hub
+status:: drafting
+created:: 2026-07-24
+updated:: 2026-07-24
+
+- ## Manuscript
+	- fixture
+- ## Literature drawn on
+	- [[notes/literature/@demo2026paper]]
+- ## Data
+	- none
+- ## Open questions
+	- [[wiki/concept/demo-concept]] and [[para/demo-project]] and [[wiki/concept/ghost]]
+- ## Draft decisions
+	- none
+- ## AI use
+	- [[wiki/papers/demo/agent-log]]
+EOF
+cat >"$PAPEREXP/pages/wiki___papers___demo___agent-log.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- # Agent-use log
+	- | Date | Skill | Model | Sources touched | Pages written | Human confirmations |
+	  | --- | --- | --- | --- | --- | --- |
+	  | 2026-07-24 | wiki-paper | session | - | hub scaffold | approved |
+EOF
+cat >"$PAPEREXP/pages/wiki___concept___demo-concept.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+domain:: tech
+created:: 2026-07-24
+updated:: 2026-07-24
+confidence:: medium
+
+- a concept the paper draws on
+EOF
+cat >"$PAPEREXP/pages/notes___literature___@demo2026paper.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- fixture literature note
+EOF
+cat >"$PAPEREXP/pages/para___demo-project.md" <<'EOF'
+type:: project
+
+- personal tier page, must never export
+EOF
+BUNDLE="$WORK/paper-bundle"
+run python3 "$SCRIPT_DIR/export_paper.py" --config "$PAPEREXP/llm-wiki.yml" \
+  --slug demo --out "$BUNDLE" --json
+assert_exit 1 "export: bundle written with warnings (excluded + missing targets)"
+run test -f "$BUNDLE/pages/wiki___papers___demo.md"
+assert_exit 0 "export: hub lands at the logseq pages/ layout (REQ-1523)"
+run test -f "$BUNDLE/pages/wiki___papers___demo___agent-log.md"
+assert_exit 0 "export: agent-log ships in the bundle (REQ-1520)"
+run test -f "$BUNDLE/pages/notes___literature___@demo2026paper.md"
+assert_exit 0 "export: literature note ships (REQ-1521 carve-out)"
+run test -f "$BUNDLE/pages/para___demo-project.md"
+assert_exit 1 "export: para/ page is NOT exported (REQ-1521)"
+run test -f "$BUNDLE/index.html"
+assert_exit 0 "export: viewer vendored into the bundle root (REQ-1524)"
+run grep -q "defaultRoute:\"wiki/papers/demo.md\"" "$BUNDLE/index.html"
+assert_exit 0 "export: vendored SITE block routes to the hub (REQ-1524)"
+run grep -q "para/demo-project: personal tier" "$BUNDLE/export-manifest.md"
+assert_exit 0 "export: manifest lists the para exclusion (REQ-1521/1525)"
+run grep -q "wiki/concept/ghost: no such page" "$BUNDLE/export-manifest.md"
+assert_exit 0 "export: manifest lists the unresolvable target (REQ-1525)"
+cat >"$PAPEREXP/pages/wiki___concept___demo-concept.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+
+- api_key = "sk-live-EXPORTGATE1234567890abcdefghijk"
+EOF
+run python3 "$SCRIPT_DIR/export_paper.py" --config "$PAPEREXP/llm-wiki.yml" \
+  --slug demo --out "$WORK/paper-bundle-blocked"
+assert_exit 2 "export: publish gate blocks on a secret (REQ-1522)"
+run test -e "$WORK/paper-bundle-blocked"
+assert_exit 1 "export: blocked export writes NOTHING (REQ-1522)"
+
+# Obsidian mode: nested layout, same walk and gate.
+OBSEXP="$WORK/paper-export-obs"
+make_wiki "$OBSEXP" obsidian
+mkdir -p "$OBSEXP/wiki/papers" "$OBSEXP/wiki/concept"
+cat >"$OBSEXP/wiki/papers/demo.md" <<'EOF'
+---
+schema-spec-version: 2.0.0
+type: paper-hub
+status: drafting
+created: 2026-07-24
+updated: 2026-07-24
+---
+
+## Manuscript
+
+fixture
+
+## Literature drawn on
+
+none
+
+## Data
+
+none
+
+## Open questions
+
+[[wiki/concept/obs-concept]]
+
+## Draft decisions
+
+none
+
+## AI use
+
+prose for now
+EOF
+cat >"$OBSEXP/wiki/concept/obs-concept.md" <<'EOF'
+---
+schema-spec-version: 2.0.0
+type: knowledge
+---
+
+a concept
+EOF
+run python3 "$SCRIPT_DIR/export_paper.py" --config "$OBSEXP/llm-wiki.yml" \
+  --slug demo --out "$WORK/paper-bundle-obs"
+assert_exit 0 "export(obsidian): clean export, no exclusions"
+run test -f "$WORK/paper-bundle-obs/wiki/papers/demo.md"
+assert_exit 0 "export(obsidian): hub lands at the nested viewer route (REQ-1523)"
+run test -f "$WORK/paper-bundle-obs/wiki/concept/obs-concept.md"
+assert_exit 0 "export(obsidian): linked page ships at its route (REQ-1523)"
+
+# ---------------------------------------------------------------------------
 # setup.sh personal tier (setup REQ-803) + archive_db config key (config
 # REQ-626). setup.sh runs non-interactively here: no init, no pointer.
 # ---------------------------------------------------------------------------

@@ -14,7 +14,7 @@ so hub completeness IS the publish boundary. The wiki-paper skill
 scaffolds and maintains hubs; lint rule 16 checks their structure.
 
 > Spec version: introduced for v3.8 (issue #146). Uses the globally
-> unique REQ-1500..1518 range. Lint rule 16 uses REQ-260..263
+> unique REQ-1500..1526 range. Lint rule 16 uses REQ-260..263
 > (specs/lint.md). `wiki/papers/` sits inside the machine-written
 > `wiki/` namespace, so the REQ-960 namespace contract is unchanged.
 
@@ -129,6 +129,47 @@ scaffolds and maintains hubs; lint rule 16 checks their structure.
   fragments or local filesystem paths. The page passes the shared
   publish gate (`secret_scan.py`) like any exported page.
 
+### The Export Bundle (issue #148)
+
+- REQ-1519 (surface): `wiki-paper export <slug>` runs
+  `skills/wiki-core/scripts/export_paper.py` (stdlib only), which emits
+  a self-contained markdown bundle plus manifest into a target
+  directory; the directory is a deployable static site once the viewer
+  is vendored (REQ-1524).
+- REQ-1520 (the walk is the boundary): The exporter walks wikilinks
+  breadth-first from the hub; ONLY reachable pages are exported. The
+  rule-16 reachability guarantee (REQ-262) is what makes the walk
+  complete for the paper's own children.
+- REQ-1521 (no silent exclusions): Personal tiers are never exported:
+  `para/`, `glossary/`, journal pages, and `notes/` outside
+  `notes/literature/` (literature notes are the citation layer and
+  share-intended). Every excluded linked target and every unresolvable
+  target SHALL appear in the manifest with its reason; the viewer's
+  boundary page is how such links fail in the served bundle.
+- REQ-1522 (shared gate): Before anything is written, every included
+  file SHALL pass `secret_scan.py`; one blocking finding (exit 2)
+  aborts the whole export with nothing written. The gate implementation
+  is shared with the whole-wiki publish path (`docs/publish-wiki.md`);
+  it exists once, in wiki-core.
+- REQ-1523 (layout, agent-readable): Bundle files land at
+  viewer-resolvable paths (Obsidian: the nested route itself; Logseq:
+  the flat `pages/` layout verbatim, resolved by the viewer's `___`
+  fallback - no outline transform). The raw `.md` behind every rendered
+  page is fetchable at the path the viewer routes.
+- REQ-1524 (vendored viewer): The exporter vendors
+  `templates/site/index.html` into the bundle root with the SITE block
+  pointed at the hub (and the agent-log in the nav when present). When
+  no template is found, the manifest says so and the bundle stays a
+  valid markdown tree.
+- REQ-1525 (manifest): `export-manifest.md` in the bundle lists the
+  included pages with their source paths, the exclusions with reasons,
+  the unresolvable targets, and the gate result.
+- REQ-1526 (sources stay home): Bytes under `ingested/` are NEVER
+  exported (copyright and sensitivity); `cite::` refs remain textual
+  provenance, and content SHOULD narrate deliberate exclusions (the
+  "microdata stays private" pattern) so absence reads as provenance,
+  not as a gap.
+
 ---
 
 ## Scenarios
@@ -177,4 +218,18 @@ THEN the run SHALL append exactly one row to
      human-confirmed model, source title, pages written,
      confirmations given)
 AND the row rides the run's atomic commit
+```
+
+### Scenario 5: Export walks, gates, and manifests
+
+```
+GIVEN wiki/papers/cbs-adoption links a concept page, a literature note,
+      and a para/ project page, and one link target does not exist
+WHEN the user runs /wiki-paper export cbs-adoption
+THEN the bundle contains the hub, the concept page, the literature
+     note, and the agent-log, each fetchable at its viewer route
+AND the para/ page is NOT exported and appears in export-manifest.md
+    with its reason, alongside the unresolvable target
+AND a blocking secret_scan.py finding on any included page would have
+    aborted the export with nothing written
 ```
