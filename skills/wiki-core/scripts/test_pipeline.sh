@@ -876,6 +876,244 @@ assert_report "lint(logseq): no wiki-only findings on glossary pages (REQ-1002)"
   "not [f for f in r['findings'] if f['page'].startswith('glossary') and f['id'] not in ('REQ-250', 'REQ-251', 'REQ-252', 'REQ-253')]"
 
 # ---------------------------------------------------------------------------
+# Paper hubs (specs/paper.md): lint rule 16 (REQ-260..262) - hub type,
+# section skeleton, child reachability (the export-walk guarantee).
+# ---------------------------------------------------------------------------
+PAPERDEFECT="$WORK/paper-defects"
+make_wiki "$PAPERDEFECT" logseq
+cat >"$PAPERDEFECT/pages/wiki___papers___good-paper.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: paper-hub
+status:: drafting
+created:: 2026-07-24
+updated:: 2026-07-24
+
+- ## Manuscript
+	- working title bullet
+- ## Literature drawn on
+	- none yet
+- ## Data
+	- none yet
+- ## Open questions
+	- one question
+- ## Draft decisions
+	- 2026-07-24: fixture decision
+- ## AI use
+	- see [[wiki/papers/good-paper/agent-log]]
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___good-paper___agent-log.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- # Agent-use log
+	- | Date | Skill | Model | Sources touched | Pages written | Human confirmations |
+	  | --- | --- | --- | --- | --- | --- |
+	  | 2026-07-24 | wiki-paper | session | - | hub scaffold | scaffold approved |
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: paper-hub
+status:: drafting
+created:: 2026-07-24
+updated:: 2026-07-24
+
+- ## Manuscript
+	- has only four of the six sections
+- ## Literature drawn on
+	- none
+- ## Open questions
+	- none
+- ## Draft decisions
+	- none
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper___notes.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- orphaned child: the hub does not link this page
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper___agent-log.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- # Agent-use log
+	- | Date | Skill | Model tier | Sources | Pages | Confirmations |
+	  | --- | --- | --- | --- | --- | --- |
+	  | 2026-07-24 | wiki-ingest | opus | x | y | z |
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___stray.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+domain:: tech
+created:: 2026-07-24
+updated:: 2026-07-24
+confidence:: low
+
+- a page at hub depth that is not a paper hub
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___lost___child.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- child whose hub page does not exist
+EOF
+run py lint.py --config "$PAPERDEFECT/llm-wiki.yml" --json
+assert_exit_nonzero "lint(logseq): red on paper defect vault"
+assert_lint_finding "lint(logseq): non-hub type at slug depth reports REQ-260" REQ-260
+assert_lint_finding "lint(logseq): missing hub sections report REQ-261" REQ-261
+assert_lint_finding "lint(logseq): unlinked child reports REQ-262" REQ-262
+assert_report "lint(logseq): bad-paper misses exactly Data and AI use (REQ-261)" \
+  "len([f for f in r['findings'] if f['id'] == 'REQ-261' and f['page'] == 'wiki/papers/bad-paper']) == 2"
+assert_report "lint(logseq): hub-less child reported on the child (REQ-260)" \
+  "len([f for f in r['findings'] if f['id'] == 'REQ-260' and f['page'] == 'wiki/papers/lost/child']) == 1"
+assert_lint_finding "lint(logseq): off-canon agent-log header reports REQ-263" REQ-263
+assert_report "lint(logseq): canonical agent-log has no REQ-263 finding" \
+  "not [f for f in r['findings'] if f['id'] == 'REQ-263' and f['page'] == 'wiki/papers/good-paper/agent-log']"
+assert_report "lint(logseq): complete hub has no rule-16 findings" \
+  "not [f for f in r['findings'] if f['page'] == 'wiki/papers/good-paper' and f['id'] in ('REQ-260', 'REQ-261', 'REQ-262')]"
+
+# ---------------------------------------------------------------------------
+# Paper export bundle (specs/paper.md REQ-1519..1526): walk, gate,
+# layout, manifest; shared publish gate blocks with nothing written.
+# ---------------------------------------------------------------------------
+PAPEREXP="$WORK/paper-export"
+make_wiki "$PAPEREXP" logseq
+cat >"$PAPEREXP/pages/wiki___papers___demo.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: paper-hub
+status:: drafting
+created:: 2026-07-24
+updated:: 2026-07-24
+
+- ## Manuscript
+	- fixture
+- ## Literature drawn on
+	- [[notes/literature/@demo2026paper]]
+- ## Data
+	- none
+- ## Open questions
+	- [[wiki/concept/demo-concept]] and [[para/demo-project]] and [[wiki/concept/ghost]]
+- ## Draft decisions
+	- none
+- ## AI use
+	- [[wiki/papers/demo/agent-log]]
+EOF
+cat >"$PAPEREXP/pages/wiki___papers___demo___agent-log.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- # Agent-use log
+	- | Date | Skill | Model | Sources touched | Pages written | Human confirmations |
+	  | --- | --- | --- | --- | --- | --- |
+	  | 2026-07-24 | wiki-paper | session | - | hub scaffold | approved |
+EOF
+cat >"$PAPEREXP/pages/wiki___concept___demo-concept.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+domain:: tech
+created:: 2026-07-24
+updated:: 2026-07-24
+confidence:: medium
+
+- a concept the paper draws on
+EOF
+cat >"$PAPEREXP/pages/notes___literature___@demo2026paper.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- fixture literature note
+EOF
+cat >"$PAPEREXP/pages/para___demo-project.md" <<'EOF'
+type:: project
+
+- personal tier page, must never export
+EOF
+BUNDLE="$WORK/paper-bundle"
+run python3 "$SCRIPT_DIR/export_paper.py" --config "$PAPEREXP/llm-wiki.yml" \
+  --slug demo --out "$BUNDLE" --json
+assert_exit 1 "export: bundle written with warnings (excluded + missing targets)"
+run test -f "$BUNDLE/pages/wiki___papers___demo.md"
+assert_exit 0 "export: hub lands at the logseq pages/ layout (REQ-1523)"
+run test -f "$BUNDLE/pages/wiki___papers___demo___agent-log.md"
+assert_exit 0 "export: agent-log ships in the bundle (REQ-1520)"
+run test -f "$BUNDLE/pages/notes___literature___@demo2026paper.md"
+assert_exit 0 "export: literature note ships (REQ-1521 carve-out)"
+run test -f "$BUNDLE/pages/para___demo-project.md"
+assert_exit 1 "export: para/ page is NOT exported (REQ-1521)"
+run test -f "$BUNDLE/index.html"
+assert_exit 0 "export: viewer vendored into the bundle root (REQ-1524)"
+run grep -q "defaultRoute:\"wiki/papers/demo.md\"" "$BUNDLE/index.html"
+assert_exit 0 "export: vendored SITE block routes to the hub (REQ-1524)"
+run grep -q "para/demo-project: personal tier" "$BUNDLE/export-manifest.md"
+assert_exit 0 "export: manifest lists the para exclusion (REQ-1521/1525)"
+run grep -q "wiki/concept/ghost: no such page" "$BUNDLE/export-manifest.md"
+assert_exit 0 "export: manifest lists the unresolvable target (REQ-1525)"
+cat >"$PAPEREXP/pages/wiki___concept___demo-concept.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+
+- api_key = "sk-live-EXPORTGATE1234567890abcdefghijk"
+EOF
+run python3 "$SCRIPT_DIR/export_paper.py" --config "$PAPEREXP/llm-wiki.yml" \
+  --slug demo --out "$WORK/paper-bundle-blocked"
+assert_exit 2 "export: publish gate blocks on a secret (REQ-1522)"
+run test -e "$WORK/paper-bundle-blocked"
+assert_exit 1 "export: blocked export writes NOTHING (REQ-1522)"
+
+# Obsidian mode: nested layout, same walk and gate.
+OBSEXP="$WORK/paper-export-obs"
+make_wiki "$OBSEXP" obsidian
+mkdir -p "$OBSEXP/wiki/papers" "$OBSEXP/wiki/concept"
+cat >"$OBSEXP/wiki/papers/demo.md" <<'EOF'
+---
+schema-spec-version: 2.0.0
+type: paper-hub
+status: drafting
+created: 2026-07-24
+updated: 2026-07-24
+---
+
+## Manuscript
+
+fixture
+
+## Literature drawn on
+
+none
+
+## Data
+
+none
+
+## Open questions
+
+[[wiki/concept/obs-concept]]
+
+## Draft decisions
+
+none
+
+## AI use
+
+prose for now
+EOF
+cat >"$OBSEXP/wiki/concept/obs-concept.md" <<'EOF'
+---
+schema-spec-version: 2.0.0
+type: knowledge
+---
+
+a concept
+EOF
+run python3 "$SCRIPT_DIR/export_paper.py" --config "$OBSEXP/llm-wiki.yml" \
+  --slug demo --out "$WORK/paper-bundle-obs"
+assert_exit 0 "export(obsidian): clean export, no exclusions"
+run test -f "$WORK/paper-bundle-obs/wiki/papers/demo.md"
+assert_exit 0 "export(obsidian): hub lands at the nested viewer route (REQ-1523)"
+run test -f "$WORK/paper-bundle-obs/wiki/concept/obs-concept.md"
+assert_exit 0 "export(obsidian): linked page ships at its route (REQ-1523)"
+
+# ---------------------------------------------------------------------------
 # setup.sh personal tier (setup REQ-803) + archive_db config key (config
 # REQ-626). setup.sh runs non-interactively here: no init, no pointer.
 # ---------------------------------------------------------------------------

@@ -79,7 +79,7 @@ Apply the non-mechanizable rules from
   this layer. Review every naming-hygiene leaf finding and DISMISS
   proper-noun leaves: a capitalized or `@`-prefixed leaf naming a person,
   tool, paper, or citekey (`wiki/tools/Claude Code`,
-  `notes/literature/@Forte2022`) is NOT a violation (schema REQ-580b,
+  `notes/literature/@forte2022building`) is NOT a violation (schema REQ-580b,
   namespaces REQ-976). Conversely, flag uppercase or spaced leaves that are
   NOT proper nouns (e.g. `wiki/tech/My Notes`), which the mechanical layer
   deliberately does not catch.

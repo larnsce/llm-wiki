@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.0] - 2026-07-24
+
+### Changed
+
+- **Canon example citekey follows the formula** (issue #152, maintainer
+  decision): every `@Forte2022` example became `@forte2022building`,
+  matching the documented Better BibTeX formula's output. The
+  proper-noun casing exemption is carried by `wiki/tools/Claude Code`
+  alone (schema REQ-580b reworded, namespaces REQ-976 scenario checks
+  both leaf kinds). Schema pages seeded from earlier templates keep the
+  old example string; the append-only upgrade never rewrites existing
+  lines.
+
+### Added
+
+- **Paper export bundle** (issue #148, closing the paper-capture trio
+  and the #145 gate wiring): `/wiki-paper export <slug>` runs the new
+  `skills/wiki-core/scripts/export_paper.py` (stdlib only), which
+  walks wikilinks breadth-first from the hub - the walk IS the publish
+  boundary (paper.md REQ-1519..1526) - gates every included file
+  through the shared `secret_scan.py` (one blocking finding aborts
+  with nothing written; one implementation for both publish paths),
+  and emits a self-contained bundle: pages at viewer-resolvable paths
+  (Logseq exports verbatim via the viewer's `pages/___` fallback, no
+  outline transform), the #145 viewer vendored into the bundle root
+  with the SITE block pointed at the hub, and `export-manifest.md`
+  listing every included page plus every excluded (personal tiers;
+  `notes/literature/` is the share-intended carve-out) or unresolvable
+  target with its reason - no silent drops. `ingested/` bytes never
+  export; citations stay textual provenance. Harness covers the walk,
+  the layout, the manifest, and the blocked-export case.
+
+- **Per-paper agent-use log** (issue #147, second of the paper-capture
+  trio): `wiki/papers/<slug>/agent-log`, scaffolded with the hub, is
+  the source of truth for a paper's AI use - an append-only six-column
+  table (`Date | Skill | Model | Sources touched | Pages written |
+  Human confirmations`, paper.md REQ-1513..1518) that every skill
+  touching the paper's material appends one row to (ingest and update
+  rows ride the run's commit; query and read-only audit rows follow
+  the Access-Log no-commit discipline). The `Model` value is what the
+  human confirms at the checkpoint, never introspected (the REQ-053
+  dispatch-record lesson). A `Disclosure statement (generated)`
+  section is regenerable from the rows alone, so the journal
+  AI-disclosure statement needs no memory reconstruction; a
+  supersession row and the page-level strike-through marker reference
+  each other. Lint rule 16 gains REQ-263 (canonical table header and
+  column counts, content never judged); the log renders in the #145
+  viewer and ships in the #148 bundle, passing the same publish gate.
+
+- **wiki-paper: per-manuscript hub pages** (issue #146, first of the
+  paper-capture trio with #147/#148). New skill scaffolding and
+  maintaining `wiki/papers/<slug>` anchors: six-section skeleton
+  (Manuscript, Literature drawn on, Data, Open questions, Draft
+  decisions, AI use), `attach` appends links to existing
+  literature/data pages without rewriting them, `status` reports hub
+  health read-only. New `openspec/specs/paper.md` (REQ-1500..1512):
+  reachability from the hub is the publish boundary the #148 export
+  walk and the #145 viewer rely on; the PARA seam links, never
+  duplicates (issue #140); cold paper hubs demote and re-promote like
+  any page. New page type `paper-hub` on all enum surfaces, and new
+  lint rule 16 Paper-Hub Hygiene (REQ-260..262): hub type at slug
+  depth, the section skeleton, and child reachability, with no
+  auto-fix anywhere (sections and links are writing decisions).
+  Harness fixtures cover the defect and clean cases.
+
 ## [3.7.0] - 2026-07-24
 
 ### Removed

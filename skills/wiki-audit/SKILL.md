@@ -134,6 +134,11 @@ confirmation.
     `## [YYYY-MM-DD] audit | <page> | <n> verified, <n> flagged`
     to the Dashboard page (legacy entries with a trailing
     `agents <...>` field stay valid; the field is retired, REQ-053).
+  - Paper agent-log (paper.md REQ-1515): when the audited page lives
+    under `wiki/papers/<slug>/` or a paper hub links it, append one row
+    to that paper's agent-log (format paper.md REQ-1514; in default
+    read-only mode the row records `- (read-only)` under Pages written
+    and rides no commit).
   - Git commit the changes (commit discipline in
     [architecture](../wiki-core/references/architecture.md)).
 - Claim-text corrections are out of scope even in fix mode: revising a wrong

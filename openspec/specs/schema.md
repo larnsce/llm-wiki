@@ -14,7 +14,7 @@ lint (validation).
 ### Page Types (Mutually Exclusive)
 
 - REQ-500: Every wiki page MUST declare exactly one `type` property. Valid values:
-  `entity`, `project`, `knowledge`, `feedback`, `hub`.
+  `entity`, `project`, `knowledge`, `feedback`, `hub`, `paper-hub`.
 - REQ-501: A page MUST NOT have multiple types. The type is immutable after creation.
 - REQ-502: A page with an unrecognized type value SHALL be flagged by lint as
   "unknown type".
@@ -153,7 +153,9 @@ lint (validation).
   (`U+2013`), or em dashes (`U+2014`); lookalike dashes are invisible grep traps.
 - REQ-580b: Proper-noun-leaf exemption: a LEAF segment that names a person, tool,
   paper, or `@citekey` keeps its natural casing and spelling, written as the world
-  writes it: `wiki/tools/Claude Code`, `notes/literature/@Forte2022`. The exemption
+  writes it: `wiki/tools/Claude Code`. A citekey leaf is written exactly as the
+  citation-key formula emits it (`notes/literature/@forte2022building`; the
+  documented Better BibTeX formula produces all-lowercase keys). The exemption
   applies to the leaf only; the structural segments before it stay lowercase.
 - REQ-580c: The corpus rename `Wiki/` → `wiki/` is executed by the migration
   converter (`migrate_wiki.py`, issue #25), not by hand. Pre-migration corpora that

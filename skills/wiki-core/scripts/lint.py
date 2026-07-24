@@ -21,6 +21,7 @@ Mechanical rules covered here:
   Rule 13  Naming Hygiene              REQ-230 / REQ-231 (structural names)
   Rule 14  Namespace Hygiene           REQ-240 (pages outside the contract)
   Rule 15  Glossary Hygiene            REQ-250..253 (structure, never decisions)
+  Rule 16  Paper-Hub Hygiene           REQ-260..263 (structure, reachability)
 
   Schema-level mechanical checks: date format (REQ-560, REQ-563),
   completed project without completed date (REQ-522, info),
@@ -70,11 +71,12 @@ SCHEMA_SPEC_VERSION = "2.0.0"
 # The canonical number of lint rules. check_canon.py verifies this matches
 # the "### Rule N:" headings in openspec/specs/lint.md and the rule lists
 # in both templates/*/Schema.md.
-LINT_RULE_COUNT = 15
+LINT_RULE_COUNT = 16
 
 SEVERITY_RANK = {"critical": 0, "warning": 1, "info": 2}
 
-PAGE_TYPES = {"entity", "project", "knowledge", "feedback", "hub"}
+PAGE_TYPES = {"entity", "project", "knowledge", "feedback", "hub",
+              "paper-hub"}
 # System page types recognized but carrying no required-property set
 # (schema.md REQ-569 gives the Access-Log type:: reference).
 AUX_TYPES = {"schema", "dashboard", "reference"}
@@ -85,6 +87,7 @@ REQUIRED_PROPS = {
     "knowledge": ["type", "domain", "created", "updated", "confidence"],
     "feedback": ["type", "severity", "created", "verified", "applies-to"],
     "hub": ["type", "namespace"],
+    "paper-hub": ["type", "status", "created", "updated"],
 }
 
 # Property enums; the REQ id is the finding id used when a value is
@@ -448,6 +451,7 @@ class Linter:
             self.check_canonical_url(page)                     # rule 12
 
         self.check_hubs(hubs, hub_entries, names)              # rules 5/10/11
+        self.check_paper_hubs()                                # rule 16
         return self.findings
 
     def check_orphan(self, page, incoming):
@@ -625,7 +629,7 @@ class Linter:
         underscores, and en/em dashes (U+2013/U+2014; hyphen U+002D is
         the only separator) are always flagged there (REQ-230). A LEAF
         segment may be a proper noun (wiki/tools/Claude Code,
-        notes/literature/@Forte2022), so mechanically it is flagged ONLY
+        notes/literature/@forte2022building), so mechanically it is flagged ONLY
         when it violates the hyphen rule (underscore, en/em dash,
         REQ-231); leaf uppercase and spaces stay a judgment call in the
         wiki-lint skill, which reviews leaf findings and dismisses
@@ -771,6 +775,101 @@ class Linter:
             if candidate in hubs:
                 return candidate
         return None
+
+    PAPER_HUB_SECTIONS = ("Manuscript", "Literature drawn on", "Data",
+                          "Open questions", "Draft decisions", "AI use")
+    AGENT_LOG_HEADER = ["Date", "Skill", "Model", "Sources touched",
+                        "Pages written", "Human confirmations"]
+
+    def check_paper_hubs(self):
+        """Rule 16 (REQ-260..262): structure of wiki/papers/ hub pages
+        (specs/paper.md). The type expectation, section skeleton, and
+        child reachability are mechanical; section content and which
+        pages a paper draws on are editorial. No auto-fix: sections and
+        links are writing decisions. Required-property presence on a
+        paper-hub page is rule 3's job (REQ-132 via REQUIRED_PROPS)."""
+        papers = [p for p in self.pages
+                  if p["name"].startswith("wiki/papers/")]
+        hubs = {p["name"]: p for p in papers
+                if len(p["name"].split("/")) == 3}
+        for page in hubs.values():
+            if page["type"] != "paper-hub":
+                self.add(page, "REQ-260", "paper-hub-hygiene", "warning",
+                         "page at wiki/papers/<slug> has type:: '%s', "
+                         "expected 'paper-hub' (specs/paper.md REQ-1501)"
+                         % (page["type"] or ""),
+                         fix="set type:: paper-hub, or move the page "
+                             "under a paper's namespace")
+                continue
+            found = set()
+            for raw in page["stripped"].splitlines():
+                line = raw.strip().lstrip("-").strip()
+                if line.startswith("#") and line.lstrip("#").strip():
+                    found.add(line.lstrip("#").strip().lower())
+            for section in self.PAPER_HUB_SECTIONS:
+                if section.lower() not in found:
+                    self.add(page, "REQ-261", "paper-hub-hygiene",
+                             "warning",
+                             "hub is missing the '%s' section "
+                             "(specs/paper.md REQ-1502)" % section,
+                             fix="add the section heading; content is "
+                                 "editorial, no auto-fix")
+        for page in papers:
+            parts = page["name"].split("/")
+            if len(parts) < 4:
+                continue
+            hub_name = "/".join(parts[:3])
+            hub = hubs.get(hub_name)
+            if hub is None:
+                self.add(page, "REQ-260", "paper-hub-hygiene", "warning",
+                         "no hub page %s exists for this paper child "
+                         "(specs/paper.md REQ-1500)" % hub_name,
+                         fix="scaffold the hub with /wiki-paper new")
+                continue
+            if page["name"] not in set(hub["links"]):
+                self.add(hub, "REQ-262", "paper-hub-hygiene", "warning",
+                         "child page [[%s]] is not linked from the hub "
+                         "and would drop out of the export walk "
+                         "(specs/paper.md REQ-1505)" % page["name"],
+                         fix="link the child from the matching hub "
+                             "section; no auto-fix (linking is "
+                             "editorial)")
+            if parts[3] == "agent-log" and len(parts) == 4:
+                self.check_agent_log(page)
+
+    def check_agent_log(self, page):
+        """REQ-263: the agent-log's first table carries the canonical
+        header and consistent column counts (specs/paper.md REQ-1514).
+        Row content is never judged; no auto-fix (the log is an
+        append-only transparency record)."""
+        rows = []
+        for raw in page["stripped"].splitlines():
+            line = raw.strip().lstrip("-").strip()
+            if line.startswith("|"):
+                rows.append(line)
+            elif rows:
+                break
+        if not rows:
+            return
+        cells = [c.strip() for c in rows[0].strip("|").split("|")]
+        if cells != self.AGENT_LOG_HEADER:
+            self.add(page, "REQ-263", "paper-hub-hygiene", "warning",
+                     "agent-log table header is off-canon "
+                     "(specs/paper.md REQ-1514)",
+                     fix="use | %s |; no auto-fix"
+                         % " | ".join(self.AGENT_LOG_HEADER))
+            return
+        for line in rows[1:]:
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if all(set(c) <= {"-", " ", ":"} for c in cells):
+                continue
+            if len(cells) != len(self.AGENT_LOG_HEADER):
+                self.add(page, "REQ-263", "paper-hub-hygiene", "warning",
+                         "agent-log row has %d columns, header has %d "
+                         "(specs/paper.md REQ-1514)"
+                         % (len(cells), len(self.AGENT_LOG_HEADER)),
+                         fix="align the row with the header; no "
+                             "auto-fix")
 
     def check_hubs(self, hubs, hub_entries, names):
         # Rule 10a: orphaned routing lines + Rule 10c: empty descriptions.

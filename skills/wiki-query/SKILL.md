@@ -106,6 +106,11 @@ access log that makes retrieval auditable.
   question; surfaced via the wiki-maintain status report (cache profile)
 - The append is non-structural; the Access-Log commit rules in
   [formats](../wiki-core/references/formats.md) apply (no per-query git commit)
+- Paper agent-log (paper.md REQ-1515): when a fully-read page is a
+  paper hub or lives under `wiki/papers/<slug>/`, also append one
+  read-only row to that paper's agent-log (`- (read-only)` under Pages
+  written, paper.md REQ-1514); same commit discipline as the
+  Access-Log append
 - If the L3 fallback hits an archived page (`archived::` set), a re-hit on an
   evicted page: offer to re-promote it; move its routing line from the hub
   `### Archive` back into the `### Index`, drop the archived:: property (and reset

@@ -44,7 +44,7 @@ Structure is **lowercase-hyphenated**; proper nouns keep their natural casing.
   hyphen `-` (U+002D) between words, no spaces. `para/`, `notes/`, `live-list`, `fleeting-inbox`,
   `type::`.
 - **Proper-noun leaves** (people, tools, papers, citekeys): written as the world writes them.
-  `[[Claude Code]]`, `notes/literature/@Forte2022`.
+  `[[Claude Code]]`, `notes/literature/@forte2022building`.
 - Hyphen `-` only — never en dash `–` (U+2013) or em dash `—` (U+2014) in page names; they are
   invisible grep traps. No underscores in structural names.
 
@@ -227,7 +227,7 @@ type:: permanent
 	- A `type::` property holds exactly one value per page, so a query can filter on it like a
 	  column. Tags accumulate and carry no constraint - good for workflow states (`#fleeting`),
 	  wrong for classification.
-	- Sparked by [[notes/literature/@Forte2022]]; the wiki side makes the same choice in
+	- Sparked by [[notes/literature/@forte2022building]]; the wiki side makes the same choice in
 	  [[wiki/architecture]].
 ```
 

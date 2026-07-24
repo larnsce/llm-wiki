@@ -64,9 +64,17 @@ Two boundary models, from issues #145 and #148:
   (for example `wiki/` and its hub pages). Personal tiers stay out by
   default: journals, voice material, `para/`, `notes/` are never copied
   unless you decide otherwise deliberately.
-- **Paper bundles** (#148, planned): the export walks a paper hub's
-  link graph and collects only reachable pages, with this viewer
-  vendored into the bundle root. The boundary is the walk.
+- **Paper bundles** (#148): `python3
+  skills/wiki-core/scripts/export_paper.py --config <llm-wiki.yml>
+  --slug <slug> --out <dir>` (or `/wiki-paper export <slug>`) walks the
+  paper hub's link graph and collects only reachable pages, vendors
+  this viewer into the bundle root, and writes `export-manifest.md`
+  listing every included page and every excluded or unresolvable link
+  target with its reason. The boundary is the walk; personal tiers
+  never export, and the gate below runs on every included file before
+  anything is written. Encourage the excluded-content narrative: a
+  page saying "microdata stays private, consent covers aggregates
+  only" turns an exclusion into documented provenance.
 
 ## The publish gate
 
@@ -82,7 +90,9 @@ find <publish-dir> -name "*.md" -print0 | \
 A blocking finding (exit 2) means the file does not get published until
 the secret is redacted. This is the same gate the ingest pipeline uses
 before archiving sources (ingest REQ-045/046), applied at the publish
-seam.
+seam; the paper exporter calls the identical script on every included
+file and aborts with nothing written on a blocking finding
+(paper.md REQ-1522) - one implementation, both paths.
 
 Also review the content itself before publishing: reliability ratings,
 `## Pending Review` sections, and provenance notes are published as
@@ -101,10 +111,11 @@ they leave the vault.
 
 ## Install path status
 
-There is deliberately no `wiki-publish` skill yet: the manual path
-above is the install path until the #148 export bundle exists, which
-will own the mechanical walk-and-copy (the repo rule is not to
-formalize a verb prematurely). The cognee front end that motivated the
+There is deliberately no `wiki-publish` skill: for paper bundles the
+mechanical walk-and-copy is owned by `/wiki-paper export` (the #148
+exporter above), and for whole-wiki publishing the manual path stands
+until it hurts (the repo rule is not to formalize a verb prematurely).
+The cognee front end that motivated the
 prior-art check (see #145) was evaluated 2026-07-24 and rejected for
 reuse: the demo site is a built React bundle, not a vendorable static
 file, and cognee's frontend (Apache-2.0) is a full application
