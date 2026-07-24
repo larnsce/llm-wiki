@@ -4,7 +4,7 @@
 
 The lint command scans all wiki pages for structural issues, data quality problems,
 and security concerns. It reports findings grouped by severity and can auto-fix
-certain issues when run with the `--fix` flag. There are 15 lint rules.
+certain issues when run with the `--fix` flag. There are 16 lint rules.
 
 ---
 
@@ -232,6 +232,29 @@ DE form) are human and never judged.
   every fix is a terminology decision, and those are human
   (specs/glossary.md REQ-1000).
 
+### Rule 16: Paper-Hub Hygiene (structure and reachability, never content)
+
+Mechanical enforcement of specs/paper.md; runs on pages under
+`wiki/papers/`. Section content and which pages a paper draws on are
+editorial and never judged. No auto-fix anywhere in rule 16: sections
+and links are writing decisions.
+
+- REQ-260 (hub type): The page `wiki/papers/<slug>` SHALL carry
+  `type:: paper-hub` (specs/paper.md REQ-1501); a missing or different
+  `type::` at that depth is a warning, as is a paper child page whose
+  hub does not exist. The required properties (`status::`, `created::`,
+  `updated::`) are enforced by rule 3 (REQ-132 via the paper-hub
+  required-property set).
+- REQ-261 (hub sections): The hub SHALL contain the six section
+  headings `Manuscript`, `Literature drawn on`, `Data`,
+  `Open questions`, `Draft decisions`, and `AI use` (specs/paper.md
+  REQ-1502, matched case-insensitively); each missing section is a
+  warning.
+- REQ-262 (child reachability): Every page `wiki/papers/<slug>/<child>`
+  SHALL be linked from its hub (specs/paper.md REQ-1505); an orphaned
+  child is a warning on the hub, because it silently drops out of the
+  issue #148 export walk.
+
 ### Reporting
 
 - REQ-200: The system SHALL group findings by severity: critical, warning, info.
@@ -424,7 +447,7 @@ AND para/projects/secret-plan is NOT flagged by any wiki-only rule (REQ-242)
 
 ## Acceptance Criteria
 
-- [ ] All 15 rules execute during a lint run
+- [ ] All 16 rules execute during a lint run
 - [ ] Findings grouped by severity: critical > warning > info
 - [ ] Report includes totals (pages scanned, healthy, issues by rule)
 - [ ] Auto-fix (--fix) only modifies rules 1, 2, 4, 5, 8, 10, 11 (the 7 auto-fixable rules)

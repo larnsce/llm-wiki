@@ -14,7 +14,7 @@ lint (validation).
 ### Page Types (Mutually Exclusive)
 
 - REQ-500: Every wiki page MUST declare exactly one `type` property. Valid values:
-  `entity`, `project`, `knowledge`, `feedback`, `hub`.
+  `entity`, `project`, `knowledge`, `feedback`, `hub`, `paper-hub`.
 - REQ-501: A page MUST NOT have multiple types. The type is immutable after creation.
 - REQ-502: A page with an unrecognized type value SHALL be flagged by lint as
   "unknown type".

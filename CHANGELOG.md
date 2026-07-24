@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **wiki-paper: per-manuscript hub pages** (issue #146, first of the
+  paper-capture trio with #147/#148). New skill scaffolding and
+  maintaining `wiki/papers/<slug>` anchors: six-section skeleton
+  (Manuscript, Literature drawn on, Data, Open questions, Draft
+  decisions, AI use), `attach` appends links to existing
+  literature/data pages without rewriting them, `status` reports hub
+  health read-only. New `openspec/specs/paper.md` (REQ-1500..1512):
+  reachability from the hub is the publish boundary the #148 export
+  walk and the #145 viewer rely on; the PARA seam links, never
+  duplicates (issue #140); cold paper hubs demote and re-promote like
+  any page. New page type `paper-hub` on all enum surfaces, and new
+  lint rule 16 Paper-Hub Hygiene (REQ-260..262): hub type at slug
+  depth, the section skeleton, and child reachability, with no
+  auto-fix anywhere (sections and links are writing decisions).
+  Harness fixtures cover the defect and clean cases.
+
 ## [3.7.0] - 2026-07-24
 
 ### Removed

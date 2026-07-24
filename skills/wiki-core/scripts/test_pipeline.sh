@@ -876,6 +876,88 @@ assert_report "lint(logseq): no wiki-only findings on glossary pages (REQ-1002)"
   "not [f for f in r['findings'] if f['page'].startswith('glossary') and f['id'] not in ('REQ-250', 'REQ-251', 'REQ-252', 'REQ-253')]"
 
 # ---------------------------------------------------------------------------
+# Paper hubs (specs/paper.md): lint rule 16 (REQ-260..262) - hub type,
+# section skeleton, child reachability (the export-walk guarantee).
+# ---------------------------------------------------------------------------
+PAPERDEFECT="$WORK/paper-defects"
+make_wiki "$PAPERDEFECT" logseq
+cat >"$PAPERDEFECT/pages/wiki___papers___good-paper.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: paper-hub
+status:: drafting
+created:: 2026-07-24
+updated:: 2026-07-24
+
+- ## Manuscript
+	- working title bullet
+- ## Literature drawn on
+	- none yet
+- ## Data
+	- none yet
+- ## Open questions
+	- one question
+- ## Draft decisions
+	- 2026-07-24: fixture decision
+- ## AI use
+	- see [[wiki/papers/good-paper/agent-log]]
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___good-paper___agent-log.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- fixture agent log, linked from its hub
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: paper-hub
+status:: drafting
+created:: 2026-07-24
+updated:: 2026-07-24
+
+- ## Manuscript
+	- has only four of the six sections
+- ## Literature drawn on
+	- none
+- ## Open questions
+	- none
+- ## Draft decisions
+	- none
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___bad-paper___notes.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- orphaned child: the hub does not link this page
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___stray.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: knowledge
+domain:: tech
+created:: 2026-07-24
+updated:: 2026-07-24
+confidence:: low
+
+- a page at hub depth that is not a paper hub
+EOF
+cat >"$PAPERDEFECT/pages/wiki___papers___lost___child.md" <<'EOF'
+schema-spec-version:: 2.0.0
+type:: reference
+
+- child whose hub page does not exist
+EOF
+run py lint.py --config "$PAPERDEFECT/llm-wiki.yml" --json
+assert_exit_nonzero "lint(logseq): red on paper defect vault"
+assert_lint_finding "lint(logseq): non-hub type at slug depth reports REQ-260" REQ-260
+assert_lint_finding "lint(logseq): missing hub sections report REQ-261" REQ-261
+assert_lint_finding "lint(logseq): unlinked child reports REQ-262" REQ-262
+assert_report "lint(logseq): bad-paper misses exactly Data and AI use (REQ-261)" \
+  "len([f for f in r['findings'] if f['id'] == 'REQ-261' and f['page'] == 'wiki/papers/bad-paper']) == 2"
+assert_report "lint(logseq): hub-less child reported on the child (REQ-260)" \
+  "len([f for f in r['findings'] if f['id'] == 'REQ-260' and f['page'] == 'wiki/papers/lost/child']) == 1"
+assert_report "lint(logseq): complete hub has no rule-16 findings" \
+  "not [f for f in r['findings'] if f['page'] == 'wiki/papers/good-paper' and f['id'] in ('REQ-260', 'REQ-261', 'REQ-262')]"
+
+# ---------------------------------------------------------------------------
 # setup.sh personal tier (setup REQ-803) + archive_db config key (config
 # REQ-626). setup.sh runs non-interactively here: no init, no pointer.
 # ---------------------------------------------------------------------------
