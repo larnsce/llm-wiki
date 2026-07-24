@@ -126,6 +126,7 @@ The schema is the contract between you and the LLM: page types (Entity, Project,
 - [Testing](docs/testing.md) - Harness, golden transcripts, manual protocol
 - [Source Routes](docs/source-routes.md) - Every source kind, its capture mechanism, pipeline entry, and trust defaults; includes the manual AI-transcript protocol
 - [Website](docs/website.md) - How the documentation site builds and publishes (Quarto, generated reference indexes, GitHub Pages)
+- [Publishing a wiki](docs/publish-wiki.md) - Publish wiki content as a static markdown-first site: the `templates/site/index.html` viewer, the publish boundary, the secret-scan gate; working example in `examples/paper-site/`
 - [Literature Research](docs/literature-research.md) - Pipeline (Connected Papers, Semantic Scholar, Elicit, Zotero) and how the wiki skills fit
 - [Firefox Web-Clipper](docs/web-clipper-firefox.md) - Clip web pages into the `raw/` queue with MarkDownload on macOS
 - [PARA + Zettelkasten workflow](docs/para-notes-workflow.md) - Run `para/` and `notes/` in the same graph; the promotion seam into `wiki/`

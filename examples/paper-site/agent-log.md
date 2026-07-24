@@ -11,7 +11,7 @@ Structured record of every agent interaction that touched this paper's
 namespace. One entry per invocation, append-only. The journal AI-disclosure
 statement is generated from this log rather than reconstructed from memory.
 
-| Date | Skill | Model tier | Sources touched | Pages written | Human confirmations |
+| Date | Skill | Model | Sources touched | Pages written | Human confirmations |
 |------|-------|-----------|-----------------|---------------|---------------------|
 | 2026-06-02 | `wiki-paper` | standard | — | hub scaffold | scaffold approved |
 | 2026-06-11 | `wiki-ingest` | standard | Tilley et al. 2024 (PDF) | [[notes/literature/@tilley2024]], [[wiki/concept/container-based-sanitation]] | 2 page writes confirmed |
