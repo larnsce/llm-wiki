@@ -46,13 +46,13 @@ See [docs/logseq-vs-obsidian.md](logseq-vs-obsidian.md) for the full comparison.
 
 ## Can I ingest my existing notes?
 
-Yes, but not with a single command yet. For now:
-
-1. Run `./setup.sh` to create the schema and namespace structure in a fresh wiki location.
-2. Use `/wiki-ingest <path-to-existing-note>` to process notes one at a time. The LLM extracts entities, fits them into your schema, and creates cross-references.
-3. Iterate — Claude will ask clarifying questions for ambiguous content.
-
-Bulk migration tooling is on the roadmap. For now, ingesting 20-50 notes manually is the common path.
+Yes. `/wiki-ingest --import <path>` pulls notes already written in your
+graph, or a directory of existing markdown notes, into wiki format: same
+write path and quality gate as a normal ingest, but no file move and no
+`source-file::` (your own notes are not external sources). For material
+from outside the graph, `/wiki-ingest <path-or-url>` processes one
+source at a time through the interactive checkpoint. Drain a large
+backlog in batches you can actually review rather than all at once.
 
 ## Can I use this with ChatGPT or Gemini instead of Claude?
 
