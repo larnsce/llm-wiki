@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.7.0] - 2026-07-24
 
 ### Removed
 
@@ -25,6 +25,34 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   stay as frozen regression references.
 
 ### Added
+
+- **One-hop neighbor expansion in `/wiki-query`** (issue #142, v3.7 R-1,
+  query.md REQ-480..485): after the targeted reads, the fully-read pages'
+  outgoing `wiki/` links surface as a ranked, capped `Related:` pointer
+  list after the shared attribution - graph context around the answer at
+  zero extra page budget. Pointers carry their hub routing descriptions
+  and archived flags, are never read in full, and are never Access-Logged.
+  R-2 (`/wiki-query --prime`, issue #143) stays spec-only.
+
+- **Capture sweep template** (issues #141, #154): `scripts/wiki-sweep.sh`
+  and `scripts/com.wiki.sweep.plist`, the launchd sweep that moves phone
+  (iCloud Shortcuts) and desktop-clipper captures into the vault's `raw/`
+  queue. Copy-verify-delete across the iCloud boundary (a plain `mv`
+  deadlocks), force-download of dataless files kept under their normal
+  names, cleanup of failed-copy targets so retries stop minting zero-byte
+  litter, slugified filenames, and companion asset folders moving with
+  their article. The web-clipper guide and the source-routes table point
+  at it.
+
+- **Static site viewer template** (issue #145): `templates/site/index.html`,
+  the Karpathy-style single-file viewer for publishing wiki content - hash
+  routes over raw markdown, both page flavors auto-detected, wikilinks as
+  routes, Logseq `pages/___` layout fallback, visible publish-boundary 404.
+  `docs/publish-wiki.md` documents install, the publish boundary, the
+  `secret_scan.py` publish gate, and the privacy model;
+  `examples/paper-site/` is the working demo (the #145-#148 exploration
+  fixture, merged). Prior-art check recorded: the cognee front end is not
+  a separable static viewer, so the from-scratch file stands.
 
 - **Standalone Zotero guide** (`docs/zotero-getting-started.md`): install,
   account and sync, browser connector, library orientation, local API,
@@ -48,7 +76,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   toolchain never touches it again (namespaces contract unchanged). See
   the new "The project template" section in `docs/para-notes-workflow.md`.
 
-- v3.7 recall canon (issues #142, #143 - spec only, NOT yet implemented):
+- v3.7 recall canon (issues #142, #143; R-1 implemented above, R-2 spec only):
   the two recall features adapted from daniloc/mnemion's `prime` tool and
   one-hop link expansion, translated to the local lexical architecture.
   New `openspec/specs/prime.md` (REQ-1400..1431): `/wiki-query --prime`
