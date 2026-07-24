@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd job for scripts/wiki-sweep.sh (macOS).
+
+  Install:
+    1. Edit the three EDIT THIS paths below: the script location, and one
+       WatchPaths entry per capture folder in the script's SOURCES array
+       (keep them in sync; a source without a WatchPaths entry only sweeps
+       on the 30-minute interval).
+    2. Copy this file to ~/Library/LaunchAgents/com.wiki.sweep.plist
+    3. Load it:  launchctl load ~/Library/LaunchAgents/com.wiki.sweep.plist
+       Reload after edits: launchctl unload ... then launchctl load ...
+    4. Check /tmp/wiki-sweep.log and /tmp/wiki-sweep.err after a test clip.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.wiki.sweep</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <!-- >>> EDIT THIS: absolute path to your copy of wiki-sweep.sh <<< -->
+        <string>/Users/YOURNAME/path/to/wiki-sweep.sh</string>
+    </array>
+
+    <!-- Runs whenever a capture folder changes: one entry per SOURCES line
+         in wiki-sweep.sh (the iCloud phone clips and the desktop browser
+         clipper's ~/Downloads/wiki-raw). -->
+    <key>WatchPaths</key>
+    <array>
+        <!-- >>> EDIT THIS: match the SOURCES array in wiki-sweep.sh <<< -->
+        <string>/Users/YOURNAME/Library/Mobile Documents/iCloud~is~workflow~my~workflows/Documents/wiki-raw-phone</string>
+        <string>/Users/YOURNAME/Downloads/wiki-raw</string>
+    </array>
+
+    <!-- Safety net: also run every 30 minutes in case a watch event is missed -->
+    <key>StartInterval</key>
+    <integer>1800</integer>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/wiki-sweep.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/wiki-sweep.err</string>
+</dict>
+</plist>

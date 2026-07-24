@@ -16,7 +16,7 @@ installed tooling.
 | Source | Capture mechanism | Pipeline entry | Source type | Reliability default | Model tier |
 |---|---|---|---|---|---|
 | Papers, preprints | Zotero, then `/lit-sync` (see `docs/literature-research.md` and `docs/zotero-setup.md`); or drop the PDF/markdown into `raw/` | `raw/<file>` | `papers` | rubric: `high` peer-reviewed, `medium` preprint (schema REQ-586) | sonnet; opus for dense or high-stakes synthesis |
-| Web clippings | MarkDownload in Firefox (`docs/web-clipper-firefox.md`); a symlinked funnel folder into `raw/` works well | `raw/<file>` | `clippings` | rubric: `medium` expert post, `low` anecdotal | sonnet |
+| Web clippings | MarkDownload in Firefox (`docs/web-clipper-firefox.md`); funnel via symlink or the launchd sweep (`scripts/wiki-sweep.sh`) | `raw/<file>` | `clippings` | rubric: `medium` expert post, `low` anecdotal | sonnet |
 | News, blog articles | same clipping funnel | `raw/<file>` | `articles` | rubric: `medium` or `low` | sonnet |
 | R data packages | `data_packages:` in `llm-wiki.yml`, then `/data-sync` (`docs/data-package-workflow.md`) | none: managed dataset pages plus `ingested/data/` snapshots | `data` | managed by `data_pkg_sync.R` (dataset provenance, schema REQ-585d) | haiku for sync runs; sonnet when annotating |
 | Own voice memos | voice pipeline into archive.db (`docs/voice-pipeline.md`), then `/wiki-ingest-voice` | `archive.db:voice_notes/<id>` | capture, not a source | `low`, capture-backed (schema REQ-586b) | sonnet |

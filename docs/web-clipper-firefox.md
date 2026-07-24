@@ -28,9 +28,9 @@ Yes, with one boundary: it can only write **inside the browser's Downloads folde
 To land clips directly in the vault (which lives outside Downloads), bridge the last hop with either:
 
 - **A symlink.** Point `~/Downloads/wiki-raw` at the vault's `raw/` folder. This is the standard macOS solution.
-- **A watch/move step.** A script that watches `~/Downloads/wiki-raw/`, moves new `.md` files into the vault's raw folder, and optionally triggers `/wiki-ingest`.
+- **A sweep job.** The shipped `scripts/wiki-sweep.sh` plus its launchd job `scripts/com.wiki.sweep.plist` watch `~/Downloads/wiki-raw/` as a real folder and move new clips into the vault's `raw/`. On the way in it kebab-cases filenames (so downstream cite refs never contain spaces), moves an article's companion image folder along with it, and also sweeps the iPhone shortcut's iCloud capture folder with the same logic. Each file has `>>> EDIT THIS <<<` markers for the paths; install steps are in the plist's comment header.
 
-The symlink is the tidiest for a git-versioned vault: the clip writes to Downloads, the symlink lands it in `raw/`, and ingest does the transform.
+The symlink is the lighter option when clips are plain single `.md` files and their names are already tidy: the clip writes to Downloads, the symlink lands it in `raw/`, and ingest does the transform. Pick the sweep job when clip titles carry spaces and punctuation, when clips come with image folders, or when a phone capture route should feed the same queue.
 
 ## 3. Step-by-step setup (macOS)
 
