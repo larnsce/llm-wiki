@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.8.0] - 2026-07-24
+
+### Changed
+
+- **Canon example citekey follows the formula** (issue #152, maintainer
+  decision): every `@Forte2022` example became `@forte2022building`,
+  matching the documented Better BibTeX formula's output. The
+  proper-noun casing exemption is carried by `wiki/tools/Claude Code`
+  alone (schema REQ-580b reworded, namespaces REQ-976 scenario checks
+  both leaf kinds). Schema pages seeded from earlier templates keep the
+  old example string; the append-only upgrade never rewrites existing
+  lines.
 
 ### Added
 
