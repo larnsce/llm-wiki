@@ -888,18 +888,14 @@ assert_exit 1 "setup: default install SKIPS wiki-ingest-voice (REQ-803)"
 run test -d "$WORK/tier-default/.claude/skills/wiki-chat-voice"
 assert_exit 1 "setup: default install SKIPS wiki-chat-voice (REQ-803)"
 
-# Agent definitions (REQ-807): installed by default, all four, with model
-# frontmatter intact; --symlink links instead of copying.
-for agent in wiki-triage wiki-audit-verify wiki-audit-judge wiki-synthesize; do
-  run test -f "$WORK/tier-default/.claude/agents/$agent.md"
-  assert_exit 0 "setup: default install includes agents/$agent (REQ-807)"
-done
-run grep -q "^model: haiku" "$WORK/tier-default/.claude/agents/wiki-triage.md"
-assert_exit 0 "setup: installed wiki-triage keeps its model: frontmatter (REQ-807)"
+# No agent definitions ship (REQ-807 retired with model tiering, #108):
+# the install must not create an agents directory.
+run test -e "$WORK/tier-default/.claude/agents"
+assert_exit 1 "setup: default install creates no agents directory (REQ-807 retired)"
 run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-symlink" --symlink
 assert_exit 0 "setup: --symlink install runs clean"
-run test -L "$WORK/tier-symlink/.claude/agents/wiki-triage.md"
-assert_exit 0 "setup: --symlink links agent definitions (REQ-807)"
+run test -L "$WORK/tier-symlink/.claude/skills/wiki-ingest"
+assert_exit 0 "setup: --symlink links skill directories (REQ-802)"
 
 run bash "$REPO_ROOT/setup.sh" --project "$WORK/tier-personal" --with-personal
 assert_exit 0 "setup: --with-personal install runs clean"

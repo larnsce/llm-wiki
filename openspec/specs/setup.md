@@ -155,15 +155,11 @@ skills for Claude Code. It requires only bash, python3, and git.
 - REQ-806: The system SHALL detect a legacy v1 install
   (`.claude/commands/wiki.md`) and offer to remove it, explaining that the file
   keeps working but is unsupported.
-- REQ-807 (agent installation): The install SHALL copy (or symlink, in
-  symlink mode) each repo `agents/*.md` subagent definition into the
-  matching agents directory (`~/.claude/agents/` for a user install,
-  `<project>/.claude/agents/` for a project install), replacing existing
-  files of the same name. The agent definitions carry the model-tier
-  routing (frontmatter `model:`, issue #108); shipped SKILL.md files stay
-  model-neutral, so a user who never installs the agents gets unchanged
-  cost behavior, and skills that name an agent degrade gracefully to a
-  generic subagent when the definition is absent.
+- REQ-807 (retired 2026-07-24): agent installation was removed with the
+  model-tiering machinery (issue #108 kill criterion: freeze at the
+  session model plus manual `/model` escalation). No `agents/` directory
+  ships; skills dispatch generic subagents that inherit the session
+  model. The number is retired, not reused.
 
 ### Step 11: Initial Git Commit
 

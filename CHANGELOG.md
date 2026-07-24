@@ -7,6 +7,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Removed
+
+- **Model tiering** (issue #108, maintainer decision 2026-07-24): the
+  installed agent definitions (`agents/`: wiki-triage, wiki-audit-verify,
+  wiki-audit-judge, wiki-synthesize), the setup.sh install step
+  (setup REQ-807, retired), the queue-triage delegation and complexity
+  routing in `/wiki-ingest` (ingest REQ-076, retired), the named-agent
+  dispatch in `/wiki-audit`, the `agents <names|none>` run-log field
+  (ingest REQ-053; legacy entries stay valid), the `/wiki-maintain`
+  agent-mix line, `docs/model-tiering.md`, and the site's Agents
+  reference. The frozen state is the premortem's own kill outcome:
+  sessions run one model, subagents inherit it, and judgment-heavy work
+  escalates manually via `/model`. The audit's per-source subagent
+  isolation (audit REQ-922) predates tiering and stays. The
+  `tests/golden/fable-baseline/` recordings and the dense-paper fixture
+  stay as frozen regression references.
+
 ### Added
 
 - **Standalone Zotero guide** (`docs/zotero-getting-started.md`): install,

@@ -103,14 +103,6 @@ Phase 3 - Activity:
 - Git log for wiki changes (last 7 days, last 30 days)
 - Most recently updated pages
 - Pages with most incoming links
-- Agent mix (issue #108): over the last 10 Dashboard run-log entries
-  (ingest and audit), count runs by their `agents` field (ingest REQ-053)
-  and report one summary line, e.g.
-  `agent mix (last 10 runs): wiki-triage 4 | wiki-synthesize 1 | none 5`.
-  The field records observable dispatches, not self-reported models; a
-  log with NO `none` entries at all is an anomaly worth checking against
-  the billing dashboard (a silent fallback logs the plan, not the
-  execution). Skip the line when no run-log entry carries the field yet
 
 Phase 4 - Output:
 

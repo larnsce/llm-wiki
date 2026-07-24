@@ -16,7 +16,6 @@ project:
     - openspec/specs/*.md
     - skills/*/SKILL.md
     - skills/*/references/*.md
-    - agents/*.md
 
 website:
   title: llm-wiki
@@ -34,8 +33,6 @@ website:
             href: reference/plain-language.md
       - text: Specs
         href: reference/specs.md
-      - text: Agents
-        href: reference/agents.md
       - text: Articles
         href: reference/articles.md
       - text: News

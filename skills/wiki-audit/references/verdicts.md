@@ -66,9 +66,8 @@ resolve; such a source gets no subagent.
 - One subagent per cited SOURCE, not per claim (REQ-922): a source cited by
   three claims gets one subagent judging all three.
 - Dispatch all subagents in parallel (a single message with one Task tool call
-  per source). Use the `wiki-audit-verify` agent definition when installed
-  (setup REQ-807); a generic subagent with this same prompt template is the
-  fallback.
+  per source), as generic subagents with this prompt template; they
+  inherit the session model.
 - Same underlying work exported twice (citations.md REQ-903) still means two
   subagents here; the ONE-source de-duplication applies to corroboration
   counting in reconciliation, not to verification dispatch.

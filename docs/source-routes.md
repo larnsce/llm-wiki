@@ -3,32 +3,32 @@
 One page answering "I have a thing I want in the wiki; which route does it
 take?" This is the durable decision record from the 2026-07-07 source
 inventory triage (issue #107, premortem-revised): every known source kind,
-its capture mechanism, where it enters the pipeline, and the trust and
-model-tier defaults that apply. Routes that deliberately do not exist are
+its capture mechanism, where it enters the pipeline, and the trust
+defaults that apply. Routes that deliberately do not exist are
 listed at the end so the backlog stops resurfacing.
 
-The model-tier column follows the tier map in issue #108. Until that ships,
-read it as guidance for which sessions to batch the work into, not as
-installed tooling.
+(The former model-tier column was removed with the model-tiering
+machinery, issue #108; sessions run one model, escalated manually with
+`/model` for judgment-heavy work.)
 
 ## The route table
 
-| Source | Capture mechanism | Pipeline entry | Source type | Reliability default | Model tier |
-|---|---|---|---|---|---|
-| Papers, preprints | Zotero, then `/lit-sync` (see `docs/literature-research.md` and `docs/zotero-setup.md`); or drop the PDF/markdown into `raw/` | `raw/<file>` | `papers` | rubric: `high` peer-reviewed, `medium` preprint (schema REQ-586) | sonnet; opus for dense or high-stakes synthesis |
-| Web clippings | MarkDownload in Firefox (`docs/web-clipper-firefox.md`); funnel via symlink or the launchd sweep (`scripts/wiki-sweep.sh`) | `raw/<file>` | `clippings` | rubric: `medium` expert post, `low` anecdotal | sonnet |
-| News, blog articles | same clipping funnel | `raw/<file>` | `articles` | rubric: `medium` or `low` | sonnet |
-| R data packages | `data_packages:` in `llm-wiki.yml`, then `/data-sync` (`docs/data-package-workflow.md`) | none: managed dataset pages plus `ingested/data/` snapshots | `data` | managed by `data_pkg_sync.R` (dataset provenance, schema REQ-585d) | haiku for sync runs; sonnet when annotating |
-| Own voice memos | voice pipeline into archive.db (`docs/voice-pipeline.md`), then `/wiki-ingest-voice` | `archive.db:voice_notes/<id>` | capture, not a source | `low`, capture-backed (schema REQ-586b) | sonnet |
-| Voice memos, revisited in conversation | `/wiki-chat-voice` (issue #117): browse archive.db read-only, converse in-session, one closing ingest | `archive.db:voice_notes/<id>`; the conversation is never a cite target (ingest REQ-1204) | capture, not a source | `low`, capture-backed; discussion adds no evidence | session model for the conversation; haiku for picker digests |
-| Promoted personal notes | copy the note to `raw/note-<name>.md` (promotion seam, `docs/para-notes-workflow.md`) | `raw/note-*.md` | `notes` | `medium`, personal synthesis (schema REQ-586) | sonnet |
-| Own published outputs (blog, papers, talks) | none: stub, do not ingest | none | none | n/a | haiku (stubbing is mechanical) |
-| Book and e-reader highlights (Kindle, KOReader, Readwise) | import the export into Zotero, then the normal paper route | via Zotero | `papers` | per rubric | sonnet |
-| Audio and video actually listened to (podcasts, YouTube, lectures) | obtain or make a transcript, treat it as an article with `canonical-url::` | `raw/<file>` | `articles` | per rubric | sonnet |
-| Newsletters and RSS actually read | clip the read item like any web page | `raw/<file>` | `clippings` | per rubric | sonnet |
-| AI conversation transcripts | curate at export (best: end the session by asking for a decision log), name it `chat-YYYY-MM-DD-<slug>.md`, drop into `raw/` (ingest REQ-1300..1305) | `raw/chat-*.md` | `transcripts` (sensitive by default, REQ-1301: bytes never enter git) | `low`, capture-backed (schema REQ-586b); the user's own decisions `medium` once confirmed per decision (REQ-1302) | sonnet; escalate when the extraction would supersede existing wiki truth |
-| Teaching feedback | manual capture as `raw/note-*.md`; anything with student names needs `sensitive_source_types` handling first | `raw/note-*.md` | `notes` | `medium` | sonnet |
-| Handwritten and physical notes | photo, OCR by hand, then `raw/note-*.md` | `raw/note-*.md` | `notes` | `medium` | haiku intake, sonnet synthesis |
+| Source | Capture mechanism | Pipeline entry | Source type | Reliability default |
+|---|---|---|---|---|
+| Papers, preprints | Zotero, then `/lit-sync` (see `docs/literature-research.md` and `docs/zotero-setup.md`); or drop the PDF/markdown into `raw/` | `raw/<file>` | `papers` | rubric: `high` peer-reviewed, `medium` preprint (schema REQ-586) |
+| Web clippings | MarkDownload in Firefox (`docs/web-clipper-firefox.md`); funnel via symlink or the launchd sweep (`scripts/wiki-sweep.sh`) | `raw/<file>` | `clippings` | rubric: `medium` expert post, `low` anecdotal |
+| News, blog articles | same clipping funnel | `raw/<file>` | `articles` | rubric: `medium` or `low` |
+| R data packages | `data_packages:` in `llm-wiki.yml`, then `/data-sync` (`docs/data-package-workflow.md`) | none: managed dataset pages plus `ingested/data/` snapshots | `data` | managed by `data_pkg_sync.R` (dataset provenance, schema REQ-585d) |
+| Own voice memos | voice pipeline into archive.db (`docs/voice-pipeline.md`), then `/wiki-ingest-voice` | `archive.db:voice_notes/<id>` | capture, not a source | `low`, capture-backed (schema REQ-586b) |
+| Voice memos, revisited in conversation | `/wiki-chat-voice` (issue #117): browse archive.db read-only, converse in-session, one closing ingest | `archive.db:voice_notes/<id>`; the conversation is never a cite target (ingest REQ-1204) | capture, not a source | `low`, capture-backed; discussion adds no evidence |
+| Promoted personal notes | copy the note to `raw/note-<name>.md` (promotion seam, `docs/para-notes-workflow.md`) | `raw/note-*.md` | `notes` | `medium`, personal synthesis (schema REQ-586) |
+| Own published outputs (blog, papers, talks) | none: stub, do not ingest | none | none | n/a |
+| Book and e-reader highlights (Kindle, KOReader, Readwise) | import the export into Zotero, then the normal paper route | via Zotero | `papers` | per rubric |
+| Audio and video actually listened to (podcasts, YouTube, lectures) | obtain or make a transcript, treat it as an article with `canonical-url::` | `raw/<file>` | `articles` | per rubric |
+| Newsletters and RSS actually read | clip the read item like any web page | `raw/<file>` | `clippings` | per rubric |
+| AI conversation transcripts | curate at export (best: end the session by asking for a decision log), name it `chat-YYYY-MM-DD-<slug>.md`, drop into `raw/` (ingest REQ-1300..1305) | `raw/chat-*.md` | `transcripts` (sensitive by default, REQ-1301: bytes never enter git) | `low`, capture-backed (schema REQ-586b); the user's own decisions `medium` once confirmed per decision (REQ-1302) |
+| Teaching feedback | manual capture as `raw/note-*.md`; anything with student names needs `sensitive_source_types` handling first | `raw/note-*.md` | `notes` | `medium` |
+| Handwritten and physical notes | photo, OCR by hand, then `raw/note-*.md` | `raw/note-*.md` | `notes` | `medium` |
 
 ## Route notes
 
@@ -60,9 +60,8 @@ funnel rule and buries the queue.
 ### Read-it-later and bookmark backlogs
 
 Batch-export what you have read into `raw/` as `clippings` and drain with
-`/wiki-ingest --auto` (the checkpoint table still lands in the report). Bulk
-triage of a LARGE backlog waits for the queue-triage agent planned in issue
-#108; until then, drain in small batches you can actually review.
+`/wiki-ingest --auto` (the checkpoint table still lands in the report).
+Drain a LARGE backlog in small batches you can actually review.
 
 ### Teaching feedback and handwritten notes: deliberately informal
 

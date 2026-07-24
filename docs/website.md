@@ -2,7 +2,7 @@
 
 The repo publishes its markdown tree as a Quarto website on GitHub Pages,
 structured like a pkgdown site: Home (the README), a Skills reference, a
-Specs reference, an Agents reference, Articles (this `docs/` directory),
+Specs reference, Articles (this `docs/` directory),
 and News (the CHANGELOG). Nothing is duplicated for the site; the pages
 ARE the repo files, rendered in place.
 
@@ -18,19 +18,20 @@ with a pointer to its standard page.
 
 - `_quarto.yml` at the repo root defines the website project. Its
   `render:` list is an allowlist: only the README-derived homepage,
-  CHANGELOG, CONTRIBUTING, `docs/*.md`, `plain/*.md`, `openspec/specs/*.md`,
-  `skills/*/SKILL.md`, `skills/*/references/*.md`, `agents/*.md`, and the
+  CHANGELOG, CONTRIBUTING, SECURITY, `docs/*.md`, `plain/*.md`,
+  `openspec/specs/*.md`, `skills/*/SKILL.md`,
+  `skills/*/references/*.md`, and the
   generated `reference/*.md` index pages are rendered. `templates/`,
   `tests/`, `prompts/`, and `examples/` are deliberately excluded
   (Logseq-syntax templates and fixture content are not human docs).
 - `tools/build_doc_indexes.py` runs as the Quarto pre-render step and
   generates the pkgdown-style index pages from metadata that already
-  lives in the sources: `reference/skills.md` and `reference/agents.md`
-  from SKILL.md / agent frontmatter (`name`, `description`, `model`),
+  lives in the sources: `reference/skills.md`
+  from SKILL.md frontmatter (`name`, `description`),
   `reference/plain-language.md` from the `plain/*.md` frontmatter
   (`title`, `description`), `reference/specs.md` from each spec's h1 and
   Description paragraph, `reference/articles.md` from the `docs/*.md`
-  h1s, and `index.md` as a copy of the README. All six outputs plus
+  h1s, and `index.md` as a copy of the README. All five outputs plus
   `_site/` and `.quarto/` are gitignored: edit the sources, never the
   generated files.
 - `.github/workflows/publish-site.yml` renders and publishes to the
@@ -56,7 +57,7 @@ quarto render         # full build into _site/
   first `# h1`; all docs, specs, and SKILL.md files carry one.
 - Frontmatter must be strict YAML: a `description:` value containing
   `": "` needs quoting (Claude Code's reader is tolerant, Quarto's is
-  not; the agent definitions are quoted for this reason).
+  not).
 - Relative `.md` links between rendered files are rewritten to `.html`
   automatically. Links INTO unrendered directories (`prompts/`,
   `templates/`) stay raw `.md` and 404 on the site while still working

@@ -13,14 +13,12 @@ metadata, so the indexes can never drift from the content:
                         first sentence of description), linking back to the
                         matching SKILL.md; a skill without a plain page (or
                         a plain page without a skill) is warned on stderr
-- reference/agents.md   one row per agents/*.md (frontmatter name, model,
-                        first sentence of description)
 - reference/specs.md    one row per openspec/specs/*.md (h1 + first
                         Description line)
 - reference/articles.md one row per docs/*.md (h1)
 
 All outputs are generated at build time and gitignored; edit the sources,
-not these files. Stdlib only (the YAML frontmatter of skills and agents
+not these files. Stdlib only (the YAML frontmatter of skills
 is single-line key: value, parsed with a mini-reader, no pyyaml).
 """
 
@@ -166,23 +164,6 @@ def build_skills_plain():
         "| Skill | What it does | Standard page |", rows))
 
 
-def build_agents():
-    rows = []
-    agents_dir = os.path.join(ROOT, "agents")
-    for filename in sorted(os.listdir(agents_dir)):
-        if not filename.endswith(".md"):
-            continue
-        meta = frontmatter(read(os.path.join(agents_dir, filename)))
-        rows.append("| [%s](../agents/%s) | %s | %s |" % (
-            meta.get("name", filename[:-3]), filename,
-            meta.get("model", ""),
-            escape_cell(first_sentence(meta.get("description", "")))))
-    write("reference/agents.md", page(
-        "Agents", "Subagent definitions installed by setup.sh; they carry "
-        "the model-tier routing (see the model-tiering article).",
-        "| Agent | Model | Description |", rows))
-
-
 def build_specs():
     rows = []
     specs_dir = os.path.join(ROOT, "openspec", "specs")
@@ -228,7 +209,6 @@ def main():
     build_home()
     build_skills()
     build_skills_plain()
-    build_agents()
     build_specs()
     build_articles()
     return 0
