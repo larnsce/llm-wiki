@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
 # llm-wiki installer (v2).
 #
-# Thin by design. It does five things:
+# Thin by design. It does four things:
 #   1. copies or symlinks the skills/wiki-* directories into a Claude Code
 #      skills directory (user-level by default, project-level with --project)
 #   2. copies the repo's .claude/commands/*.md slash commands into the
 #      matching commands directory, rewriting relative scripts/ and docs/
 #      references to this checkout's absolute paths (REQ-804), so /lit-sync
 #      and /data-sync work from any directory
-#   3. copies or symlinks the agents/*.md subagent definitions into the
-#      matching agents directory (REQ-807); they carry the model-tier
-#      routing (docs/model-tiering.md), and skills degrade gracefully to
-#      generic subagents when they are absent
-#   4. optionally scaffolds a wiki by delegating to
+#   3. optionally scaffolds a wiki by delegating to
 #      skills/wiki-core/scripts/init_wiki.py (no page logic lives here)
-#   5. optionally writes the global pointer file
+#   4. optionally writes the global pointer file
 #      ~/.config/llm-wiki/config.yml so config discovery works from anywhere
 #
 # Beyond the path substitution in step 2 it patches no files during install:
@@ -247,36 +243,6 @@ if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
     echo ""
 fi
 
-# ----- Step 1c: Install subagent definitions (REQ-807) -----
-
-if [ -n "$PROJECT" ]; then
-    AGENTS_DEST="$PROJECT/.claude/agents"
-else
-    AGENTS_DEST="$HOME/.claude/agents"
-fi
-
-if [ -d "$SCRIPT_DIR/agents" ]; then
-    mkdir -p "$AGENTS_DEST"
-    echo "Installing agents into $AGENTS_DEST ($LINK_MODE mode):"
-    for src in "$SCRIPT_DIR"/agents/*.md; do
-        [ -f "$src" ] || continue
-        name="$(basename "$src")"
-        dest="$AGENTS_DEST/$name"
-        replaced=""
-        if [ -e "$dest" ] || [ -L "$dest" ]; then
-            rm -f "$dest"
-            replaced=" (replaced existing)"
-        fi
-        if [ "$LINK_MODE" = "symlink" ]; then
-            ln -s "$src" "$dest"
-        else
-            cp "$src" "$dest"
-        fi
-        echo "  ${name%.md} -> $dest$replaced"
-    done
-    echo ""
-fi
-
 # ----- Step 2: Legacy v1 detection (REQ-806) -----
 
 check_legacy() {
@@ -441,9 +407,6 @@ echo ""
 echo "Skills installed: $SKILLS_DEST"
 if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
     echo "Commands installed: $COMMANDS_DEST (/lit-sync, /data-sync, ...)"
-fi
-if [ -d "$SCRIPT_DIR/agents" ]; then
-    echo "Agents installed:   $AGENTS_DEST (model-tier routing, docs/model-tiering.md)"
 fi
 if [ "$INIT_RAN" = 1 ]; then
     echo "Wiki scaffolded:  $WIKI_PATH"

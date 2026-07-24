@@ -50,7 +50,7 @@ inspired by CPU memory hierarchies.
 | Spec | Covers |
 |------|--------|
 | specs/ingest.md | /wiki-ingest - source processing pipeline, interactive checkpoint, source pipeline, secret gate |
-| specs/query.md | /wiki-query - two-stage retrieval, synthesis, write-back, Access-Log; one-hop neighbor section (v3.7, not yet implemented) |
+| specs/query.md | /wiki-query - two-stage retrieval, synthesis, write-back, Access-Log; one-hop neighbor section (v3.7) |
 | specs/lint.md | /wiki-lint - 12 automated health checks with auto-fix |
 | specs/prune.md | /wiki-maintain prune - LRU-Demote index eviction |
 | specs/schema.md | Page types, properties, validation, format rules, provenance |

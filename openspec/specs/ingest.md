@@ -158,15 +158,10 @@ A single ingest run targets 5-15 page touches (creates + updates + hub updates).
 - REQ-052: The system SHOULD recommend a git commit after structural changes.
 - REQ-053 (run log): The system SHALL append a run-log entry to the Dashboard
   page:
-  `## [YYYY-MM-DD] ingest | <filename or n sources> -> <n> pages | reliability <level> | mode <interactive|auto> | agents <names|none>`.
-  The `agents` field records which installed agent definitions
-  (specs/setup.md REQ-807) were actually DISPATCHED during the run
-  (comma-separated names, e.g. `wiki-triage, wiki-synthesize`), or `none`.
-  It is an observable dispatch record, NEVER a self-reported model id: the
-  executing model cannot introspect its own id, and a silent fallback
-  (agents not installed, allowlist, inherit) would log the plan instead of
-  the execution (issue #108). The field is additive; legacy entries without
-  it stay valid.
+  `## [YYYY-MM-DD] ingest | <filename or n sources> -> <n> pages | reliability <level> | mode <interactive|auto>`.
+  The former trailing `agents <names|none>` field was retired with the
+  model-tiering machinery (issue #108, removed 2026-07-24); legacy
+  entries that carry it stay valid.
 
 ### Cross-Cutting
 
@@ -224,21 +219,13 @@ or assign `source-file::`.
   each processed source from `raw_dir` to `ingested_dir/<type>/<filename>`. The new location
   MUST match what `source-file::` records. The page edits AND the file move SHALL be staged
   and committed as ONE atomic commit.
-- REQ-076 (Phase 0, queue triage delegation): When draining a MULTI-file queue
-  AND the `wiki-triage` agent definition is installed (specs/setup.md
-  REQ-807), the system SHOULD delegate per-file classification to it: the
-  proposed intake slug (REQ-070a), the inferred type (REQ-071), and a
-  COMPLEXITY FLAG with a one-line reason. The caller SHALL hand the agent the
-  hub-index routing lines and the Schema page list as context; the flag
-  SHALL rest only on QUEUE-DECIDABLE triggers (source length, source type,
-  another queue item or `ingested/` source on the same topic, the topic
-  mapping to a hub or Schema page itself, or the agent's own low
-  confidence). Wiki-state judgments (supersedes existing content, conflicts
-  with existing claims) stay at the checkpoint, which reads the wiki
-  (issue #108 premortem). Flagged items SHOULD route their Phase 1-2
-  analysis to the `wiki-synthesize` agent when installed. Single-source
-  runs are unchanged, and a missing agent definition degrades to inline
-  classification; the triage pass never writes.
+- REQ-076 (retired 2026-07-24): queue triage delegation to installed
+  agent definitions (`wiki-triage` classification, `wiki-synthesize`
+  analysis routing) was removed with the model-tiering machinery
+  (issue #108 kill criterion). Queue drains classify inline: the
+  proposed intake slug (REQ-070a) and the inferred type (REQ-071) are
+  produced in-session, and wiki-state judgments stay at the checkpoint,
+  which reads the wiki. The number is retired, not reused.
 
 ### Journal Seam
 
@@ -416,9 +403,8 @@ STAGING: this section takes effect with the wiki-chat-voice skill
   generated AT RUN TIME for the rows shown, and only those; they MUST NOT be
   persisted anywhere: `voice_notes` is frozen at six columns (storage
   REQ-1111), archive.db holds raw capture only (REQ-1110), and index.db
-  admits nothing without a markdown source (REQ-1132). Digest generation
-  SHOULD dispatch to the haiku-tier triage agent when installed (setup
-  REQ-807) and degrades to inline generation without it.
+  admits nothing without a markdown source (REQ-1132). Digests are
+  generated inline in the session.
 - REQ-1201 (interactive only): A conversation session is interactive by
   nature; there is NO `--auto` path (mirroring REQ-081). When `--auto` is
   passed the system SHALL state that and continue interactively.

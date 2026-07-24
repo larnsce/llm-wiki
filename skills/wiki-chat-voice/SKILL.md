@@ -108,10 +108,7 @@ same conservative, confirm-everything ingest discipline as wiki-ingest-voice.
   `WHERE processed = 0`; combine with AND. More than 20 matches: paginate
   on request (`LIMIT 20 OFFSET n`), never dump the whole archive.
 - Enrich the deterministic rows into the picker table: one-line description
-  and 3-5 keywords per row shown. Dispatch the digest batch to the
-  `wiki-triage` agent when installed (setup REQ-807; the haiku tier fits
-  one-line summarization) - hand it only id + transcript, get back
-  `id | description | keywords`; without the agent, digest inline. Digests
+  and 3-5 keywords per row shown, digested inline. Digests
   are ephemeral: never written to any file or database (REQ-1200).
 - Present the picker (`file` is the original filename, the basename of
   `audio_path` derived at display time - the human-recognizable handle back
@@ -233,7 +230,7 @@ present ONE checkpoint:
   retained-in-transcript count (categories only, never the content), TODOs
   handed over, flips applied vs declined, gate findings.
 - Run log entry on the Dashboard page:
-  `## [YYYY-MM-DD] chat-voice | <n> notes discussed -> journal + <m> pages | mode interactive | agents <names|none>`
-  (the `agents` field records dispatched agent definitions per ingest
-  REQ-053, e.g. `wiki-triage` when it generated the digests, or `none`).
+  `## [YYYY-MM-DD] chat-voice | <n> notes discussed -> journal + <m> pages | mode interactive`
+  (legacy entries with a trailing `agents <...>` field stay valid; the
+  field is retired, ingest REQ-053).
 </workflow>

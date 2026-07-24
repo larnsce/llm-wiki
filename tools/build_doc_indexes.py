@@ -7,15 +7,18 @@ metadata, so the indexes can never drift from the content:
 
 - index.md            copy of README.md (the site homepage)
 - reference/skills.md   one row per skills/*/SKILL.md (frontmatter name +
-                        first sentence of description)
-- reference/agents.md   one row per agents/*.md (frontmatter name, model,
-                        first sentence of description)
+                        first sentence of description), with a link to the
+                        skill's plain/ page when one exists
+- reference/plain-language.md  one row per plain/*.md (frontmatter title +
+                        first sentence of description), linking back to the
+                        matching SKILL.md; a skill without a plain page (or
+                        a plain page without a skill) is warned on stderr
 - reference/specs.md    one row per openspec/specs/*.md (h1 + first
                         Description line)
 - reference/articles.md one row per docs/*.md (h1)
 
 All outputs are generated at build time and gitignored; edit the sources,
-not these files. Stdlib only (the YAML frontmatter of skills and agents
+not these files. Stdlib only (the YAML frontmatter of skills
 is single-line key: value, parsed with a mini-reader, no pyyaml).
 """
 
@@ -43,17 +46,31 @@ def write(rel, text):
 
 
 def frontmatter(text):
-    """Single-line `key: value` pairs between --- fences."""
+    """Single-line `key: value` pairs between --- fences. A folded or
+    literal block scalar (`key: >-` etc.) is joined into one line."""
     if not text.startswith("---"):
         return {}
     body = text.split("---", 2)
     if len(body) < 3:
         return {}
     fields = {}
-    for line in body[1].splitlines():
-        match = re.match(r"^([A-Za-z][\w-]*):\s*(.+)$", line)
-        if match:
-            fields[match.group(1)] = match.group(2).strip()
+    lines = body[1].splitlines()
+    i = 0
+    while i < len(lines):
+        match = re.match(r"^([A-Za-z][\w-]*):\s*(.*)$", lines[i])
+        i += 1
+        if not match:
+            continue
+        value = match.group(2).strip()
+        if value in (">", ">-", ">+", "|", "|-", "|+"):
+            block = []
+            while i < len(lines) and (not lines[i].strip()
+                                      or lines[i].startswith(" ")):
+                block.append(lines[i].strip())
+                i += 1
+            value = " ".join(part for part in block if part)
+        if value:
+            fields[match.group(1)] = value
     return fields
 
 
@@ -83,39 +100,68 @@ def page(title, description, rows_header, rows):
     return "\n".join(lines)
 
 
+def skill_names():
+    skills_dir = os.path.join(ROOT, "skills")
+    return [name for name in sorted(os.listdir(skills_dir))
+            if os.path.isfile(os.path.join(skills_dir, name, "SKILL.md"))]
+
+
+def has_plain_page(name):
+    return os.path.isfile(os.path.join(ROOT, "plain", "%s.md" % name))
+
+
 def build_skills():
     rows = []
-    skills_dir = os.path.join(ROOT, "skills")
-    for name in sorted(os.listdir(skills_dir)):
-        skill_md = os.path.join(skills_dir, name, "SKILL.md")
-        if not os.path.isfile(skill_md):
-            continue
-        meta = frontmatter(read(skill_md))
-        rows.append("| [%s](../skills/%s/SKILL.md) | %s |" % (
+    for name in skill_names():
+        meta = frontmatter(read(
+            os.path.join(ROOT, "skills", name, "SKILL.md")))
+        if has_plain_page(name):
+            plain_cell = "[in plain language](../plain/%s.md)" % name
+        else:
+            plain_cell = ""
+            print("build_doc_indexes: WARNING skills/%s has no "
+                  "plain/%s.md page" % (name, name), file=sys.stderr)
+        rows.append("| [%s](../skills/%s/SKILL.md) | %s | %s |" % (
             meta.get("name", name), name,
-            escape_cell(first_sentence(meta.get("description", "")))))
+            escape_cell(first_sentence(meta.get("description", ""))),
+            plain_cell))
     write("reference/skills.md", page(
-        "Skills", "The skill suite, one entry per installed skill. Each "
-        "page is the skill's own SKILL.md: the instructions the model "
-        "executes, published verbatim.",
-        "| Skill | Description |", rows))
+        "Skills", "The skill suite, one entry per installed skill. Every "
+        "skill has two pages. The page in the Skill column is the skill's "
+        "own SKILL.md, the instructions the model runs, published word for "
+        "word. The page in the last column explains the same skill in "
+        "plain language, written for people.",
+        "| Skill | Description | Plain language |", rows))
 
 
-def build_agents():
+def build_skills_plain():
     rows = []
-    agents_dir = os.path.join(ROOT, "agents")
-    for filename in sorted(os.listdir(agents_dir)):
+    names = skill_names()
+    plain_dir = os.path.join(ROOT, "plain")
+    filenames = sorted(os.listdir(plain_dir)) if os.path.isdir(
+        plain_dir) else []
+    for filename in filenames:
         if not filename.endswith(".md"):
             continue
-        meta = frontmatter(read(os.path.join(agents_dir, filename)))
-        rows.append("| [%s](../agents/%s) | %s | %s |" % (
-            meta.get("name", filename[:-3]), filename,
-            meta.get("model", ""),
-            escape_cell(first_sentence(meta.get("description", "")))))
-    write("reference/agents.md", page(
-        "Agents", "Subagent definitions installed by setup.sh; they carry "
-        "the model-tier routing (see the model-tiering article).",
-        "| Agent | Model | Description |", rows))
+        name = filename[:-3]
+        if name not in names:
+            print("build_doc_indexes: WARNING plain/%s matches no "
+                  "skills/%s/SKILL.md" % (filename, name), file=sys.stderr)
+        meta = frontmatter(read(os.path.join(plain_dir, filename)))
+        rows.append("| [%s](../plain/%s) | %s | [SKILL.md](../skills/%s/SKILL.md) |" % (
+            name, filename,
+            escape_cell(first_sentence(meta.get("description", ""))),
+            name))
+    # Not "skills-plain.md": Quarto reserves <stem>-plain.md as the markdown
+    # engine's intermediate name for an input <stem>.md and silently drops
+    # such files from the project inputs, so that name would never render.
+    write("reference/plain-language.md", page(
+        "Skills in plain language",
+        "Every skill explained in plain language, one page per skill. "
+        "The pages in the Skill column are written for people. The last "
+        "column links the standard page, the exact instructions the model "
+        "runs.",
+        "| Skill | What it does | Standard page |", rows))
 
 
 def build_specs():
@@ -162,7 +208,7 @@ def build_home():
 def main():
     build_home()
     build_skills()
-    build_agents()
+    build_skills_plain()
     build_specs()
     build_articles()
     return 0

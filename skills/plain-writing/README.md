@@ -2,7 +2,7 @@
 
 A writing-style skill by Shreya Shankar, vendored from
 https://github.com/shreyashankar/plain-writing-skill
-(commit `25a5393`, 2026-07-16, MIT license — see `LICENSE`).
+(commit `25a5393`, 2026-07-16, MIT license; see `LICENSE`).
 
 It makes the agent write prose in a plain style: simple everyday words,
 complete sentences, no dashes, no jargon, no analogies, no filler. The rules
