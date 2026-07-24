@@ -484,12 +484,19 @@ def main():
     try:
         row = con.execute("SELECT id FROM voice_notes WHERE audio_path = ?",
                           (str(dest),)).fetchone()
-        if row:
+        if row and not dest.exists():
             # A previous run inserted the row but died before the move:
             # finish the move, insert nothing.
             shutil.move(str(src), str(dest))
             print(f"row {row[0]} already exists for {dest.name}; audio moved")
             return
+        if dest.exists():
+            # iOS reuses "New Recording NN" names after deletions, and the
+            # archive must never overwrite a recording another row owns
+            # (issue #156). Keep both: suffix the newcomer and insert it
+            # as its own row, mirroring the wiki-sweep collision rule.
+            stamp = int(datetime.datetime.now().timestamp())
+            dest = COLD / f"{src.stem}-{stamp}{src.suffix}"
         recorded_at = recorded_at_iso(src)
         dur = duration_seconds(src)
         transcript = transcribe(src)

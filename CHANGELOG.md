@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Voice inbox mover no longer overwrites archived audio** (issue
+  #156). iOS reuses "New Recording NN" names after deletions; the
+  insert script archived to `COLD / src.name` unconditionally, and its
+  resume branch (row exists for that path) moved the NEW file over the
+  OLD row's audio and skipped the insert, so a reused-name recording
+  destroyed the archived audio AND was never transcribed. Now the
+  resume branch only fires when the destination is absent (a genuinely
+  died-before-move run), and a name collision suffixes the newcomer
+  with a timestamp and inserts it as its own row, mirroring the
+  wiki-sweep collision rule. Reference script in
+  `docs/voice-pipeline.md` and the live copy both updated; verified
+  end to end with stubbed transcription (collision keeps both
+  recordings and both rows; resume still completes without a
+  duplicate row).
+
 ## [3.9.0] - 2026-07-24
 
 ### Fixed
